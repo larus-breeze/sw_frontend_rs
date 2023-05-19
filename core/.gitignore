@@ -1,0 +1,6 @@
+Cargo.lock
+/device/pc/target
+/device/stm32f412-disco/target
+/device/stm32f412-disco/.vscode/.cortex-debug*
+/device/ad57/target
+/device/ad57/.vscode/.cortex-debug*

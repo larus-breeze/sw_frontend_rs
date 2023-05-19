@@ -1,0 +1,4 @@
+/core/target
+/device/stm32f412-disco/target
+/device/ad57/target
+/device/pc/target

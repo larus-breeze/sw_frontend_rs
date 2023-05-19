@@ -1,0 +1,17 @@
+[package]
+name = "vario_display"
+version = "0.1.0"
+edition = "2021"
+publish = false
+license = "MIT OR Apache-2.0"
+
+[dependencies]
+embedded-graphics = "0.7.0"
+micromath = { version = "1.1.0", default-features = false }
+cortex-m = { version = "0.7", features = ["critical-section-single-core"]}
+defmt = "0.3"
+
+[features]
+# Use knurling tools to log data
+defmt = []
+display_size_240x240 = []
