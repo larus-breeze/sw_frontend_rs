@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"path": "device/ad57_rtic"
+		},
+		{
+			"path": "core"
+		}
+	],
+	"settings": {
+		"cortex-debug.variableUseNaturalFormat": true
+	}
+}

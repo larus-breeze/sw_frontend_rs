@@ -18,14 +18,14 @@ impl Blackboard {
     #[allow(unused)]
     pub fn new() -> Self {
         Blackboard {
-            climb_rate: 0.0,
-            average_climb_rate: 0.0,
-            wind_angle: 0.0.deg(),
-            wind_speed: 0.0,
-            average_wind_angle: 0.0.deg(),
-            average_wind_speed: 0.0,
-            speed_to_fly_dif: 0.0,
-            mc_cready: 0.0,
+            climb_rate: 1.7,
+            average_climb_rate: 1.1,
+            wind_angle: 66.0.deg(),
+            wind_speed: 18.0,
+            average_wind_angle: 80.0.deg(),
+            average_wind_speed: 15.0,
+            speed_to_fly_dif: 3.0,
+            mc_cready: 0.7,
         
         }
     }

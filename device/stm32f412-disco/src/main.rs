@@ -27,6 +27,8 @@ use vario_display::*;
 use embedded_graphics::prelude::*;
 
 use embedded_hal::blocking::delay::DelayUs;
+use cortex_m::peripheral::DWT;
+
 
 pub fn main(
     display: &mut driver::Display<stm32f4xx_hal::fsmc_lcd::Lcd<stm32f4xx_hal::fsmc_lcd::SubBank1>, stm32f4xx_hal::gpio::Pin<stm32f4xx_hal::gpio::Output<stm32f4xx_hal::gpio::PushPull>, 'D', 11>, core::convert::Infallible>,
@@ -46,10 +48,15 @@ pub fn main(
     let mut vario = VarioDisplay::new();
 
     vario.draw(display, &blackboard).unwrap();
+    defmt::println!("Hello F412");
 
     loop {
         vario.draw(display, &blackboard).unwrap();
         display.flush().unwrap();
+
+        let old = DWT::cycle_count();
         delay.delay_us(1000_000_u32);
+        let new = DWT::cycle_count();
+        defmt::println!("CycleCnt {}", new - old);
     } /**/
 }

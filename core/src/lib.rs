@@ -3,8 +3,10 @@ mod blackboard;
 pub use blackboard::Blackboard;
 
 mod view;
-pub use view::colors::Colors;
-pub use view::rgb565_colors::RGB565_COLORS;
+pub use view::{
+    colors::Colors,
+    rgb565_colors::RGB565_COLORS,
+};
 
 pub(crate) mod fmt;
 
@@ -14,44 +16,31 @@ use embedded_graphics::{mono_font::
     }, 
     prelude::*, 
     primitives::{Circle, Line, Triangle, PrimitiveStyle}, text::Text,
-    geometry::{Angle, AngleUnit}
+    geometry::{Angle, AngleUnit},
+    //primitives::{Rectangle, PrimitiveStyleBuilder},
 };
 #[allow(unused_imports)]
 use micromath::F32Ext;
 
 
-#[cfg(feature = "defmt")]
-use cortex_m::peripheral::DWT;
+#[cfg(not(any(feature = "display_size_227x285")))]
+pub const DISPLAY_WIDTH: u32 = 227;
+#[cfg(not(any(feature = "display_size_227x285")))]
+pub const DISPLAY_HEIGHT: u32 = 285;
 
-#[cfg(feature = "defmt")]
-fn msec_tick() -> u32 {
-    DWT::cycle_count() / 100_000
-}
+#[cfg(feature = "display_size_227x285")]
+pub const DISPLAY_WIDTH: u32 = 227;
+#[cfg(feature = "display_size_227x285")]
+pub const DISPLAY_HEIGHT: u32 = 285;
 
-#[cfg(not(feature = "defmt"))]
-fn msec_tick() -> u32 {
-    0
-}
-
-#[cfg(not(any(feature = "display_size_240x240")))]
-pub const DISPLAY_WIDTH: u32 = 240;
-#[cfg(not(any(feature = "display_size_240x240")))]
-pub const DISPLAY_HEIGHT: u32 = 240;
-
-#[cfg(feature = "display_size_240x240")]
-pub const DISPLAY_WIDTH: u32 = 240;
-#[cfg(feature = "display_size_240x240")]
-pub const DISPLAY_HEIGHT: u32 = 240;
-
-
-
-const DIAMETER: u32 = DISPLAY_HEIGHT;
+const MARGIN: i32 = 2;
+const DIAMETER: u32 = DISPLAY_HEIGHT - 2*MARGIN as u32;
 const RADIUS: u32 = DIAMETER / 2;
-const CENTER: Point = Point::new(RADIUS as i32, RADIUS as i32);
+const CENTER: Point = Point::new(RADIUS as i32 + MARGIN, RADIUS as i32 + MARGIN);
 
 const STROKE_LEN: u32 = 18;
 const STROKE_WIDTH: u32 = 3;
-const STROKE_TEXT_POS: u32 = 30;
+const STROKE_TEXT_POS: u32 = 33;
 const STROKE_FONT: MonoFont = FONT_10X20;
 const STROKE_FONT_OFF_X: i32 = -5;
 const STROKE_FONT_OFF_Y: i32 = 6;
@@ -62,6 +51,9 @@ const INDICATOR_WIDTH: u32 = 5;
 const SPEED_TO_FLY_X: i32 = 200;
 const SPEED_TO_FLY_Y: i32 = (DISPLAY_HEIGHT / 2) as i32;
 const SPEED_TO_FLY_WIDTH: i32 = 20;
+
+const MC_WIDTH: f32 = 0.14;
+const MC_LEN: u32 = 15;
 
 const WIND_X: i32 = 90;
 const WIND_DELTA_Y: i32 = 15;
@@ -74,7 +66,7 @@ const WIND_COLOR: Colors = Colors::Magenta;
 const AVERAGE_WIND_COLOR: Colors = Colors::Blue;
 const SPEED_TO_FLY_COLOR: Colors = Colors::Coral;
 const MC_READY_COLOR: Colors = Colors::Red;
-const STROKE_COLOR: Colors = Colors::Lightgrey;
+const STROKE_COLOR: Colors = Colors::Darkgrey;
 const BACKGROUND: Colors = Colors::Black;
 
 const WALLPAPER_SCALE: [(f32, &str); 11] = [
@@ -137,7 +129,7 @@ where
     
     display.clear(BACKGROUND)?;
 
-    Circle::new(Point::new(0, 0), DIAMETER)
+    Circle::new(Point::new(MARGIN, MARGIN), DIAMETER)
         .into_styled(PrimitiveStyle::with_stroke(STROKE_COLOR, 1))
         .draw(display)?;
 
@@ -233,9 +225,9 @@ fn draw_mc_ready<D>(display: &mut D, value: f32, color: Colors) -> Result<(), D:
 where
     D: DrawTarget<Color = Colors>,
 {
-    let p1 = vario_coord(vario_angle(value + 0.1), RADIUS as f32);
-    let p2 = vario_coord(vario_angle(value - 0.1), RADIUS as f32);
-    let p3 = vario_coord(vario_angle(value), (RADIUS - 10)  as f32);
+    let p1 = vario_coord(vario_angle(value + MC_WIDTH), RADIUS as f32);
+    let p2 = vario_coord(vario_angle(value - MC_WIDTH), RADIUS as f32);
+    let p3 = vario_coord(vario_angle(value), (RADIUS - MC_LEN)  as f32);
     Triangle::new(p1, p2, p3)
         .into_styled(PrimitiveStyle::with_fill(color))
         .draw(display)?;
@@ -253,34 +245,38 @@ impl VarioDisplay {
     where
         D: DrawTarget<Color=Colors>
     {
-        let before_all = msec_tick();
         draw_wallpaper(display)?;
-        trace!("Wallpaper {=u32} ms", msec_tick() - before_all);
 
-
-        let before = msec_tick();
         draw_speed_to_fly(display, data.speed_to_fly_dif, SPEED_TO_FLY_COLOR)?;
         draw_mc_ready(display, data.mc_cready, MC_READY_COLOR)?;
-        trace!("Speed, McCready {=u32} ms", msec_tick() - before);
 
-        let before = msec_tick();
         draw_vario_indicator(display, data.average_climb_rate, AVERAGE_CLIMB_COLOR)?;
         draw_vario_indicator(display, data.climb_rate, VARIO_COLOR)?;
-        trace!("Vario Indicators {=u32} ms", msec_tick() - before);
 
         // draw wind indicators and text
-        let before = msec_tick();
         draw_wind(display, data.average_wind_speed, data.average_wind_angle, AVERAGE_WIND_COLOR)?;
         draw_wind(display, data.wind_speed, data.wind_angle, WIND_COLOR)?;
-        trace!("Wind {=u32} ms", msec_tick() - before);
 
-        let before = msec_tick();
         let text = "60° 25 km/h";
         let upper = data.average_wind_angle < 90.0.deg() || data.average_wind_angle > 270.0.deg();
-        let r=draw_wind_text(display, &text, upper);
-        trace!("Wind Text {=u32} ms", msec_tick() - before);
-
-        trace!("All {=u32} ms", msec_tick() - before_all);
-        r
+        draw_wind_text(display, &text, upper)
     }
 }
+    /*pub fn draw<D>(&mut self, display: &mut D, data: &Blackboard) -> Result<(), <D as DrawTarget>::Error>
+    where
+        D: DrawTarget<Color=Colors>
+    {
+        display.clear(Colors::Black)?;
+
+        let style = PrimitiveStyleBuilder::new()
+            .stroke_color(Colors::Red)
+            .stroke_width(3)
+            .fill_color(Colors::Green)
+        .build();
+
+        Rectangle::new(Point::new(30, 30), Size::new(50, 50))
+            .into_styled(style)
+            .draw(display)?;
+        Ok(())
+
+    }}*/
