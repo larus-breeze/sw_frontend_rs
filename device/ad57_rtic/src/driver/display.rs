@@ -104,8 +104,7 @@ where
     RST: OutputPin<Error = PinE>,
 {
     type Color = Colors;
-    // `Display` uses a Display and doesn't need to communicate with the display
-    // controller to draw pixel, which means that drawing operations can never fail. To reflect
+    // The drawing operations can never fail. To reflect
     // this the type `Infallible` was chosen as the `Error` type.
     type Error = core::convert::Infallible;
 

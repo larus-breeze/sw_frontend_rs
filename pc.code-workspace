@@ -4,8 +4,10 @@
 			"path": "device/pc"
 		},
 		{
-			"path": "core"
+			"path": "."
 		}
 	],
-	"settings": {}
+	"settings": {
+		"rust-analyzer.showUnlinkedFileNotification": false
+	}
 }

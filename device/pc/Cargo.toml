@@ -6,12 +6,12 @@ publish = false
 license = "GPL3"
 
 [dependencies]
-embedded-graphics = "0.7.0"
-embedded-graphics-simulator = "0.3.0"
+embedded-graphics = "0.8.0"
+embedded-graphics-simulator = "0.5.0"
 micromath = { version = "1.1.0", default-features = false }
 rand = "0.8"
 ringbuffer = "0.8"
 
 [dependencies.vario_display]
 path = "../../core"
-features = ["display_size_240x240"]
+features = ["display_size_227x285"]

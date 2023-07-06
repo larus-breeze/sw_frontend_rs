@@ -79,7 +79,7 @@ mod app {
     fn blink(cx: blink::Context) {
         trace!("blink");
         if *cx.local.state {
-            let model = Blackboard::new();
+            let model = CoreModel::new();
             let mut vario = VarioDisplay::new();
             let _ = vario.draw(cx.local.display, &model);
             //let _ = cx.local.display.flush();
