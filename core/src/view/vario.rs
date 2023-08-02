@@ -80,13 +80,13 @@ const WIND_MIN: f32 = 10.0; // 10 km/h
 const WIND_MAX: f32 = 30.0; // 30 km/h
 
 // Predefined (background) images
-const GLIDER: &[u8] = include_bytes!("../../assets/glider227.lif");
-const COMPASS: &[u8] = include_bytes!("../../assets/compass227.lif");
-const WALLPAPER: &[u8] = include_bytes!("../../assets/vario_wallpaper227.lif");
-const SPIRAL: &[u8] = include_bytes!("../../assets/spiral227.lif");
-const STRAIGHT: &[u8] = include_bytes!("../../assets/straight227.lif");
-const KM_H: &[u8] = include_bytes!("../../assets/km_h.lif");
-const M_S: &[u8] = include_bytes!("../../assets/m_s.lif");
+const GLIDER: &[u8] = include_bytes!("../../assets/size_227x285/glider.lif");
+const COMPASS: &[u8] = include_bytes!("../../assets/size_227x285/compass.lif");
+const WALLPAPER: &[u8] = include_bytes!("../../assets/size_227x285/vario_wallpaper.lif");
+const SPIRAL: &[u8] = include_bytes!("../../assets/size_227x285/spiral.lif");
+const STRAIGHT: &[u8] = include_bytes!("../../assets/size_227x285/straight.lif");
+const KM_H: &[u8] = include_bytes!("../../assets/size_227x285/km_h.lif");
+const M_S: &[u8] = include_bytes!("../../assets/size_227x285/m_s.lif");
 
 // These are precalculated coordinates to draw the numbers on the display
 // see /assets/create_wallpaper_vario.py

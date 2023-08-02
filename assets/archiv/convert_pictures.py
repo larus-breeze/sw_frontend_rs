@@ -51,10 +51,10 @@ def gen_type_1(in_file, out_file, color_dict, ofs_x=0, ofs_y=0):
 DARK_GRAY = 24
 YELLOW = 137
 
-gen_type_1("assets/size_227x285/glider.png", "core/assets/size_227x285/glider.lif", {0: DARK_GRAY}, 67, 117)
-gen_type_1("assets/size_227x285/north.png", "core/assets/size_227x285/compass.lif", {0: DARK_GRAY}, 71, 53)
-gen_type_1("assets/size_227x285/spiral.png", "core/assets/size_227x285/spiral.lif", {0: DARK_GRAY})
-gen_type_1("assets/size_227x285/straight.png", "core/assets/size_227x285/straight.lif", {0: DARK_GRAY})
-gen_type_1("assets/size_227x285/vario_wallpaper.png", "core/assets/size_227x285/vario_wallpaper.lif", {0: DARK_GRAY})
-gen_type_1("assets/size_227x285/km_h.png", "core/assets/size_227x285/km_h.lif", {0: DARK_GRAY})
-gen_type_1("assets/size_227x285/m_s.png", "core/assets/size_227x285/m_s.lif", {0: DARK_GRAY})
+gen_type_1("assets/size_227x285/glider.png", "core/assets/glider227.lif", {0: DARK_GRAY}, 67, 117)
+gen_type_1("assets/size_227x285/north.png", "core/assets/compass227.lif", {0: DARK_GRAY}, 71, 53)
+gen_type_1("assets/size_227x285/spiral.png", "core/assets/spiral227.lif", {0: DARK_GRAY})
+gen_type_1("assets/size_227x285/straight.png", "core/assets/straight227.lif", {0: DARK_GRAY})
+gen_type_1("assets/size_227x285/vario_wallpaper.png", "core/assets/vario_wallpaper227.lif", {0: DARK_GRAY})
+gen_type_1("assets/size_227x285/km_h.png", "core/assets/km_h.lif", {0: DARK_GRAY})
+gen_type_1("assets/size_227x285/m_s.png", "core/assets/m_s.lif", {0: DARK_GRAY})

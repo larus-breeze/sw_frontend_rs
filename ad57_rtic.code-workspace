@@ -4,7 +4,7 @@
 			"path": "device/ad57_rtic"
 		},
 		{
-			"path": "core"
+			"path": "."
 		}
 	],
 	"settings": {
