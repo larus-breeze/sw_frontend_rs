@@ -1,22 +1,26 @@
-use arrayvec::ArrayString;
+use heapless::String;
+
+#[allow(unused_imports)]
+use micromath::F32Ext;
 
 const DECIMAL_SIGN: u8 = 10;
 const LOOKUP: [char; 11] = ['0', '1', '2', '3', '4', '5', '6', '7', '8', '9', '.'];
 
+/// A simple tool to put together text outputs in a formatted way.
 #[derive(Default)]
 pub struct Concat<const CAP: usize> {
-    str: ArrayString<CAP>,
+    str: String<CAP>,
 }
 
 impl<const CAP: usize> Concat<CAP> {
     pub fn new() -> Self {
         Concat {
-            str: ArrayString::<CAP>::default(),
+            str: String::<CAP>::default(),
         }
     }
 
     pub fn push_str(mut self, s: &str) -> Self {
-        self.str.push_str(s);
+        let _ = self.str.push_str(s);
         self
     }
 
@@ -43,7 +47,7 @@ impl<const CAP: usize> Concat<CAP> {
 
         // Add to string
         for r_idx in (0..idx).rev() {
-            self.str.push(LOOKUP[buf[r_idx] as usize]);
+            let _ = self.str.push(LOOKUP[buf[r_idx] as usize]);
         }
         self
     }
@@ -73,7 +77,7 @@ impl<const CAP: usize> Concat<CAP> {
 
     pub fn push_i32(mut self, i: i32) -> Self {
         if i < 0 {
-            self.str.push('-');
+            let _ = self.str.push('-');
             self.push_u32(i.unsigned_abs())
         } else {
             self.push_u32(i as u32)
@@ -112,7 +116,7 @@ impl<const CAP: usize> Concat<CAP> {
 
         // Set sign if necessary
         if f < -0.4999 {
-            self.str.push('-')
+            let _ = self.str.push('-');
         }
 
         // Create the inverted pattern
@@ -140,7 +144,7 @@ impl<const CAP: usize> Concat<CAP> {
 
         // Add pattern to string buffer
         for r_idx in (0..idx).rev() {
-            self.str.push(LOOKUP[buf[r_idx] as usize]);
+            let _ = self.str.push(LOOKUP[buf[r_idx] as usize]);
         }
         self
     }

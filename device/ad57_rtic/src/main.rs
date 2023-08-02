@@ -1,129 +1,168 @@
 #![no_std]
 #![no_main]
 
-use core::convert::Infallible;
-
+/// Below are a few general words about the structure of the application. RTIC version
+/// 1.xx (https://rtic.rs/1/book/en/) is used here as the basis for the real-time system:
+/// The app module defines the application. In RTIC tasks are equivalent to interrupt
+/// service routines, so that all tasks/ISRs including their priorities can be found in
+/// modul app. Thus one can recognize well the structure of the software.
+///
+/// However, there is some essential components missing. How do the tasks communicate with
+/// each other?
+///
+/// On the one hand, thread-safe queus are used to communicate between tasks with different
+/// priorities. Furthermore, there is a large core_model structure that holds all the data
+/// required for the application. Tasks, queues and the data model: that's all! There are no
+/// other essential structural elements. The initialization of the hardware and software
+/// components is done in the init.rs component. There one can also look at the connections
+/// by means of queues.
+///
+/// The crate ad57_rtic contains the real-time system and the runtime environment for the target
+/// hardware. The majority (core) of the application is designed to be portable and has no
+/// dependencies on the hardware or the real-time system.
 use rtic::app;
-use systick_monotonic::fugit::ExtU32;
 
-use defmt::*;
-use {defmt_rtt as _, panic_probe as _};
-
-use driver::{
-    hw_init, MonoTimer,
-    FrameBuffer, Display,
-    r61580::{
-        Instruction,
-        PORTRAIT_AVAIL_WIDTH, PORTRAIT_AVAIL_HEIGHT,
-        PORTRAIT_ORIGIN_X, PORTRAIT_ORIGIN_Y,
-    }
-};
-
-use vario_display::{Colors, RGB565_COLORS};
-
-use stm32f4xx_hal::{
-        gpio::{gpiob::PB4, Pin, Output, PushPull},
-        pac,
-};
-
+mod dev_controller;
+mod dev_view;
 mod driver;
+mod macros;
 mod utils;
 
+use {defmt_rtt as _, panic_probe as _};
+
+use dev_controller::*;
+use dev_view::*;
+use driver::*;
+use utils::*;
 use vario_display::*;
 
-defmt::timestamp!("{=u32:us}", {
-    // NOTE(interrupt-safe) single instruction volatile read operation
-    unsafe { core::ptr::read_volatile(0x4000_0c24 as *const u32) }
-});
-
-
-#[app(device = stm32f4xx_hal::pac, peripherals = true, dispatchers = [SPI1, DMA2_STREAM0])]
+#[app(device = stm32f4xx_hal::pac, peripherals = true, dispatchers = [SPI1, SPI2, DMA2_STREAM0, DMA2_STREAM1])]
 mod app {
     use super::*;
 
+    /// Data used by more than one Task. The tasks are protected by RTIC against unauthorized
+    /// access by setting priorities. Note: If only tasks with identical priority access,
+    /// then nothing needs to be protected and the overhead does not apply. This is the case
+    /// with the core_model.
     #[shared]
-    struct Shared {}
-
-    #[local]
-    struct Local {
-        backlight: PB4<Output<PushPull>>,
-        state: bool,
-        display: Display<Pin<Output<PushPull>, 'D', 3>, Infallible>,
-        frame_buffer: FrameBuffer,
+    struct Shared {
+        core_model: CoreModel,
+        statistics: Statistics,
     }
 
-    #[monotonic(binds = TIM5, default = true)]
-    type MyMono = MonoTimer<pac::TIM5, 1_000_000>;
+    /// Data required by single tasks
+    #[local]
+    struct Local {
+        can_rx: CanRx,
+        can_tx: CanTx,
+        controller: DevController,
+        view: DevView,
+        frame_buffer: FrameBuffer,
+        keyboard: Keyboard,
+    }
 
+    /// Time base for the real-time system
+    #[monotonic(binds = SysTick, default = true)]
+    type Mono = DevMonoTimer;
+
+    /// Initialization of the hardware and software
     #[init]
     fn init(cx: init::Context) -> (Shared, Local, init::Monotonics) {
         let device = cx.device;
-        let (
-            backlight,
-            display,
-            mono,
-            frame_buffer
-        ) = hw_init(device, cx.core);
+        let mut core_model = CoreModel::default();
+        let (can_rx, can_tx, controller, mono_timer, mut view, frame_buffer, keyboard, statistics) =
+            hw_init(device, cx.core, &mut core_model, monotonics::now());
 
-        // Schedule the blinking task
-        blink::spawn_after(1000.millis()).unwrap();
+        task_view::spawn_at(view.wake_up_at()).unwrap();
+        task_controller::spawn().unwrap();
+        task_keyboard::spawn().unwrap();
 
         (
-            Shared {},
-            Local {frame_buffer, display, backlight, state: false },
-            init::Monotonics(mono),
+            Shared {
+                core_model,
+                statistics,
+            },
+            Local {
+                can_rx,
+                can_tx,
+                controller,
+                view,
+                frame_buffer,
+                keyboard,
+            },
+            init::Monotonics(mono_timer),
         )
     }
 
-    #[task(local = [display, backlight, state], priority=5)]
-    fn blink(cx: blink::Context) {
-        trace!("blink");
-        if *cx.local.state {
-            let model = CoreModel::new();
-            let mut vario = VarioDisplay::new();
-            let _ = vario.draw(cx.local.display, &model);
-            //let _ = cx.local.display.flush();
-            trace!("Spawn lcd_copy");
-            let _ = lcd_copy::spawn();
-            cx.local.backlight.set_high();
-            *cx.local.state = false;
-        } else {
-            //cx.local.backlight.set_low();
-            *cx.local.state = true;
-        }
-        blink::spawn_after(1000_000.micros()).unwrap();
-        trace!("blink_ready")
+    /// Receive can frames
+    #[task(binds = CAN1_RX0, local = [can_rx], shared = [statistics], priority=9)]
+    fn isr_can_rx(mut cx: isr_can_rx::Context) {
+        task_start!(cx, Task::CanRx);
+
+        cx.local.can_rx.tick();
+
+        task_end!(cx, Task::CanRx);
     }
 
-    #[task(local = [frame_buffer, pixel_storage: [u16; PORTRAIT_AVAIL_WIDTH as usize] = [0; PORTRAIT_AVAIL_WIDTH as usize]], priority=6)]
-    fn lcd_copy(cx: lcd_copy::Context) {
-        trace!("lcd_copy");
+    /// Send can frames
+    #[task(binds = CAN1_TX, local = [can_tx], shared = [statistics], priority=8)]
+    fn isr_can_tx(mut cx: isr_can_tx::Context) {
+        task_start!(cx, Task::CanTx);
 
-        #[inline]
-        fn write_command(cmd: u8) {
-            unsafe {core::ptr::write_volatile(0x60000000 as *mut u8, cmd)}
-        }
-    
-        #[inline]
-        fn write_data(data: u16) {
-            unsafe {core::ptr::write_volatile(0x60020000 as *mut u16, data)};
-        }
-    
-        fn write_command_and_data(cmd: u8, data: u16) {
-            write_command(cmd);
-            write_data(data)
-        }
-    
-        for y in 0..PORTRAIT_AVAIL_HEIGHT {
-            write_command_and_data(Instruction::PosX as u8, PORTRAIT_ORIGIN_X);
-            write_command_and_data(Instruction::PosY as u8, y + PORTRAIT_ORIGIN_Y);
-            write_command(Instruction::Gram as u8);
-            for x in 0..PORTRAIT_AVAIL_WIDTH {
-                let idx = x as usize + y as usize * PORTRAIT_AVAIL_WIDTH as usize;
-                let color = cx.local.frame_buffer.buf[idx] as usize;
-                write_data(RGB565_COLORS[color]);
-            }
-        }
-        trace!("lcd_copy_ready");
+        task_keyboard::spawn_after(DevDuration::millis(20)).unwrap();
+        cx.local.can_tx.tick();
+
+        task_end!(cx, Task::CanTx);
+    }
+
+    /// Scan the keyboard
+    #[task(local = [keyboard], shared = [statistics], priority=7)]
+    fn task_keyboard(mut cx: task_keyboard::Context) {
+        task_start!(cx, Task::Keys);
+
+        task_keyboard::spawn_after(DevDuration::millis(20)).unwrap();
+        cx.local.keyboard.tick();
+
+        task_end!(cx, Task::Keys);
+    }
+
+    /// The controller contains the complete logic for processing the data
+    #[task(local = [controller], shared = [core_model, statistics], priority=5)]
+    fn task_controller(mut cx: task_controller::Context) {
+        task_start!(cx, Task::Controller);
+
+        task_controller::spawn_after(DevDuration::millis(100)).unwrap();
+        let controller = cx.local.controller;
+        cx.shared
+            .core_model
+            .lock(|core_model| controller.tick(core_model));
+
+        task_end!(cx, Task::Controller);
+    }
+
+    /// This task prepares the display and passes the data to the appropriate output routines.
+    /// This mainly concerns the LCD but also the sound output.
+    #[task(local = [view], shared = [core_model, statistics], priority=5)]
+    fn task_view(mut cx: task_view::Context) {
+        task_start!(cx, Task::LcdView);
+
+        let view = cx.local.view;
+        cx.shared.core_model.lock(|core_model| {
+            let _ = view.tick(core_model);
+        });
+        task_view::spawn_at(view.wake_up_at()).unwrap();
+        task_lcd_copy::spawn().unwrap();
+
+        task_end!(cx, Task::LcdView);
+    }
+
+    /// Copies the data from the frame buffer to the LCD
+    #[task(local = [frame_buffer], shared = [statistics], priority=4)]
+    fn task_lcd_copy(mut cx: task_lcd_copy::Context) {
+        task_start!(cx, Task::LcdCopy);
+
+        flush(cx.local.frame_buffer);
+
+        task_end!(cx, Task::LcdCopy);
     }
 }

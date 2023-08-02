@@ -1,16 +1,19 @@
 #![no_std]
 
-mod core_model;
-pub use core_model::CoreModel;
+mod model;
+pub use model::CoreModel;
 
 pub use system_of_units::{FloatToSpeed, Speed};
 
 pub use flight_physics::*;
 
 mod view;
-pub use core_model::{FlyMode, VarioMode};
-pub use view::{colors::Colors, draw_view, rgb565_colors::RGB565_COLORS};
-pub(crate) mod fmt;
+pub use model::{FlyMode, VarioMode};
+pub use utils::{Colors, RGB565_COLORS};
+pub use view::{CoreView, FRAME_RATE};
+
+mod controller;
+pub use controller::CoreController;
 
 pub mod utils;
 pub use utils::{Concat, CoreError};

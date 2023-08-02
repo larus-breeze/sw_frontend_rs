@@ -3,7 +3,9 @@ from urllib.request import urlopen
 class Glider():
     def load_from_line(self, cpp_line, comment):
         line = cpp_line.replace(b'  { _T(', b'').replace(b'),', b',').replace(b' },', b'').replace(b'"', b'')
-        line = line[:line.find(b' //')]
+        pos_slash = line.find(b' //')
+        if pos_slash > 0:
+            line = line[:pos_slash]
         vars = line.split(b', ')
         self.load_from_list(vars, comment)
         return self
@@ -61,7 +63,7 @@ for line in cpp_store.splitlines():
             glider = Glider().load_from_line(line, "imported from XCSoar")
             gliders.append(glider)
         except:
-            print(f"Could nor imprt Line {line}")
+            print(f"Could nor import line {line}")
             pass
 
 for line in ADDITONAL:
@@ -73,10 +75,10 @@ template = f"""// created by create_polar_store.py
 
 use super::BasicGliderData;
 
-pub const CONST_POLAR_COUNT: usize = {len(gliders)};
+pub const POLAR_COUNT: usize = {len(gliders)};
 
 #[allow(unused)]
-pub const POLARS: [BasicGliderData; CONST_POLAR_COUNT] = [
+pub const POLARS: [BasicGliderData; POLAR_COUNT] = [
 """
 
 with open("core/src/flight_physics/polar_store.rs", "w") as f:

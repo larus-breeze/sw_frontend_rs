@@ -52,7 +52,10 @@ DARK_GRAY = 24
 YELLOW = 137
 
 gen_type_1("assets/glider150.png", "core/assets/glider227.lif", {0: DARK_GRAY}, 67, 117)
-gen_type_1("assets/compass160.png", "core/assets/compass227.lif", {0: DARK_GRAY}, 71, 53)
+# gen_type_1("assets/compass160.png", "core/assets/compass227.lif", {0: DARK_GRAY}, 71, 53)
+gen_type_1("assets/north.png", "core/assets/compass227.lif", {0: DARK_GRAY}, 71, 53)
 gen_type_1("assets/spiral75.png", "core/assets/spiral227.lif", {0: DARK_GRAY})
 gen_type_1("assets/straight75.png", "core/assets/straight227.lif", {0: DARK_GRAY})
 gen_type_1("assets/vario_wallpaper227.png", "core/assets/vario_wallpaper227.lif", {0: DARK_GRAY})
+gen_type_1("assets/km_h.png", "core/assets/km_h.lif", {0: DARK_GRAY})
+gen_type_1("assets/m_s.png", "core/assets/m_s.lif", {0: DARK_GRAY})

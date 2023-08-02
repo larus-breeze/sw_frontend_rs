@@ -1,7 +1,8 @@
 use crate::flight_physics::{AirSpeed, BasicGliderData};
-use crate::system_of_units::{Density, Float, Mass, Speed};
+use crate::system_of_units::{Density, Float, FloatToMass, Mass, Speed};
 
-// use micromath::F32Ext;
+#[allow(unused_imports)]
+use micromath::F32Ext;
 
 #[derive(Clone, Debug)]
 pub struct PolarKoefs {
@@ -12,14 +13,28 @@ pub struct PolarKoefs {
     pub weight: Float,
 }
 
+#[derive(Clone, Copy)]
+pub struct GliderData {
+    pub empty_weight: Mass,
+    pub pilot_weight: Mass,
+    pub water_ballast: Mass,
+    pub bugs: f32,
+}
+
+impl Default for GliderData {
+    fn default() -> Self {
+        GliderData {
+            empty_weight: 0.0.kg(),
+            pilot_weight: 90.0.kg(),
+            water_ballast: 0.0.kg(),
+            bugs: 1.0,
+        }
+    }
+}
+
 pub struct Polar {
-    v_max: Float,         // km/Gh
-    empty_weight: Float,  // kg
-    pilot_weight: Float,  // kg
-    water_ballast: Float, // kg
-    density: Float,       // kg/m³
+    v_max: Float,         // km/h
     density_ratio: Float, // -
-    bugs: Float,          // 1.0
     curr: PolarKoefs,     // current koefs
     refer: PolarKoefs,    // reference coefs
 }
@@ -33,7 +48,7 @@ pub struct Polar {
 /// or air density changes, the polar curve is recalculated. Airspeeds are output as type
 /// [AirSpeed], which contains both TAS and IAS.
 impl Polar {
-    pub fn new(gd: &BasicGliderData) -> Self {
+    pub fn new(gd: &BasicGliderData, glider_data: &mut GliderData) -> Self {
         let (v1, w1) = (gd.polar_values[0][0] / 3.6, gd.polar_values[0][1]);
         let (v2, w2) = (gd.polar_values[1][0] / 3.6, gd.polar_values[1][1]);
         let (v3, w3) = (gd.polar_values[2][0] / 3.6, gd.polar_values[2][1]);
@@ -56,26 +71,19 @@ impl Polar {
         let refer = curr.clone();
 
         let v_max = gd.max_speed / 3.6;
-        let empty_weight = gd.empty_mass;
-        let pilot_weight = 90.0;
-        let water_ballast = 0.0;
-        let density = Density::AT_NN().to_kg_m3();
-        let density_ratio = 1.0;
-        let bugs = 1.0;
 
-        let mut p = Self {
+        glider_data.empty_weight = gd.empty_mass.kg();
+        glider_data.water_ballast = 0.0.kg();
+        glider_data.water_ballast = 0.0.kg();
+        glider_data.bugs = 1.0;
+        let density_ratio = 1.0;
+
+        let p = Self {
             v_max,
-            empty_weight,
-            pilot_weight,
-            water_ballast,
-            density,
             density_ratio,
-            bugs,
             curr,
             refer,
         };
-        // empty weight + pilot weight is usualy not equal to reference weight, so recalc the polar
-        p.recalc();
         p
     }
 
@@ -83,7 +91,7 @@ impl Polar {
     ///
     /// It is checked that the speed is within the permissible range.
     pub fn sink_rate(&self, speed: AirSpeed) -> Speed {
-        let v = self.clamp_speed(speed.tas.to_m_s());
+        let v = self.clamp_speed(speed.tas().to_m_s());
         let sink_rate = v * v * self.curr.a + v * self.curr.b + self.curr.c;
         Speed(sink_rate)
     }
@@ -98,50 +106,10 @@ impl Polar {
     /// sink.
     pub fn speed_to_fly(&self, si_met: Speed, st_mc_cready: Speed) -> AirSpeed {
         let (met, mc_cready) = (si_met.to_m_s(), st_mc_cready.to_m_s());
-        let stf = ((met - mc_cready + self.curr.c) / self.curr.a).sqrt();
+        let val = (self.curr.c + met - mc_cready) / self.curr.a;
+        let stf = if val > 0.0 { val.sqrt() } else { 0.0 };
         let stf = self.clamp_speed(stf);
         self.airspeed_from_tas(stf)
-    }
-
-    /// Set the water ballast mass
-    ///
-    /// Triggers a recalculation
-    pub fn set_water_ballast(&mut self, weight: Mass) {
-        self.water_ballast = weight.to_kg();
-        self.recalc();
-    }
-
-    /// Set the pilot weight
-    ///
-    /// Triggers a recalculation
-    pub fn set_pilot_weight(&mut self, weight: Mass) {
-        self.pilot_weight = weight.to_kg();
-        self.recalc();
-    }
-
-    /// Set the empty weight
-    ///
-    /// Triggers a recalculation
-    pub fn set_empty_weight(&mut self, weight: Mass) {
-        self.empty_weight = weight.to_kg();
-        self.recalc();
-    }
-
-    /// Set the bug ratio
-    ///
-    /// A value of 1.0 means that there is no degradation in performance. A value of 1.1
-    /// increases the sink rate by 10% over the entire speed. Triggers a recalculation
-    pub fn set_bugs(&mut self, bugs: Float) {
-        self.bugs = bugs;
-        self.recalc();
-    }
-
-    /// Set the air density
-    ///
-    /// Triggers a recalculation
-    pub fn set_density(&mut self, density: Density) {
-        self.density = density.to_kg_m3();
-        self.recalc();
     }
 
     /// Returns the current possible minimum speed
@@ -151,20 +119,22 @@ impl Polar {
 
     /// Returns the gliding ratio
     pub fn gliding_ratio(&self, speed: AirSpeed) -> Float {
-        let v = self.clamp_speed(speed.tas.to_m_s());
+        let v = self.clamp_speed(speed.tas().to_m_s());
         let sink_rate = v * v * self.curr.a + v * self.curr.b + self.curr.c;
         -v / sink_rate
     }
 
-    fn recalc(&mut self) {
-        let weight = self.empty_weight + self.pilot_weight + self.water_ballast;
+    pub fn recalc(&mut self, glider_data: &GliderData, density: Density) {
+        let weight =
+            (glider_data.empty_weight + glider_data.pilot_weight + glider_data.water_ballast)
+                .to_kg();
         let ratio_weight = (weight / self.refer.weight).sqrt();
-        self.density_ratio = (Density::AT_NN().0 / self.density).sqrt();
+        self.density_ratio = (Density::AT_NN().0 / density.to_kg_m3()).sqrt();
         let ratio = ratio_weight * self.density_ratio;
 
-        self.curr.a = self.bugs * self.refer.a / ratio;
-        self.curr.b = self.bugs * self.refer.b;
-        self.curr.c = self.bugs * self.refer.c * ratio;
+        self.curr.a = glider_data.bugs * self.refer.a / ratio;
+        self.curr.b = glider_data.bugs * self.refer.b;
+        self.curr.c = glider_data.bugs * self.refer.c * ratio;
 
         self.curr.v_min = self.refer.v_min * ratio;
         self.curr.weight = weight;
@@ -191,9 +161,9 @@ mod tests {
     use crate::assert_float_eq;
     use crate::{FloatToDensity, FloatToMass, FloatToSpeed};
 
-    const GLIDER_DATA: BasicGliderData = BasicGliderData {
+    const BASIC_GLIDER_DATA: BasicGliderData = BasicGliderData {
         // 0
-        name: "LS-3 WL",    // D-2817, erste Winglets
+        name: "LS-3 WL", // D-2817, erste Winglets
         wing_area: 10.5,
         max_speed: 270.0,
         empty_mass: 280.0,
@@ -205,18 +175,22 @@ mod tests {
 
     #[test]
     fn test_basic_functions() {
+        let mut glider_data = GliderData::default();
+
         #[allow(unused_mut)]
-        let mut polar = Polar::new(&GLIDER_DATA);
+        let mut polar = Polar::new(&BASIC_GLIDER_DATA, &mut glider_data);
+        polar.recalc(&glider_data, Density::AT_NN());
+
         assert_float_eq!(
             polar.gliding_ratio(AirSpeed::from_tas_at_nn(101.86.km_h())),
             41.68
         );
-        assert_float_eq!(polar.min_sink_speed().tas.to_km_h(), 74.77);
+        assert_float_eq!(polar.min_sink_speed().tas().to_km_h(), 74.77);
         assert_float_eq!(
             polar.gliding_ratio(AirSpeed::from_tas_at_nn(180.0.km_h())),
             24.56
         );
-    
+
         assert_float_eq!(
             polar
                 .sink_rate(AirSpeed::from_tas_at_nn(90.0.km_h()))
@@ -235,100 +209,108 @@ mod tests {
                 .to_m_s(),
             -2.64
         );
-    
+
         assert_float_eq!(
-            polar.speed_to_fly(0.0.m_s(), 0.0.m_s()).tas.to_km_h(),
+            polar.speed_to_fly(0.0.m_s(), 0.0.m_s()).tas().to_km_h(),
             100.2
         );
         assert_float_eq!(
-            polar.speed_to_fly(0.62.m_s(), 0.0.m_s()).tas.to_km_h(),
+            polar.speed_to_fly(0.62.m_s(), 0.0.m_s()).tas().to_km_h(),
             74.77
         );
         assert_float_eq!(
-            polar.speed_to_fly(1.0.m_s(), 1.0.m_s()).tas.to_km_h(),
+            polar.speed_to_fly(1.0.m_s(), 1.0.m_s()).tas().to_km_h(),
             100.2
         );
         assert_float_eq!(
-            polar.speed_to_fly(-1.0.m_s(), 0.0.m_s()).tas.to_km_h(),
+            polar.speed_to_fly(-1.0.m_s(), 0.0.m_s()).tas().to_km_h(),
             132.9
         );
         assert_float_eq!(
-            polar.speed_to_fly(-2.0.m_s(), 0.0.m_s()).tas.to_km_h(),
+            polar.speed_to_fly(-2.0.m_s(), 0.0.m_s()).tas().to_km_h(),
             159.0
         );
         assert_float_eq!(
-            polar.speed_to_fly(-3.0.m_s(), 0.0.m_s()).tas.to_km_h(),
+            polar.speed_to_fly(-3.0.m_s(), 0.0.m_s()).tas().to_km_h(),
             181.4
         );
         assert_float_eq!(
-            polar.speed_to_fly(10.0.m_s(), 0.0.m_s()).tas.to_km_h(),
+            polar.speed_to_fly(10.0.m_s(), 0.0.m_s()).tas().to_km_h(),
             74.77
         );
         assert_float_eq!(
-            polar.speed_to_fly(-99.0.m_s(), 0.0.m_s()).tas.to_km_h(),
+            polar.speed_to_fly(-99.0.m_s(), 0.0.m_s()).tas().to_km_h(),
             270.0
         );
-    
-        polar.set_water_ballast(121.0.kg());
+
+        glider_data.water_ballast = 121.0.kg();
+        polar.recalc(&glider_data, Density::AT_NN());
         assert_float_eq!(
-            polar.speed_to_fly(0.0.m_s(), 0.0.m_s()).tas.to_km_h(),
+            polar.speed_to_fly(0.0.m_s(), 0.0.m_s()).tas().to_km_h(),
             115.4
         );
         assert_float_eq!(
-            polar.speed_to_fly(-3.0.m_s(), 0.0.m_s()).tas.to_km_h(),
+            polar.speed_to_fly(-3.0.m_s(), 0.0.m_s()).tas().to_km_h(),
             199.15
         );
-    
-        polar.set_water_ballast(0.0.kg());
+
+        glider_data.water_ballast = 0.0.kg();
+        polar.recalc(&glider_data, Density::AT_NN());
         assert_float_eq!(
-            polar.speed_to_fly(0.0.m_s(), 0.0.m_s()).tas.to_km_h(),
+            polar.speed_to_fly(0.0.m_s(), 0.0.m_s()).tas().to_km_h(),
             100.2
         );
-    
-        polar.set_pilot_weight(120.0.kg());
+
+        glider_data.pilot_weight = 120.0.kg();
+        polar.recalc(&glider_data, Density::AT_NN());
         assert_float_eq!(
-            polar.speed_to_fly(0.0.m_s(), 0.0.m_s()).tas.to_km_h(),
+            polar.speed_to_fly(0.0.m_s(), 0.0.m_s()).tas().to_km_h(),
             104.2
         );
-    
-        polar.set_pilot_weight(90.0.kg());
+
+        glider_data.pilot_weight = 90.0.kg();
+        polar.recalc(&glider_data, Density::AT_NN());
         assert_float_eq!(
-            polar.speed_to_fly(0.0.m_s(), 0.0.m_s()).tas.to_km_h(),
+            polar.speed_to_fly(0.0.m_s(), 0.0.m_s()).tas().to_km_h(),
             100.2
         );
-    
-        polar.set_empty_weight(260.0.kg());
+
+        glider_data.empty_weight = 260.0.kg();
+        polar.recalc(&glider_data, Density::AT_NN());
         assert_float_eq!(
-            polar.speed_to_fly(0.0.m_s(), 0.0.m_s()).tas.to_km_h(),
+            polar.speed_to_fly(0.0.m_s(), 0.0.m_s()).tas().to_km_h(),
             97.4
         );
-    
-        polar.set_empty_weight(280.0.kg());
+
+        glider_data.empty_weight = 280.0.kg();
+        polar.recalc(&glider_data, Density::AT_NN());
         assert_float_eq!(
-            polar.speed_to_fly(0.0.m_s(), 0.0.m_s()).tas.to_km_h(),
+            polar.speed_to_fly(0.0.m_s(), 0.0.m_s()).tas().to_km_h(),
             100.2
         );
-    
-        polar.set_bugs(1.1);
+
+        glider_data.bugs = 1.1;
+        polar.recalc(&glider_data, Density::AT_NN());
         assert_float_eq!(
             polar.gliding_ratio(AirSpeed::from_tas_at_nn(105.0.km_h())),
             37.7
         );
-    
-        polar.set_bugs(1.0);
+
+        glider_data.bugs = 1.0;
+        polar.recalc(&glider_data, Density::AT_NN());
         assert_float_eq!(
             polar.gliding_ratio(AirSpeed::from_tas_at_nn(105.0.km_h())),
             41.5
         );
-    
-        polar.set_density(0.913.kg_m3());
+
+        polar.recalc(&glider_data, 0.913.kg_m3());
         let speed = polar.speed_to_fly(0.0.m_s(), 0.0.m_s());
-        assert_float_eq!(speed.ias.to_km_h(), 100.2);
-        assert_float_eq!(speed.tas.to_km_h(), 116.0);
-    
-        polar.set_density(Density::AT_NN());
+        assert_float_eq!(speed.ias().to_km_h(), 100.2);
+        assert_float_eq!(speed.tas().to_km_h(), 116.0);
+
+        polar.recalc(&glider_data, Density::AT_NN());
         assert_float_eq!(
-            polar.speed_to_fly(0.0.m_s(), 0.0.m_s()).tas.to_km_h(),
+            polar.speed_to_fly(0.0.m_s(), 0.0.m_s()).tas().to_km_h(),
             100.2
         );
     }
