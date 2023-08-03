@@ -1,6 +1,7 @@
 mod area;
 mod density;
 mod mass;
+mod pressure;
 mod speed;
 
 pub use area::{Area, FloatToArea};
@@ -8,6 +9,7 @@ pub use density::{Density, FloatToDensity};
 pub use embedded_graphics::geometry::{Angle, AngleUnit};
 pub use mass::{FloatToMass, Mass};
 pub use speed::{FloatToSpeed, Speed};
+pub use pressure::{FloatToPressure, Pressure};
 
 pub type Float = f32;
 
@@ -36,6 +38,8 @@ pub(crate) const HOUR: Float = 3600.0; // h -> s
 #[allow(dead_code)]
 pub(crate) const DAY: Float = 86400.0; // d -> s
 
-// ISA density at NN in kg/m³
+// ISA 
 #[allow(dead_code)]
-pub(crate) const ISA_DENSITY_AT_NN: Float = 1.225;
+pub(crate) const ISA_DENSITY_AT_NN: Float = 1.225; // density at NN in kg/m³
+#[allow(dead_code)]
+pub(crate) const ISA_PRESSURE_AT_NN: Float = 101335.0; // pressure at NN in Pa

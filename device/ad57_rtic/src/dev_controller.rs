@@ -1,20 +1,21 @@
-use vario_display::CoreModel;
 use bxcan::Id;
+use vario_display::CoreModel;
 
-use crate:: {
-    CKeyEvents, CoreController,
-    driver::CRxFrames,
-};
+use crate::{driver::CRxFrames, CKeyEvents, CoreController};
 use defmt::*;
 
 pub struct DevController {
     core_controller: CoreController,
     c_key_event: CKeyEvents, // key event queue
-    c_rx_frames: CRxFrames, // can bus rx queue
+    c_rx_frames: CRxFrames,  // can bus rx queue
 }
 
 impl DevController {
-    pub fn new(core_model: &mut CoreModel, c_key_event: CKeyEvents, c_rx_frames: CRxFrames) -> Self {
+    pub fn new(
+        core_model: &mut CoreModel,
+        c_key_event: CKeyEvents,
+        c_rx_frames: CRxFrames,
+    ) -> Self {
         let core_controller = CoreController::new(core_model);
         DevController {
             core_controller,
@@ -30,10 +31,9 @@ impl DevController {
         while let Some(frame) = self.c_rx_frames.dequeue() {
             match frame.id() {
                 Id::Standard(id) => trace!("Standard id {}", id.as_raw()),
-                Id::Extended(id) => trace!("Extended id {}", id.as_raw()), 
+                Id::Extended(id) => trace!("Extended id {}", id.as_raw()),
             }
         }
         self.core_controller.time_action(core_model);
     }
-
 }

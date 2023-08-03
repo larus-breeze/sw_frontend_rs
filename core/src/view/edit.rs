@@ -1,7 +1,7 @@
 use crate::{
     controller::Editable,
     model::CoreModel,
-    utils::{FONT_HELV_14, FONT_HELV_18, Colors},
+    utils::{Colors, FONT_HELV_14, FONT_HELV_18},
     view::SCREEN_CENTER,
     Concat, CoreError, DrawImage, DISPLAY_HEIGHT, DISPLAY_WIDTH, POLARS,
 };
@@ -71,25 +71,24 @@ fn get_edit_strs<'a>(cm: &'a CoreModel) -> (&'a str, Concat<20>) {
     let val_str = Concat::<20>::new();
     let val_str = match cm.control.edit_var {
         Editable::ClimbRate => val_str
-            .push_f32(cm.measured.climb_rate.to_m_s(), 1)
+            .push_f32(cm.sensor.climb_rate.to_m_s(), 1)
             .push_str(" m/s"),
         Editable::Glider => val_str.push_str(POLARS[cm.control.glider_idx as usize].name),
         Editable::McCready => val_str.push_f32(cm.calculated.mc_cready.to_m_s(), 1),
         Editable::PilotWeight => val_str.push_f32(cm.glider_data.pilot_weight.to_kg(), 0),
         Editable::Speed => val_str
-            .push_f32(cm.measured.airspeed.ias().to_km_h(), 0)
+            .push_f32(cm.sensor.airspeed.ias().to_km_h(), 0)
             .push_str(" km/h"),
         Editable::Volume => val_str.push_i8(cm.calculated.volume),
         Editable::WaterBallast => val_str
             .push_f32(cm.glider_data.water_ballast.to_kg(), 0)
             .push_str(" kg"),
         Editable::WindDirection => val_str
-            .push_f32(cm.measured.wind_angle.to_degrees(), 0)
+            .push_f32(cm.sensor.wind_angle.to_degrees(), 0)
             .push_str(" °"),
         Editable::WindSpeed => val_str
-            .push_f32(cm.measured.wind_speed.to_km_h(), 0)
+            .push_f32(cm.sensor.wind_speed.to_km_h(), 0)
             .push_str(" km/h"),
     };
     (name_str, val_str)
 }
-

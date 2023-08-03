@@ -6,11 +6,7 @@ pub mod edit;
 pub(crate) mod elements;
 pub(crate) mod vario;
 
-use crate::{
-    model::CoreModel, 
-    CoreError, DrawImage, DISPLAY_HEIGHT, DISPLAY_WIDTH,
-    utils::Colors,
-};
+use crate::{model::CoreModel, utils::Colors, CoreError, DrawImage, DISPLAY_HEIGHT, DISPLAY_WIDTH};
 
 #[cfg(debug_assertions)]
 pub const FRAME_RATE: u32 = 10;

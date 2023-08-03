@@ -28,6 +28,12 @@ impl Density {
         Density(value)
     }
 
+    /// Create an instance of type Density from a float number in gram per cubic meter
+    #[inline]
+    pub fn from_g_m3(value: Float) -> Self {
+        Density(value*0.001)
+    }
+
     /// Extract a float number in the unit kilogram per cubic meter
     #[inline]
     pub fn to_kg_m3(self) -> Float {
@@ -40,11 +46,17 @@ impl Density {
 pub trait FloatToDensity {
     /// Create an instance of type [Density] from a number in kilogram per square meter
     fn kg_m3(self) -> Density;
+    /// Create an instance of type [Density] from a number in gram per square meter
+    fn g_m3(self) -> Density;
 }
 
 impl FloatToDensity for Float {
     #[inline]
     fn kg_m3(self) -> Density {
         Density::from_kg_m3(self)
+    }
+    #[inline]
+    fn g_m3(self) -> Density {
+        Density::from_g_m3(self)
     }
 }

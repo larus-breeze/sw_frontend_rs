@@ -3,8 +3,8 @@ use crate::{
     DevDisplay,
 };
 use bxcan::{Frame, StandardId};
-use vario_display::*;
 use defmt::*;
+use vario_display::*;
 
 pub struct DevView {
     core_view: CoreView<DevDisplay>,
@@ -34,8 +34,8 @@ impl DevView {
 
     pub fn tick(&mut self, core_model: &mut CoreModel) -> Result<(), CoreError> {
         let _ = self.p_tx_frames.capacity();
-        if self.cs != core_model.measured.climb_rate.0 {
-            self.cs = core_model.measured.climb_rate.0;
+        if self.cs != core_model.sensor.climb_rate.0 {
+            self.cs = core_model.sensor.climb_rate.0;
             self.send_frame();
         }
         self.core_view.draw(core_model)

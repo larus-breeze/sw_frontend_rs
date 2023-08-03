@@ -2,7 +2,7 @@ use super::{
     elements::{classic_indicator, inverted_scale_marker, scale_marker, wind_arrow},
     CENTER, DIAMETER, RADIUS,
 };
-use crate:: {
+use crate::{
     model::{CoreModel, FlyMode, VarioMode},
     utils::Colors,
 };
@@ -154,7 +154,7 @@ where
     )?;
 
     // draw climb rate indicator
-    let angle = (25.0 * num::clamp(cm.measured.climb_rate.to_m_s(), -5.1, 5.1)).deg();
+    let angle = (25.0 * num::clamp(cm.sensor.climb_rate.to_m_s(), -5.1, 5.1)).deg();
     classic_indicator(
         display,
         CENTER,
@@ -166,9 +166,9 @@ where
     )?;
 
     // draw wind arrow
-    let wind_speed = cm.measured.wind_speed.to_km_h();
-    let angle = cm.measured.wind_angle;
-    let av_angle = cm.measured.average_wind_angle;
+    let wind_speed = cm.sensor.wind_speed.to_km_h();
+    let angle = cm.sensor.wind_angle;
+    let av_angle = cm.sensor.average_wind_angle;
     let len = match wind_speed {
         x if x < WIND_MIN => SZS.wind_len_min, // Light wind is set to a minimum size
         x if x > WIND_MAX => SZS.wind_len,     // Strong wind is set to a maximum size
@@ -190,8 +190,8 @@ where
 
     // draw wind direction an speed text
     display.draw_img(KM_H, SZS.wind_pos)?;
-    let wind_deg = cm.measured.wind_angle.to_degrees();
-    let wind_speed = cm.measured.wind_speed.to_km_h();
+    let wind_deg = cm.sensor.wind_angle.to_degrees();
+    let wind_speed = cm.sensor.wind_speed.to_km_h();
     let s = Concat::<25>::from_f32(wind_deg, 0).push_str("° ");
     let s = s.push_f32(wind_speed, 0);
     FONT_HELV_18.render_aligned(
@@ -207,7 +207,7 @@ where
     match cm.control.vario_mode {
         VarioMode::Vario => {
             display.draw_img(SPIRAL, SZS.pic_left_under_pos)?;
-            let acr = num::clamp(cm.measured.average_climb_rate.to_m_s(), -9.9, 99.9);
+            let acr = num::clamp(cm.sensor.average_climb_rate.to_m_s(), -9.9, 99.9);
             let txt = Concat::<10>::from_f32(acr, 1);
             FONT_HELV_18.render_aligned(
                 txt.as_str(),

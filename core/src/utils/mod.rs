@@ -1,6 +1,7 @@
-mod error;
+mod can_paket;
 mod colors;
 mod concat;
+mod error;
 mod key_event;
 mod rgb565_colors;
 
@@ -9,6 +10,8 @@ pub use concat::Concat;
 pub use error::CoreError;
 pub use key_event::*;
 pub use rgb565_colors::RGB565_COLORS;
+
+pub(crate) use can_paket::read_can_frame;
 
 use u8g2_fonts::{fonts, FontRenderer};
 pub const FONT_HELV_14: FontRenderer = FontRenderer::new::<fonts::u8g2_font_helvR14_tf>();

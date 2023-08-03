@@ -11,8 +11,8 @@ use crate::{
 use super::Editable;
 use crate::model::{FlyMode, VarioMode};
 
-/// The Demo Mode allows to preset data normally measured by the Larus sensor by keys and rotary 
-/// encoders. This function allows on the one hand to get familiar with the displays and on the 
+/// The Demo Mode allows to preset data normally measured by the Larus sensor by keys and rotary
+/// encoders. This function allows on the one hand to get familiar with the displays and on the
 /// other hand to check functions like the speed command or polar curve of the glider.
 #[repr(u8)]
 #[allow(dead_code)]
@@ -80,8 +80,8 @@ impl DemoController {
 
         match self.demo_kind {
             DemoKind::Vario => {
-                cm.measured.climb_rate = val_manip(
-                    cm.measured.climb_rate.to_m_s(),
+                cm.sensor.climb_rate = val_manip(
+                    cm.sensor.climb_rate.to_m_s(),
                     key_event,
                     0.1,
                     0.5,
@@ -92,7 +92,7 @@ impl DemoController {
             }
             DemoKind::Speed => {
                 let tas = val_manip(
-                    cm.measured.airspeed.tas().to_km_h(),
+                    cm.sensor.airspeed.tas().to_km_h(),
                     key_event,
                     1.0,
                     10.0,
@@ -100,11 +100,11 @@ impl DemoController {
                     270.0,
                 )
                 .km_h();
-                cm.measured.airspeed = AirSpeed::from_tas_at_nn(tas);
+                cm.sensor.airspeed = AirSpeed::from_tas_at_nn(tas);
             }
             DemoKind::WindDirection => {
-                cm.measured.wind_angle = val_manip(
-                    cm.measured.wind_angle.to_degrees(),
+                cm.sensor.wind_angle = val_manip(
+                    cm.sensor.wind_angle.to_degrees(),
                     key_event,
                     5.0,
                     30.0,
@@ -114,8 +114,8 @@ impl DemoController {
                 .deg()
             }
             DemoKind::WindSpeed => {
-                cm.measured.wind_speed = val_manip(
-                    cm.measured.wind_speed.to_km_h(),
+                cm.sensor.wind_speed = val_manip(
+                    cm.sensor.wind_speed.to_km_h(),
                     key_event,
                     1.0,
                     5.0,

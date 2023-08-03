@@ -4,8 +4,8 @@ use crate::driver::r61580::{
 };
 use crate::{driver::frame_buffer::FrameBuffer, Colors, RGB565_COLORS};
 use stm32f4xx_hal::{
-    gpio::{Output, Pin, alt::fsmc},
     fsmc_lcd::{AccessMode, DataPins16, FsmcLcd, LcdPins, Timing},
+    gpio::{alt::fsmc, Output, Pin},
     pac::FSMC,
 };
 
@@ -27,7 +27,6 @@ pub struct Display {
 
 impl Display {
     pub fn new(fsmc: FSMC, lcd_pins: DevLcdPins, lcd_reset: LcdReset, fb: FrameBuffer) -> Self {
-
         let timing = Timing::default()
             .data(3)
             .address_setup(6)

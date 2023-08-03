@@ -5,15 +5,15 @@
 /// 1.xx (https://rtic.rs/1/book/en/) is used here as the basis for the real-time system:
 /// The app module defines the application. In RTIC tasks are equivalent to interrupt
 /// service routines, so that all tasks/ISRs including their priorities can be found in
-/// modul app. Thus one can recognize well the structure of the software.
+/// modul app. Thus one can recognize well the whole structure of the software.
 ///
-/// However, there is some essential components missing. How do the tasks communicate with
+/// However, there are some essential components missing. How do the tasks communicate with
 /// each other?
 ///
 /// On the one hand, thread-safe queus are used to communicate between tasks with different
 /// priorities. Furthermore, there is a large core_model structure that holds all the data
-/// required for the application. Tasks, queues and the data model: that's all! There are no
-/// other essential structural elements. The initialization of the hardware and software
+/// required for the application. ISRs, Tasks, queues and the data model: that's all! There
+/// are no other essential structural elements. The initialization of the hardware and software
 /// components is done in the init.rs component. There one can also look at the connections
 /// by means of queues.
 ///
@@ -46,19 +46,19 @@ mod app {
     /// with the core_model.
     #[shared]
     struct Shared {
-        core_model: CoreModel,
-        statistics: Statistics,
+        core_model: CoreModel,  // holds the application data
+        statistics: Statistics, // track the task runtimes
     }
 
     /// Data required by single tasks
     #[local]
     struct Local {
-        can_rx: CanRx,
-        can_tx: CanTx,
-        controller: DevController,
-        view: DevView,
-        frame_buffer: FrameBuffer,
-        keyboard: Keyboard,
+        can_rx: CanRx,             // receive can pakets
+        can_tx: CanTx,             // transmit can pakets
+        controller: DevController, // control the application
+        view: DevView,             // bring application data to the user
+        frame_buffer: FrameBuffer, // between view component and the LCD
+        keyboard: Keyboard,        // capture the user input
     }
 
     /// Time base for the real-time system
@@ -77,6 +77,7 @@ mod app {
         task_controller::spawn().unwrap();
         task_keyboard::spawn().unwrap();
 
+        // return the initialized components to RTIC
         (
             Shared {
                 core_model,
@@ -94,13 +95,16 @@ mod app {
         )
     }
 
+    // In the following interrupt service routines and tasks are listed in descending order of
+    // priority. In RTIC the difference between a task and an interrupt service routine is only
+    // that the interrupt service routine is bound to the interrupt vector of a used peripheral,
+    // while a task uses an interrupt vector not needed by the circuitry.
+
     /// Receive can frames
     #[task(binds = CAN1_RX0, local = [can_rx], shared = [statistics], priority=9)]
     fn isr_can_rx(mut cx: isr_can_rx::Context) {
         task_start!(cx, Task::CanRx);
-
         cx.local.can_rx.on_interrupt();
-
         task_end!(cx, Task::CanRx);
     }
 
@@ -108,9 +112,7 @@ mod app {
     #[task(binds = CAN1_TX, local = [can_tx], shared = [statistics], priority=8)]
     fn isr_can_tx(mut cx: isr_can_tx::Context) {
         task_start!(cx, Task::CanTx);
-
         cx.local.can_tx.on_interrupt();
-
         task_end!(cx, Task::CanTx);
     }
 
@@ -125,7 +127,7 @@ mod app {
         task_end!(cx, Task::Keys);
     }
 
-    /// The controller contains the complete logic for processing the data
+    /// The controller contains the complete logic for processing the data and events
     #[task(local = [controller], shared = [core_model, statistics], priority=5)]
     fn task_controller(mut cx: task_controller::Context) {
         task_start!(cx, Task::Controller);
@@ -139,7 +141,7 @@ mod app {
         task_end!(cx, Task::Controller);
     }
 
-    /// This task prepares the display and passes the data to the appropriate output routines.
+    /// Prepares the display and passes the data to the appropriate output routines.
     /// This mainly concerns the LCD but also the sound output.
     #[task(local = [view], shared = [core_model, statistics], priority=5)]
     fn task_view(mut cx: task_view::Context) {
@@ -162,9 +164,7 @@ mod app {
     #[task(local = [frame_buffer], shared = [statistics], priority=4)]
     fn task_lcd_copy(mut cx: task_lcd_copy::Context) {
         task_start!(cx, Task::LcdCopy);
-
         flush(cx.local.frame_buffer);
-
         task_end!(cx, Task::LcdCopy);
     }
 }

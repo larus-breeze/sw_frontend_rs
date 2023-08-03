@@ -24,6 +24,11 @@ impl AirSpeed {
         }
     }
 
+    /// Creates an instance from speeds
+    pub fn from_speeds(ias: Speed, tas: Speed) -> Self {
+        AirSpeed { ias, tas }
+    }
+
     /// Creates an instance from the TAS in the density height NN (IAS == TAS)
     pub fn from_tas_at_nn(tas: Speed) -> Self {
         AirSpeed { ias: tas, tas }

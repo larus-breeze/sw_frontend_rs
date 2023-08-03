@@ -1,31 +1,30 @@
-/// In the embedded rust ecosystem, hardware resources can only be used in one place. For this 
-/// reason, a careful distribution of the required hardware resources to corresponding software 
+/// In the embedded rust ecosystem, hardware resources can only be used in one place. For this
+/// reason, a careful distribution of the required hardware resources to corresponding software
 /// components is necessary. This allocation is done here in the init component.
-/// 
-/// This makes it easy to see precisely which software component has which hardware. For example, 
-/// it can be seen below which pins and timers are used by the keyboard. Here in the Init 
-/// routine the hardware and other resources are allocated - the actual initialization of the 
+///
+/// This makes it easy to see precisely which software component has which hardware. For example,
+/// it can be seen below which pins and timers are used by the keyboard. Here in the init
+/// routine the hardware and other resources are allocated - the actual initialization of the
 /// hardware takes place however in the respective software component, which has the hardware.
-/// 
-/// In addition, the queues are set up here, which connect individual interrupt service rotines 
-/// with tasks communicatively. For example, a queue (Q_RX_FRAMES) is used for Can packets, 
-/// which forwards the frames from the interrupt service routine CanRx to the task DevController. 
+///
+/// In addition, the queues are set up here, which connect individual interrupt service rotines
+/// with tasks communicatively. For example, a queue (Q_RX_FRAMES) is used for Can packets,
+/// which forwards the frames from the interrupt service routine CanRx to the task DevController.
 use defmt::*;
 use {defmt_rtt as _, panic_probe as _};
 
 use crate::driver::{
-    init_can, QTxFrames, QRxFrames, CanRx, CanTx,
-    frame_buffer::FrameBuffer, keyboard::*, Display,
-    DevLcdPins,
+    frame_buffer::FrameBuffer, init_can, keyboard::*, CanRx, CanTx, DevLcdPins, Display, QRxFrames,
+    QTxFrames,
 };
 use crate::{dev_controller::DevController, dev_view::DevView, Statistics};
 use heapless::spsc::Queue;
 use stm32f4xx_hal::{
-    fsmc_lcd::{DataPins16,LcdPins},
+    fsmc_lcd::{DataPins16, LcdPins},
+    gpio::alt::fsmc,
     pac,
     prelude::*,
     timer::monotonic::SysMonoTimerExt,
-    gpio::alt::fsmc,
 };
 use systick_monotonic::*;
 use vario_display::CoreModel;
@@ -85,13 +84,19 @@ pub fn hw_init(
     static mut Q_TX_FRAMES: QTxFrames = Queue::new();
     // Note: unsafe is ok here, because [heapless::spsc] queue protects against UB
     let (p_tx_frames, c_tx_frames) = unsafe { Q_TX_FRAMES.split() };
-    
+
     // This queue transports the can bus frames from the can rx driver to the controller.
     static mut Q_RX_FRAMES: QRxFrames = Queue::new();
     // Note: unsafe is ok here, because [heapless::spsc] queue protects against UB
     let (p_rx_frames, c_rx_frames) = unsafe { Q_RX_FRAMES.split() };
 
-    let (can_tx, can_rx) = init_can(device.CAN1, gpioa.pa12, gpioa.pa11, c_tx_frames, p_rx_frames);
+    let (can_tx, can_rx) = init_can(
+        device.CAN1,
+        gpioa.pa12,
+        gpioa.pa11,
+        c_tx_frames,
+        p_rx_frames,
+    );
 
     // Setup ----------> timer
     let dev_mono_timer = pac::SYST::monotonic(core.SYST, &clocks);

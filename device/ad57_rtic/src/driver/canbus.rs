@@ -1,15 +1,11 @@
+use bxcan::{filter::Mask32, Fifo, Frame, Interrupt};
+use defmt::*;
+use heapless::spsc::{Consumer, Producer, Queue};
 use stm32f4xx_hal::{
+    can::{Can, CanExt},
     gpio::Pin,
     pac::CAN1,
-    can::{Can, CanExt},
 };
-use bxcan::{
-    filter::Mask32, Fifo,
-    Frame, 
-    Interrupt,
-};
-use heapless::spsc::{Consumer, Producer, Queue};
-use defmt::*;
 
 const MAX_TX_FRAMES: usize = 10;
 pub type QTxFrames = Queue<Frame, MAX_TX_FRAMES>;
@@ -21,15 +17,13 @@ pub type QRxFrames = Queue<Frame, MAX_RX_FRAMES>;
 pub type PRxFrames = Producer<'static, Frame, MAX_RX_FRAMES>;
 pub type CRxFrames = Consumer<'static, Frame, MAX_RX_FRAMES>;
 
-
-pub fn init_can (
+pub fn init_can(
     can_1: CAN1,
     tx: Pin<'A', 12>,
     rx: Pin<'A', 11>,
     c_tx_frames: CTxFrames,
     p_rx_frames: PRxFrames,
-)  -> (CanTx, CanRx) {
-
+) -> (CanTx, CanRx) {
     let mut can = {
         let rx = rx.into_alternate::<9>();
         let tx = tx.into_alternate::<9>();
@@ -62,8 +56,12 @@ pub struct CanTx {
 }
 
 impl CanTx {
-    fn new(c_tx_frames: CTxFrames, tx: bxcan::Tx::<Can<CAN1>>) -> Self {
-        CanTx { c_tx_frames, tx, extra_frame: None }
+    fn new(c_tx_frames: CTxFrames, tx: bxcan::Tx<Can<CAN1>>) -> Self {
+        CanTx {
+            c_tx_frames,
+            tx,
+            extra_frame: None,
+        }
     }
 
     pub fn on_interrupt(&mut self) {
@@ -76,7 +74,7 @@ impl CanTx {
             match self.tx.transmit(&frame) {
                 Ok(transmit_status) => {
                     if let Some(frame) = transmit_status.dequeued_frame() {
-                        // Dropping into a mailbox did not work. We need to save the unstored 
+                        // Dropping into a mailbox did not work. We need to save the unstored
                         // frame and wait until something is free again
                         self.extra_frame = Some(frame.clone());
                         return; // All mailboxes are full
@@ -84,7 +82,7 @@ impl CanTx {
                         self.extra_frame = None;
                         trace!("Extra frame put into can tx mailbox");
                     }
-                },
+                }
                 Err(_) => (),
             };
         }
@@ -94,14 +92,14 @@ impl CanTx {
             match self.tx.transmit(&frame) {
                 Ok(transmit_status) => {
                     if let Some(frame) = transmit_status.dequeued_frame() {
-                        // Dropping into a mailbox did not work. We need to save the unstored 
+                        // Dropping into a mailbox did not work. We need to save the unstored
                         // frame and wait until something is free again
                         self.extra_frame = Some(frame.clone());
                         return; // All mailboxes are full
                     } else {
                         trace!("Frame put into can tx mailbox");
                     }
-                },
+                }
                 Err(_) => (),
             };
         }
@@ -114,7 +112,7 @@ pub struct CanRx {
 }
 
 impl CanRx {
-    fn new(p_rx_frames: PRxFrames, rx0:  bxcan::Rx0<Can<CAN1>>) -> Self {
+    fn new(p_rx_frames: PRxFrames, rx0: bxcan::Rx0<Can<CAN1>>) -> Self {
         CanRx { p_rx_frames, rx0 }
     }
 
@@ -125,7 +123,7 @@ impl CanRx {
                 Ok(frame) => {
                     let _ = self.p_rx_frames.enqueue(frame); // silently ignore errors
                     trace!("Received can paket enqueued")
-                },
+                }
                 Err(_) => return,
             }
         }

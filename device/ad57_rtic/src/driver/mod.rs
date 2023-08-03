@@ -7,7 +7,7 @@ mod keyboard;
 mod r61580;
 
 pub use canbus::*;
-pub use display::{flush, Display, DevLcdPins};
+pub use display::{flush, DevLcdPins, Display};
 pub use frame_buffer::FrameBuffer;
 pub use init::*;
 pub use keyboard::*;

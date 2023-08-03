@@ -1,6 +1,6 @@
 use crate::{
-    model::CoreModel, 
-    utils::{FONT_HELV_14, Colors},
+    model::CoreModel,
+    utils::{Colors, FONT_HELV_14},
     CoreError, DrawImage,
 };
 use embedded_graphics::prelude::*;

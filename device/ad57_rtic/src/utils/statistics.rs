@@ -1,19 +1,19 @@
 use crate::{app::monotonics, DevDuration, DevInstant};
 use defmt::*;
 
+use crate::app;
+use rtic::Monotonic;
 use stm32f4xx_hal::{
     pac::TIM2,
     rcc::Clocks,
-    timer::{MonoTimerExt, MonoTimer},
+    timer::{MonoTimer, MonoTimerExt},
 };
-use crate::app;
-use rtic::Monotonic;
 
 #[repr(u8)]
 #[derive(Clone, Copy, Debug)]
 pub enum Task {
     CanRx,
-    CanTx, 
+    CanTx,
     LcdView,
     LcdCopy,
     Keys,
@@ -34,7 +34,14 @@ defmt::timestamp!("{=u32:us}", {
 });
 
 // define the task names
-const TASK_NAMES: [&str; TASK_CNT] = ["can_rx", "can_tx", "lcd_view", "lcd_copy", "keys", "controller"];
+const TASK_NAMES: [&str; TASK_CNT] = [
+    "can_rx",
+    "can_tx",
+    "lcd_view",
+    "lcd_copy",
+    "keys",
+    "controller",
+];
 const TASK_CNT: usize = Task::Count as usize;
 
 // storage for the task times

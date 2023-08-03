@@ -217,7 +217,7 @@ dependencies = [
  "byteorder",
  "embedded-graphics-core",
  "float-cmp",
- "micromath 2.0.0",
+ "micromath",
 ]
 
 [[package]]
@@ -343,12 +343,6 @@ dependencies = [
  "autocfg",
  "scopeguard",
 ]
-
-[[package]]
-name = "micromath"
-version = "1.1.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bc4010833aea396656c2f91ee704d51a6f1329ec2ab56ffd00bfd56f7481ea94"
 
 [[package]]
 name = "micromath"
@@ -729,7 +723,7 @@ dependencies = [
  "embedded-hal 0.2.7",
  "fugit",
  "heapless",
- "micromath 2.0.0",
+ "micromath",
  "nb 1.1.0",
  "panic-halt",
  "panic-probe",
@@ -744,10 +738,11 @@ dependencies = [
 name = "vario_display"
 version = "0.1.0"
 dependencies = [
+ "byteorder",
  "cortex-m",
  "embedded-graphics",
  "heapless",
- "micromath 1.1.1",
+ "micromath",
  "num",
  "u8g2-fonts",
 ]
