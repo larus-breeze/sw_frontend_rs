@@ -32,7 +32,9 @@ pub struct Keyboard {
     btn_enc: Pin<'A', 6>,
 
     tim_enc_1: TIM4,
+    enc_1_cnt: u16,
     tim_enc_2: TIM5,
+    enc_2_cnt: u32,
 
     last_btn_state: u8,
     first_go_to_0: bool,
@@ -85,6 +87,7 @@ impl Keyboard {
         tim_enc_1
             .cr1
             .modify(|_, w| w.cen().set_bit().udis().set_bit()); // Enable timer 4
+        let enc_1_cnt = tim_enc_1.cnt.read().cnt().bits();
 
         // Config encoder 2 port pins
         let _ = enc_2a.into_alternate::<2>(); // Set to alternate function 2
@@ -103,6 +106,7 @@ impl Keyboard {
         tim_enc_2
             .cr1
             .modify(|_, w| w.cen().set_bit().udis().set_bit()); // Enable timer 5
+        let enc_2_cnt = tim_enc_2.cnt.read().cnt().bits();
 
         Self {
             btn_1, // 5 port pins for buttons
@@ -112,7 +116,9 @@ impl Keyboard {
             btn_enc,
 
             tim_enc_1, // 2 timer for rotary encoder
+            enc_1_cnt,
             tim_enc_2,
+            enc_2_cnt,
 
             last_btn_state: 0,    // last state of buttons
             first_go_to_0: false, // we have to wait, befor we accept new key events
@@ -196,13 +202,10 @@ impl Keyboard {
         self.last_btn_state = btn_state;
 
         // Interrogation and evaluation of the rotary encoders
-        let enc_1_state = self.tim_enc_1.cnt.read().cnt().bits();
+        let count = self.tim_enc_1.cnt.read().cnt().bits();
 
-        if enc_1_state != ENC_1_START_VALUE {
-            let mut delta = enc_1_state as i32 - ENC_1_START_VALUE as i32;
-            self.tim_enc_1
-                .cnt
-                .write(|w| w.cnt().bits(ENC_1_START_VALUE));
+        if count != self.enc_1_cnt {
+            let mut delta = count.wrapping_sub(self.enc_1_cnt) as i16;
             while delta > 0 {
                 let _ = self.p_key_event.enqueue(KeyEvent::Rotary1Right);
                 delta -= 1;
@@ -211,15 +214,13 @@ impl Keyboard {
                 let _ = self.p_key_event.enqueue(KeyEvent::Rotary1Left);
                 delta += 1;
             }
+            self.enc_1_cnt = count;
         }
 
-        let enc_2_state = self.tim_enc_2.cnt.read().cnt().bits();
+        let count = self.tim_enc_2.cnt.read().cnt().bits();
 
-        if enc_2_state != ENC_2_START_VALUE {
-            let mut delta = enc_2_state as i32 - ENC_2_START_VALUE as i32;
-            self.tim_enc_2
-                .cnt
-                .write(|w| w.cnt().bits(ENC_2_START_VALUE));
+        if count != self.enc_2_cnt {
+            let mut delta = count.wrapping_sub(self.enc_2_cnt) as i32;
             while delta > 0 {
                 let _ = self.p_key_event.enqueue(KeyEvent::Rotary2Right);
                 delta -= 1;
@@ -228,6 +229,7 @@ impl Keyboard {
                 let _ = self.p_key_event.enqueue(KeyEvent::Rotary2Left);
                 delta += 1;
             }
+            self.enc_2_cnt = count;
         }
     }
 }

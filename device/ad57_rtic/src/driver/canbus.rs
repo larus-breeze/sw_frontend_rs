@@ -7,16 +7,19 @@ use stm32f4xx_hal::{
     pac::CAN1,
 };
 
+// This queue transports the can bus frames from the view component to the can tx driver.
 const MAX_TX_FRAMES: usize = 10;
 pub type QTxFrames = Queue<Frame, MAX_TX_FRAMES>;
 pub type PTxFrames = Producer<'static, Frame, MAX_TX_FRAMES>;
 pub type CTxFrames = Consumer<'static, Frame, MAX_TX_FRAMES>;
 
+// This queue transports the can bus frames from the can rx driver to the controller.
 const MAX_RX_FRAMES: usize = 20;
 pub type QRxFrames = Queue<Frame, MAX_RX_FRAMES>;
 pub type PRxFrames = Producer<'static, Frame, MAX_RX_FRAMES>;
 pub type CRxFrames = Consumer<'static, Frame, MAX_RX_FRAMES>;
 
+/// Initialize peripheral bxcan and generate instances to send and receive can bus frames
 pub fn init_can(
     can_1: CAN1,
     tx: Pin<'A', 12>,
@@ -49,6 +52,7 @@ pub fn init_can(
     (tx_can, rx_can)
 }
 
+/// Interrupt service for sending can bus frames
 pub struct CanTx {
     tx: bxcan::Tx<Can<CAN1>>,
     c_tx_frames: CTxFrames,
@@ -56,6 +60,7 @@ pub struct CanTx {
 }
 
 impl CanTx {
+    /// Generate the service
     fn new(c_tx_frames: CTxFrames, tx: bxcan::Tx<Can<CAN1>>) -> Self {
         CanTx {
             c_tx_frames,
@@ -64,6 +69,7 @@ impl CanTx {
         }
     }
 
+    /// Method to call during an active interrupt
     pub fn on_interrupt(&mut self) {
         trace!("Can tx irq");
 
@@ -106,16 +112,19 @@ impl CanTx {
     }
 }
 
+/// Interrupt service for sending can bus frames
 pub struct CanRx {
     p_rx_frames: PRxFrames,
     rx0: bxcan::Rx0<Can<CAN1>>,
 }
 
 impl CanRx {
+    /// Create the service
     fn new(p_rx_frames: PRxFrames, rx0: bxcan::Rx0<Can<CAN1>>) -> Self {
         CanRx { p_rx_frames, rx0 }
     }
 
+    /// Call this, when irq is active 
     pub fn on_interrupt(&mut self) {
         trace!("Can rx irq");
         while self.p_rx_frames.capacity() > self.p_rx_frames.len() {
