@@ -99,7 +99,7 @@ mod app {
     fn isr_can_rx(mut cx: isr_can_rx::Context) {
         task_start!(cx, Task::CanRx);
 
-        cx.local.can_rx.tick();
+        cx.local.can_rx.on_interrupt();
 
         task_end!(cx, Task::CanRx);
     }
@@ -109,8 +109,7 @@ mod app {
     fn isr_can_tx(mut cx: isr_can_tx::Context) {
         task_start!(cx, Task::CanTx);
 
-        task_keyboard::spawn_after(DevDuration::millis(20)).unwrap();
-        cx.local.can_tx.tick();
+        cx.local.can_tx.on_interrupt();
 
         task_end!(cx, Task::CanTx);
     }
@@ -152,6 +151,9 @@ mod app {
         });
         task_view::spawn_at(view.wake_up_at()).unwrap();
         task_lcd_copy::spawn().unwrap();
+        if view.can_activate() {
+            rtic::pend(stm32f4xx_hal::interrupt::CAN1_TX);
+        }
 
         task_end!(cx, Task::LcdView);
     }

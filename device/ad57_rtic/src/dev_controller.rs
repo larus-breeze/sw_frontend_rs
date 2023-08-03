@@ -1,8 +1,11 @@
 use vario_display::CoreModel;
+use bxcan::Id;
 
-use crate::CKeyEvents;
-use crate::CoreController;
-use crate::driver::CRxFrames;
+use crate:: {
+    CKeyEvents, CoreController,
+    driver::CRxFrames,
+};
+use defmt::*;
 
 pub struct DevController {
     core_controller: CoreController,
@@ -24,9 +27,13 @@ impl DevController {
         while let Some(key_event) = self.c_key_event.dequeue() {
             self.core_controller.key_action(core_model, &key_event);
         }
-        while let Some(_rx_frame) = self.c_rx_frames.dequeue() {
-            ();
+        while let Some(frame) = self.c_rx_frames.dequeue() {
+            match frame.id() {
+                Id::Standard(id) => trace!("Standard id {}", id.as_raw()),
+                Id::Extended(id) => trace!("Extended id {}", id.as_raw()), 
+            }
         }
         self.core_controller.time_action(core_model);
     }
+
 }

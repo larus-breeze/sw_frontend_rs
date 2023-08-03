@@ -140,15 +140,14 @@ pub fn hw_init(
             gpiod.pd5,
             fsmc::ChipSelect1::from(gpiod.pd7),
         );
+        let lcd_reset = gpiod.pd3.into_push_pull_output();
 
         // Initialize the display and clear the screen
-        let lcd_reset = gpiod.pd3.into_push_pull_output();
         let display = Display::new(device.FSMC, lcd_pins, lcd_reset, frame_buffer.split());
-
         DevView::new(display, now, p_tx_frames)
     };
 
-    // Setup ----------> Backlight Port an switch on the lcd backlight
+    // Setup ----------> Backlight Port an switch on the lcd
     let mut backlight = gpiob.pb4.into_push_pull_output();
     backlight.set_high(); // Is fixed at the moment, perhaps PWM in the future
 
