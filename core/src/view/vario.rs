@@ -166,9 +166,9 @@ where
     )?;
 
     // draw wind arrow
-    let wind_speed = cm.sensor.wind_speed.to_km_h();
-    let angle = cm.sensor.wind_angle;
-    let av_angle = cm.sensor.average_wind_angle;
+    let wind_speed = cm.sensor.wind.speed().to_km_h();
+    let angle = cm.sensor.wind.angle();
+    let av_angle = cm.sensor.average_wind.angle();
     let len = match wind_speed {
         x if x < WIND_MIN => SZS.wind_len_min, // Light wind is set to a minimum size
         x if x > WIND_MAX => SZS.wind_len,     // Strong wind is set to a maximum size
@@ -190,8 +190,8 @@ where
 
     // draw wind direction an speed text
     display.draw_img(KM_H, SZS.wind_pos)?;
-    let wind_deg = cm.sensor.wind_angle.to_degrees();
-    let wind_speed = cm.sensor.wind_speed.to_km_h();
+    let wind_deg = cm.sensor.wind.angle().to_degrees();
+    let wind_speed = cm.sensor.wind.speed().to_km_h();
     let s = Concat::<25>::from_f32(wind_deg, 0).push_str("° ");
     let s = s.push_f32(wind_speed, 0);
     FONT_HELV_18.render_aligned(

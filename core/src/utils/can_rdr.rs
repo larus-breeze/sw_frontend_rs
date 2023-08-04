@@ -24,10 +24,10 @@ pub fn read_can_frame<F: Frame>(core_model: &mut CoreModel, frame: &F) {
             core_model.sensor.average_climb_rate = (rdr.i16_into() * 0.001).m_s();
         },
         sensor::WIND => {
-            core_model.sensor.wind_angle = (rdr.i16_into() * 0.001).rad();
-            core_model.sensor.wind_speed = rdr.u16_into().km_h();
-            core_model.sensor.average_wind_angle = (rdr.i16_into() * 0.001).rad();
-            core_model.sensor.average_wind_speed = rdr.u16_into().km_h();
+            core_model.sensor.wind.set_angle((rdr.i16_into() * 0.001).rad());
+            core_model.sensor.wind.set_speed(rdr.u16_into().km_h());
+            core_model.sensor.average_wind.set_angle((rdr.i16_into() * 0.001).rad());
+            core_model.sensor.average_wind.set_speed(rdr.u16_into().km_h());
         },
         sensor::ATHMOSPHERE => {
             core_model.sensor.pressure = rdr.u16_into().n_m2();

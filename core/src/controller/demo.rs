@@ -103,26 +103,28 @@ impl DemoController {
                 cm.sensor.airspeed = AirSpeed::from_tas_at_nn(tas);
             }
             DemoKind::WindDirection => {
-                cm.sensor.wind_angle = val_manip(
-                    cm.sensor.wind_angle.to_degrees(),
+                let angle = val_manip(
+                    cm.sensor.wind.angle().to_degrees(),
                     key_event,
                     5.0,
                     30.0,
                     0.0,
                     359.0,
                 )
-                .deg()
+                .deg();
+                cm.sensor.wind.set_angle(angle);
             }
             DemoKind::WindSpeed => {
-                cm.sensor.wind_speed = val_manip(
-                    cm.sensor.wind_speed.to_km_h(),
+                let speed = val_manip(
+                    cm.sensor.wind.speed().to_km_h(),
                     key_event,
                     1.0,
                     5.0,
                     0.0,
                     99.0,
                 )
-                .km_h()
+                .km_h();
+                cm.sensor.wind.set_speed(speed);
             }
             _ => (), // should never happen
         }

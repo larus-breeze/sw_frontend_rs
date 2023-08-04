@@ -1,10 +1,12 @@
 mod airspeed;
 mod polar;
 mod polar_store;
+mod wind;
 
 pub use airspeed::*;
 pub use polar::{GliderData, Polar};
 pub use polar_store::{POLARS, POLAR_COUNT};
+pub use wind::*;
 
 /// Structure with the basic data of a sailplane
 ///
