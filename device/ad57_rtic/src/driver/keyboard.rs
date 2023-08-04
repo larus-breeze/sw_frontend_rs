@@ -124,7 +124,7 @@ impl Keyboard {
             first_go_to_0: false, // we have to wait, befor we accept new key events
             tick_cnt: 0,          // tick counter for timing functionality
 
-            p_key_event, // queue to consume key events
+            p_key_event, // queue to push key events
         }
     }
 
@@ -160,8 +160,8 @@ impl Keyboard {
                 self.tick_cnt = 0;
             }
         } else {
-            // Triggers when first key is released
             if btn_state < self.last_btn_state {
+                // Triggers when first key is released
                 let _ = match self.last_btn_state {
                     BTN_1 => self.p_key_event.enqueue(KeyEvent::Btn1),
                     BTN_2 => self.p_key_event.enqueue(KeyEvent::Btn2),
@@ -177,9 +177,10 @@ impl Keyboard {
                 };
                 self.first_go_to_0 = true;
                 self.tick_cnt = 0;
-            } else {
+            } else {                
                 if btn_state > 0 {
                     self.tick_cnt += 1;
+                    // Triggers when keys are pressed for more then 3 seconds
                     if self.tick_cnt > 60 {
                         let _ = match btn_state {
                             BTN_1 => self.p_key_event.enqueue(KeyEvent::Btn1S3),

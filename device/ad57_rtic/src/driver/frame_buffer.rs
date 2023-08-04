@@ -2,7 +2,9 @@ use crate::driver::r61580::AVAIL_PIXELS;
 
 #[allow(dead_code)]
 pub struct FrameBuffer {
-    // A note aboute the safety of FrameBuffer:
+    // REMARK: These are conceptual thoughts, currently no DMA has been implemented.
+    //
+    // A note aboute the safety of FrameBuffer: REMARK: A
     //
     // The display driver and the DMA copy routine must both have access to the FRAME_BUFFER and DMA_FINISHED variables.
     // While the display driver needs write access to the buffer, the DMA copy routine reads from it. According to plan

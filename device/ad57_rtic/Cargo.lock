@@ -748,7 +748,6 @@ name = "vario_display"
 version = "0.1.0"
 dependencies = [
  "byteorder",
- "cortex-m",
  "embedded-can",
  "embedded-graphics",
  "heapless",

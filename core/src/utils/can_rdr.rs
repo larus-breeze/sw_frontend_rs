@@ -11,8 +11,8 @@ pub fn read_can_frame<F: Frame>(core_model: &mut CoreModel, frame: &F) {
         Id::Extended(_) => return, // we don't use extended Ids
         Id::Standard(standard_id) => standard_id.as_raw(),
     };
-
     let mut rdr = Reader::new(frame.data());
+
     match id {
         sensor::AIRSPEED => {
             let tas = rdr.u16_into().km_h();
