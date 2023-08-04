@@ -11,6 +11,7 @@ use crate::{
     CoreModel, 
     POLARS
 };
+use embedded_can::Frame;
 
 const UPDATE_RATE: u32 = 10;
 
@@ -109,8 +110,8 @@ impl CoreController {
         }
     }
 
-    pub fn read_can_frame(&self, core_model: &mut CoreModel, id: u32, data: &[u8; 8]) {
-        read_can_frame(core_model, id, data)
+    pub fn read_can_frame<F: Frame>(&self, core_model: &mut CoreModel, frame: &F) {
+        read_can_frame(core_model, frame)
     }
 
     fn check_edit_results(&mut self, core_model: &mut CoreModel) {

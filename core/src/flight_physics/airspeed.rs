@@ -1,8 +1,5 @@
 use crate::system_of_units::{Float, Speed};
 
-#[cfg(feature = "f32")]
-use crate::micromath::F32Ext;
-
 /// Represents the speed with respect to air
 ///
 /// Returns either the TAS or the IAS, which can then be used in km/h or other units.
