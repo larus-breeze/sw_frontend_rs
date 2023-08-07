@@ -63,7 +63,7 @@ pub mod audio {
 
 #[rustfmt::skip]
 #[allow(unused)]
-pub mod display {
+pub mod frontend {
     pub const HEART_BEAT: u16 = 0x300;      // u32  version as 0x0102002a "1.02 Build 42"
     pub const CMD_2_XCSOAR: u16 = 0x301;    // u8 command for XCSoar
                                             // = 0 Unforce XCSoar CLIMB-CRUISE

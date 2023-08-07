@@ -1,5 +1,6 @@
 mod can_ids;
 mod can_rdr;
+mod can_wtr;
 mod colors;
 mod concat;
 mod error;
@@ -13,7 +14,7 @@ pub use key_event::*;
 pub use rgb565_colors::RGB565_COLORS;
 
 pub(crate) use can_rdr::read_can_frame;
-pub use can_ids::{sensor, audio, display};
+pub use can_ids::{sensor, audio, frontend};
 
 use u8g2_fonts::{fonts, FontRenderer};
 pub const FONT_HELV_14: FontRenderer = FontRenderer::new::<fonts::u8g2_font_helvR14_tf>();
