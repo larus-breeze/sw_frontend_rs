@@ -17,6 +17,7 @@ use crate::{
 #[derive(Default)]
 pub struct CoreModel {
     pub calculated: Calculated,
+    pub config: Config,
     pub control: Control,
     pub glider_data: GliderData,
     pub sensor: Sensor,
@@ -65,7 +66,6 @@ pub struct Calculated {
     pub speed_to_fly: AirSpeed,
     pub speed_to_fly_dif: Speed,
     pub thermal_climb_rate: Speed,
-    pub volume: i8,
 }
 
 impl Default for Calculated {
@@ -76,33 +76,54 @@ impl Default for Calculated {
             speed_to_fly: AirSpeed::from_tas_at_nn(127.0.km_h()),
             speed_to_fly_dif: 3.0.km_h(),
             thermal_climb_rate: 1.3.m_s(),
+        }
+    }
+}
+
+/// Metastructur for config variable, which are saved in EEPROM
+#[repr(C, packed)]  // Config will be saved as a binary copy, so we need a fixed layout
+pub struct Config {
+    pub version: u16,
+    pub magic: u64,
+    pub display_active: DisplayActive,
+    pub glider_idx: i32,
+    pub volume: i8,
+}
+
+const VERSION: u16 = 1;
+const MAGIC: u64 = 0x_4204_17bd_4596_4242; 
+
+impl Default for Config {
+    fn default() -> Self {
+        Self {
+            version: VERSION,
+            magic: MAGIC,
+            display_active: DisplayActive::Vario,
+            glider_idx: 104,
             volume: 0,
         }
     }
 }
 
+
 /// Metastructure for different control variables
 pub struct Control {
-    pub display_active: DisplayActive,
     pub fly_mode: FlyMode,
     pub vario_mode: VarioMode,
     pub edit_mode: EditMode,
     pub edit_var: Editable,
     pub edit_ticks: u32,
-    pub glider_idx: i32,
     pub demo_acitve: bool,
 }
 
 impl Default for Control {
     fn default() -> Self {
         Self {
-            display_active: DisplayActive::Vario,
             fly_mode: FlyMode::Circling,
             vario_mode: VarioMode::Vario,
             edit_mode: EditMode::Section,
             edit_var: Editable::ClimbRate,
             edit_ticks: 0,
-            glider_idx: 104,
             demo_acitve: true,
         }
     }

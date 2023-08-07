@@ -49,7 +49,7 @@ pub struct CoreController {
 
 impl CoreController {
     pub fn new(core_model: &mut CoreModel) -> Self {
-        let polar_idx = core_model.control.glider_idx as usize;
+        let polar_idx = core_model.config.glider_idx as usize;
         let polar = Polar::new(&POLARS[polar_idx], &mut core_model.glider_data);
         Self {
             demo: DemoController::new(),
@@ -117,7 +117,7 @@ impl CoreController {
     fn check_edit_results(&mut self, core_model: &mut CoreModel) {
         match core_model.control.edit_var {
             Editable::Glider => {
-                let polar_idx = core_model.control.glider_idx as usize;
+                let polar_idx = core_model.config.glider_idx as usize;
                 self.polar = Polar::new(&POLARS[polar_idx], &mut core_model.glider_data)
             }
             _ => (),
