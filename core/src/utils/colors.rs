@@ -144,7 +144,9 @@ pub enum Colors {
     YellowGreen = 138,         // Rgb(154, 205, 50)
 }
 
-use embedded_graphics::pixelcolor::{raw::RawU8, PixelColor};
+const MAX: u8 = 138;
+
+use embedded_graphics::pixelcolor::{PixelColor, raw::RawU8};
 
 impl PixelColor for Colors {
     type Raw = RawU8;
@@ -156,7 +158,7 @@ impl From<Colors> for RawU8 {
     }
 }
 
-use embedded_graphics::pixelcolor::{BinaryColor, Rgb888};
+use embedded_graphics::pixelcolor::{Rgb888, BinaryColor};
 use embedded_graphics::prelude::WebColors;
 
 impl From<Rgb888> for Colors {
@@ -173,8 +175,12 @@ impl From<BinaryColor> for Colors {
 
 impl From<u8> for Colors {
     fn from(color: u8) -> Self {
-        // Safety: This will only work for u8 < 139
-        unsafe { core::mem::transmute::<u8, Colors>(color) }
+        if color <= MAX {
+            // Safety: We checked the range, so transmute is ok
+            unsafe { core::mem::transmute::<u8, Colors>(color) }
+        } else {
+            Colors::Red // default Value to see something
+        }
     }
 }
 

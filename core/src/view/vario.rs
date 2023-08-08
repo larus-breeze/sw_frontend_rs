@@ -135,7 +135,7 @@ where
     scale_marker(
         display,
         CENTER,
-        cm.calculated.mc_cready.to_m_s(),
+        cm.config.mc_cready.to_m_s(),
         RADIUS as i32,
         SZS.mc_len as i32,
         SZS.mc_width,

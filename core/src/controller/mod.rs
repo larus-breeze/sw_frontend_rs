@@ -93,7 +93,7 @@ impl CoreController {
             core_model.control.edit_ticks -= 1;
         }
         let climb_rate = core_model.sensor.climb_rate;
-        let mc_cready = core_model.calculated.mc_cready;
+        let mc_cready = core_model.config.mc_cready;
         let sink_rate = self.polar.sink_rate(core_model.sensor.airspeed);
         core_model.calculated.speed_to_fly =
             self.polar.speed_to_fly(climb_rate - sink_rate, mc_cready);

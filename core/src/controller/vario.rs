@@ -34,8 +34,8 @@ impl VarioController {
 
         match self.edit_var {
             Editable::McCready => {
-                cm.calculated.mc_cready = val_manip(
-                    cm.calculated.mc_cready.to_m_s(),
+                cm.config.mc_cready = val_manip(
+                    cm.config.mc_cready.to_m_s(),
                     key_event,
                     0.1,
                     0.5,

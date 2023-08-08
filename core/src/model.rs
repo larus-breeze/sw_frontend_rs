@@ -62,7 +62,6 @@ pub enum DisplayActive {
 
 /// Metastructure for calculated or set values
 pub struct Calculated {
-    pub mc_cready: Speed,
     pub speed_to_fly: AirSpeed,
     pub speed_to_fly_dif: Speed,
     pub thermal_climb_rate: Speed,
@@ -72,7 +71,6 @@ impl Default for Calculated {
     #[allow(unused)]
     fn default() -> Self {
         Calculated {
-            mc_cready: 0.7.m_s(),
             speed_to_fly: AirSpeed::from_tas_at_nn(127.0.km_h()),
             speed_to_fly_dif: 3.0.km_h(),
             thermal_climb_rate: 1.3.m_s(),
@@ -82,24 +80,19 @@ impl Default for Calculated {
 
 /// Metastructur for config variables
 pub struct Config {
-    pub version: u16,
-    pub magic: u64,
     pub display_active: DisplayActive,
     pub glider_idx: i32,
     pub volume: i8,
+    pub mc_cready: Speed,
 }
-
-const VERSION: u16 = 1;
-const MAGIC: u64 = 0x_4204_17bd_4596_4242; 
 
 impl Default for Config {
     fn default() -> Self {
         Self {
-            version: VERSION,
-            magic: MAGIC,
             display_active: DisplayActive::Vario,
             glider_idx: 104,
             volume: 0,
+            mc_cready: 0.7.m_s(),
         }
     }
 }

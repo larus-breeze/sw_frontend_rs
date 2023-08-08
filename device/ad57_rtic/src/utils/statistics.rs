@@ -12,18 +12,24 @@ use stm32f4xx_hal::{
 #[repr(u8)]
 #[derive(Clone, Copy, Debug)]
 pub enum Task {
-    CanRx,
-    CanTx,
-    LcdView,
-    LcdCopy,
-    Keys,
-    Controller,
-    Count,
+    CanRx = 0,
+    CanTx = 1,
+    LcdView = 2,
+    LcdCopy = 3,
+    Keys = 4,
+    Controller = MAX,
 }
+
+const MAX: u8 = 5;
 
 impl Task {
     pub fn from_usize(u: usize) -> Self {
-        unsafe { core::mem::transmute::<u8, Task>(u as u8) }
+        if u <= MAX as usize {
+            // We checked the range, so transmute is ok
+            unsafe { core::mem::transmute::<u8, Task>(u as u8) }
+        } else {
+            core::panic!()
+        }
     }
 }
 
@@ -42,7 +48,7 @@ const TASK_NAMES: [&str; TASK_CNT] = [
     "keys",
     "controller",
 ];
-const TASK_CNT: usize = Task::Count as usize;
+const TASK_CNT: usize = (MAX + 1) as usize;
 
 // storage for the task times
 #[derive(Clone, Copy)]

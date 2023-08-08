@@ -74,7 +74,7 @@ fn get_edit_strs<'a>(cm: &'a CoreModel) -> (&'a str, Concat<20>) {
             .push_f32(cm.sensor.climb_rate.to_m_s(), 1)
             .push_str(" m/s"),
         Editable::Glider => val_str.push_str(POLARS[cm.config.glider_idx as usize].name),
-        Editable::McCready => val_str.push_f32(cm.calculated.mc_cready.to_m_s(), 1),
+        Editable::McCready => val_str.push_f32(cm.config.mc_cready.to_m_s(), 1),
         Editable::PilotWeight => val_str.push_f32(cm.glider_data.pilot_weight.to_kg(), 0),
         Editable::Speed => val_str
             .push_f32(cm.sensor.airspeed.ias().to_km_h(), 0)
