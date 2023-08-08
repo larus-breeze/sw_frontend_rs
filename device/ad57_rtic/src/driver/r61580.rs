@@ -259,16 +259,19 @@ where
 
     #[inline]
     pub fn write_command(&mut self, cmd: u8) {
+        // Safety: Writing u8 is atomic, so unsafe is ok
         unsafe { core::ptr::write_volatile(0x60000000 as *mut u8, cmd) }
     }
 
     #[inline]
     pub fn write_data(&mut self, data: u16) {
+        // Safety: Writing u16 is atomic, so unsafe is ok
         unsafe { core::ptr::write_volatile(0x60020000 as *mut u16, data) };
     }
 
     #[inline]
     pub fn read_data(&self) -> u16 {
+        // Safety: Reading u16 is atomic, so unsafe is ok
         unsafe { core::ptr::read_volatile(0x60020000 as *const u16) }
     }
 

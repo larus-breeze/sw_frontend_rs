@@ -125,11 +125,13 @@ impl DrawImage for Display {
 pub fn flush(frame_buffer: &FrameBuffer) {
     #[inline]
     fn write_command(cmd: u8) {
+        // Safety: Writing u8 is atomic, so unsafe is ok
         unsafe { core::ptr::write_volatile(0x60000000 as *mut u8, cmd) }
     }
 
     #[inline]
     fn write_data(data: u16) {
+        // Safety: Writing u16 is atomic, so unsafe is ok
         unsafe { core::ptr::write_volatile(0x60020000 as *mut u16, data) };
     }
 

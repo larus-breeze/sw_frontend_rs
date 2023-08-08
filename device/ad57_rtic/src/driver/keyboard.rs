@@ -117,6 +117,7 @@ impl Keyboard {
         let rcc = unsafe { &(*RCC::ptr()) };
 
         // Config encoder 1 timer
+        // Safety (unsafe) atomic writes are ok here
         let tim_enc_1 = enc1_res.tim_enc_1;
         rcc.apb1enr.modify(|_, w| w.tim4en().set_bit()); // Enable timer 4
         tim_enc_1.cnt.write(|w| w.cnt().bits(ENC_1_START_VALUE));
@@ -137,6 +138,7 @@ impl Keyboard {
         let _ = enc2_res.enc_2b.into_alternate::<2>(); // Set to alternate function 2
 
         // Config encoder 2 timer
+        // Safety (unsafe) atomic writes are ok here
         let tim_enc_2 = enc2_res.tim_enc_2;
         rcc.apb1enr.modify(|_, w| w.tim5en().set_bit()); // Enable timer 5
         tim_enc_2.cnt.write(|w| w.cnt().bits(ENC_2_START_VALUE));
