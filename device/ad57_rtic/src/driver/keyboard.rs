@@ -3,7 +3,7 @@ use stm32f4xx_hal::{
     gpio::Pin,
     pac::{RCC, TIM4, TIM5},
 };
-use vario_display::utils::KeyEvent;
+use vario_display::KeyEvent;
 
 const MAX_KEY_EVENTS: usize = 8;
 pub type QKeyEvents = Queue<KeyEvent, MAX_KEY_EVENTS>;

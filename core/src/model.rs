@@ -80,8 +80,7 @@ impl Default for Calculated {
     }
 }
 
-/// Metastructur for config variable, which are saved in EEPROM
-#[repr(C, packed)]  // Config will be saved as a binary copy, so we need a fixed layout
+/// Metastructur for config variables
 pub struct Config {
     pub version: u16,
     pub magic: u64,
