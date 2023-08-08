@@ -3,6 +3,7 @@ mod can_rdr;
 mod can_wtr;
 mod colors;
 mod concat;
+mod config_item;
 mod error;
 mod key_event;
 mod rgb565_colors;
