@@ -5,11 +5,10 @@ mod vario;
 use vario::VarioController;
 
 use crate::{
-    flight_physics::Polar, 
-    model::EditMode, 
-    utils::{KeyEvent, read_can_frame}, 
-    CoreModel, 
-    POLARS
+    flight_physics::Polar,
+    model::EditMode,
+    utils::{read_can_frame, KeyEvent},
+    CoreModel, POLARS,
 };
 use embedded_can::Frame;
 
@@ -102,6 +101,7 @@ impl CoreController {
 
         // The following actions are performed infrequently and alternately
         self.tick = (self.tick + 1) % 10; // 10 Hz -> every second from beginning
+        #[allow(clippy::single_match)]
         match self.tick {
             1 => self
                 .polar
@@ -115,6 +115,7 @@ impl CoreController {
     }
 
     fn check_edit_results(&mut self, core_model: &mut CoreModel) {
+        #[allow(clippy::single_match)]
         match core_model.control.edit_var {
             Editable::Glider => {
                 let polar_idx = core_model.config.glider_idx as usize;

@@ -1,8 +1,5 @@
+use byteorder::{ByteOrder, LittleEndian as LE};
 use embedded_can::{Frame, Id, StandardId};
-use byteorder::{
-    LittleEndian as LE,
-    ByteOrder,
-};
 
 struct CanFrame {
     id: u16,
@@ -12,7 +9,7 @@ struct CanFrame {
 
 #[allow(unused)]
 impl CanFrame {
-    fn empty_from_id(id: u16)-> Self {
+    fn empty_from_id(id: u16) -> Self {
         CanFrame {
             id,
             len: 0,
@@ -60,7 +57,6 @@ impl CanFrame {
         LE::write_f32(&mut self.data[idx..(self.len as usize)], val);
     }
 }
-
 
 impl Frame for CanFrame {
     fn new(id: impl Into<Id>, data: &[u8]) -> Option<Self> {

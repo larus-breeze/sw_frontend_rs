@@ -23,9 +23,9 @@ pub struct FrameBuffer {
 #[allow(clippy::new_without_default)]
 impl FrameBuffer {
     pub fn new() -> Self {
-        #[link_section=".ccmram.BUFFERS"]
+        #[link_section = ".ccmram.BUFFERS"]
         static mut FRAME_BUFFER: [u8; AVAIL_PIXELS] = [0; AVAIL_PIXELS];
-        
+
         let buf = unsafe { &mut FRAME_BUFFER };
 
         FrameBuffer { buf }

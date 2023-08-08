@@ -77,37 +77,31 @@ impl CanTx {
 
         // we first check if there is anything left in the extra frame buffer
         if let Some(frame) = &self.extra_frame {
-            match self.tx.transmit(&frame) {
-                Ok(transmit_status) => {
-                    if let Some(frame) = transmit_status.dequeued_frame() {
-                        // Dropping into a mailbox did not work. We need to save the unstored
-                        // frame and wait until something is free again
-                        self.extra_frame = Some(frame.clone());
-                        return; // All mailboxes are full
-                    } else {
-                        self.extra_frame = None;
-                        trace!("Extra frame put into can tx mailbox");
-                    }
+            if let Ok(transmit_status) = self.tx.transmit(frame) {
+                if let Some(frame) = transmit_status.dequeued_frame() {
+                    // Dropping into a mailbox did not work. We need to save the unstored
+                    // frame and wait until something is free again
+                    self.extra_frame = Some(frame.clone());
+                    return; // All mailboxes are full
+                } else {
+                    self.extra_frame = None;
+                    trace!("Extra frame put into can tx mailbox");
                 }
-                Err(_) => (),
-            };
+            }
         }
 
-        // ow we work off the queue
+        // now we work off the queue
         while let Some(frame) = self.c_tx_frames.dequeue() {
-            match self.tx.transmit(&frame) {
-                Ok(transmit_status) => {
-                    if let Some(frame) = transmit_status.dequeued_frame() {
-                        // Dropping into a mailbox did not work. We need to save the unstored
-                        // frame and wait until something is free again
-                        self.extra_frame = Some(frame.clone());
-                        return; // All mailboxes are full
-                    } else {
-                        trace!("Frame put into can tx mailbox");
-                    }
+            if let Ok(transmit_status) = self.tx.transmit(&frame) {
+                if let Some(frame) = transmit_status.dequeued_frame() {
+                    // Dropping into a mailbox did not work. We need to save the unstored
+                    // frame and wait until something is free again
+                    self.extra_frame = Some(frame.clone());
+                    return; // All mailboxes are full
+                } else {
+                    trace!("Frame put into can tx mailbox");
                 }
-                Err(_) => (),
-            };
+            }
         }
     }
 }
@@ -124,7 +118,7 @@ impl CanRx {
         CanRx { p_rx_frames, rx0 }
     }
 
-    /// Call this, when irq is active 
+    /// Call this, when irq is active
     pub fn on_interrupt(&mut self) {
         trace!("Can rx irq");
         while self.p_rx_frames.capacity() > self.p_rx_frames.len() {

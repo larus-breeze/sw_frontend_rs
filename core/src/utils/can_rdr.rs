@@ -1,10 +1,9 @@
-use crate::{CoreModel, FloatToSpeed, AirSpeed, FloatToPressure, FloatToDensity};
-use byteorder::{LittleEndian as LE, ByteOrder};
+use crate::{AirSpeed, CoreModel, FloatToDensity, FloatToPressure, FloatToSpeed};
+use byteorder::{ByteOrder, LittleEndian as LE};
 use embedded_graphics::prelude::AngleUnit;
 
 use crate::utils::sensor;
 use embedded_can::{Frame, Id};
-
 
 pub fn read_can_frame<F: Frame>(core_model: &mut CoreModel, frame: &F) {
     let id = match frame.id() {
@@ -18,35 +17,47 @@ pub fn read_can_frame<F: Frame>(core_model: &mut CoreModel, frame: &F) {
             let tas = (rdr.pop_u16() as f32).km_h();
             let ias = (rdr.pop_u16() as f32).km_h();
             core_model.sensor.airspeed = AirSpeed::from_speeds(ias, tas);
-        },
+        }
         sensor::VARIO => {
             core_model.sensor.climb_rate = ((rdr.pop_i16() as f32) * 0.001).m_s();
             core_model.sensor.average_climb_rate = ((rdr.pop_i16() as f32) * 0.001).m_s();
-        },
+        }
         sensor::WIND => {
-            core_model.sensor.wind.set_angle(((rdr.pop_i16() as f32) * 0.001).rad());
-            core_model.sensor.wind.set_speed((rdr.pop_u16() as f32).km_h());
-            core_model.sensor.average_wind.set_angle(((rdr.pop_i16() as f32) * 0.001).rad());
-            core_model.sensor.average_wind.set_speed((rdr.pop_u16() as f32).km_h());
-        },
+            core_model
+                .sensor
+                .wind
+                .set_angle(((rdr.pop_i16() as f32) * 0.001).rad());
+            core_model
+                .sensor
+                .wind
+                .set_speed((rdr.pop_u16() as f32).km_h());
+            core_model
+                .sensor
+                .average_wind
+                .set_angle(((rdr.pop_i16() as f32) * 0.001).rad());
+            core_model
+                .sensor
+                .average_wind
+                .set_speed((rdr.pop_u16() as f32).km_h());
+        }
         sensor::ATHMOSPHERE => {
             core_model.sensor.pressure = (rdr.pop_u16() as f32).n_m2();
             core_model.sensor.density = (rdr.pop_u16() as f32).g_m3();
-        },
+        }
         _ => (), // all other frames are ignored
     }
 }
 
 struct Reader<'a> {
-    data: &'a[u8],
+    data: &'a [u8],
     pos: usize,
 }
 
-impl <'a>Reader<'a> {
+impl<'a> Reader<'a> {
     #[inline]
     #[allow(unused)]
-    fn new(data: &'a[u8]) -> Self {
-        Reader {data, pos:0}
+    fn new(data: &'a [u8]) -> Self {
+        Reader { data, pos: 0 }
     }
 
     #[inline]
@@ -105,7 +116,6 @@ impl <'a>Reader<'a> {
         LE::read_f32(&self.data[idx..self.pos])
     }
 }
-
 
 #[cfg(test)]
 mod tests {

@@ -8,6 +8,7 @@
 		}
 	],
 	"settings": {
-		"cortex-debug.variableUseNaturalFormat": true
+		"cortex-debug.variableUseNaturalFormat": true,
+		"rust-analyzer.showUnlinkedFileNotification": false
 	}
 }

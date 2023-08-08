@@ -34,15 +34,8 @@ impl VarioController {
 
         match self.edit_var {
             Editable::McCready => {
-                cm.config.mc_cready = val_manip(
-                    cm.config.mc_cready.to_m_s(),
-                    key_event,
-                    0.1,
-                    0.5,
-                    0.0,
-                    5.0,
-                )
-                .m_s()
+                cm.config.mc_cready =
+                    val_manip(cm.config.mc_cready.to_m_s(), key_event, 0.1, 0.5, 0.0, 5.0).m_s()
             }
             Editable::Volume => {
                 cm.config.volume = match key_event {

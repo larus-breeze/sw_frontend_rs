@@ -146,7 +146,7 @@ pub enum Colors {
 
 const MAX: u8 = 138;
 
-use embedded_graphics::pixelcolor::{PixelColor, raw::RawU8};
+use embedded_graphics::pixelcolor::{raw::RawU8, PixelColor};
 
 impl PixelColor for Colors {
     type Raw = RawU8;
@@ -158,7 +158,7 @@ impl From<Colors> for RawU8 {
     }
 }
 
-use embedded_graphics::pixelcolor::{Rgb888, BinaryColor};
+use embedded_graphics::pixelcolor::{BinaryColor, Rgb888};
 use embedded_graphics::prelude::WebColors;
 
 impl From<Rgb888> for Colors {

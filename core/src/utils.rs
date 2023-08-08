@@ -14,8 +14,8 @@ pub use error::CoreError;
 pub use key_event::*;
 pub use rgb565_colors::RGB565_COLORS;
 
+pub use can_ids::{audio, frontend, sensor};
 pub(crate) use can_rdr::read_can_frame;
-pub use can_ids::{sensor, audio, frontend};
 
 use u8g2_fonts::{fonts, FontRenderer};
 pub const FONT_HELV_14: FontRenderer = FontRenderer::new::<fonts::u8g2_font_helvR14_tf>();

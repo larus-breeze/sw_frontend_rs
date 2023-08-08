@@ -78,13 +78,12 @@ impl Polar {
         glider_data.bugs = 1.0;
         let density_ratio = 1.0;
 
-        let p = Self {
+        Self {
             v_max,
             density_ratio,
             curr,
             refer,
-        };
-        p
+        }
     }
 
     /// Returns the sink rate of the glider

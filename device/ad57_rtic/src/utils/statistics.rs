@@ -74,7 +74,7 @@ const INTERVAL: usize = 3;
 impl Statistics {
     #[allow(clippy::new_without_default)]
     pub fn new(tim2: TIM2, clocks: &Clocks) -> Self {
-        let timer = tim2.monotonic(&clocks);
+        let timer = tim2.monotonic(clocks);
 
         // initialize storage
         let stats = StatTimes {
@@ -101,7 +101,7 @@ impl Statistics {
         let now = self.timer.now().ticks();
 
         if self.stack_cnt > 0 {
-            let low_prio_task = self.stack[(self.stack_cnt - 1) as usize];
+            let low_prio_task = self.stack[self.stack_cnt - 1];
             let low_prio_stats = &mut self.stats[low_prio_task as usize];
             low_prio_stats.act_task_time += now.saturating_sub(low_prio_stats.last_start);
         }
@@ -137,35 +137,33 @@ impl Statistics {
         self.stack_cnt -= 1;
 
         if self.stack_cnt > 0 {
-            let low_prio_task_idx = self.stack[self.stack_cnt as usize - 1] as usize;
+            let low_prio_task_idx = self.stack[self.stack_cnt - 1] as usize;
             let low_prio_stats = &mut self.stats[low_prio_task_idx];
             low_prio_stats.last_start = now;
-        } else {
-            if monotonics::now() > self.next_show {
-                let mut workload: u32 = 0;
-                info!("Task      Calls Min Max Mean");
-                for (idx, task_name) in TASK_NAMES.iter().enumerate().take(TASK_CNT) {
-                    let stats = &mut self.stats[idx];
-                    workload = workload.saturating_add(stats.sum_time);
-                    let mean = if stats.count > 0 {
-                        stats.sum_time / stats.count
-                    } else {
-                        0
-                    };
-                    info!(
-                        "{} {} {} {} {}",
-                        task_name, stats.count, stats.min_time, stats.max_time, mean
-                    );
-                    stats.min_time = u32::MAX;
-                    stats.max_time = 0;
-                    stats.sum_time = 0;
-                    stats.count = 0;
-                    stats.act_task_time = 0;
-                }
-                let workload = workload / (1_000_000 * INTERVAL as u32 / 100);
-                info!("Workload {}%", workload);
-                self.next_show += DevDuration::secs(INTERVAL as u64);
+        } else if monotonics::now() > self.next_show {
+            let mut workload: u32 = 0;
+            info!("Task      Calls Min Max Mean");
+            for (idx, task_name) in TASK_NAMES.iter().enumerate().take(TASK_CNT) {
+                let stats = &mut self.stats[idx];
+                workload = workload.saturating_add(stats.sum_time);
+                let mean = if stats.count > 0 {
+                    stats.sum_time / stats.count
+                } else {
+                    0
+                };
+                info!(
+                    "{} {} {} {} {}",
+                    task_name, stats.count, stats.min_time, stats.max_time, mean
+                );
+                stats.min_time = u32::MAX;
+                stats.max_time = 0;
+                stats.sum_time = 0;
+                stats.count = 0;
+                stats.act_task_time = 0;
             }
+            let workload = workload / (1_000_000 * INTERVAL as u32 / 100);
+            info!("Workload {}%", workload);
+            self.next_show += DevDuration::secs(INTERVAL as u64);
         }
     }
 }

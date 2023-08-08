@@ -47,7 +47,6 @@ pub fn hw_init(
     device: pac::Peripherals,
     core: cortex_m::peripheral::Peripherals,
     core_model: &mut CoreModel,
-    now: DevInstant,
 ) -> (
     CanRx,
     CanTx,
@@ -78,18 +77,29 @@ pub fn hw_init(
     let gpiod = device.GPIOD.split();
     let gpioe = device.GPIOE.split();
 
-    // Setup ----------> can bus interface
-
+    // Setup ----------> the queues
     // This queue transports the can bus frames from the view component to the can tx driver.
-    static mut Q_TX_FRAMES: QTxFrames = Queue::new();
-    // Note: unsafe is ok here, because [heapless::spsc] queue protects against UB
-    let (p_tx_frames, c_tx_frames) = unsafe { Q_TX_FRAMES.split() };
+    let (p_tx_frames, c_tx_frames) = {
+        static mut Q_TX_FRAMES: QTxFrames = Queue::new();
+        // Note: unsafe is ok here, because [heapless::spsc] queue protects against UB
+        unsafe { Q_TX_FRAMES.split() }
+    };
 
     // This queue transports the can bus frames from the can rx driver to the controller.
-    static mut Q_RX_FRAMES: QRxFrames = Queue::new();
-    // Note: unsafe is ok here, because [heapless::spsc] queue protects against UB
-    let (p_rx_frames, c_rx_frames) = unsafe { Q_RX_FRAMES.split() };
+    let (p_rx_frames, c_rx_frames) = {
+        static mut Q_RX_FRAMES: QRxFrames = Queue::new();
+        // Note: unsafe is ok here, because [heapless::spsc] queue protects against UB
+        unsafe { Q_RX_FRAMES.split() }
+    };
 
+    // This queue routes the key events from the keyboard crate to the controller.
+    let (p_key_events, c_key_events) = {
+        static mut Q_KEY_EVENTS: QKeyEvents = Queue::new();
+        // Note: unsafe is ok here, because [heapless::spsc] queue protects against UB
+        unsafe { Q_KEY_EVENTS.split() }
+    };
+
+    // Setup ----------> can bus interface
     let (can_tx, can_rx) = init_can(
         device.CAN1,
         gpioa.pa12,
@@ -105,25 +115,13 @@ pub fn hw_init(
     let statistics = Statistics::new(device.TIM2, &clocks);
 
     // Setup ----------> The front key interface
-    // This queue routes the key events from the keyboard crate to the controller.
-    static mut Q_KEY_EVENTS: QKeyEvents = Queue::new();
-    // Note: unsafe is ok here, because [heapless::spsc] queue protects against UB
-    let (p_key_events, c_key_events) = unsafe { Q_KEY_EVENTS.split() };
-
-    let keyboard = Keyboard::new(
-        gpioa.pa7,
-        gpioc.pc5,
-        gpiob.pb0,
-        gpiob.pb1,
-        gpioa.pa6,
-        device.TIM4,
-        gpiod.pd12,
-        gpiod.pd13,
-        device.TIM5,
-        gpioa.pa0,
-        gpioa.pa1,
-        p_key_events,
-    );
+    let keyboard = {
+        let keyboard_pins =
+            KeyboardPins::new(gpioa.pa7, gpioc.pc5, gpiob.pb0, gpiob.pb1, gpioa.pa6);
+        let enc1_res = Enc1Res::new(device.TIM4, gpiod.pd12, gpiod.pd13);
+        let enc2_res = Enc2Res::new(device.TIM5, gpioa.pa0, gpioa.pa1);
+        Keyboard::new(keyboard_pins, enc1_res, enc2_res, p_key_events)
+    };
 
     // Setup ----------> controller
     let dev_controller = DevController::new(core_model, c_key_events, c_rx_frames);
@@ -149,7 +147,7 @@ pub fn hw_init(
 
         // Initialize the display and clear the screen
         let display = Display::new(device.FSMC, lcd_pins, lcd_reset, frame_buffer.split());
-        DevView::new(display, now, p_tx_frames)
+        DevView::new(display, p_tx_frames)
     };
 
     // Setup ----------> Backlight Port an switch on the lcd

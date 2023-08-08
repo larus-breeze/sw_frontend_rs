@@ -2,9 +2,9 @@ use embedded_graphics::geometry::AngleUnit;
 
 use crate::{
     controller::Editable,
-    flight_physics::{GliderData, Wind}, 
-    system_of_units::{FloatToSpeed, Speed, Pressure},
-    AirSpeed, Density, 
+    flight_physics::{GliderData, Wind},
+    system_of_units::{FloatToSpeed, Pressure, Speed},
+    AirSpeed, Density,
 };
 
 /// Data model for the entire device
@@ -36,16 +36,16 @@ pub enum FlyMode {
     StraightFlight,
 }
 
-/// This enum is relevant for the View component. During Vario mode, information needed to 
-/// optimize climbing in thermals is displayed. SppedToFly, on the other hand, is intended 
-/// for optimal pre-flight. 
+/// This enum is relevant for the View component. During Vario mode, information needed to
+/// optimize climbing in thermals is displayed. SppedToFly, on the other hand, is intended
+/// for optimal pre-flight.
 #[repr(u8)]
 pub enum VarioMode {
     Vario,
     SpeedToFly,
 }
 
-/// Enum mode controls whether the background should be visible or not when editing a data 
+/// Enum mode controls whether the background should be visible or not when editing a data
 /// point.
 #[repr(u8)]
 pub enum EditMode {
@@ -58,7 +58,6 @@ pub enum EditMode {
 pub enum DisplayActive {
     Vario,
 }
-
 
 /// Metastructure for calculated or set values
 pub struct Calculated {
@@ -96,7 +95,6 @@ impl Default for Config {
         }
     }
 }
-
 
 /// Metastructure for different control variables
 pub struct Control {

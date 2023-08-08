@@ -42,39 +42,82 @@ pub struct Keyboard {
     p_key_event: PKeyEvents,
 }
 
+pub struct KeyboardPins {
+    pub p1: Pin<'A', 7>,
+    pub p2: Pin<'C', 5>,
+    pub p3: Pin<'B', 0>,
+    pub p4: Pin<'B', 1>,
+    pub p5: Pin<'A', 6>,
+}
+
+impl KeyboardPins {
+    pub fn new(
+        p1: Pin<'A', 7>,
+        p2: Pin<'C', 5>,
+        p3: Pin<'B', 0>,
+        p4: Pin<'B', 1>,
+        p5: Pin<'A', 6>,
+    ) -> Self {
+        KeyboardPins { p1, p2, p3, p4, p5 }
+    }
+}
+
+pub struct Enc1Res {
+    tim_enc_1: TIM4,
+    enc_1a: Pin<'D', 12>,
+    enc_1b: Pin<'D', 13>,
+}
+
+impl Enc1Res {
+    pub fn new(tim_enc_1: TIM4, enc_1a: Pin<'D', 12>, enc_1b: Pin<'D', 13>) -> Self {
+        Enc1Res {
+            tim_enc_1,
+            enc_1a,
+            enc_1b,
+        }
+    }
+}
+
+pub struct Enc2Res {
+    tim_enc_2: TIM5,
+    enc_2a: Pin<'A', 0>,
+    enc_2b: Pin<'A', 1>,
+}
+
+impl Enc2Res {
+    pub fn new(tim_enc_2: TIM5, enc_2a: Pin<'A', 0>, enc_2b: Pin<'A', 1>) -> Self {
+        Enc2Res {
+            tim_enc_2,
+            enc_2a,
+            enc_2b,
+        }
+    }
+}
+
 impl Keyboard {
     /// Create Keys instance and initialize hardware
     pub fn new(
-        btn_1: Pin<'A', 7>,
-        btn_2: Pin<'C', 5>,
-        btn_3: Pin<'B', 0>,
-        btn_esc: Pin<'B', 1>,
-        btn_enc: Pin<'A', 6>,
-
-        tim_enc_1: TIM4,
-        enc_1a: Pin<'D', 12>,
-        enc_1b: Pin<'D', 13>,
-
-        tim_enc_2: TIM5,
-        enc_2a: Pin<'A', 0>,
-        enc_2b: Pin<'A', 1>,
-
+        keyboard_pins: KeyboardPins,
+        enc1_res: Enc1Res,
+        enc2_res: Enc2Res,
         p_key_event: PKeyEvents,
     ) -> Self {
         // Config the key buttons
-        let btn_1 = btn_1.into_pull_up_input();
-        let btn_2 = btn_2.into_pull_up_input();
-        let btn_3 = btn_3.into_pull_up_input();
-        let btn_esc = btn_esc.into_pull_up_input();
-        let btn_enc = btn_enc.into_pull_up_input();
+        let btn_1 = keyboard_pins.p1.into_pull_up_input();
+        let btn_2 = keyboard_pins.p2.into_pull_up_input();
+        let btn_3 = keyboard_pins.p3.into_pull_up_input();
+        let btn_esc = keyboard_pins.p4.into_pull_up_input();
+        let btn_enc = keyboard_pins.p5.into_pull_up_input();
 
         // Config encoder 1 port pins
-        let _ = enc_1a.into_alternate::<2>(); // Set to alternate function 2
-        let _ = enc_1b.into_alternate::<2>(); // Set to alternate function 2
+        let _ = enc1_res.enc_1a.into_alternate::<2>(); // Set to alternate function 2
+        let _ = enc1_res.enc_1b.into_alternate::<2>(); // Set to alternate function 2
 
-        // Config encoder 1 timer
         //NOTE(unsafe) this reference will only be used for atomic writes with no side effects
         let rcc = unsafe { &(*RCC::ptr()) };
+
+        // Config encoder 1 timer
+        let tim_enc_1 = enc1_res.tim_enc_1;
         rcc.apb1enr.modify(|_, w| w.tim4en().set_bit()); // Enable timer 4
         tim_enc_1.cnt.write(|w| w.cnt().bits(ENC_1_START_VALUE));
         tim_enc_1.smcr.write(|w| w.sms().bits(1)); // Encoder mode 1
@@ -90,10 +133,11 @@ impl Keyboard {
         let enc_1_cnt = tim_enc_1.cnt.read().cnt().bits();
 
         // Config encoder 2 port pins
-        let _ = enc_2a.into_alternate::<2>(); // Set to alternate function 2
-        let _ = enc_2b.into_alternate::<2>(); // Set to alternate function 2
+        let _ = enc2_res.enc_2a.into_alternate::<2>(); // Set to alternate function 2
+        let _ = enc2_res.enc_2b.into_alternate::<2>(); // Set to alternate function 2
 
         // Config encoder 2 timer
+        let tim_enc_2 = enc2_res.tim_enc_2;
         rcc.apb1enr.modify(|_, w| w.tim5en().set_bit()); // Enable timer 5
         tim_enc_2.cnt.write(|w| w.cnt().bits(ENC_2_START_VALUE));
         tim_enc_2.smcr.write(|w| w.sms().bits(1)); // Encoder mode 1
@@ -159,45 +203,41 @@ impl Keyboard {
                 self.first_go_to_0 = false;
                 self.tick_cnt = 0;
             }
-        } else {
-            if btn_state < self.last_btn_state {
-                // Triggers when first key is released
-                let _ = match self.last_btn_state {
-                    BTN_1 => self.p_key_event.enqueue(KeyEvent::Btn1),
-                    BTN_2 => self.p_key_event.enqueue(KeyEvent::Btn2),
-                    BTN_3 => self.p_key_event.enqueue(KeyEvent::Btn3),
-                    BTN_ESC => self.p_key_event.enqueue(KeyEvent::BtnEsc),
-                    BTN_ENC => self.p_key_event.enqueue(KeyEvent::BtnEnc),
-                    BTN_1_2 => self.p_key_event.enqueue(KeyEvent::Btn12),
-                    BTN_2_3 => self.p_key_event.enqueue(KeyEvent::Btn23),
-                    BTN_3_ESC => self.p_key_event.enqueue(KeyEvent::Btn3Esc),
-                    BTN_1_ESC => self.p_key_event.enqueue(KeyEvent::Btn1Esc),
-                    BTN_1_ESC_ENC => self.p_key_event.enqueue(KeyEvent::Btn1EscEnc),
+        } else if btn_state < self.last_btn_state {
+            // Triggers when first key is released
+            let _ = match self.last_btn_state {
+                BTN_1 => self.p_key_event.enqueue(KeyEvent::Btn1),
+                BTN_2 => self.p_key_event.enqueue(KeyEvent::Btn2),
+                BTN_3 => self.p_key_event.enqueue(KeyEvent::Btn3),
+                BTN_ESC => self.p_key_event.enqueue(KeyEvent::BtnEsc),
+                BTN_ENC => self.p_key_event.enqueue(KeyEvent::BtnEnc),
+                BTN_1_2 => self.p_key_event.enqueue(KeyEvent::Btn12),
+                BTN_2_3 => self.p_key_event.enqueue(KeyEvent::Btn23),
+                BTN_3_ESC => self.p_key_event.enqueue(KeyEvent::Btn3Esc),
+                BTN_1_ESC => self.p_key_event.enqueue(KeyEvent::Btn1Esc),
+                BTN_1_ESC_ENC => self.p_key_event.enqueue(KeyEvent::Btn1EscEnc),
+                _ => Ok(()),
+            };
+            self.first_go_to_0 = true;
+            self.tick_cnt = 0;
+        } else if btn_state > 0 {
+            self.tick_cnt += 1;
+            // Triggers when keys are pressed for more then 3 seconds
+            if self.tick_cnt > 60 {
+                let _ = match btn_state {
+                    BTN_1 => self.p_key_event.enqueue(KeyEvent::Btn1S3),
+                    BTN_2 => self.p_key_event.enqueue(KeyEvent::Btn2S3),
+                    BTN_3 => self.p_key_event.enqueue(KeyEvent::Btn3S3),
+                    BTN_ESC => self.p_key_event.enqueue(KeyEvent::BtnEscS3),
+                    BTN_ENC => self.p_key_event.enqueue(KeyEvent::BtnEncS3),
+                    BTN_1_2 => self.p_key_event.enqueue(KeyEvent::Btn12S3),
+                    BTN_2_3 => self.p_key_event.enqueue(KeyEvent::Btn23S3),
+                    BTN_3_ESC => self.p_key_event.enqueue(KeyEvent::Btn3EscS3),
+                    BTN_1_ESC => self.p_key_event.enqueue(KeyEvent::Btn1EscS3),
+                    BTN_1_ESC_ENC => self.p_key_event.enqueue(KeyEvent::Btn1EscEncS3),
                     _ => Ok(()),
                 };
                 self.first_go_to_0 = true;
-                self.tick_cnt = 0;
-            } else {                
-                if btn_state > 0 {
-                    self.tick_cnt += 1;
-                    // Triggers when keys are pressed for more then 3 seconds
-                    if self.tick_cnt > 60 {
-                        let _ = match btn_state {
-                            BTN_1 => self.p_key_event.enqueue(KeyEvent::Btn1S3),
-                            BTN_2 => self.p_key_event.enqueue(KeyEvent::Btn2S3),
-                            BTN_3 => self.p_key_event.enqueue(KeyEvent::Btn3S3),
-                            BTN_ESC => self.p_key_event.enqueue(KeyEvent::BtnEscS3),
-                            BTN_ENC => self.p_key_event.enqueue(KeyEvent::BtnEncS3),
-                            BTN_1_2 => self.p_key_event.enqueue(KeyEvent::Btn12S3),
-                            BTN_2_3 => self.p_key_event.enqueue(KeyEvent::Btn23S3),
-                            BTN_3_ESC => self.p_key_event.enqueue(KeyEvent::Btn3EscS3),
-                            BTN_1_ESC => self.p_key_event.enqueue(KeyEvent::Btn1EscS3),
-                            BTN_1_ESC_ENC => self.p_key_event.enqueue(KeyEvent::Btn1EscEncS3),
-                            _ => Ok(()),
-                        };
-                        self.first_go_to_0 = true;
-                    }
-                }
             }
         }
         self.last_btn_state = btn_state;

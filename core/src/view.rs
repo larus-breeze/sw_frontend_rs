@@ -8,9 +8,11 @@ pub(crate) mod vario;
 
 use crate::{model::CoreModel, utils::Colors, CoreError, DrawImage, DISPLAY_HEIGHT, DISPLAY_WIDTH};
 
+// Debug build runs at 10 Hz
 #[cfg(debug_assertions)]
 pub const FRAME_RATE: u32 = 10;
 
+// Release build runs at 30 Hz
 #[cfg(not(debug_assertions))]
 pub const FRAME_RATE: u32 = 30;
 

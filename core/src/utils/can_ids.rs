@@ -103,4 +103,3 @@ pub mod frontend {
     pub const MC_CREADY: u16 = 0x320;       // u8 McCready value / 10cm/s, u8 audio volume
     pub const HAVE_CONTROL: u16 = 0x321;    // empty package, just a trigger
 }
-

@@ -31,7 +31,7 @@ impl Density {
     /// Create an instance of type Density from a float number in gram per cubic meter
     #[inline]
     pub fn from_g_m3(value: Float) -> Self {
-        Density(value*0.001)
+        Density(value * 0.001)
     }
 
     /// Extract a float number in the unit kilogram per cubic meter

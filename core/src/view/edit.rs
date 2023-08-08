@@ -55,7 +55,7 @@ where
     Ok(())
 }
 
-fn get_edit_strs<'a>(cm: &'a CoreModel) -> (&'a str, Concat<20>) {
+fn get_edit_strs(cm: &CoreModel) -> (&str, Concat<20>) {
     let name_str = match cm.control.edit_var {
         Editable::ClimbRate => "Climb Rate",
         Editable::Glider => "Glider",

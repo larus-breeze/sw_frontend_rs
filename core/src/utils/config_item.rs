@@ -1,4 +1,4 @@
-use byteorder::{LittleEndian as LE, ByteOrder};
+use byteorder::{ByteOrder, LittleEndian as LE};
 
 const MAGIC: &[u8; 8] = b"\x00\x00\x60\xb3\x5f\xf2\x6a\xa4";
 
@@ -7,12 +7,11 @@ const MAGIC: &[u8; 8] = b"\x00\x00\x60\xb3\x5f\xf2\x6a\xa4";
 #[derive(PartialEq)]
 pub struct ConfigItem {
     config_id: u16,
-    buf: [u8; 6]
+    buf: [u8; 6],
 }
 
 #[allow(unused)]
 impl ConfigItem {
-
     /// Create the magic config item, which is used to identify uninit memory
     pub fn magic() -> Self {
         ConfigItem::from_bytes(MAGIC)
@@ -28,7 +27,7 @@ impl ConfigItem {
         let config_id = LE::read_u16(&data[..2]);
         let mut buf = [0u8; 6];
         buf.copy_from_slice(&data[2..8]);
-        ConfigItem {config_id, buf} 
+        ConfigItem { config_id, buf }
     }
 
     /// Create config item from id and u32
@@ -48,7 +47,7 @@ impl ConfigItem {
     /// Create config item from id and u8
     pub fn from_u8(config_id: u16, n: u8) -> Self {
         let mut buf = [0u8; 6];
-        buf [0] = n;
+        buf[0] = n;
         ConfigItem { config_id, buf }
     }
 
@@ -69,7 +68,7 @@ impl ConfigItem {
     /// Create config item from id and i8
     pub fn from_i8(config_id: u16, n: i8) -> Self {
         let mut buf = [0u8; 6];
-        buf [0] = n as u8;
+        buf[0] = n as u8;
         ConfigItem { config_id, buf }
     }
 
@@ -123,7 +122,6 @@ impl ConfigItem {
     /// get byte array from config item
     pub fn as_bytes(&self) -> &[u8; 8] {
         // unsafe is ok here, becaus len and memory layout is fixed
-        unsafe {core::mem::transmute::<&Self, &[u8; 8]>(self)}
+        unsafe { core::mem::transmute::<&Self, &[u8; 8]>(self) }
     }
-
 }

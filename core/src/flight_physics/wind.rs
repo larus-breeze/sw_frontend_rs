@@ -1,4 +1,4 @@
-use crate::system_of_units::{Speed, Angle};
+use crate::system_of_units::{Angle, Speed};
 
 /// Represents a wind vector
 ///
@@ -15,7 +15,7 @@ impl Wind {
     /// Creates an instance from floats
     #[inline]
     pub const fn new(speed: Speed, angle: Angle) -> Self {
-        Wind {speed, angle}
+        Wind { speed, angle }
     }
 
     pub fn speed(&self) -> Speed {
@@ -37,6 +37,9 @@ impl Wind {
 
 impl Default for Wind {
     fn default() -> Self {
-        Wind{speed: Speed(0.0), angle: Angle::zero()}
+        Wind {
+            speed: Speed(0.0),
+            angle: Angle::zero(),
+        }
     }
 }
