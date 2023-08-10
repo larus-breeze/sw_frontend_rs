@@ -3,7 +3,8 @@ use byteorder::{ByteOrder, LittleEndian as LE};
 use embedded_graphics::prelude::AngleUnit;
 
 use crate::utils::sensor;
-use embedded_can::{Frame, Id};
+use embedded_hal::can::{Frame, Id};
+
 
 pub fn read_can_frame<F: Frame>(core_model: &mut CoreModel, frame: &F) {
     let id = match frame.id() {
@@ -41,8 +42,8 @@ pub fn read_can_frame<F: Frame>(core_model: &mut CoreModel, frame: &F) {
                 .set_speed((rdr.pop_u16() as f32).km_h());
         }
         sensor::ATHMOSPHERE => {
-            core_model.sensor.pressure = (rdr.pop_u16() as f32).n_m2();
-            core_model.sensor.density = (rdr.pop_u16() as f32).g_m3();
+            core_model.sensor.pressure = (rdr.pop_u32() as f32).n_m2();
+            core_model.sensor.density = (rdr.pop_u32() as f32).g_m3();
         }
         _ => (), // all other frames are ignored
     }

@@ -1,5 +1,5 @@
 use byteorder::{ByteOrder, LittleEndian as LE};
-use embedded_can::{Frame, Id, StandardId};
+use embedded_hal::can::{Frame, Id, StandardId};
 
 struct CanFrame {
     id: u16,

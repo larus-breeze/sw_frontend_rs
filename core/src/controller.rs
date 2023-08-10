@@ -10,7 +10,7 @@ use crate::{
     utils::{read_can_frame, KeyEvent},
     CoreModel, POLARS,
 };
-use embedded_can::Frame;
+use embedded_hal::can::Frame;
 
 const UPDATE_RATE: u32 = 10;
 

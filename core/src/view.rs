@@ -14,7 +14,7 @@ pub const FRAME_RATE: u32 = 10;
 
 // Release build runs at 30 Hz
 #[cfg(not(debug_assertions))]
-pub const FRAME_RATE: u32 = 30;
+pub const FRAME_RATE: u32 = 20;
 
 pub const MARGIN: i32 = 2;
 pub const DIAMETER: u32 = DISPLAY_HEIGHT - 2 * MARGIN as u32;

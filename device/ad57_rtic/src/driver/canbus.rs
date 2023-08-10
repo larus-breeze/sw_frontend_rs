@@ -19,6 +19,8 @@ pub type QRxFrames = Queue<Frame, MAX_RX_FRAMES>;
 pub type PRxFrames = Producer<'static, Frame, MAX_RX_FRAMES>;
 pub type CRxFrames = Consumer<'static, Frame, MAX_RX_FRAMES>;
 
+
+
 /// Initialize peripheral bxcan and generate instances to send and receive can bus frames
 pub fn init_can(
     can_1: CAN1,
@@ -35,7 +37,6 @@ pub fn init_can(
             // APB1 (PCLK1): 42MHz, Bit rate: 1 MBit/s, Sample Point 87.5%
             // Value was calculated with http://www.bittiming.can-wiki.info/
             .set_bit_timing(0x001a0002)
-            .set_loopback(true)
             .enable()
     };
 
@@ -71,7 +72,7 @@ impl CanTx {
 
     /// Method to call during an active interrupt
     pub fn on_interrupt(&mut self) {
-        trace!("Can tx irq");
+        // trace!("Can tx irq");
 
         self.tx.clear_interrupt_flags(); // we want receive next irqs
 
@@ -98,8 +99,6 @@ impl CanTx {
                     // frame and wait until something is free again
                     self.extra_frame = Some(frame.clone());
                     return; // All mailboxes are full
-                } else {
-                    trace!("Frame put into can tx mailbox");
                 }
             }
         }
@@ -120,13 +119,12 @@ impl CanRx {
 
     /// Call this, when irq is active
     pub fn on_interrupt(&mut self) {
-        trace!("Can rx irq");
+        // trace!("Can rx irq");
         while self.p_rx_frames.capacity() > self.p_rx_frames.len() {
-            match self.rx0.receive() {
+            match self.rx0.receive() { // silently ignore errors
                 Ok(frame) => {
-                    let _ = self.p_rx_frames.enqueue(frame); // silently ignore errors
-                    trace!("Received can paket enqueued")
-                }
+                    let _ = self.p_rx_frames.enqueue(frame); 
+                },
                 Err(_) => return,
             }
         }

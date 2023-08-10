@@ -11,7 +11,7 @@ pub mod sensor {
     pub const GPS_TRK_SPD: u16 = 0x107;     // i16 ground vector / 1/1000 rad, u16 groundspeed / km/h
     pub const WIND: u16 = 0x108;            // i16 1/1000 rad, u16 km/h    Current Wind
                                             // i16 1/1000 rad, u16 km/h    Average Wind
-    pub const ATHMOSPHERE: u16 = 0x109;     // u16 pressure / Pa u16 density / g/m^3
+    pub const ATHMOSPHERE: u16 = 0x109;     // u32 pressure / Pa, u32 density / g/m^3
     pub const GPS_SATS: u16 = 0x10a;        // u8 No of Sats
                                             // u8 Fix-Type NO=0 2D=1 3D=2 RTK=3
     pub const ACCELERATION: u16 = 0x10b;    // i16 representing TOTAL G-force in mm/s^2
