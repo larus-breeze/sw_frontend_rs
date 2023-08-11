@@ -1,7 +1,7 @@
 use crate::{
     controller::{Direction, Editable, Result},
     flight_physics::POLAR_COUNT,
-    model::{CoreModel, EditMode},
+    model::{CoreModel, EditMode, VarioModeControl},
     system_of_units::{FloatToMass, FloatToSpeed},
     utils::{val_manip, KeyEvent},
 };
@@ -28,6 +28,7 @@ impl VarioController {
             KeyEvent::Btn1 => Editable::McCready,
             KeyEvent::Btn2 => Editable::WaterBallast,
             KeyEvent::Btn3 => Editable::PilotWeight,
+            KeyEvent::BtnEsc => Editable::VarioModeControl,
             KeyEvent::Btn1S3 => Editable::Glider,
             _ => act_edit,
         };
@@ -66,7 +67,7 @@ impl VarioController {
                     0,
                     POLAR_COUNT as i32 - 1,
                 )
-            }
+            },
             Editable::PilotWeight => {
                 cm.glider_data.pilot_weight = val_manip(
                     cm.glider_data.pilot_weight.to_kg(),
@@ -77,7 +78,14 @@ impl VarioController {
                     250.0,
                 )
                 .kg()
-            }
+            },
+            Editable::VarioModeControl => {
+                cm.control.vario_mode_control = match cm.control.vario_mode_control {
+                    VarioModeControl::Auto => VarioModeControl::Vario,
+                    VarioModeControl::Vario => VarioModeControl::SpeedToFly,
+                    VarioModeControl::SpeedToFly => VarioModeControl::Auto,
+                }            
+            },
             _ => (),
         }
         Result::Edit(EditMode::Section, self.edit_var, 2)

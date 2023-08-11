@@ -45,6 +45,16 @@ pub enum VarioMode {
     SpeedToFly,
 }
 
+/// This determines how to switch between the two modes of VarioMode Vario and SpeedToFly:
+/// automatic, manual Vario or manual SpeedToFly.
+#[repr(u8)]
+#[derive(PartialEq, Eq)]
+pub enum VarioModeControl {
+    Vario,
+    SpeedToFly,
+    Auto,
+}
+
 /// Enum mode controls whether the background should be visible or not when editing a data
 /// point.
 #[repr(u8)]
@@ -100,10 +110,14 @@ impl Default for Config {
 pub struct Control {
     pub fly_mode: FlyMode,
     pub vario_mode: VarioMode,
+    pub vario_mode_control: VarioModeControl,
+    // Sets the switching point Vario/SpeedToFly in relation to speed of the best l/d ratio
+    pub vario_mode_switch_ratio: f32,
+    pub speed_to_fly_limit: Speed, // Speed limit above which SpeedToFly is activated
     pub edit_mode: EditMode,
     pub edit_var: Editable,
-    pub edit_ticks: u32,
-    pub demo_acitve: bool,
+    pub edit_ticks: u32,   // Used by the editor for the timeout
+    pub demo_acitve: bool, // Activates the demo mode
 }
 
 impl Default for Control {
@@ -111,6 +125,9 @@ impl Default for Control {
         Self {
             fly_mode: FlyMode::Circling,
             vario_mode: VarioMode::Vario,
+            vario_mode_control: VarioModeControl::Auto,
+            vario_mode_switch_ratio: 1.05,
+            speed_to_fly_limit: 105.0.km_h(),
             edit_mode: EditMode::Section,
             edit_var: Editable::ClimbRate,
             edit_ticks: 0,
