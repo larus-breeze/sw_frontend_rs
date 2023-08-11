@@ -105,7 +105,7 @@ impl CanTx {
     }
 }
 
-/// Interrupt service for sending can bus frames
+/// Interrupt service for receiving can bus frames
 pub struct CanRx {
     p_rx_frames: PRxFrames,
     rx0: bxcan::Rx0<Can<CAN1>>,

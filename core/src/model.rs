@@ -114,7 +114,7 @@ impl Default for Control {
             edit_mode: EditMode::Section,
             edit_var: Editable::ClimbRate,
             edit_ticks: 0,
-            demo_acitve: true,
+            demo_acitve: false,
         }
     }
 }
