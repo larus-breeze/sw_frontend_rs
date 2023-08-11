@@ -6,9 +6,10 @@ use vario::VarioController;
 
 use crate::{
     flight_physics::Polar,
-    model::EditMode,
+    model::{EditMode, VarioModeControl},
+    system_of_units::FloatToSpeed,
     utils::{read_can_frame, KeyEvent},
-    CoreModel, POLARS,
+    CoreModel, VarioMode, POLARS,
 };
 use embedded_hal::can::Frame;
 
@@ -21,6 +22,7 @@ pub enum Editable {
     Glider,
     McCready,
     PilotWeight,
+    VarioModeControl,
     Speed,
     Volume,
     WaterBallast,
@@ -88,9 +90,12 @@ impl CoreController {
     }
 
     pub fn time_action(&mut self, core_model: &mut CoreModel) {
+        // Count edit_ticks down, to close editor if necessary
         if core_model.control.edit_ticks > 0 {
             core_model.control.edit_ticks -= 1;
         }
+
+        // Calculate speed_to_fly and speed_to_fly_dif
         let climb_rate = core_model.sensor.climb_rate;
         let mc_cready = core_model.config.mc_cready;
         let sink_rate = self.polar.sink_rate(core_model.sensor.airspeed);
@@ -101,19 +106,42 @@ impl CoreController {
 
         // The following actions are performed infrequently and alternately
         self.tick = (self.tick + 1) % 10; // 10 Hz -> every second from beginning
-        #[allow(clippy::single_match)]
         match self.tick {
+
+            // Recalculate the polar coefficients based on the current data
             1 => self
                 .polar
                 .recalc(&core_model.glider_data, core_model.sensor.density),
+
+            // Calculate the SpeedToFly/Vario limit and set the mode accordingly if necessary.
+            2 => {
+                let stf = self.polar.speed_to_fly(0.0.m_s(), 0.0.m_s());
+                core_model.control.speed_to_fly_limit =
+                    stf.ias() * core_model.control.vario_mode_switch_ratio;
+
+                // In auto mode switch between Vario and SpeedToFly
+                match core_model.control.vario_mode_control {
+                    VarioModeControl::Auto => {
+                        if core_model.sensor.airspeed.ias() > core_model.control.speed_to_fly_limit {
+                            core_model.control.vario_mode = VarioMode::SpeedToFly;
+                        } else {
+                            core_model.control.vario_mode = VarioMode::Vario;
+                        }
+                    },
+                    VarioModeControl::SpeedToFly => core_model.control.vario_mode = VarioMode::SpeedToFly,
+                    VarioModeControl::Vario => core_model.control.vario_mode = VarioMode::Vario,
+                }
+            }
             _ => (),
         }
     }
 
+    /// Interprets a Can Frame and stores the results in the CoreModel
     pub fn read_can_frame<F: Frame>(&self, core_model: &mut CoreModel, frame: &F) {
         read_can_frame(core_model, frame)
     }
 
+    /// Executes instructions based on the user's input
     fn check_edit_results(&mut self, core_model: &mut CoreModel) {
         #[allow(clippy::single_match)]
         match core_model.control.edit_var {

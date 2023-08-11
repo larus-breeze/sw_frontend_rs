@@ -3,7 +3,7 @@ use embedded_graphics_simulator::{
     sdl2::Keycode, OutputSettings, SimulatorDisplay, SimulatorEvent, Window,
 };
 
-use vario_display::{utils::KeyEvent, *};
+use vario_display::*;
 
 struct MockDisplay(pub SimulatorDisplay<Colors>);
 
