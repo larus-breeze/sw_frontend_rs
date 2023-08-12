@@ -4,18 +4,18 @@ use crate::system_of_units::{Angle, Speed};
 ///
 /// Returns either the speed or angle, which can then be used
 #[derive(Copy, Clone)]
-pub struct Wind {
+pub struct WindVector {
     speed: Speed,
     angle: Angle,
 }
 
 #[allow(dead_code)]
 #[allow(non_snake_case)]
-impl Wind {
+impl WindVector {
     /// Creates an instance from floats
     #[inline]
     pub const fn new(speed: Speed, angle: Angle) -> Self {
-        Wind { speed, angle }
+        WindVector { speed, angle }
     }
 
     pub fn speed(&self) -> Speed {
@@ -35,9 +35,9 @@ impl Wind {
     }
 }
 
-impl Default for Wind {
+impl Default for WindVector {
     fn default() -> Self {
-        Wind {
+        WindVector {
             speed: Speed(0.0),
             angle: Angle::zero(),
         }
