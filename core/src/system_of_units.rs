@@ -1,9 +1,15 @@
+mod acceleration;
+mod angular_velocity;
 mod area;
 mod density;
 mod mass;
 mod pressure;
 mod speed;
 
+use core::f32::consts::PI;
+
+pub use acceleration::{Acceleration, FloatToAcceleration};
+pub use angular_velocity::{AngularVelocity, FloatToAngularVelocity};
 pub use area::{Area, FloatToArea};
 pub use density::{Density, FloatToDensity};
 pub use embedded_graphics::geometry::{Angle, AngleUnit};
@@ -43,3 +49,9 @@ pub(crate) const DAY: Float = 86400.0; // d -> s
 pub(crate) const ISA_DENSITY_AT_NN: Float = 1.225; // density at NN in kg/m³
 #[allow(dead_code)]
 pub(crate) const ISA_PRESSURE_AT_NN: Float = 101335.0; // pressure at NN in Pa
+
+// RAD
+#[allow(dead_code)]
+pub(crate) const RAD_PER_DEGREE: Float = PI / 180.0;
+#[allow(dead_code)]
+pub(crate) const DEGREE_PER_RAD: Float = 180.0 / PI;
