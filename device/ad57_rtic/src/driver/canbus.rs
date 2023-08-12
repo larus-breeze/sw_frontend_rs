@@ -1,4 +1,4 @@
-use bxcan::{filter::Mask32, Fifo, Frame, Interrupt};
+use bxcan::{filter::ListEntry16, Fifo, Frame, Interrupt, StandardId};
 use defmt::*;
 use heapless::spsc::{Consumer, Producer, Queue};
 use stm32f4xx_hal::{
@@ -6,6 +6,8 @@ use stm32f4xx_hal::{
     gpio::Pin,
     pac::CAN1,
 };
+
+use vario_display::{sensor, frontend};
 
 // This queue transports the can bus frames from the view component to the can tx driver.
 const MAX_TX_FRAMES: usize = 10;
@@ -18,8 +20,6 @@ const MAX_RX_FRAMES: usize = 20;
 pub type QRxFrames = Queue<Frame, MAX_RX_FRAMES>;
 pub type PRxFrames = Producer<'static, Frame, MAX_RX_FRAMES>;
 pub type CRxFrames = Consumer<'static, Frame, MAX_RX_FRAMES>;
-
-
 
 /// Initialize peripheral bxcan and generate instances to send and receive can bus frames
 pub fn init_can(
@@ -41,7 +41,29 @@ pub fn init_can(
     };
 
     let mut filters = can.modify_filters();
-    filters.enable_bank(0, Fifo::Fifo0, Mask32::accept_all());
+    filters
+        .clear()
+        //.enable_bank(0, Fifo::Fifo0, Mask32::accept_all());
+        .enable_bank(
+            0,
+            Fifo::Fifo0,
+            [
+                ListEntry16::data_frames_with_id(StandardId::new(sensor::AIRSPEED).unwrap()),
+                ListEntry16::data_frames_with_id(StandardId::new(sensor::VARIO).unwrap()),
+                ListEntry16::data_frames_with_id(StandardId::new(sensor::WIND).unwrap()),
+                ListEntry16::data_frames_with_id(StandardId::new(sensor::ATHMOSPHERE).unwrap()),
+            ],
+        )
+        .enable_bank(
+            1,
+            Fifo::Fifo0,
+            [
+                ListEntry16::data_frames_with_id(StandardId::new(sensor::TURN_COORD).unwrap()),
+                ListEntry16::data_frames_with_id(StandardId::new(sensor::ACCELERATION).unwrap()),
+                ListEntry16::data_frames_with_id(StandardId::new(frontend::NOTHING).unwrap()),
+                ListEntry16::data_frames_with_id(StandardId::new(frontend::NOTHING).unwrap()),
+            ],
+        );
     drop(filters); // Drop filters to leave filter configuraiton mode.
 
     can.enable_interrupt(Interrupt::Fifo0MessagePending);
@@ -121,10 +143,11 @@ impl CanRx {
     pub fn on_interrupt(&mut self) {
         // trace!("Can rx irq");
         while self.p_rx_frames.capacity() > self.p_rx_frames.len() {
-            match self.rx0.receive() { // silently ignore errors
+            match self.rx0.receive() {
+                // silently ignore errors
                 Ok(frame) => {
-                    let _ = self.p_rx_frames.enqueue(frame); 
-                },
+                    let _ = self.p_rx_frames.enqueue(frame);
+                }
                 Err(_) => return,
             }
         }
