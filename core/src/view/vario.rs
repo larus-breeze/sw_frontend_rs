@@ -1,5 +1,5 @@
 use super::{
-    elements::{classic_indicator, inverted_scale_marker, scale_marker, wind_arrow},
+    elements::{classic_indicator, scale_marker, wind_arrow}, // inverted_scale_marker, 
     CENTER, DIAMETER, RADIUS,
 };
 use crate::{
@@ -15,6 +15,7 @@ use embedded_graphics::{
 };
 use u8g2_fonts::types::{FontColor, HorizontalAlignment, VerticalPosition};
 
+#[allow(dead_code)]
 struct VarioSizes {
     diameter_stf: u32,
     indicator_len: u32,
@@ -49,6 +50,7 @@ const VARIO_SIZES: VarioSizes = VarioSizes {
 
 use VARIO_SIZES as SZS;
 
+#[allow(dead_code)]
 struct VarioColors {
     average_climb_rate: Colors,
     background: Colors,
@@ -128,7 +130,8 @@ where
     // dependend on fly_mode draw glider or north symbol
     match cm.control.fly_mode {
         FlyMode::Circling => display.draw_img(COMPASS, Point::new(0, 0))?,
-        FlyMode::StraightFlight => display.draw_img(GLIDER, Point::new(0, 0))?,
+        FlyMode::StraightFlight | FlyMode::Transition => 
+            display.draw_img(GLIDER, Point::new(0, 0))?,
     }
 
     // draw mc_ready marker
@@ -143,7 +146,7 @@ where
     )?;
 
     // draw thermal climb rate marker
-    inverted_scale_marker(
+    /*inverted_scale_marker(
         display,
         CENTER,
         cm.calculated.thermal_climb_rate.to_m_s(),
@@ -151,7 +154,7 @@ where
         SZS.tcr_len as i32,
         SZS.tcr_width,
         COLS.thermal_climb_rate,
-    )?;
+    )?;*/
 
     // draw climb rate indicator
     let angle = (25.0 * num::clamp(cm.sensor.climb_rate.to_m_s(), -5.1, 5.1)).deg();
@@ -166,8 +169,8 @@ where
     )?;
 
     // draw wind arrow
-    let wind_speed = cm.sensor.wind.speed().to_km_h();
-    let angle = cm.sensor.wind.angle();
+    let wind_speed = cm.sensor.wind_vector.speed().to_km_h();
+    let angle = cm.sensor.wind_vector.angle();
     let av_angle = cm.sensor.average_wind.angle();
     let len = match wind_speed {
         x if x < WIND_MIN => SZS.wind_len_min, // Light wind is set to a minimum size
@@ -190,8 +193,8 @@ where
 
     // draw wind direction an speed text
     display.draw_img(KM_H, SZS.wind_pos)?;
-    let wind_deg = cm.sensor.wind.angle().to_degrees();
-    let wind_speed = cm.sensor.wind.speed().to_km_h();
+    let wind_deg = cm.sensor.wind_vector.angle().to_degrees();
+    let wind_speed = cm.sensor.wind_vector.speed().to_km_h();
     let s = Concat::<25>::from_f32(wind_deg, 0).push_str("° ");
     let s = s.push_f32(wind_speed, 0);
     FONT_HELV_18.render_aligned(
@@ -207,6 +210,7 @@ where
     match cm.control.vario_mode {
         VarioMode::Vario => {
             display.draw_img(SPIRAL, SZS.pic_left_under_pos)?;
+            display.draw_img(M_S, SZS.left_under_pos)?;
             let acr = num::clamp(cm.sensor.average_climb_rate.to_m_s(), -9.9, 99.9);
             let txt = Concat::<10>::from_f32(acr, 1);
             FONT_HELV_18.render_aligned(
