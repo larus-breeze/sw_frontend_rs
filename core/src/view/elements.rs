@@ -155,6 +155,7 @@ where
 /// Draw a inverted scale marker
 ///
 ///
+#[allow(dead_code)]
 pub fn inverted_scale_marker<D>(
     display: &mut D,
     center: Point,

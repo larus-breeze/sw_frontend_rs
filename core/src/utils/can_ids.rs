@@ -1,46 +1,27 @@
 #[rustfmt::skip]
 #[allow(unused)]
 pub mod sensor {
-    pub const HEART_BEAT: u16 = 0x100;      // u32  version as 0x0102002a "1.02 Build 42"
     pub const EULER_ANGLES: u16 = 0x101;    // i16, i16, i16 roll nick yaw / 1/1000 rad
-    pub const AIRSPEED: u16 = 0x102;        // u16, u16 TAS, IAS / km/h
+    pub const AIRSPEED: u16 = 0x102;        // i16, i16 TAS, IAS / km/h
     pub const VARIO: u16 = 0x103;           // i16, i16 vario, integrator / mm/s
-    pub const GPS_DATE_TIME: u16 = 0x104;   // u8 year-2000, month, day, hour, mins, secs
+    pub const GPS_DATE_TIME: u16 = 0x104;   // 6 x u8 year-2000, month, day, hour, mins, secs
     pub const GPS_LAT_LON: u16 = 0x105;     // i32 lat, lon / 10^-7 degrees
-    pub const GPS_ALT: u16 = 0x106;         // i64 MSL altitude / mm
-    pub const GPS_TRK_SPD: u16 = 0x107;     // i16 ground vector / 1/1000 rad, u16 groundspeed / km/h
-    pub const WIND: u16 = 0x108;            // i16 1/1000 rad, u16 km/h    Current Wind
-                                            // i16 1/1000 rad, u16 km/h    Average Wind
+    pub const GPS_ALT: u16 = 0x106;         // i32 MSL altitude / mm, i32 geo separation in 1/10 m
+    pub const GPS_TRK_SPD: u16 = 0x107;     // i32 ground vector / 1/1000 rad, u16 groundspeed / km/h
+    pub const WIND: u16 = 0x108;            // i16 1/1000 rad, i16 km/h    Current Wind
+                                            // i16 1/1000 rad, i16 km/h    Average Wind
     pub const ATHMOSPHERE: u16 = 0x109;     // u32 pressure / Pa, u32 density / g/m^3
     pub const GPS_SATS: u16 = 0x10a;        // u8 No of Sats
                                             // u8 Fix-Type NO=0 2D=1 3D=2 RTK=3
-    pub const ACCELERATION: u16 = 0x10b;    // i16 representing TOTAL G-force in mm/s^2
-                                            // acceleration counted positive downward relative to plane
-                                            // stored as float m/s^2 counted positive upward
-                                            // i16 representing NETTO G-force in mm/s^2
-                                            // acceleration counted positive downward relative to plane
-                                            // stored as float m/s^2 counted positive upward
-                                            // i16 representing GPS vertical speed as seen from earth
-                                            // in mm/s, stored as float m/s
-                                            // u8, representing enum ( c_Gliding, c_Transition, c_Climbing )
-    pub const TURN_COORD: u16 = 0x10c;      // float  in mm/s^2 , float in mm/s^2
-    pub const SYSTEM_STATE: u16 = 0x10d;    // u32 Bitmuster
-    pub const NOISE: u16 = 0x10e;           // ??   TODO
-    pub const TEMPERATURE: u16 = 0x10f;     // i32  as float temp * 1000
-    pub const HUMIDY: u16 = 0x110;          // u32 as float hum * 1000
-    pub const PRESSURE: u16 = 0x111;        // u32 as float press * 1000
-    pub const VDD: u16 = 0x112;             // unit16_t as float voltage * 10
-    pub const TCS: u16 = 0x113;             // i16 as float sec * 10 tau for fast wind in cruise +
-                                            // i16 as float sec * 10 tau for slow wind in cruise +
-                                            // i16 as float sec * 10 tau for fast wind in climb +
-                                            // i16 as float sec * 10 tau for slow wind in climb
-    pub const SW_HYSTERESIS: u16 = 0x114;   // i16 as float sec * 10
-    pub const EULER_SETUP: u16 = 0x115;     // i16 as float dec deg * 10 +  // Roll
-                                            // i16 as float dec deg * 10 +  // Nick
-                                            // i16 as float dec deg * 10    // Yaw
-    pub const DEC_INCLINATION: u16 = 0x116; // i16 as float dec deg * 10 +  // Declination
-                                            // i16 as float dec deg * 10    // Inclination
-    pub const IAS_OFFSET: u16 = 0x117;      // i16 as float km/h * 10}
+    pub const ACCELERATION: u16 = 0x10b;    // i16 representing  G-force in mm/s^2
+                                            // i16 representing vertical G-force in mm/s^2
+                                            // i16 representing GPS vertical speed  in mm/s
+                                            // u8, representing enum (0 Straight Flight, 1 Transition, 2 Circling)
+    pub const TURN_COORD: u16 = 0x10c;      // i16 slip angle 0.001 rad
+                                            // i16 turn rate 0.001 rad/s
+                                            // i16 nick angle 0.001 rad
+    pub const SYSTEM_STATE: u16 = 0x10d;    // u32 system_state, u32 git_tag dec
+    pub const VDD: u16 = 0x112;             // u16 voltage * 10
 }
 
 #[rustfmt::skip]
@@ -102,4 +83,5 @@ pub mod frontend {
     pub const REBOOT: u16 = 0x313;          // empty package, just a trigger
     pub const MC_CREADY: u16 = 0x320;       // u8 McCready value / 10cm/s, u8 audio volume
     pub const HAVE_CONTROL: u16 = 0x321;    // empty package, just a trigger
+    pub const NOTHING: u16 = 0x3ff;         // just a placeholder for a hw filter, no content
 }

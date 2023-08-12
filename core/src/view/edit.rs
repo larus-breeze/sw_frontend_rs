@@ -92,10 +92,10 @@ fn get_edit_strs(cm: &CoreModel) -> (&str, Concat<20>) {
             .push_f32(cm.glider_data.water_ballast.to_kg(), 0)
             .push_str(" kg"),
         Editable::WindDirection => val_str
-            .push_f32(cm.sensor.wind.angle().to_degrees(), 0)
+            .push_f32(cm.sensor.wind_vector.angle().to_degrees(), 0)
             .push_str(" °"),
         Editable::WindSpeed => val_str
-            .push_f32(cm.sensor.wind.speed().to_km_h(), 0)
+            .push_f32(cm.sensor.wind_vector.speed().to_km_h(), 0)
             .push_str(" km/h"),
     };
     (name_str, val_str)

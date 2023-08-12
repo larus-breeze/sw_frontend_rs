@@ -104,7 +104,7 @@ impl DemoController {
             }
             DemoKind::WindDirection => {
                 let angle = val_manip(
-                    cm.sensor.wind.angle().to_degrees(),
+                    cm.sensor.wind_vector.angle().to_degrees(),
                     key_event,
                     5.0,
                     30.0,
@@ -112,11 +112,11 @@ impl DemoController {
                     359.0,
                 )
                 .deg();
-                cm.sensor.wind.set_angle(angle);
+                cm.sensor.wind_vector.set_angle(angle);
             }
             DemoKind::WindSpeed => {
                 let speed = val_manip(
-                    cm.sensor.wind.speed().to_km_h(),
+                    cm.sensor.wind_vector.speed().to_km_h(),
                     key_event,
                     1.0,
                     5.0,
@@ -124,7 +124,7 @@ impl DemoController {
                     99.0,
                 )
                 .km_h();
-                cm.sensor.wind.set_speed(speed);
+                cm.sensor.wind_vector.set_speed(speed);
             }
             _ => (), // should never happen
         }

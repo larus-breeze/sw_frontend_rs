@@ -13,6 +13,7 @@ pub use concat::Concat;
 pub use error::CoreError;
 pub use key_event::*;
 pub use rgb565_colors::RGB565_COLORS;
+pub use can_ids::*;
 
 pub use can_ids::{audio, frontend, sensor};
 pub(crate) use can_rdr::read_can_frame;
