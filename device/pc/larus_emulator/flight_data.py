@@ -9,7 +9,7 @@ import socket
 
 
 class FlightData():
-    def __init__(self, file_name: str, udp_port: int):
+    def __init__(self, udp_port: int, file_name: str|None=None):
         self._idx = 0
         self._last_idx = 0
         self._delta = 10
@@ -20,7 +20,8 @@ class FlightData():
 
         self._df = None
         self._row = None
-        self.from_file(file_name)
+        if file_name is not None:
+            self.from_file(file_name)
 
     def from_file(self, file_name):
         if file_name.endswith('.f37'):
@@ -49,6 +50,10 @@ class FlightData():
     def set_offset(self, seconds: int):
         self._idx = seconds * 100
         self._check_idx_range()
+
+    def set_relative(self, pos: int): # 0..999
+        self._idx = int(pos * 0.001 * self._last_idx)
+        self._row = self._df.iloc[self._idx]
 
     def inc_time(self, seconds):
         self._idx += seconds*100
@@ -80,29 +85,45 @@ class FlightData():
         return date(year, month, day)
 
     def time(self) -> time:
-        hour = int(self._row['hour'])
-        min = int(self._row['minute'])
-        sec = int(self._row['second'])
-        return time(hour, min, sec)
+        try:
+            hour = int(self._row['hour'])
+            min = int(self._row['minute'])
+            sec = int(self._row['second'])
+            return time(hour, min, sec)
+        except:
+            return time(0, 0, 0)
 
     def start_recording(self) -> time:
-        row = self._df.iloc[2000]     # 20 sec after power on, GPS has usually a fix
-        hour = int(row['hour'])
-        min = int(row['minute'])
-        sec = int(row['second'])
-        return time(hour, min, sec)
+        try:
+            row = self._df.iloc[2000]     # 20 sec after power on, GPS has usually a fix
+            hour = int(row['hour'])
+            min = int(row['minute'])
+            sec = int(row['second'])
+            return time(hour, min, sec)
+        except:
+            return time(0, 0, 0)
 
     def end_recording(self) -> time:
-        row = self._df.iloc[self._last_idx]
-        hour = int(row['hour'])
-        min = int(row['minute'])
-        sec = int(row['second'])
-        return time(hour, min, sec)
+        try:
+            row = self._df.iloc[self._last_idx]
+            hour = int(row['hour'])
+            min = int(row['minute'])
+            sec = int(row['second'])
+            return time(hour, min, sec)
+        except:
+            return time(0, 0, 0)
 
     def __getitem__(self, item: str) -> float:
         return self._row[item]
 
     def can_send_frames(self):
+        try:
+            self._can_send_frames()
+        except:
+            pass # silently ignore errors
+
+    def _can_send_frames(self):
+
         # AIRSPEED tas, ias in km/h
         self.can_send(to_u16(0x0102) +
                       to_i16(self._row['TAS'] * 3.6) +

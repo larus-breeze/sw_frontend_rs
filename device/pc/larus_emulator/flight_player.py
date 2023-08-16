@@ -1,56 +1,104 @@
+from PyQt5 import QtCore, QtGui, QtWidgets
+import sys, os
+
+from emulator_ui import Ui_Dialog
 from flight_data import FlightData
-import time
-import keyboard
-import os
 
-KEY_F12 = 88
-KEY_UP = 72
-KEY_DOWN = 80
-KEY_LEFT = 75
-KEY_Right = 77
+"""if __name__ == "__main__":
+    import sys
+    app = QtWidgets.QApplication(sys.argv)
+    Dialog = QtWidgets.QDialog()
+    ui = Ui_Dialog()
+    ui.setupUi(Dialog)
+    Dialog.show()
+    sys.exit(app.exec_())"""
 
-class FlightPlayer():
-    def __init__(self, file_name: str):
-        print(f"load file '{file_name}'", end='', flush=True)
-        self._data = FlightData(file_name, 5005)
-        print(" finished")
-        self._next_wakeup_time = 0
-        keyboard.on_press(self.on_key_press)
-        self._kbd_active = False
+class Emulator(QtWidgets.QDialog):
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.ui = Ui_Dialog()
+        self.ui.setupUi(self)
 
-    def set_offset(self, seconds: int):
-        self._data.set_offset(seconds)
+        self.data = FlightData(5005)
+        self.file_open = False
+        self.tick_cnt = 0
+        self.is_running = False
+        self.blink = False
 
-    def run(self):
-        self._next_wakeup_time = time.time() + 0.1
-        self._data.set_offset(60 * 150)
-        try:
-            while True:
-                if time.time() < self._next_wakeup_time:
-                    time.sleep(0.005)  # we sleep a bit while waiting to not block the thread
+        self.ui.pbStart.pressed.connect(self.startEmulator)
+        self.ui.pbStop.pressed.connect(self.stopEmulator)
+        self.ui.pbOpenFile.pressed.connect(self.openFile)
+        self.ui.hsPlayerSpeed.valueChanged.connect(self.setPlayerSpeed)
+        self.ui.hsEmulationTime.valueChanged.connect(self.setPlayerPos)
+
+        self.led = QtGui.QIcon("green_led.png")
+        self.timer = QtCore.QTimer()
+        self.timer.timeout.connect(self.tick_100ms)
+        self.timer2 = QtCore.QTimer()
+        self.timer2.timeout.connect(self.tick_1s)
+        self.timer2.start(1000)
+        self.setPlayerSpeed()
+
+    def startEmulator(self):
+        self.timer.start(100)
+        self.is_running = True
+        self.blink = True
+
+    def stopEmulator(self):
+        self.timer.stop()
+        self.is_running = False
+        self.ui.pbBlink.setIcon(QtGui.QIcon())
+
+    def tick_100ms(self):
+        if self.file_open and self.is_running:
+            self.data.tick()
+            self.data.can_send_frames()
+
+    def tick_1s(self):
+        if self.file_open:
+            self.ui.lbFlightTimeA.setText(str(self.data.time()))
+            if self.is_running:
+                if self.blink:
+                    self.ui.pbBlink.setIcon(self.led)
                 else:
-                    self._data.tick()
-                    self._data.can_send_frames()
-                    print(f"Flight time {self._data.time()}", end='\r', flush=True)
-                    self._next_wakeup_time += 0.1
-        except KeyboardInterrupt:
-            print('\nThe flight player stopped by the user')
+                    self.ui.pbBlink.setIcon(QtGui.QIcon())
+                self.blink = not self.blink
 
-    def on_key_press(self, key_event: keyboard.KeyboardEvent):
-        if self._kbd_active:
-            print(key_event.scan_code)
-            match key_event.scan_code:
-                case 77: self._data.inc_time(60)    # key right
-                case 75: self._data.inc_time(-60)   # key left
-                case 72: self._data.inc_time(3600)  # key up
-                case 80: self._data.inc_time(-3600) # key down
-                case _: pass
+    def openFile(self):
+        """Öffnet eine Datei und fügt in die SatusBar FrameFormat + Datei name hinzu"""
+        fileName, _ = QtWidgets.QFileDialog.getOpenFileName(
+            self, "Open File", "", "Larus files (*.f110)")
 
-        if key_event.scan_code == KEY_F12:
-            self._kbd_active = not self._kbd_active
-            print('Flightplayer Command active: ', self._kbd_active)
+        QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
+        self.data.from_file(fileName)
+        self.ui.lbFileNameA.setText(fileName.split('/')[-1])
+        self.ui.lbDateA.setText(str(self.data.date_of_flight()))
+        self.ui.lbStartRecordingA.setText(str(self.data.start_recording()))
+        self.ui.lbStopRecordingA.setText(str(self.data.end_recording()))
+        self.file_open = True
+        self.is_running = False
+        self.setPlayerPos()
+        QtWidgets.QApplication.restoreOverrideCursor()
 
+    def setPlayerSpeed(self):
+        pos = self.ui.hsPlayerSpeed.value() # 1..20
+        if pos < 10:
+            speed = 0.1 * pos
+        else:
+            speed = (pos - 9) * 1.0
+        self.ui.lbSpeed.setText(f"{speed:3.1f}")
+        self.data.set_speed(speed)
 
+    def setPlayerPos(self):
+        if self.file_open:
+            pos = self.ui.hsEmulationTime.value()   # 0..999
+            self.data.set_relative(pos)
+            self.ui.lbFlightTimeA.setText(str(self.data.time()))
 
-fp = FlightPlayer("hm" + os.sep + "230617_091240.f37.f110")
-fp.run()
+if __name__ == "__main__":
+    app = QtWidgets.QApplication(sys.argv)
+    window = Emulator()
+    window.resize(1100, 350)
+    window.show()
+
+    sys.exit(app.exec_())
