@@ -17,13 +17,7 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_4">
      <item>
-      <widget class="QPushButton" name="pbBlink">
-       <property name="minimumSize">
-        <size>
-         <width>50</width>
-         <height>0</height>
-        </size>
-       </property>
+      <widget class="QLabel" name="lbBlink">
        <property name="text">
         <string/>
        </property>

@@ -25,13 +25,18 @@ class Emulator(QtWidgets.QDialog):
         self.is_running = False
         self.blink = False
 
+        self.setWindowTitle('Larus Flight Player')
+        self.setWindowIcon(QtGui.QIcon('larus_breeze.png'))
+
         self.ui.pbStart.pressed.connect(self.startEmulator)
         self.ui.pbStop.pressed.connect(self.stopEmulator)
         self.ui.pbOpenFile.pressed.connect(self.openFile)
         self.ui.hsPlayerSpeed.valueChanged.connect(self.setPlayerSpeed)
         self.ui.hsEmulationTime.valueChanged.connect(self.setPlayerPos)
 
-        self.led = QtGui.QIcon("green_led.png")
+        self.led = QtGui.QPixmap("green_led.png")
+        self.no_led = QtGui.QPixmap("no_led.png")
+        self.ui.lbBlink.setPixmap(self.no_led)
         self.timer = QtCore.QTimer()
         self.timer.timeout.connect(self.tick_100ms)
         self.timer2 = QtCore.QTimer()
@@ -47,7 +52,7 @@ class Emulator(QtWidgets.QDialog):
     def stopEmulator(self):
         self.timer.stop()
         self.is_running = False
-        self.ui.pbBlink.setIcon(QtGui.QIcon())
+        self.ui.lbBlink.setPixmap(self.no_led)
 
     def tick_100ms(self):
         if self.file_open and self.is_running:
@@ -59,26 +64,28 @@ class Emulator(QtWidgets.QDialog):
             self.ui.lbFlightTimeA.setText(str(self.data.time()))
             if self.is_running:
                 if self.blink:
-                    self.ui.pbBlink.setIcon(self.led)
+                    self.ui.lbBlink.setPixmap(self.led)
                 else:
-                    self.ui.pbBlink.setIcon(QtGui.QIcon())
+                    self.ui.lbBlink.setPixmap(self.no_led)
                 self.blink = not self.blink
 
     def openFile(self):
         """Öffnet eine Datei und fügt in die SatusBar FrameFormat + Datei name hinzu"""
-        fileName, _ = QtWidgets.QFileDialog.getOpenFileName(
+        fileName, x = QtWidgets.QFileDialog.getOpenFileName(
             self, "Open File", "", "Larus files (*.f110)")
 
-        QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
-        self.data.from_file(fileName)
-        self.ui.lbFileNameA.setText(fileName.split('/')[-1])
-        self.ui.lbDateA.setText(str(self.data.date_of_flight()))
-        self.ui.lbStartRecordingA.setText(str(self.data.start_recording()))
-        self.ui.lbStopRecordingA.setText(str(self.data.end_recording()))
-        self.file_open = True
-        self.is_running = False
-        self.setPlayerPos()
-        QtWidgets.QApplication.restoreOverrideCursor()
+        if fileName != '':
+            self.stopEmulator()
+            QtWidgets.QApplication.setOverrideCursor(QtCore.Qt.WaitCursor)
+            self.data.from_file(fileName)
+            self.ui.lbFileNameA.setText(fileName.split('/')[-1])
+            self.ui.lbDateA.setText(str(self.data.date_of_flight()))
+            self.ui.lbStartRecordingA.setText(str(self.data.start_recording()))
+            self.ui.lbStopRecordingA.setText(str(self.data.end_recording()))
+            self.file_open = True
+            self.is_running = False
+            self.setPlayerPos()
+            QtWidgets.QApplication.restoreOverrideCursor()
 
     def setPlayerSpeed(self):
         pos = self.ui.hsPlayerSpeed.value() # 1..20

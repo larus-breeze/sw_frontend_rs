@@ -95,7 +95,7 @@ class FlightData():
 
     def start_recording(self) -> time:
         try:
-            row = self._df.iloc[2000]     # 20 sec after power on, GPS has usually a fix
+            row = self._df.iloc[0]
             hour = int(row['hour'])
             min = int(row['minute'])
             sec = int(row['second'])
@@ -117,12 +117,6 @@ class FlightData():
         return self._row[item]
 
     def can_send_frames(self):
-        try:
-            self._can_send_frames()
-        except:
-            pass # silently ignore errors
-
-    def _can_send_frames(self):
 
         # AIRSPEED tas, ias in km/h
         self.can_send(to_u16(0x0102) +
