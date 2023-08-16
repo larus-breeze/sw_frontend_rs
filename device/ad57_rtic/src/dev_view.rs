@@ -25,7 +25,7 @@ impl DevView {
         self.next_wake_up
     }
 
-    pub fn setup_timer(&mut self, now:DevInstant) {
+    pub fn setup_timer(&mut self, now: DevInstant) {
         self.next_wake_up = now;
     }
 

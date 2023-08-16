@@ -3,7 +3,7 @@ use core::{
     ops::{Add, AddAssign, Div, Mul, Neg, Sub, SubAssign},
 };
 
-use crate::{basic_ops, Float, RAD_PER_DEGREE, DEGREE_PER_RAD};
+use crate::{basic_ops, Float, DEGREE_PER_RAD, RAD_PER_DEGREE};
 
 #[derive(Copy, Clone, Default)]
 pub struct AngularVelocity(pub Float);
@@ -47,7 +47,6 @@ impl AngularVelocity {
     pub fn to_deg_min(self) -> Float {
         self.0 * DEGREE_PER_RAD * 60.0
     }
-
 }
 
 /// Trait to convert data to the struct [AngularVelocity]

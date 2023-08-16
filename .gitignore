@@ -1,3 +1,5 @@
 /core/target
 /device/ad57_rtic/target
 /device/pc/target
+*.f110
+*.pyc

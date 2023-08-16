@@ -7,7 +7,7 @@ use stm32f4xx_hal::{
     pac::CAN1,
 };
 
-use vario_display::{sensor, frontend};
+use vario_display::{frontend, sensor};
 
 // This queue transports the can bus frames from the view component to the can tx driver.
 const MAX_TX_FRAMES: usize = 10;

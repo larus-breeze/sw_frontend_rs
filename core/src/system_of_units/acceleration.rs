@@ -5,9 +5,9 @@ use core::{
 
 use crate::{basic_ops, Float};
 
-/// In mechanics, acceleration is the rate of change of the velocity of an object with respect 
+/// In mechanics, acceleration is the rate of change of the velocity of an object with respect
 /// to time. Accelerations are vector quantities (in that they have magnitude and direction).
-/// The orientation of an object's acceleration is given by the orientation of the net force 
+/// The orientation of an object's acceleration is given by the orientation of the net force
 /// acting on that object.
 /// ([Wikipedia](https://en.wikipedia.org/wiki/Acceleration)).
 /// The SI unit for acceleration is metre per second squared, unit symbol is m/s².

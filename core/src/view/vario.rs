@@ -1,6 +1,8 @@
 use super::{
-    elements::{classic_indicator, scale_marker, wind_arrow}, // inverted_scale_marker, 
-    CENTER, DIAMETER, RADIUS,
+    elements::{classic_indicator, scale_marker, wind_arrow}, // inverted_scale_marker,
+    CENTER,
+    DIAMETER,
+    RADIUS,
 };
 use crate::{
     model::{CoreModel, FlyMode, VarioMode},
@@ -130,8 +132,9 @@ where
     // dependend on fly_mode draw glider or north symbol
     match cm.control.fly_mode {
         FlyMode::Circling => display.draw_img(COMPASS, Point::new(0, 0))?,
-        FlyMode::StraightFlight | FlyMode::Transition => 
-            display.draw_img(GLIDER, Point::new(0, 0))?,
+        FlyMode::StraightFlight | FlyMode::Transition => {
+            display.draw_img(GLIDER, Point::new(0, 0))?
+        }
     }
 
     // draw mc_ready marker

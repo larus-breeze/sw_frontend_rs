@@ -1,13 +1,14 @@
-use crate::{AirSpeed, CoreModel, FloatToDensity, FloatToPressure, 
-    FloatToSpeed, FloatToAngularVelocity, FloatToAcceleration, FlyMode};
+use crate::{
+    AirSpeed, CoreModel, FloatToAcceleration, FloatToAngularVelocity, FloatToDensity,
+    FloatToPressure, FloatToSpeed, FlyMode,
+};
 use byteorder::{ByteOrder, LittleEndian as LE};
 use embedded_graphics::prelude::AngleUnit;
 
 use crate::utils::sensor;
 use embedded_hal::can::{Frame, Id};
 
-
-pub fn read_can_frame<F: Frame>(core_model: &mut CoreModel, frame: &F) {
+pub fn read_can_frame<F: Frame>(cm: &mut CoreModel, frame: &F) {
     let id = match frame.id() {
         Id::Extended(_) => return, // we don't use extended Ids
         Id::Standard(standard_id) => standard_id.as_raw(),
@@ -18,49 +19,44 @@ pub fn read_can_frame<F: Frame>(core_model: &mut CoreModel, frame: &F) {
         sensor::AIRSPEED => {
             let tas = (rdr.pop_i16() as f32).km_h();
             let ias = (rdr.pop_i16() as f32).km_h();
-            core_model.sensor.airspeed = AirSpeed::from_speeds(ias, tas);
+            cm.sensor.airspeed = AirSpeed::from_speeds(ias, tas);
         }
         sensor::VARIO => {
-            core_model.sensor.climb_rate = ((rdr.pop_i16() as f32) * 0.001).m_s();
-            core_model.sensor.average_climb_rate = ((rdr.pop_i16() as f32) * 0.001).m_s();
+            cm.sensor.climb_rate = ((rdr.pop_i16() as f32) * 0.001).m_s();
+            cm.sensor.average_climb_rate = ((rdr.pop_i16() as f32) * 0.001).m_s();
         }
         sensor::ATHMOSPHERE => {
-            core_model.sensor.pressure = (rdr.pop_u32() as f32).n_m2();
-            core_model.sensor.density = (rdr.pop_u32() as f32).g_m3();
+            cm.sensor.pressure = (rdr.pop_u32() as f32).n_m2();
+            cm.sensor.density = (rdr.pop_u32() as f32).g_m3();
         }
         sensor::WIND => {
-            core_model
-                .sensor
+            cm.sensor
                 .wind_vector
                 .set_angle(((rdr.pop_i16() as f32) * 0.001).rad());
-            core_model
-                .sensor
+            cm.sensor
                 .wind_vector
                 .set_speed((rdr.pop_i16() as f32).km_h());
-            core_model
-                .sensor
+            cm.sensor
                 .average_wind
                 .set_angle(((rdr.pop_i16() as f32) * 0.001).rad());
-            core_model
-                .sensor
+            cm.sensor
                 .average_wind
                 .set_speed((rdr.pop_i16() as f32).km_h());
         }
         sensor::ACCELERATION => {
-            core_model.sensor.g_force = ((rdr.pop_i16() as f32) * 0.001).m_s2();
-            core_model.sensor.vertical_g_force = ((rdr.pop_i16() as f32) * 0.001).m_s2();
-            core_model.sensor.gps_climb_rate = ((rdr.pop_i16() as f32) * 0.001).m_s();
+            cm.sensor.g_force = ((rdr.pop_i16() as f32) * 0.001).m_s2();
+            cm.sensor.vertical_g_force = ((rdr.pop_i16() as f32) * 0.001).m_s2();
+            cm.sensor.gps_climb_rate = ((rdr.pop_i16() as f32) * 0.001).m_s();
             match rdr.pop_u8() {
-                2 => core_model.control.fly_mode = FlyMode::Circling,
-                1 => core_model.control.fly_mode = FlyMode::Transition,
-                _ => core_model.control.fly_mode = FlyMode::StraightFlight,
+                2 => cm.control.fly_mode = FlyMode::Circling,
+                1 => cm.control.fly_mode = FlyMode::Transition,
+                _ => cm.control.fly_mode = FlyMode::StraightFlight,
             }
-
         }
         sensor::TURN_COORD => {
-            core_model.sensor.slip_angle = ((rdr.pop_i16() as f32) * 0.001).rad();
-            core_model.sensor.turn_rate = ((rdr.pop_i16() as f32) * 0.001).rad_s();
-            core_model.sensor.nick_angle = ((rdr.pop_i16() as f32) * 0.001).rad();
+            cm.sensor.slip_angle = ((rdr.pop_i16() as f32) * 0.001).rad();
+            cm.sensor.turn_rate = ((rdr.pop_i16() as f32) * 0.001).rad_s();
+            cm.sensor.nick_angle = ((rdr.pop_i16() as f32) * 0.001).rad();
         }
         _ => (), // all other frames are ignored
     }

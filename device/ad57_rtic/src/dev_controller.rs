@@ -1,13 +1,14 @@
 //use bxcan::Id;
-use vario_display::CoreModel;
+use vario_display::CoreModel; // sensor
 
 use crate::{driver::CRxFrames, CKeyEvents, CoreController};
-//use defmt::trace;
+use defmt::trace;
 
 pub struct DevController {
     core_controller: CoreController,
     c_key_event: CKeyEvents, // key event queue
     c_rx_frames: CRxFrames,  // can bus rx queue
+    tick_cnt: u32,
 }
 
 impl DevController {
@@ -21,6 +22,7 @@ impl DevController {
             core_controller,
             c_key_event,
             c_rx_frames,
+            tick_cnt: 0,
         }
     }
 
@@ -32,7 +34,7 @@ impl DevController {
             /*match frame.id() {
                 Id::Extended(_) => return, // we don't use extended Ids
                 Id::Standard(standard_id) => {
-                    trace!("CAN Id {:x}", standard_id.as_raw());
+                    //trace!("CAN Id {:x}", standard_id.as_raw());
                     if standard_id.as_raw() == sensor::TURN_COORD {
                         let buf: &[u8] = frame.data().unwrap();
                         trace!("TURN_CORD {:x}", buf);
@@ -41,6 +43,13 @@ impl DevController {
             };*/
             self.core_controller.read_can_frame(core_model, &frame);
         }
+
+        self.tick_cnt += 1;
+        if self.tick_cnt > 10 {
+            self.tick_cnt = 0;
+            trace!("Turn rate {}", core_model.sensor.turn_rate.to_deg_s());
+        }
+
         self.core_controller.time_action(core_model);
     }
 }

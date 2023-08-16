@@ -67,7 +67,7 @@ impl VarioController {
                     0,
                     POLAR_COUNT as i32 - 1,
                 )
-            },
+            }
             Editable::PilotWeight => {
                 cm.glider_data.pilot_weight = val_manip(
                     cm.glider_data.pilot_weight.to_kg(),
@@ -78,14 +78,14 @@ impl VarioController {
                     250.0,
                 )
                 .kg()
-            },
+            }
             Editable::VarioModeControl => {
                 cm.control.vario_mode_control = match cm.control.vario_mode_control {
                     VarioModeControl::Auto => VarioModeControl::Vario,
                     VarioModeControl::Vario => VarioModeControl::SpeedToFly,
                     VarioModeControl::SpeedToFly => VarioModeControl::Auto,
-                }            
-            },
+                }
+            }
             _ => (),
         }
         Result::Edit(EditMode::Section, self.edit_var, 2)

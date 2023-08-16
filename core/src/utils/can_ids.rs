@@ -8,15 +8,15 @@ pub mod sensor {
     pub const GPS_LAT_LON: u16 = 0x105;     // i32 lat, lon / 10^-7 degrees
     pub const GPS_ALT: u16 = 0x106;         // i32 MSL altitude / mm, i32 geo separation in 1/10 m
     pub const GPS_TRK_SPD: u16 = 0x107;     // i32 ground vector / 1/1000 rad, u16 groundspeed / km/h
-    pub const WIND: u16 = 0x108;            // i16 1/1000 rad, i16 km/h    Current Wind
-                                            // i16 1/1000 rad, i16 km/h    Average Wind
+    pub const WIND: u16 = 0x108;            // Current Wind i16 1/1000 rad, i16 km/h
+                                            // Average Wind i16 1/1000 rad, i16 km/h
     pub const ATHMOSPHERE: u16 = 0x109;     // u32 pressure / Pa, u32 density / g/m^3
     pub const GPS_SATS: u16 = 0x10a;        // u8 No of Sats
                                             // u8 Fix-Type NO=0 2D=1 3D=2 RTK=3
-    pub const ACCELERATION: u16 = 0x10b;    // i16 representing  G-force in mm/s^2
-                                            // i16 representing vertical G-force in mm/s^2
-                                            // i16 representing GPS vertical speed  in mm/s
-                                            // u8, representing enum (0 Straight Flight, 1 Transition, 2 Circling)
+    pub const ACCELERATION: u16 = 0x10b;    // i16  G-force in mm/s^2
+                                            // i16 vertical G-force in mm/s^2
+                                            // i16 GPS vertical speed  in mm/s
+                                            // u8, enum (0 Straight Flight, 1 Transition, 2 Circling)
     pub const TURN_COORD: u16 = 0x10c;      // i16 slip angle 0.001 rad
                                             // i16 turn rate 0.001 rad/s
                                             // i16 nick angle 0.001 rad

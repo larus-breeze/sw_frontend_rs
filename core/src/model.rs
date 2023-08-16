@@ -4,10 +4,8 @@ use crate::{
     controller::Editable,
     flight_physics::{GliderData, WindVector},
     system_of_units::{
-        Speed, FloatToSpeed, 
-        AngularVelocity, FloatToAngularVelocity, 
-        Pressure,
-        Acceleration, FloatToAcceleration,
+        Acceleration, AngularVelocity, FloatToAcceleration, FloatToAngularVelocity, FloatToSpeed,
+        Pressure, Speed,
     },
     AirSpeed, Density,
 };

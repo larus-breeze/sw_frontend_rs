@@ -107,7 +107,6 @@ impl CoreController {
         // The following actions are performed infrequently and alternately
         self.tick = (self.tick + 1) % 10; // 10 Hz -> every second from beginning
         match self.tick {
-
             // Recalculate the polar coefficients based on the current data
             1 => self
                 .polar
@@ -122,13 +121,16 @@ impl CoreController {
                 // In auto mode switch between Vario and SpeedToFly
                 match core_model.control.vario_mode_control {
                     VarioModeControl::Auto => {
-                        if core_model.sensor.airspeed.ias() > core_model.control.speed_to_fly_limit {
+                        if core_model.sensor.airspeed.ias() > core_model.control.speed_to_fly_limit
+                        {
                             core_model.control.vario_mode = VarioMode::SpeedToFly;
                         } else {
                             core_model.control.vario_mode = VarioMode::Vario;
                         }
-                    },
-                    VarioModeControl::SpeedToFly => core_model.control.vario_mode = VarioMode::SpeedToFly,
+                    }
+                    VarioModeControl::SpeedToFly => {
+                        core_model.control.vario_mode = VarioMode::SpeedToFly
+                    }
                     VarioModeControl::Vario => core_model.control.vario_mode = VarioMode::Vario,
                 }
             }

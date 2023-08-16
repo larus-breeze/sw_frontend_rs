@@ -77,13 +77,11 @@ fn get_edit_strs(cm: &CoreModel) -> (&str, Concat<20>) {
         Editable::Glider => val_str.push_str(POLARS[cm.config.glider_idx as usize].name),
         Editable::McCready => val_str.push_f32(cm.config.mc_cready.to_m_s(), 1),
         Editable::PilotWeight => val_str.push_f32(cm.glider_data.pilot_weight.to_kg(), 0),
-        Editable::VarioModeControl => {
-            match cm.control.vario_mode_control {
-                VarioModeControl::Auto => val_str.push_str("Auto"),
-                VarioModeControl::Vario => val_str.push_str("Vario"),
-                VarioModeControl::SpeedToFly => val_str.push_str("SpeedToFly"),
-            }
-        }
+        Editable::VarioModeControl => match cm.control.vario_mode_control {
+            VarioModeControl::Auto => val_str.push_str("Auto"),
+            VarioModeControl::Vario => val_str.push_str("Vario"),
+            VarioModeControl::SpeedToFly => val_str.push_str("SpeedToFly"),
+        },
         Editable::Speed => val_str
             .push_f32(cm.sensor.airspeed.ias().to_km_h(), 0)
             .push_str(" km/h"),
