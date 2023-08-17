@@ -155,6 +155,7 @@ dependencies = [
 name = "eg-examples"
 version = "0.1.0"
 dependencies = [
+ "byteorder",
  "embedded-graphics",
  "embedded-graphics-simulator",
  "micromath 1.1.1",

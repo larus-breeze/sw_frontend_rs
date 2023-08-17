@@ -2,18 +2,24 @@ use embedded_graphics::prelude::*;
 use embedded_graphics_simulator::{
     sdl2::Keycode, OutputSettings, SimulatorDisplay, SimulatorEvent, Window,
 };
+use std::{net::UdpSocket, time::Duration};
+use byteorder::{ByteOrder, LittleEndian as LE};
 
 use vario_display::*;
 
-struct MockDisplay(pub SimulatorDisplay<Colors>);
+
+struct MockDisplay {
+    pub display: SimulatorDisplay<Colors>,
+}
+
 
 impl MockDisplay {
     /// Creates a new display.
     ///
     /// The display is filled with `C::from(BinaryColor::Off)`.
     pub fn new(size: Size) -> Self {
-        let sd = SimulatorDisplay::with_default_color(size, Colors::Black);
-        MockDisplay(sd)
+        let display = SimulatorDisplay::with_default_color(size, Colors::Black);
+        MockDisplay{display}
     }
 }
 
@@ -57,14 +63,14 @@ impl DrawTarget for MockDisplay {
     where
         I: IntoIterator<Item = Pixel<Self::Color>>,
     {
-        self.0.draw_iter(pixels).unwrap();
+        self.display.draw_iter(pixels).unwrap();
         Ok(())
     }
 }
 
 impl OriginDimensions for MockDisplay {
     fn size(&self) -> Size {
-        self.0.size()
+        self.display.size()
     }
 }
 
@@ -93,9 +99,11 @@ fn main() -> Result<(), core::convert::Infallible> {
     let mut core_model = CoreModel::default();
     let mut controller = CoreController::new(&mut core_model);
     let mut view = CoreView::new(display);
+    let socket = UdpSocket::bind("127.0.0.1:5005").expect("Could not open UDP socket");
+    socket.set_read_timeout(Some(Duration::from_millis(40))).expect("Could not set read timeout");
 
     'running: loop {
-        window.update(&view.display.0);
+        window.update(&view.display.display);
 
         let mut key_event = KeyEvent::NoEvent;
         for event in window.events() {
@@ -128,7 +136,18 @@ fn main() -> Result<(), core::convert::Infallible> {
         }
         controller.time_action(&mut core_model);
         view.draw(&mut core_model).unwrap();
-        std::thread::sleep(std::time::Duration::from_millis(50));
+
+        let mut buf = [0u8; 10];
+        loop {
+            match socket.recv_from(&mut buf) {
+                Ok((cnt, _adr)) => {
+                    let id = LE::read_u16(&buf[..2]);
+                    let frame = CanFrame::from_slice(id, &buf[2..cnt]);
+                    controller.read_can_frame(&mut core_model, &frame);
+                }
+                Err(_) => break,
+            }
+        }
     }
     Ok(())
 }
