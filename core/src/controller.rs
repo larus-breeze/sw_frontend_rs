@@ -133,6 +133,9 @@ impl CoreController {
                     }
                     VarioModeControl::Vario => core_model.control.vario_mode = VarioMode::Vario,
                 }
+
+                // Set 1-second-speed-to-fly value
+                core_model.calculated.speed_to_fly_1s = core_model.calculated.speed_to_fly.ias();
             }
             _ => (),
         }

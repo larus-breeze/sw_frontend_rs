@@ -233,7 +233,7 @@ where
             Arc::with_center(CENTER, SZS.diameter_stf, 180.0.deg(), angle_sweep)
                 .into_styled(PrimitiveStyle::with_stroke(COLS.speed_to_fly, 6))
                 .draw(display)?;
-            let stf = num::clamp(cm.calculated.speed_to_fly.ias().to_km_h(), 0.0, 999.0);
+            let stf = num::clamp(cm.calculated.speed_to_fly_1s.to_km_h(), 0.0, 999.0);
             let txt = Concat::<10>::from_f32(stf, 0);
             FONT_HELV_18.render_aligned(
                 txt.as_str(),

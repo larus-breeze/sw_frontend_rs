@@ -77,6 +77,7 @@ pub enum DisplayActive {
 pub struct Calculated {
     pub speed_to_fly: AirSpeed,
     pub speed_to_fly_dif: Speed,
+    pub speed_to_fly_1s: Speed,     // ref. IAS
     pub thermal_climb_rate: Speed,
 }
 
@@ -86,6 +87,7 @@ impl Default for Calculated {
         Calculated {
             speed_to_fly: AirSpeed::from_tas_at_nn(127.0.km_h()),
             speed_to_fly_dif: 3.0.km_h(),
+            speed_to_fly_1s: 0.0.km_h(),
             thermal_climb_rate: 1.3.m_s(),
         }
     }
