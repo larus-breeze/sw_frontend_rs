@@ -43,6 +43,7 @@ class Emulator(QtWidgets.QDialog):
         self.timer2.timeout.connect(self.tick_1s)
         self.timer2.start(1000)
         self.setPlayerSpeed()
+        self.baroWidget = self.ui.baroWidget
 
     def startEmulator(self):
         self.timer.start(100)
@@ -82,6 +83,10 @@ class Emulator(QtWidgets.QDialog):
             self.ui.lbDateA.setText(str(self.data.date_of_flight()))
             self.ui.lbStartRecordingA.setText(str(self.data.start_recording()))
             self.ui.lbStopRecordingA.setText(str(self.data.end_recording()))
+            self.ui.verticalLayout.removeWidget(self.baroWidget)
+            self.baroWidget = self.data.getWidget(self)
+            self.ui.verticalLayout.insertWidget(4, self.baroWidget)
+
             self.file_open = True
             self.is_running = False
             self.setPlayerPos()
@@ -105,7 +110,7 @@ class Emulator(QtWidgets.QDialog):
 if __name__ == "__main__":
     app = QtWidgets.QApplication(sys.argv)
     window = Emulator()
-    window.resize(1100, 350)
+    window.resize(1150, 500)
     window.show()
 
     sys.exit(app.exec_())

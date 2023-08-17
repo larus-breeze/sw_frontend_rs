@@ -77,6 +77,13 @@ class FlightData():
             speed = 100.0
         self._delta = int(10 * speed)
 
+    def getWidget(self, parent= None):
+        t = self._df.index / 100.0 / 60.0   # 100Hz ticks to minutes for the time axis
+        widget = BaroWidget(parent)
+        widget.axes.set_ylim(self._df["Pressure-altitude"].min(), self._df["Pressure-altitude"].max())
+        widget.axes.plot(t, self._df["Pressure-altitude"], label="Altitude")
+        return widget
+
     def date_of_flight(self) -> date:
         row = self._df.iloc[self._last_idx]
         year = int(row['year']) + 2000
@@ -112,9 +119,6 @@ class FlightData():
             return time(hour, min, sec)
         except:
             return time(0, 0, 0)
-
-    def __getitem__(self, item: str) -> float:
-        return self._row[item]
 
     def can_send_frames(self):
 
