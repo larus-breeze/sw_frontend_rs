@@ -1,7 +1,7 @@
 use byteorder::{ByteOrder, LittleEndian as LE};
 use embedded_hal::can::{Frame, Id, StandardId};
 
-struct CanFrame {
+pub struct CanFrame {
     id: u16,
     len: u8,
     data: [u8; 8],
@@ -9,12 +9,17 @@ struct CanFrame {
 
 #[allow(unused)]
 impl CanFrame {
-    fn empty_from_id(id: u16) -> Self {
-        CanFrame {
-            id,
-            len: 0,
-            data: [0u8; 8],
+    pub fn empty_from_id(id: u16) -> Self {
+        CanFrame {id, len: 0, data: [0u8; 8]}
+    }
+
+    pub fn from_slice(id: u16, src: &[u8]) -> Self {
+        let mut data = [0u8; 8];
+        let len = src.len();
+        for idx in 0..len {
+            data[idx] = src[idx]
         }
+        CanFrame {id, len: len as u8, data}
     }
 
     fn push_u32(&mut self, val: u32) {
