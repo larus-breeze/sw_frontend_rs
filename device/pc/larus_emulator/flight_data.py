@@ -55,6 +55,9 @@ class FlightData():
         self._idx = int(pos * 0.001 * self._last_idx)
         self._row = self._df.iloc[self._idx]
 
+    def get_relative(self) -> int:
+        return round((999.0 * self._idx) / self._last_idx)
+
     def inc_time(self, seconds):
         self._idx += seconds*100
         self._check_idx_range()
@@ -119,6 +122,9 @@ class FlightData():
             return time(hour, min, sec)
         except:
             return time(0, 0, 0)
+        
+    def __getitem__(self, item_name):
+        return self._row[item_name]
 
     def can_send_frames(self):
 

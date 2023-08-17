@@ -69,6 +69,9 @@ class Emulator(QtWidgets.QDialog):
                 else:
                     self.ui.lbBlink.setPixmap(self.no_led)
                 self.blink = not self.blink
+                self.ui.hsEmulationTime.setValue(self.data.get_relative())
+                self.ui.lbIasA.setText(f"{self.data['IAS']*3.6:3.0f}")
+                self.ui.lbAltitudeA.setText(f"{self.data['Pressure-altitude']:4.0f}")
 
     def openFile(self):
         """Öffnet eine Datei und fügt in die SatusBar FrameFormat + Datei name hinzu"""
