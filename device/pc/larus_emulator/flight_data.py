@@ -1,5 +1,6 @@
 from dataformats import *
 from utils import *
+import nmea
 
 from math import atan2, pi, sqrt
 from datetime import date, time
@@ -173,3 +174,5 @@ class FlightData():
     def can_send(self, frame: bytes):
         self._socket.sendto(frame, (self._ip, self._port))
 
+    def nmea_send_frames(self):
+        print(nmea.gprmc(self._row))
