@@ -69,6 +69,7 @@ class Player(QtWidgets.QWidget):
     def tick_1s(self):
         """This routine is called every second an actualizes the nmea data"""
         if self.file_open:
+            self.data.nmea_send_frames()
             self.ui.lbFlightTimeA.setText(str(self.data.time()))
             if self.is_running:
                 self.nmea.send_data(self.data)

@@ -60,6 +60,8 @@ class FlightData():
         """Returns the relative position"""
         return round((999.0 * self._idx) / self._last_idx)
 
+    def nmea_send_frames(self):
+        print(nmea.gprmc(self._row))
     def tick(self):
         """Selects the next data set (default is plus 0.1 seconds)."""
         self._idx += self._delta
@@ -138,4 +140,3 @@ class FlightData():
             self._idx = self._last_idx
         elif self._idx < 0:
             self._idx = 0
-
