@@ -159,12 +159,12 @@ where
     ///
     /// Performs a hard reset using the RST pin sequence
     ///
-    pub fn hard_reset(&mut self) -> Result<(), Error<PinE>> {
-        self.rst.set_high().map_err(Error::Pin)?;
+    pub fn hard_reset(&mut self) -> Result<(), Error> {
+        self.rst.set_high().map_err(|_| Error::PinError)?;
         delay_ms(1); // ensure the pin change will get registered
-        self.rst.set_low().map_err(Error::Pin)?;
+        self.rst.set_low().map_err(|_| Error::PinError)?;
         delay_ms(2); // ensure the pin change will get registered
-        self.rst.set_high().map_err(Error::Pin)?;
+        self.rst.set_high().map_err(|_| Error::PinError)?;
         delay_ms(2); // ensure the pin change will get registered
         Ok(())
     }
@@ -173,7 +173,7 @@ where
     /// Sets display orientation
     ///
     #[allow(unused)]
-    pub fn set_orientation(&mut self, orientation: Orientation) -> Result<(), Error<PinE>> {
+    pub fn set_orientation(&mut self, orientation: Orientation) -> Result<(), Error> {
         match orientation {
             Orientation::Portrait => {
                 //self.write_command_and_data(0x03, 0x1030);

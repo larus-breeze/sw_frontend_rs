@@ -7,7 +7,9 @@ pub use statistics::{Statistics, Task};
 ///
 #[derive(Debug)]
 #[allow(unused)]
-pub enum Error<PinE> {
+pub enum Error {
     DisplayError,
-    Pin(PinE),
+    PinError,
+    EepromOrI2c1,
+    NoItemAvailable,
 }
