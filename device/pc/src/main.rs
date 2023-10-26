@@ -1,6 +1,6 @@
 use embedded_graphics::prelude::*;
 use embedded_graphics_simulator::{
-    sdl2::Keycode, OutputSettings, SimulatorDisplay, SimulatorEvent, Window,
+    sdl2::Keycode, OutputSettings, OutputSettingsBuilder, SimulatorDisplay, SimulatorEvent, Window,
 };
 use std::{net::UdpSocket, time::Duration};
 use byteorder::{ByteOrder, LittleEndian as LE};
@@ -20,6 +20,12 @@ impl MockDisplay {
     pub fn new(size: Size) -> Self {
         let display = SimulatorDisplay::with_default_color(size, Colors::Black);
         MockDisplay{display}
+    }
+
+    pub fn save_png(&mut self, img_path: &str) {
+        let output_settings = OutputSettingsBuilder::new().build();                            
+        let output_image = self.display.to_rgb_output_image(&output_settings);
+        output_image.save_png(img_path).unwrap();
     }
 }
 
@@ -64,6 +70,7 @@ impl DrawTarget for MockDisplay {
         I: IntoIterator<Item = Pixel<Self::Color>>,
     {
         self.display.draw_iter(pixels).unwrap();
+        
         Ok(())
     }
 }
@@ -90,6 +97,8 @@ fn main() -> Result<(), core::convert::Infallible> {
 \
     F8 Button 1 and Esc fro 3 secs (Domo Mode)\n\
     F9 Button 1 for 3 secs (Glider)\n
+
+    S Key to save image as png file
 "
     );
 
@@ -101,6 +110,8 @@ fn main() -> Result<(), core::convert::Infallible> {
     let mut view = CoreView::new(display);
     let socket = UdpSocket::bind("127.0.0.1:5005").expect("Could not open UDP socket");
     socket.set_read_timeout(Some(Duration::from_millis(40))).expect("Could not set read timeout");
+
+    let mut img_no = 0_u32;
 
     'running: loop {
         window.update(&view.display.display);
@@ -122,6 +133,14 @@ fn main() -> Result<(), core::convert::Infallible> {
                         Keycode::F5 => KeyEvent::BtnEnc,
                         Keycode::F8 => KeyEvent::Btn1EscS3,
                         Keycode::F9 => KeyEvent::Btn1S3,
+
+                        Keycode::S => {
+                            img_no += 1;
+                            let img_path = format!("vario_{:03}.png", img_no);
+                            println!("Image {} saved to disk", &img_path);
+                            view.display.save_png(&img_path);
+                            KeyEvent::NoEvent
+                        },
                         _ => {
                             println!("Key with no effect {:?}", keycode);
                             KeyEvent::NoEvent
