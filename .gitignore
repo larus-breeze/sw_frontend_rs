@@ -1,4 +1,5 @@
 /core/target
+/core/Cargo.lock
 /device/ad57_rtic/target
 /device/pc/target
 *.f110
