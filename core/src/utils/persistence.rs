@@ -2,12 +2,14 @@ use heapless::spsc::{Queue, Producer, Consumer};
 
 
 #[repr(u16)]
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub enum PersistenceId {
-    MacCready = 0,
-    Qnh = 1,
-    Ballast = 2,
-    Bugs = 3,
+    DoNotStore = 65535,
+    Volume = 0,
+    McCready = 1,
+    WaterBallast = 2,
+    PilotWeight = 3,
+    Glider = 4,
 }
 
 #[cfg(feature = "eeprom_size_8192")]
@@ -47,8 +49,28 @@ pub struct PersistenceItem {
 }
 
 impl PersistenceItem {
+    pub fn do_not_store() -> Self {
+        PersistenceItem { id: PersistenceId::DoNotStore, dat_bit: false, data: [0,0,0,0] }
+    }
+
+    pub fn from_i8(id: PersistenceId, value: i8) -> Self {
+        PersistenceItem { id, dat_bit: true, data: (value as i32).to_le_bytes() }
+    }
+
+    pub fn from_i32(id: PersistenceId, value: i32) -> Self {
+        PersistenceItem { id, dat_bit: true, data: value.to_le_bytes() }
+    }
+
     pub fn from_f32(id: PersistenceId, value: f32) -> Self {
         PersistenceItem { id, dat_bit: true, data: value.to_le_bytes() }
+    }
+
+    pub fn to_i8(&self) -> i8 {
+        i32::from_le_bytes(self.data) as i8
+    }
+
+    pub fn to_i32(&self) -> i32 {
+        i32::from_le_bytes(self.data)
     }
 
     pub fn to_f32(&self) -> f32 {

@@ -74,9 +74,8 @@ mod app {
     /// Initialization of the hardware and software
     #[init]
     fn init(cx: init::Context) -> (Shared, Local, init::Monotonics) {
-        let mut core_model = CoreModel::default();
-        let (can_rx, can_tx, controller, mono_timer, mut view, idle_loop, frame_buffer, keyboard, statistics) =
-            hw_init(cx.device, cx.core, &mut core_model);
+        let (can_rx, can_tx, controller, core_model, mono_timer, mut view, idle_loop, frame_buffer, keyboard, statistics) =
+            hw_init(cx.device, cx.core);
 
         view.setup_timer(monotonics::now());
         task_view::spawn().unwrap();

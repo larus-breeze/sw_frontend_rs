@@ -10,6 +10,7 @@ use crate::{
     system_of_units::FloatToSpeed,
     utils::{read_can_frame, KeyEvent},
     CoreModel, VarioMode, POLARS,
+    PersistenceItem, PersistenceId
 };
 use embedded_hal::can::Frame;
 
@@ -93,6 +94,32 @@ impl CoreController {
         // Count edit_ticks down, to close editor if necessary
         if core_model.control.edit_ticks > 0 {
             core_model.control.edit_ticks -= 1;
+            if core_model.control.edit_ticks == 0 {
+                let p_item = match core_model.control.edit_var {
+                    Editable::McCready => PersistenceItem::from_f32(
+                        PersistenceId::McCready, 
+                        core_model.config.mc_cready.to_m_s()
+                    ),
+                    Editable::Volume => PersistenceItem::from_i8(
+                        PersistenceId::Volume,
+                        core_model.config.volume,
+                    ),
+                    Editable::WaterBallast => PersistenceItem::from_f32(
+                        PersistenceId::WaterBallast,
+                        core_model.glider_data.water_ballast.to_kg()
+                    ),
+                    Editable::Glider => PersistenceItem::from_i32(
+                        PersistenceId::Glider,
+                        core_model.config.glider_idx
+                    ),
+                    Editable::PilotWeight => PersistenceItem::from_f32(
+                        PersistenceId::PilotWeight,
+                        core_model.glider_data.pilot_weight.to_kg()
+                    ),
+                    _ => PersistenceItem::do_not_store(),
+                };
+                core_model.persist_item(p_item);
+            }
         }
 
         // Calculate speed_to_fly and speed_to_fly_dif

@@ -1,4 +1,6 @@
 use embedded_graphics::geometry::{Angle, AngleUnit};
+use crate::{PersistenceItem, PersistenceId, Mass};
+use crate::utils::PPersistenceItems;
 
 use crate::{
     controller::Editable,
@@ -17,14 +19,43 @@ use crate::{
 /// channels to the data sources like Larus, controls, sensors, inputs and time. The View
 /// modules display the data contents. The LCD display and the sound system are the most
 /// important ones.
-#[derive(Default)]
 pub struct CoreModel {
     pub calculated: Calculated,
     pub config: Config,
     pub control: Control,
     pub glider_data: GliderData,
     pub sensor: Sensor,
+    p_pers_items: PPersistenceItems,
 }
+
+impl CoreModel {
+    pub fn new(p_pers_items: PPersistenceItems) -> Self {
+        let calculated = Calculated::default();
+        let config = Config::default();
+        let control = Control::default();
+        let glider_data = GliderData::default();
+        let sensor = Sensor::default();
+        CoreModel { calculated, config, control, glider_data, sensor, p_pers_items }
+    }
+
+    pub fn persist_item(&mut self, persistence_item: PersistenceItem) {
+        if persistence_item.id != PersistenceId::DoNotStore {
+            let _ = self.p_pers_items.enqueue(persistence_item);
+        }
+    }
+
+    pub fn restore_persistent_item(&mut self, item: PersistenceItem) {
+        match item.id {
+            PersistenceId::Volume => self.config.volume = item.to_i8(),
+            PersistenceId::McCready => self.config.mc_cready = Speed::from_m_s(item.to_f32()),
+            PersistenceId::WaterBallast => self.glider_data.water_ballast = Mass::from_kg(item.to_f32()),
+            PersistenceId::PilotWeight => self.glider_data.pilot_weight = Mass::from_kg(item.to_f32()),
+            PersistenceId::Glider => self.config.glider_idx = item.to_i32(),
+            _ => (),
+        }
+    }
+}
+
 
 /// Flymode display variants
 ///

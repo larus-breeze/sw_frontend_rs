@@ -12,13 +12,6 @@
 /// which forwards the frames from the interrupt service routine CanRx to the task DevController.
 use defmt::*;
 use {defmt_rtt as _, panic_probe as _};
-
-use crate::driver::{
-    frame_buffer::FrameBuffer, init_can, keyboard::*, CanRx, CanTx, DevLcdPins, Display, QRxFrames,
-    QTxFrames, Eeprom, 
-};
-use vario_display::QPersistenceItems;
-use crate::{dev_controller::DevController, dev_view::DevView, Statistics, idle_loop::IdleLoop};
 use heapless::spsc::Queue;
 use stm32f4xx_hal::{
     fsmc_lcd::{DataPins16, LcdPins},
@@ -28,7 +21,12 @@ use stm32f4xx_hal::{
     timer::monotonic::SysMonoTimerExt,
 };
 use systick_monotonic::*;
-use vario_display::CoreModel;
+use crate::driver::{
+    frame_buffer::FrameBuffer, init_can, keyboard::*, CanRx, CanTx, DevLcdPins, Display, QRxFrames,
+    QTxFrames, Eeprom, 
+};
+use crate::{dev_controller::DevController, dev_view::DevView, Statistics, idle_loop::IdleLoop};
+use vario_display::{CoreModel, QPersistenceItems};
 
 // Todo: use Timer as Timebase also for busy waiting
 pub fn delay_ms(millis: u32) {
@@ -48,11 +46,11 @@ pub type DevDisplay = Display;
 pub fn hw_init(
     device: pac::Peripherals,
     core: cortex_m::peripheral::Peripherals,
-    core_model: &mut CoreModel,
 ) -> (
     CanRx,
     CanTx,
     DevController,
+    CoreModel,
     DevMonoTimer,
     DevView,
     IdleLoop,
@@ -137,11 +135,17 @@ pub fn hw_init(
     let scl = gpiob.pb6.internal_pull_up(true);
     let sda = gpiob.pb7.internal_pull_up(true);
     let i2c = device.I2C1.i2c((scl, sda), 400.kHz(), &clocks);
-    let eeprom = Eeprom::new(i2c).unwrap();
+    let mut eeprom = Eeprom::new(i2c).unwrap();
+
+    // Setup ----------> CoreModel
+    let mut core_model = CoreModel::new(p_pers_items);
+    for item in eeprom.iter_over(vario_display::EepromTopic::ConfigValues) {
+        core_model.restore_persistent_item(item);
+    }
     let idle = IdleLoop::new(eeprom, c_pers_items);
 
     // Setup ----------> controller
-    let dev_controller = DevController::new(core_model, c_key_events, c_rx_frames);
+    let dev_controller = DevController::new(&mut core_model, c_key_events, c_rx_frames);
 
     // Setup ----------> frame buffer
     let frame_buffer = FrameBuffer::new();
@@ -177,6 +181,7 @@ pub fn hw_init(
         can_rx,
         can_tx,
         dev_controller,
+        core_model,
         dev_mono_timer,
         dev_view,
         idle, 

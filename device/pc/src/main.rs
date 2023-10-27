@@ -1,12 +1,14 @@
+mod eeprom;
+
+use std::{net::UdpSocket, time::Duration};
+use byteorder::{ByteOrder, LittleEndian as LE};
 use embedded_graphics::prelude::*;
 use embedded_graphics_simulator::{
     sdl2::Keycode, OutputSettings, OutputSettingsBuilder, SimulatorDisplay, SimulatorEvent, Window,
 };
-use std::{net::UdpSocket, time::Duration};
-use byteorder::{ByteOrder, LittleEndian as LE};
-
+use heapless::spsc::Queue;
 use vario_display::*;
-
+use eeprom::Eeprom;
 
 struct MockDisplay {
     pub display: SimulatorDisplay<Colors>,
@@ -105,7 +107,20 @@ fn main() -> Result<(), core::convert::Infallible> {
     let display = MockDisplay::new(Size::new(DISPLAY_WIDTH, DISPLAY_HEIGHT));
     let mut window = Window::new("Vario - Mock", &OutputSettings::default());
 
-    let mut core_model = CoreModel::default();
+    // This queue routes the PersItems from the controller to the idle loop.
+    let (p_pers_items, mut c_pers_items) = {
+    static mut Q_PERS_ITEMS: QPersistenceItems = Queue::new();
+    // Note: unsafe is ok here, because [heapless::spsc] queue protects against UB
+    unsafe { Q_PERS_ITEMS.split() }
+    };
+    let mut core_model = CoreModel::new(p_pers_items);
+    let mut eeprom = Eeprom::new().unwrap();
+
+    for item in eeprom.iter_over(EepromTopic::ConfigValues) {
+        core_model.restore_persistent_item(item);
+        println!("Restored {:?}", item);
+    }
+
     let mut controller = CoreController::new(&mut core_model);
     let mut view = CoreView::new(display);
     let socket = UdpSocket::bind("127.0.0.1:5005").expect("Could not open UDP socket");
@@ -155,6 +170,12 @@ fn main() -> Result<(), core::convert::Infallible> {
         }
         controller.time_action(&mut core_model);
         view.draw(&mut core_model).unwrap();
+
+        while c_pers_items.len() > 0 {
+            let item = c_pers_items.dequeue().unwrap();
+            println!("Persistent Item {:?}", &item);
+            eeprom.write_item(item).unwrap();
+        }
 
         let mut buf = [0u8; 10];
         loop {

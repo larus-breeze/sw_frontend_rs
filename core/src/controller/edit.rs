@@ -1,4 +1,6 @@
-use crate::{CoreModel, core_model::EditMode};
+use crate::{
+    CoreModel, core_model::EditMode,
+};
 
 const FRAME_RATE: u32 = 30;
 
@@ -7,12 +9,6 @@ impl CoreModel {
         self.control.edit_mode = edit_mode;
         self.control.edit_var = edit_var;
         self.control.edit_ticks = timeout*FRAME_RATE;
-    }
-
-    pub fn edit_action(&mut self) {
-        if self.control.edit_ticks > 0 { 
-            self.control.edit_ticks -= 1 
-        }
     }
 }
 

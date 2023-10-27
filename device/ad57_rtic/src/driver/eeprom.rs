@@ -85,6 +85,9 @@ impl Eeprom {
     /// The data is stored at the desired location defined by the ID. An entry is made in the data 
     /// allocation table (DAT), if desired (dat_bit in PersitentItem). 
     pub fn write_item(&mut self, item: PersistenceItem) -> Result <(), Error> {
+        if item.id == PersistenceId::DoNotStore {
+            return Ok(())
+        }
         let address = eeprom::DATA_STORAGE + item.id as u32 * 4;
         if item.dat_bit {
             self.set_id(item.id)?;
