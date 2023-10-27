@@ -158,6 +158,7 @@ dependencies = [
  "byteorder",
  "embedded-graphics",
  "embedded-graphics-simulator",
+ "heapless",
  "micromath 1.1.1",
  "vario_display",
 ]

@@ -11,6 +11,8 @@ embedded-graphics-simulator = "0.5.0"
 micromath = { version = "1.1.0", default-features = false }
 byteorder = { version = "1.4", default-features = false }
 
+heapless = "0.7"
+
 [dependencies.vario_display]
 path = "../../core"
 features = ["display_size_227x285"]
