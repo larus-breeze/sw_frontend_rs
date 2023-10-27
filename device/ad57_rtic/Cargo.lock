@@ -199,6 +199,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7517c040926d7b02b111884aa089177db80878533127f7c1b480d852c5fb4112"
 
 [[package]]
+name = "eeprom24x"
+version = "0.6.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bfbf82c7da4264160da270637038860fae049e4eb54b132a7059835f5b06529d"
+dependencies = [
+ "embedded-hal 0.2.7",
+ "embedded-storage 0.3.0",
+ "nb 1.1.0",
+]
+
+[[package]]
 name = "embedded-dma"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -261,6 +272,12 @@ name = "embedded-storage"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "723dce4e9f25b6e6c5f35628e144794e5b459216ed7da97b7c4b66cdb3fa82ca"
+
+[[package]]
+name = "embedded-storage"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "156d7a2fdd98ebbf9ae579cbceca3058cff946e13f8e17b90e3511db0508c723"
 
 [[package]]
 name = "float-cmp"
@@ -613,7 +630,7 @@ dependencies = [
  "embedded-hal 0.2.7",
  "embedded-hal 1.0.0-alpha.11",
  "embedded-hal-nb",
- "embedded-storage",
+ "embedded-storage 0.2.0",
  "fugit",
  "fugit-timer",
  "nb 1.1.0",
@@ -719,6 +736,7 @@ dependencies = [
  "defmt",
  "defmt-rtt",
  "display-interface",
+ "eeprom24x",
  "embedded-graphics",
  "embedded-hal 0.2.7",
  "fugit",

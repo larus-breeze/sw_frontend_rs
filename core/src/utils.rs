@@ -3,9 +3,9 @@ mod can_rdr;
 mod can_wtr;
 mod colors;
 mod concat;
-mod config_item;
 mod error;
 mod key_event;
+mod persistence;
 mod rgb565_colors;
 
 pub use can_ids::*;
@@ -13,6 +13,7 @@ pub use colors::Colors;
 pub use concat::Concat;
 pub use error::CoreError;
 pub use key_event::*;
+pub use persistence::*;
 pub use rgb565_colors::RGB565_COLORS;
 
 pub use can_ids::{audio, frontend, sensor};

@@ -15,5 +15,6 @@ byteorder = { version = "1.4", default-features = false }
 embedded-hal = "0.2.7"
 
 [features]
-default = ["display_size_227x285"]
+default = ["display_size_227x285", "eeprom_size_8192"]
 display_size_227x285 = []
+eeprom_size_8192 = []
