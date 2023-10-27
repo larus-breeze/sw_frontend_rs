@@ -20,11 +20,15 @@
 /// The crate ad57_rtic contains the real-time system and the runtime environment for the target
 /// hardware. The majority (core) of the application is designed to be portable and has no
 /// dependencies on the hardware or the real-time system.
+
+use defmt::trace;
+
 use rtic::app;
 
 mod dev_controller;
 mod dev_view;
 mod driver;
+mod idle_loop;
 mod macros;
 mod utils;
 
@@ -33,6 +37,7 @@ use {defmt_rtt as _, panic_probe as _};
 use dev_controller::*;
 use dev_view::*;
 use driver::*;
+use idle_loop::*;
 use utils::*;
 use vario_display::*;
 
@@ -56,6 +61,7 @@ mod app {
         can_rx: CanRx,             // receive can pakets
         can_tx: CanTx,             // transmit can pakets
         controller: DevController, // control the application
+        idle_loop: IdleLoop,       // Idle loop and persistence layer 
         view: DevView,             // bring application data to the user
         frame_buffer: FrameBuffer, // between view component and the LCD
         keyboard: Keyboard,        // capture the user input
@@ -69,7 +75,7 @@ mod app {
     #[init]
     fn init(cx: init::Context) -> (Shared, Local, init::Monotonics) {
         let mut core_model = CoreModel::default();
-        let (can_rx, can_tx, controller, mono_timer, mut view, frame_buffer, keyboard, statistics) =
+        let (can_rx, can_tx, controller, mono_timer, mut view, idle_loop, frame_buffer, keyboard, statistics) =
             hw_init(cx.device, cx.core, &mut core_model);
 
         view.setup_timer(monotonics::now());
@@ -87,6 +93,7 @@ mod app {
                 can_rx,
                 can_tx,
                 controller,
+                idle_loop,
                 view,
                 frame_buffer,
                 keyboard,
@@ -166,5 +173,13 @@ mod app {
         task_start!(cx, Task::LcdCopy);
         flush(cx.local.frame_buffer);
         task_end!(cx, Task::LcdCopy);
+    }
+
+    #[idle(local = [idle_loop])]
+    fn idle(cx: idle::Context) -> ! {
+        // Locals in idle have lifetime 'static
+        trace!("idle");
+
+        cx.local.idle_loop.main_loop();
     }
 }

@@ -15,9 +15,10 @@ use {defmt_rtt as _, panic_probe as _};
 
 use crate::driver::{
     frame_buffer::FrameBuffer, init_can, keyboard::*, CanRx, CanTx, DevLcdPins, Display, QRxFrames,
-    QTxFrames,
+    QTxFrames, Eeprom, 
 };
-use crate::{dev_controller::DevController, dev_view::DevView, Statistics};
+use vario_display::QPersistenceItems;
+use crate::{dev_controller::DevController, dev_view::DevView, Statistics, idle_loop::IdleLoop};
 use heapless::spsc::Queue;
 use stm32f4xx_hal::{
     fsmc_lcd::{DataPins16, LcdPins},
@@ -29,6 +30,7 @@ use stm32f4xx_hal::{
 use systick_monotonic::*;
 use vario_display::CoreModel;
 
+// Todo: use Timer as Timebase also for busy waiting
 pub fn delay_ms(millis: u32) {
     let cycles = millis * 168_000;
     cortex_m::asm::delay(cycles)
@@ -53,6 +55,7 @@ pub fn hw_init(
     DevController,
     DevMonoTimer,
     DevView,
+    IdleLoop,
     FrameBuffer,
     Keyboard,
     Statistics,
@@ -99,6 +102,13 @@ pub fn hw_init(
         unsafe { Q_KEY_EVENTS.split() }
     };
 
+    // This queue routes the PersItems from the controller to the idle loop.
+    let (p_pers_items, c_pers_items) = {
+        static mut Q_PERS_ITEMS: QPersistenceItems = Queue::new();
+        // Note: unsafe is ok here, because [heapless::spsc] queue protects against UB
+        unsafe { Q_PERS_ITEMS.split() }
+    };
+
     // Setup ----------> can bus interface
     let (can_tx, can_rx) = init_can(
         device.CAN1,
@@ -122,6 +132,13 @@ pub fn hw_init(
         let enc2_res = Enc2Res::new(device.TIM5, gpioa.pa0, gpioa.pa1);
         Keyboard::new(keyboard_pins, enc1_res, enc2_res, p_key_events)
     };
+
+    // Setup ----------> Eeprom driver and idle loop
+    let scl = gpiob.pb6.internal_pull_up(true);
+    let sda = gpiob.pb7.internal_pull_up(true);
+    let i2c = device.I2C1.i2c((scl, sda), 400.kHz(), &clocks);
+    let eeprom = Eeprom::new(i2c).unwrap();
+    let idle = IdleLoop::new(eeprom, c_pers_items);
 
     // Setup ----------> controller
     let dev_controller = DevController::new(core_model, c_key_events, c_rx_frames);
@@ -162,6 +179,7 @@ pub fn hw_init(
         dev_controller,
         dev_mono_timer,
         dev_view,
+        idle, 
         frame_buffer,
         keyboard,
         statistics,
