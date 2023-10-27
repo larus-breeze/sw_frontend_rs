@@ -85,7 +85,6 @@ impl Eeprom {
     /// The data is stored at the desired location defined by the ID. An entry is made in the data 
     /// allocation table (DAT), if desired (dat_bit in PersitentItem). 
     pub fn write_item(&mut self, item: PersistenceItem) -> Result <(), Error> {
-        self.id_in_range(item.id)?;
         let address = eeprom::DATA_STORAGE + item.id as u32 * 4;
         if item.dat_bit {
             self.set_id(item.id)?;
@@ -105,7 +104,6 @@ impl Eeprom {
 
     /// Read data from storage - return error if DAT bit is not set
     pub fn read_item(&mut self, id: PersistenceId) -> Result<PersistenceItem, Error> {
-        self.id_in_range(id)?;
         if self.test_id(id) {
             self.read_item_unchecked(id)
         } else {
@@ -129,9 +127,6 @@ impl Eeprom {
 
     /// Tests a id, if coresponing dat_bit is set
     fn test_id(&mut self, id: PersistenceId) -> bool {
-        if self.id_in_range(id).is_err() {
-            return false
-        };
         let byte_adr = eeprom::DAT + (id as u32) / 8;
         let bit_pattern: u8 = 1 << (id as u32) % 8;
         match self.eeprom.read_byte(byte_adr) {
@@ -142,7 +137,6 @@ impl Eeprom {
 
     /// Set dat_bit in table of contentspub fn iter_over(&mut self, p_type: PersistType) -> PersistenceIterator
     fn set_id(&mut self, id: PersistenceId) -> Result<(), Error> {
-        self.id_in_range(id)?;
         let byte_adr = eeprom::DAT + (id as u32) / 8;
         let bit_pattern: u8 = 1 << (id as u32) % 8;
         let found = self.eeprom.read_byte(byte_adr).map_err(|_| Error::EepromOrI2c1)?;
@@ -152,15 +146,6 @@ impl Eeprom {
             delay_ms(10);
         }
         Ok(())
-    }
-
-    /// Tests, if id is in valid range
-    fn id_in_range(&self, id: PersistenceId) -> Result<(), Error> {
-        if id as u32 >= eeprom::MAX_ITEM_COUNT {
-            Err(Error::NoItemAvailable)
-        } else {
-            Ok(())
-        }
     }
 }
 
