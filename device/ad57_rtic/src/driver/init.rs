@@ -1,3 +1,8 @@
+use crate::driver::{
+    frame_buffer::FrameBuffer, init_can, keyboard::*, CanRx, CanTx, DevLcdPins, Display, Eeprom,
+    QRxFrames, QTxFrames,
+};
+use crate::{dev_controller::DevController, dev_view::DevView, idle_loop::IdleLoop, Statistics};
 /// In the embedded rust ecosystem, hardware resources can only be used in one place. For this
 /// reason, a careful distribution of the required hardware resources to corresponding software
 /// components is necessary. This allocation is done here in the init component.
@@ -11,7 +16,6 @@
 /// with tasks communicatively. For example, a queue (Q_RX_FRAMES) is used for Can packets,
 /// which forwards the frames from the interrupt service routine CanRx to the task DevController.
 use defmt::*;
-use {defmt_rtt as _, panic_probe as _};
 use heapless::spsc::Queue;
 use stm32f4xx_hal::{
     fsmc_lcd::{DataPins16, LcdPins},
@@ -21,12 +25,8 @@ use stm32f4xx_hal::{
     timer::monotonic::SysMonoTimerExt,
 };
 use systick_monotonic::*;
-use crate::driver::{
-    frame_buffer::FrameBuffer, init_can, keyboard::*, CanRx, CanTx, DevLcdPins, Display, QRxFrames,
-    QTxFrames, Eeprom, 
-};
-use crate::{dev_controller::DevController, dev_view::DevView, Statistics, idle_loop::IdleLoop};
 use vario_display::{CoreModel, QPersistenceItems};
+use {defmt_rtt as _, panic_probe as _};
 
 // Todo: use Timer as Timebase also for busy waiting
 pub fn delay_ms(millis: u32) {
@@ -184,7 +184,7 @@ pub fn hw_init(
         core_model,
         dev_mono_timer,
         dev_view,
-        idle, 
+        idle,
         frame_buffer,
         keyboard,
         statistics,

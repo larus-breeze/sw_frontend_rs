@@ -20,7 +20,6 @@
 /// The crate ad57_rtic contains the real-time system and the runtime environment for the target
 /// hardware. The majority (core) of the application is designed to be portable and has no
 /// dependencies on the hardware or the real-time system.
-
 use defmt::trace;
 
 use rtic::app;
@@ -61,7 +60,7 @@ mod app {
         can_rx: CanRx,             // receive can pakets
         can_tx: CanTx,             // transmit can pakets
         controller: DevController, // control the application
-        idle_loop: IdleLoop,       // Idle loop and persistence layer 
+        idle_loop: IdleLoop,       // Idle loop and persistence layer
         view: DevView,             // bring application data to the user
         frame_buffer: FrameBuffer, // between view component and the LCD
         keyboard: Keyboard,        // capture the user input
@@ -74,8 +73,18 @@ mod app {
     /// Initialization of the hardware and software
     #[init]
     fn init(cx: init::Context) -> (Shared, Local, init::Monotonics) {
-        let (can_rx, can_tx, controller, core_model, mono_timer, mut view, idle_loop, frame_buffer, keyboard, statistics) =
-            hw_init(cx.device, cx.core);
+        let (
+            can_rx,
+            can_tx,
+            controller,
+            core_model,
+            mono_timer,
+            mut view,
+            idle_loop,
+            frame_buffer,
+            keyboard,
+            statistics,
+        ) = hw_init(cx.device, cx.core);
 
         view.setup_timer(monotonics::now());
         task_view::spawn().unwrap();
@@ -179,6 +188,6 @@ mod app {
         // Locals in idle have lifetime 'static
         trace!("idle");
 
-        cx.local.idle_loop.main_loop();
+        cx.local.idle_loop.idle_loop();
     }
 }

@@ -2,9 +2,9 @@
 #![no_std]
 
 use cortex_m_rt::entry;
-use {defmt_rtt as _, panic_probe as _};
 use stm32f4xx_hal::pac::{CorePeripherals, Peripherals};
 use stm32f4xx_hal::prelude::*;
+use {defmt_rtt as _, panic_probe as _};
 
 #[entry]
 fn main() -> ! {
@@ -13,7 +13,8 @@ fn main() -> ! {
     let dp = Peripherals::take().unwrap();
     let rcc = dp.RCC.constrain();
 
-    let clocks = rcc.cfgr
+    let clocks = rcc
+        .cfgr
         .use_hse(16.MHz())
         .sysclk(168.MHz())
         .hclk(168.MHz())
@@ -41,4 +42,3 @@ fn main() -> ! {
         delay.delay_ms(1000_u16);
     }
 }
-
