@@ -2,5 +2,6 @@
 /core/Cargo.lock
 /device/ad57_rtic/target
 /device/pc/target
+/sw_update/target
 *.f110
 *.pyc
