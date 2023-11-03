@@ -34,7 +34,7 @@ Implementation in Detail
 ------------------------
 The following diagram shows the image of the memory of a device after the running application has loaded the image and before the copy routine has been started. You can see in detail which memory areas and meta data are available.
 
-Speicherabbild
+![memory_map](https://github.com/larus-breeze/sw_frontend_rs/assets/3678273/8fee9983-5bea-4a34-981c-820f40f93262)
 
 This repository provides the following components:
 - pack_image.py: Generally usable tool for creating update images
