@@ -62,6 +62,9 @@ fn copy_image() -> ! {
     NorFlash::erase(&mut unlocked_flash, 0, meta_data.new_app_len as u32).unwrap();
     NorFlash::write(&mut unlocked_flash, 0, &upper_flash_u8[new_app_start_idx..new_app_end_idx]).unwrap();
 
+    // Lock flash again
+    drop(unlocked_flash);
+
     cortex_m::peripheral::SCB::sys_reset();
 }
 

@@ -12,7 +12,7 @@
         "gdbPath": "/usr/bin/gdb-multiarch",
         "cwd": "${workspaceRoot}",
         "preLaunchTask": "Cargo Build (debug)",
-        "runToMain": false,
+        "runToEntryPoint": "main",
         "executable": "./target/thumbv7em-none-eabihf/debug/vario",
         "device": "STM32F407ZGT6",
         "configFiles": [
@@ -36,7 +36,7 @@
         "gdbPath": "/usr/bin/gdb-multiarch",
         "cwd": "${workspaceRoot}",
         "preLaunchTask": "Cargo Build (release)",
-        "runToMain": true,
+        "runToEntryPoint": "main",
         "executable": "./target/thumbv7em-none-eabihf/release/vario",
         "device": "STM32F407ZGT6",
         "configFiles": [
