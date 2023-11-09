@@ -7,7 +7,7 @@
       {
         "type": "cortex-debug",
         "request": "launch",
-        "name": "Debug (OpenOCD)",
+        "name": "Deb vario",
         "servertype": "openocd",
         "gdbPath": "/usr/bin/gdb-multiarch",
         "cwd": "${workspaceRoot}",
@@ -31,7 +31,7 @@
       {
         "type": "cortex-debug",
         "request": "launch",
-        "name": "Run (OpenOCD)",
+        "name": "Run vario",
         "servertype": "openocd",
         "gdbPath": "/usr/bin/gdb-multiarch",
         "cwd": "${workspaceRoot}",
@@ -47,6 +47,30 @@
           "monitor rtt server start 8765 0",
           // should span the *right* part of RAM
           // get address $ rust-nm -S target/thumbv7*/release/vario | grep RTT
+          "monitor rtt setup 0x20000020 0x30 \"SEGGER RTT\"",
+          "monitor rtt start",
+      ],
+        "svdFile": "${workspaceRoot}/STM32F407.svd",
+      },
+      {
+        "type": "cortex-debug",
+        "request": "launch",
+        "name": "Deb blinky",
+        "servertype": "openocd",
+        "gdbPath": "/usr/bin/gdb-multiarch",
+        "cwd": "${workspaceRoot}",
+        "preLaunchTask": "Cargo Build Examples (debug)",
+        "runToEntryPoint": "main",
+        "executable": "./target/thumbv7em-none-eabihf/debug/examples/blinky",
+        "device": "STM32F407ZGT6",
+        "configFiles": [
+          "interface/stlink.cfg",
+          "target/stm32f4x.cfg"
+        ],
+        "postLaunchCommands": [
+          "monitor rtt server start 8765 0",
+          // should span the *right* part of RAM
+          // get address $ rust-nm -S target/thumbv7*/debug/vario | grep RTT
           "monitor rtt setup 0x20000020 0x30 \"SEGGER RTT\"",
           "monitor rtt start",
       ],
