@@ -280,6 +280,14 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "156d7a2fdd98ebbf9ae579cbceca3058cff946e13f8e17b90e3511db0508c723"
 
 [[package]]
+name = "fatfs"
+version = "0.4.0"
+dependencies = [
+ "bitflags 2.3.3",
+ "log",
+]
+
+[[package]]
 name = "float-cmp"
 version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -360,6 +368,12 @@ dependencies = [
  "autocfg",
  "scopeguard",
 ]
+
+[[package]]
+name = "log"
+version = "0.4.20"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b5e6163cb8c49088c2c36f57875e58ccd8c87c7427f7fbd50ea6710b2f3f2e8f"
 
 [[package]]
 name = "micromath"
@@ -558,6 +572,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d29ab0c6d3fc0ee92fe66e2d99f700eab17a8d57d1c1d3b748380fb20baa78cd"
 
 [[package]]
+name = "sdio-host"
+version = "0.6.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "355c411b00ad0634aa29824b37d0755e931a349b3230ffdef846c140eeed9c09"
+
+[[package]]
 name = "semver"
 version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -636,6 +656,7 @@ dependencies = [
  "nb 1.1.0",
  "rand_core",
  "rtic-monotonic",
+ "sdio-host",
  "stm32f4",
  "systick-monotonic",
  "time",
@@ -739,6 +760,8 @@ dependencies = [
  "eeprom24x",
  "embedded-graphics",
  "embedded-hal 0.2.7",
+ "embedded-storage 0.2.0",
+ "fatfs",
  "fugit",
  "heapless",
  "micromath",
