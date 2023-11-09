@@ -30,29 +30,60 @@ class ReadApp():
     def get_binary(self, flash_start, flash_end):
         """Return the binary data that lies within the defined range"""
         last_adr = 0
-        section_data = []
+        segment_data = []
 
-        print(f"Loading app image '{self.file_name}'")
+        print(f"\nLoading app image from segments in '{self.file_name}'")
+        print(f"  {'Address':8} {'Length':8}")
+        for segment in self.elf_file.iter_segments():
+            addr = segment['p_paddr']
+            if addr >= flash_start and addr < flash_end:
+                data = segment.data()
+                length = len(data)
+        
+                print(f"  {addr:08X} {length:08X}")
+                segment_data.append((addr - flash_start, data))
+                last_adr = addr + length
+
+        binary_len = last_adr - flash_start
+        binary = bytearray(binary_len)
+        for ofs, data in segment_data:
+            binary[ofs:ofs + len(data)] = data
+
+
+        """section_data = []
+        sec_data = None
+        print(f"           {'Section Name':22} {'Address':8} {'Offset':8} {'Length':>8}")
         for section in self.elf_file.iter_sections():
             if isinstance(section, RelocationSection):
                 print("Error: Section with relocation found. This cannot be handled so far.")
                 sys.exit(1)
             adr = section['sh_addr']
+            ofs = section['sh_offset']
+            s_type = section['sh_type']
             length = len(section.data())
             data = section.data()
+
             if adr >= flash_start and adr <= flash_end and length > 0:
                 section_data.append((adr - flash_start, data))
-                print(f"  Included {section.name:20} {adr:08X} {length:8X}")
+                print(f"  Included {section.name:22} {adr:08X} {ofs:08X} {length:8X} {s_type}")
                 if adr + length > last_adr:
                     last_adr = adr + length
             else:
-                print(f"           {section.name:20} {adr:08X} {length:8X}")
+                print(f"           {section.name:22} {adr:08X} {ofs:08X} {length:8X} {s_type}")
 
-        binary_len = last_adr - flash_start
+            if section.name == ".data":
+                print(f"  Included {section.name:22} {adr:08X} {ofs:08X} {length:8X} {s_type}")
+                sec_data = data
+
+        sec_data_ofs = last_adr -flash_start
+        binary_len = last_adr - flash_start + len(sec_data)
+
         binary = bytearray(binary_len)
         for ofs, data in section_data:
             binary[ofs:ofs + len(data)] = data
+        binary[sec_data_ofs:sec_data_ofs + len(sec_data)] = sec_data"""
 
+        # Be shure, that binary is word aligned
         while len(binary) % 4 != 0: # Go safe to get 4 byte alignment 
             binary += b'\x00'
 
@@ -97,9 +128,9 @@ class Binary():
              'New App Len': len(self.new_app_bin),
              'New App Dest': self.new_app_dest
         }
-        print('Creating Meta Data:')
+        print('\nCreating Meta Data:')
         for key, value in data.items():
-            print(f"{' ':11}{key:21}{value:08X}")
+            print(f"  {key:21}{value:08X}")
 
 
         self.meta_data = struct.pack ('<QLLLLLLLLL', *data.values())
@@ -111,17 +142,17 @@ class Binary():
         self.create_meta_data(hw_version, sw_version)
         binary = bytearray(self.meta_data + self.copy_app_bin + self.new_app_bin)
 
-        print("Calculate CRC 'Storage Address' -> <end>")
+        print("\nCalculate CRC 'Storage Address' -> <end>")
         crc_data = stm32_crc(binary[12:]) # Start at storag_adr -> end
         binary[8:12] = struct.pack("<L", crc_data)
-        print(" "*11 + f"CRC inserted         {crc_data:08X}")
+        print(f"  CRC inserted         {crc_data:08X}")
 
-        print(f"Total size of binary: {round(len(binary) / 1024)}k")
+        print(f"\nTotal size of binary: {round(len(binary) / 1024)}k")
         print(f"Writing binary to file '{file_name}'")
         with open(file_name, "wb") as bin_file:
             bin_file.write(binary)
 
-print("Larus App Image Generator\n")
+print("Larus App Image Generator")
 binary = Binary(storage_adr=0x0808_0000)
 binary.read_new_app(new_app="vario.elf", new_app_start=0x0800_0000, new_app_max=0x0807_ffff)
 binary.read_copy_app(copy_app="assets/copy_stm32f407_1m.elf", copy_app_start=0x0808_1000, copy_app_max=0x0808_5000)
