@@ -5,3 +5,4 @@
 /sw_update/target
 *.f110
 *.pyc
+device/pc/eeprom.bin

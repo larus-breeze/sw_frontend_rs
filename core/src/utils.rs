@@ -4,7 +4,7 @@ mod can_wtr;
 mod colors;
 mod concat;
 mod error;
-mod key_event;
+mod events;
 mod persistence;
 mod rgb565_colors;
 
@@ -12,7 +12,7 @@ pub use can_ids::*;
 pub use colors::Colors;
 pub use concat::Concat;
 pub use error::CoreError;
-pub use key_event::*;
+pub use events::*;
 pub use persistence::*;
 pub use rgb565_colors::RGB565_COLORS;
 

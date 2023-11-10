@@ -1,6 +1,6 @@
 use embedded_graphics::geometry::{Angle, AngleUnit};
-use crate::{PersistenceItem, PersistenceId, Mass};
-use crate::utils::PPersistenceItems;
+use crate::{StorageItem, PersistenceItem, PersistenceId, Mass};
+use crate::utils::{PStorageItems, DeviceEvent};
 
 use crate::{
     controller::Editable,
@@ -25,23 +25,21 @@ pub struct CoreModel {
     pub control: Control,
     pub glider_data: GliderData,
     pub sensor: Sensor,
-    p_pers_items: PPersistenceItems,
+    p_sto_items: PStorageItems,
 }
 
 impl CoreModel {
-    pub fn new(p_pers_items: PPersistenceItems) -> Self {
+    pub fn new(p_sto_items: PStorageItems) -> Self {
         let calculated = Calculated::default();
         let config = Config::default();
         let control = Control::default();
         let glider_data = GliderData::default();
         let sensor = Sensor::default();
-        CoreModel { calculated, config, control, glider_data, sensor, p_pers_items }
+        CoreModel { calculated, config, control, glider_data, sensor, p_sto_items }
     }
 
-    pub fn persist_item(&mut self, persistence_item: PersistenceItem) {
-        if persistence_item.id != PersistenceId::DoNotStore {
-            let _ = self.p_pers_items.enqueue(persistence_item);
-        }
+    pub fn storage_item(&mut self, storage_item: StorageItem) {
+        let _ = self.p_sto_items.enqueue(storage_item);
     }
 
     pub fn restore_persistent_item(&mut self, item: PersistenceItem) {
@@ -100,8 +98,10 @@ pub enum EditMode {
 
 /// Possible displays
 #[repr(u8)]
+#[derive(Clone, Copy, PartialEq)]
 pub enum DisplayActive {
     Vario,
+    FirmwareUpdate,
 }
 
 /// Metastructure for calculated or set values
@@ -127,6 +127,7 @@ impl Default for Calculated {
 /// Metastructur for config variables
 pub struct Config {
     pub display_active: DisplayActive,
+    pub last_display_active: DisplayActive,
     pub glider_idx: i32,
     pub volume: i8,
     pub mc_cready: Speed,
@@ -136,6 +137,7 @@ impl Default for Config {
     fn default() -> Self {
         Self {
             display_active: DisplayActive::Vario,
+            last_display_active: DisplayActive::Vario,
             glider_idx: 104,
             volume: 0,
             mc_cready: 0.7.m_s(),
@@ -155,6 +157,7 @@ pub struct Control {
     pub edit_var: Editable,
     pub edit_ticks: u32,   // Used by the editor for the timeout
     pub demo_acitve: bool, // Activates the demo mode
+    pub firmware_update_state: DeviceEvent, 
 }
 
 impl Default for Control {
@@ -169,6 +172,7 @@ impl Default for Control {
             edit_var: Editable::ClimbRate,
             edit_ticks: 0,
             demo_acitve: false,
+            firmware_update_state: DeviceEvent::UploadFinished,
         }
     }
 }

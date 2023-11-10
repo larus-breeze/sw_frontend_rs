@@ -58,7 +58,7 @@ impl DrawImage for MockDisplay {
                 let _ = Pixel(p, color).draw(self);
             }
             idx += px_cnt;
-        }
+        } 
         Ok(())
     }
 }
@@ -101,6 +101,7 @@ fn main() -> Result<(), core::convert::Infallible> {
     F9 Button 1 for 3 secs (Glider)\n
 
     S Key to save image as png file
+    U Key to simulate Firmware Update
 "
     );
 
@@ -108,12 +109,12 @@ fn main() -> Result<(), core::convert::Infallible> {
     let mut window = Window::new("Vario - Mock", &OutputSettings::default());
 
     // This queue routes the PersItems from the controller to the idle loop.
-    let (p_pers_items, mut c_pers_items) = {
-    static mut Q_PERS_ITEMS: QPersistenceItems = Queue::new();
+    let (p_sto_items, mut c_sto_items) = {
+    static mut Q_STO_ITEMS: QStorageItems = Queue::new();
     // Note: unsafe is ok here, because [heapless::spsc] queue protects against UB
-    unsafe { Q_PERS_ITEMS.split() }
+    unsafe { Q_STO_ITEMS.split() }
     };
-    let mut core_model = CoreModel::new(p_pers_items);
+    let mut core_model = CoreModel::new(p_sto_items);
     let mut eeprom = Eeprom::new().unwrap();
 
     for item in eeprom.iter_over(EepromTopic::ConfigValues) {
@@ -127,6 +128,7 @@ fn main() -> Result<(), core::convert::Infallible> {
     socket.set_read_timeout(Some(Duration::from_millis(40))).expect("Could not set read timeout");
 
     let mut img_no = 0_u32;
+    let mut sw_update_status = 0_u32;
 
     'running: loop {
         window.update(&view.display.display);
@@ -156,6 +158,22 @@ fn main() -> Result<(), core::convert::Infallible> {
                             view.display.save_png(&img_path);
                             KeyEvent::NoEvent
                         },
+                        Keycode::U => {
+                            let device_event = match sw_update_status {
+                                0 => DeviceEvent::FwAvailable(SW_VERSION),
+                                1 => DeviceEvent::PrepareFwUpload,
+                                2 => DeviceEvent::UploadInProgress,
+                                3 => DeviceEvent::UploadFinished,
+                                _ => DeviceEvent::UploadFinished,
+                            };
+                            sw_update_status = if sw_update_status == 3{
+                                0
+                            } else {
+                                sw_update_status + 1
+                            };
+                            controller.device_action(&mut core_model, &device_event);
+                            KeyEvent::NoEvent
+                        }
                         _ => {
                             println!("Key with no effect {:?}", keycode);
                             KeyEvent::NoEvent
@@ -171,10 +189,18 @@ fn main() -> Result<(), core::convert::Infallible> {
         controller.time_action(&mut core_model);
         view.draw(&mut core_model).unwrap();
 
-        while c_pers_items.len() > 0 {
-            let item = c_pers_items.dequeue().unwrap();
-            println!("Persistent Item {:?}", &item);
-            eeprom.write_item(item).unwrap();
+        while c_sto_items.len() > 0 {
+            let item = c_sto_items.dequeue().unwrap();
+            println!("StorageItem {:?}", &item);
+            match item {
+                StorageItem::EepromItem(item) => eeprom.write_item(item).unwrap(),
+                StorageItem::SdCardItem(item) => {
+                    match item {
+                        SdCardCmd::SwUpdateCanceld => sw_update_status = 0,
+                        _ => (),
+                    }
+                },
+            }
         }
 
         let mut buf = [0u8; 10];

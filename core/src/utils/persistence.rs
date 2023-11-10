@@ -2,6 +2,20 @@ use heapless::spsc::{Queue, Producer, Consumer};
 
 
 #[repr(u16)]
+#[derive(Debug, Copy, Clone)]
+pub enum StorageItem {
+    EepromItem(PersistenceItem),
+    SdCardItem(SdCardCmd),
+}
+
+#[repr(u16)]
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub enum SdCardCmd {
+    SwUpdateAccepted,
+    SwUpdateCanceld,
+}
+
+#[repr(u16)]
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum PersistenceId {
     DoNotStore = 65535,
@@ -79,7 +93,7 @@ impl PersistenceItem {
 }
 
 // This queue transports the configuration PersItems from controller to the idle loop.
-const MAX_PERS_ITEMS: usize = 20;
-pub type QPersistenceItems = Queue<PersistenceItem, MAX_PERS_ITEMS>;
-pub type PPersistenceItems = Producer<'static, PersistenceItem, MAX_PERS_ITEMS>;
-pub type CPersistenceItems = Consumer<'static, PersistenceItem, MAX_PERS_ITEMS>;
+const MAX_STO_ITEMS: usize = 20;
+pub type QStorageItems = Queue<StorageItem, MAX_STO_ITEMS>;
+pub type PStorageItems = Producer<'static, StorageItem, MAX_STO_ITEMS>;
+pub type CStorageItems = Consumer<'static, StorageItem, MAX_STO_ITEMS>;
