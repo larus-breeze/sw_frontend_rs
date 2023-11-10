@@ -100,7 +100,7 @@ pub fn hw_init(
         unsafe { Q_KEY_EVENTS.split() }
     };
 
-    // This queue routes the PersItems from the controller to the idle loop.
+    // This queue routes the StorageItems from the controller to the idle loop.
     let (p_sto_items, c_sto_items) = {
         static mut Q_STO_ITEMS: QStorageItems = Queue::new();
         // Note: unsafe is ok here, because [heapless::spsc] queue protects against UB
