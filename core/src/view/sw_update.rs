@@ -13,9 +13,9 @@ where
     let mut dialog_box = DialogBox::new(
         "Firmware Update", 
         Colors::Black,
+        Colors::White,
         Colors::Gray,
-        Colors::Gray,
-        Colors::Gray
+        Colors::LightSkyBlue,
     );
 
     let text = Concat::<100>::new();
@@ -30,7 +30,7 @@ where
             text.push_str("Preparing...")
         },
         DeviceEvent::UploadInProgress => {
-            dialog_box.set_text_color(Colors::Red);
+            dialog_box.set_text_color(Colors::Coral);
             text.push_str("Installing...\nDo NOT power\noff device")
         },
         _ => text,
