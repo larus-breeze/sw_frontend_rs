@@ -16,7 +16,7 @@ use crate::{dev_controller::DevController, dev_view::DevView, idle_loop::IdleLoo
 /// with tasks communicatively. For example, a queue (Q_RX_FRAMES) is used for Can packets,
 /// which forwards the frames from the interrupt service routine CanRx to the task DevController.
 use defmt::*;
-use heapless::spsc::Queue;
+use heapless::{spsc::Queue, mpmc::MpMcQueue};
 use stm32f4xx_hal::{
     fsmc_lcd::{DataPins16, LcdPins},
     gpio::alt::fsmc,
@@ -25,7 +25,7 @@ use stm32f4xx_hal::{
     timer::monotonic::SysMonoTimerExt,
 };
 use systick_monotonic::*;
-use vario_display::{CoreModel, QStorageItems};
+use vario_display::{CoreModel, QStorageItems, Event};
 use {defmt_rtt as _, panic_probe as _};
 
 // Todo: use Timer as Timebase also for busy waiting
@@ -38,6 +38,8 @@ pub const TICKS_PER_SECOND: u32 = 1_000;
 pub type DevDuration = fugit::Duration<u64, 1, TICKS_PER_SECOND>;
 pub type DevInstant = fugit::Instant<u64, 1, TICKS_PER_SECOND>;
 pub type DevMonoTimer = Systick<TICKS_PER_SECOND>;
+
+pub type QEvents = MpMcQueue<Event, 8>;
 
 // Currently not in use
 // pub type KeyBacklight = Pin<Output<PushPull>, 'A', 3>;
@@ -93,19 +95,16 @@ pub fn hw_init(
         unsafe { Q_RX_FRAMES.split() }
     };
 
-    // This queue routes the key events from the keyboard crate to the controller.
-    let (p_key_events, c_key_events) = {
-        static mut Q_KEY_EVENTS: QKeyEvents = Queue::new();
-        // Note: unsafe is ok here, because [heapless::spsc] queue protects against UB
-        unsafe { Q_KEY_EVENTS.split() }
-    };
-
     // This queue routes the StorageItems from the controller to the idle loop.
     let (p_sto_items, c_sto_items) = {
         static mut Q_STO_ITEMS: QStorageItems = Queue::new();
         // Note: unsafe is ok here, because [heapless::spsc] queue protects against UB
         unsafe { Q_STO_ITEMS.split() }
     };
+
+    // This queue routes the events to the controller.
+    static Q_EVENTS: QEvents = MpMcQueue::new();
+
 
     // Setup ----------> can bus interface
     let (can_tx, can_rx) = init_can(
@@ -128,7 +127,7 @@ pub fn hw_init(
             KeyboardPins::new(gpioa.pa7, gpioc.pc5, gpiob.pb0, gpiob.pb1, gpioa.pa6);
         let enc1_res = Enc1Res::new(device.TIM4, gpiod.pd12, gpiod.pd13);
         let enc2_res = Enc2Res::new(device.TIM5, gpioa.pa0, gpioa.pa1);
-        Keyboard::new(keyboard_pins, enc1_res, enc2_res, p_key_events)
+        Keyboard::new(keyboard_pins, enc1_res, enc2_res, &Q_EVENTS)
     };
 
     // Setup ----------> Eeprom driver and idle loop
@@ -145,7 +144,7 @@ pub fn hw_init(
     let idle = IdleLoop::new(eeprom, c_sto_items);
 
     // Setup ----------> controller
-    let dev_controller = DevController::new(&mut core_model, c_key_events, c_rx_frames);
+    let dev_controller = DevController::new(&mut core_model, &Q_EVENTS, c_rx_frames);
 
     // Setup ----------> frame buffer
     let frame_buffer = FrameBuffer::new();

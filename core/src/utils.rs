@@ -7,6 +7,7 @@ mod error;
 mod events;
 mod persistence;
 mod rgb565_colors;
+mod version;
 
 pub use can_ids::*;
 pub use colors::Colors;
@@ -15,6 +16,7 @@ pub use error::CoreError;
 pub use events::*;
 pub use persistence::*;
 pub use rgb565_colors::RGB565_COLORS;
+pub use version::*;
 
 pub use can_ids::{audio, frontend, sensor};
 pub use can_wtr::CanFrame;

@@ -1,14 +1,9 @@
-use heapless::spsc::{Consumer, Producer, Queue};
 use stm32f4xx_hal::{
     gpio::Pin,
     pac::{RCC, TIM4, TIM5},
 };
-use vario_display::KeyEvent;
-
-const MAX_KEY_EVENTS: usize = 8;
-pub type QKeyEvents = Queue<KeyEvent, MAX_KEY_EVENTS>;
-pub type PKeyEvents = Producer<'static, KeyEvent, MAX_KEY_EVENTS>;
-pub type CKeyEvents = Consumer<'static, KeyEvent, MAX_KEY_EVENTS>;
+use vario_display::{KeyEvent, Event};
+use crate::driver::QEvents;
 
 const BTN_1: u8 = 0b0000_0001;
 const BTN_2: u8 = 0b0000_0010;
@@ -39,7 +34,7 @@ pub struct Keyboard {
     last_btn_state: u8,
     first_go_to_0: bool,
     tick_cnt: u32,
-    p_key_event: PKeyEvents,
+    q_events: &'static QEvents,
 }
 
 pub struct KeyboardPins {
@@ -100,7 +95,7 @@ impl Keyboard {
         keyboard_pins: KeyboardPins,
         enc1_res: Enc1Res,
         enc2_res: Enc2Res,
-        p_key_event: PKeyEvents,
+        q_events: &'static QEvents,
     ) -> Self {
         // Config the key buttons
         let btn_1 = keyboard_pins.p1.into_pull_up_input();
@@ -170,7 +165,7 @@ impl Keyboard {
             first_go_to_0: false, // we have to wait, befor we accept new key events
             tick_cnt: 0,          // tick counter for timing functionality
 
-            p_key_event, // queue to push key events
+            q_events, // queue to push key events
         }
     }
 
@@ -208,16 +203,16 @@ impl Keyboard {
         } else if btn_state < self.last_btn_state {
             // Triggers when first key is released
             let _ = match self.last_btn_state {
-                BTN_1 => self.p_key_event.enqueue(KeyEvent::Btn1),
-                BTN_2 => self.p_key_event.enqueue(KeyEvent::Btn2),
-                BTN_3 => self.p_key_event.enqueue(KeyEvent::Btn3),
-                BTN_ESC => self.p_key_event.enqueue(KeyEvent::BtnEsc),
-                BTN_ENC => self.p_key_event.enqueue(KeyEvent::BtnEnc),
-                BTN_1_2 => self.p_key_event.enqueue(KeyEvent::Btn12),
-                BTN_2_3 => self.p_key_event.enqueue(KeyEvent::Btn23),
-                BTN_3_ESC => self.p_key_event.enqueue(KeyEvent::Btn3Esc),
-                BTN_1_ESC => self.p_key_event.enqueue(KeyEvent::Btn1Esc),
-                BTN_1_ESC_ENC => self.p_key_event.enqueue(KeyEvent::Btn1EscEnc),
+                BTN_1 => self.q_events.enqueue(Event::KeyItem(KeyEvent::Btn1)),
+                BTN_2 => self.q_events.enqueue(Event::KeyItem(KeyEvent::Btn2)),
+                BTN_3 => self.q_events.enqueue(Event::KeyItem(KeyEvent::Btn3)),
+                BTN_ESC => self.q_events.enqueue(Event::KeyItem(KeyEvent::BtnEsc)),
+                BTN_ENC => self.q_events.enqueue(Event::KeyItem(KeyEvent::BtnEnc)),
+                BTN_1_2 => self.q_events.enqueue(Event::KeyItem(KeyEvent::Btn12)),
+                BTN_2_3 => self.q_events.enqueue(Event::KeyItem(KeyEvent::Btn23)),
+                BTN_3_ESC => self.q_events.enqueue(Event::KeyItem(KeyEvent::Btn3Esc)),
+                BTN_1_ESC => self.q_events.enqueue(Event::KeyItem(KeyEvent::Btn1Esc)),
+                BTN_1_ESC_ENC => self.q_events.enqueue(Event::KeyItem(KeyEvent::Btn1EscEnc)),
                 _ => Ok(()),
             };
             self.first_go_to_0 = true;
@@ -227,16 +222,16 @@ impl Keyboard {
             // Triggers when keys are pressed for more then 3 seconds
             if self.tick_cnt > 60 {
                 let _ = match btn_state {
-                    BTN_1 => self.p_key_event.enqueue(KeyEvent::Btn1S3),
-                    BTN_2 => self.p_key_event.enqueue(KeyEvent::Btn2S3),
-                    BTN_3 => self.p_key_event.enqueue(KeyEvent::Btn3S3),
-                    BTN_ESC => self.p_key_event.enqueue(KeyEvent::BtnEscS3),
-                    BTN_ENC => self.p_key_event.enqueue(KeyEvent::BtnEncS3),
-                    BTN_1_2 => self.p_key_event.enqueue(KeyEvent::Btn12S3),
-                    BTN_2_3 => self.p_key_event.enqueue(KeyEvent::Btn23S3),
-                    BTN_3_ESC => self.p_key_event.enqueue(KeyEvent::Btn3EscS3),
-                    BTN_1_ESC => self.p_key_event.enqueue(KeyEvent::Btn1EscS3),
-                    BTN_1_ESC_ENC => self.p_key_event.enqueue(KeyEvent::Btn1EscEncS3),
+                    BTN_1 => self.q_events.enqueue(Event::KeyItem(KeyEvent::Btn1S3)),
+                    BTN_2 => self.q_events.enqueue(Event::KeyItem(KeyEvent::Btn2S3)),
+                    BTN_3 => self.q_events.enqueue(Event::KeyItem(KeyEvent::Btn3S3)),
+                    BTN_ESC => self.q_events.enqueue(Event::KeyItem(KeyEvent::BtnEscS3)),
+                    BTN_ENC => self.q_events.enqueue(Event::KeyItem(KeyEvent::BtnEncS3)),
+                    BTN_1_2 => self.q_events.enqueue(Event::KeyItem(KeyEvent::Btn12S3)),
+                    BTN_2_3 => self.q_events.enqueue(Event::KeyItem(KeyEvent::Btn23S3)),
+                    BTN_3_ESC => self.q_events.enqueue(Event::KeyItem(KeyEvent::Btn3EscS3)),
+                    BTN_1_ESC => self.q_events.enqueue(Event::KeyItem(KeyEvent::Btn1EscS3)),
+                    BTN_1_ESC_ENC => self.q_events.enqueue(Event::KeyItem(KeyEvent::Btn1EscEncS3)),
                     _ => Ok(()),
                 };
                 self.first_go_to_0 = true;
@@ -250,11 +245,11 @@ impl Keyboard {
         if count != self.enc_1_cnt {
             let mut delta = count.wrapping_sub(self.enc_1_cnt) as i16;
             while delta > 0 {
-                let _ = self.p_key_event.enqueue(KeyEvent::Rotary1Right);
+                let _ = self.q_events.enqueue(Event::KeyItem(KeyEvent::Rotary1Right));
                 delta -= 1;
             }
             while delta < 0 {
-                let _ = self.p_key_event.enqueue(KeyEvent::Rotary1Left);
+                let _ = self.q_events.enqueue(Event::KeyItem(KeyEvent::Rotary1Left));
                 delta += 1;
             }
             self.enc_1_cnt = count;
@@ -265,11 +260,11 @@ impl Keyboard {
         if count != self.enc_2_cnt {
             let mut delta = count.wrapping_sub(self.enc_2_cnt) as i32;
             while delta > 0 {
-                let _ = self.p_key_event.enqueue(KeyEvent::Rotary2Right);
+                let _ = self.q_events.enqueue(Event::KeyItem(KeyEvent::Rotary2Right));
                 delta -= 1;
             }
             while delta < 0 {
-                let _ = self.p_key_event.enqueue(KeyEvent::Rotary2Left);
+                let _ = self.q_events.enqueue(Event::KeyItem(KeyEvent::Rotary2Left));
                 delta += 1;
             }
             self.enc_2_cnt = count;
