@@ -25,7 +25,7 @@ use stm32f4xx_hal::{
     timer::monotonic::SysMonoTimerExt,
 };
 use systick_monotonic::*;
-use vario_display::{CoreModel, QPersistenceItems};
+use vario_display::{CoreModel, QStorageItems};
 use {defmt_rtt as _, panic_probe as _};
 
 // Todo: use Timer as Timebase also for busy waiting
@@ -101,10 +101,10 @@ pub fn hw_init(
     };
 
     // This queue routes the PersItems from the controller to the idle loop.
-    let (p_pers_items, c_pers_items) = {
-        static mut Q_PERS_ITEMS: QPersistenceItems = Queue::new();
+    let (p_sto_items, c_sto_items) = {
+        static mut Q_STO_ITEMS: QStorageItems = Queue::new();
         // Note: unsafe is ok here, because [heapless::spsc] queue protects against UB
-        unsafe { Q_PERS_ITEMS.split() }
+        unsafe { Q_STO_ITEMS.split() }
     };
 
     // Setup ----------> can bus interface
@@ -138,11 +138,11 @@ pub fn hw_init(
     let mut eeprom = Eeprom::new(i2c).unwrap();
 
     // Setup ----------> CoreModel
-    let mut core_model = CoreModel::new(p_pers_items);
+    let mut core_model = CoreModel::new(p_sto_items);
     for item in eeprom.iter_over(vario_display::EepromTopic::ConfigValues) {
         core_model.restore_persistent_item(item);
     }
-    let idle = IdleLoop::new(eeprom, c_pers_items);
+    let idle = IdleLoop::new(eeprom, c_sto_items);
 
     // Setup ----------> controller
     let dev_controller = DevController::new(&mut core_model, c_key_events, c_rx_frames);

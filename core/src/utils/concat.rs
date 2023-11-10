@@ -161,6 +161,10 @@ impl<const CAP: usize> Concat<CAP> {
     pub fn as_bytes(&self) -> &[u8] {
         self.str.as_bytes()
     }
+
+    pub fn as_string(&self) -> String<CAP> {
+        self.str.clone()
+    }
 }
 
 #[cfg(test)]

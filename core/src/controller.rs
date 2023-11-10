@@ -4,13 +4,16 @@ use demo::DemoController;
 mod vario;
 use vario::VarioController;
 
+mod sw_upted;
+use sw_upted::SwUpdateController;
+
 use crate::{
     flight_physics::Polar,
-    model::{EditMode, VarioModeControl},
+    model::{EditMode, VarioModeControl, DisplayActive},
     system_of_units::FloatToSpeed,
     utils::{read_can_frame, KeyEvent},
     CoreModel, VarioMode, POLARS,
-    PersistenceItem, PersistenceId
+    PersistenceItem, PersistenceId, DeviceEvent
 };
 use embedded_hal::can::Frame;
 
@@ -46,6 +49,7 @@ pub struct CoreController {
     demo: DemoController,
     polar: Polar,
     vario: VarioController,
+    sw_update: SwUpdateController,
     tick: u32,
 }
 
@@ -58,6 +62,23 @@ impl CoreController {
             polar,
             vario: VarioController::new(),
             tick: 0,
+            sw_update: SwUpdateController::new(),
+        }
+    }
+
+    pub fn device_action(&mut self, core_model: &mut CoreModel, device_event: &DeviceEvent) {
+        match device_event {
+            DeviceEvent::FwAvailable(_) => {
+                core_model.config.last_display_active = core_model.config.display_active;
+                core_model.config.display_active = DisplayActive::FirmwareUpdate;
+            },
+            DeviceEvent::UploadFinished =>
+                core_model.config.display_active = core_model.config.last_display_active,
+
+            _ => (),
+        }
+        if core_model.config.display_active == DisplayActive::FirmwareUpdate {
+            self.sw_update.device_action(core_model, device_event);
         }
     }
 
@@ -74,7 +95,10 @@ impl CoreController {
         let result = if core_model.control.demo_acitve {
             self.demo.key_action(core_model, key_event)
         } else {
-            self.vario.key_action(core_model, key_event)
+            match core_model.config.display_active {
+                DisplayActive::Vario => self.vario.key_action(core_model, key_event),
+                DisplayActive::FirmwareUpdate => self.sw_update.key_action(core_model, key_event),
+            }
         };
 
         // activate editor, if desired
@@ -118,7 +142,7 @@ impl CoreController {
                     ),
                     _ => PersistenceItem::do_not_store(),
                 };
-                core_model.persist_item(p_item);
+                core_model.storage_item(crate::StorageItem::EepromItem(p_item));
             }
         }
 
