@@ -5,6 +5,7 @@ use crate::utils::Concat;
 pub const SW_VERSION: SwVersion = SwVersion { version: [0, 1, 0, 0]};
 pub const HW_VERSION: HwVersion = HwVersion { version: [3, 0, 0, 0]};
 
+#[repr(C)]
 #[derive(PartialEq, Clone, Copy)]
 pub struct HwVersion {
     version: [u8; 4],
@@ -24,6 +25,7 @@ impl HwVersion {
     }
 }
 
+#[repr(C)]
 #[derive(PartialEq, Clone, Copy)]
 pub struct SwVersion {
     version: [u8; 4], 
@@ -54,4 +56,9 @@ impl PartialOrd for SwVersion {
     }
 }
 
+impl Default for SwVersion {
+    fn default() -> Self {
+        SW_VERSION
+    }
+}
 

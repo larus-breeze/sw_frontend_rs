@@ -1,8 +1,18 @@
 use crate::driver::{
-    frame_buffer::FrameBuffer, init_can, keyboard::*, CanRx, CanTx, DevLcdPins, Display, Eeprom,
-    QRxFrames, QTxFrames,
+    frame_buffer::FrameBuffer, 
+    init_can, 
+    keyboard::*, 
+    CanRx, CanTx,
+    DevLcdPins, Display, Eeprom,
+    QRxFrames, QTxFrames
 };
-use crate::{dev_controller::DevController, dev_view::DevView, idle_loop::IdleLoop, Statistics};
+use crate::{
+    dev_controller::DevController, 
+    dev_view::DevView, 
+    idle_loop::IdleLoop, 
+    Statistics,
+    utils::{FileSys, SdioPins},
+};
 /// In the embedded rust ecosystem, hardware resources can only be used in one place. For this
 /// reason, a careful distribution of the required hardware resources to corresponding software
 /// components is necessary. This allocation is done here in the init component.
@@ -45,7 +55,7 @@ pub type QEvents = MpMcQueue<Event, 8>;
 // pub type KeyBacklight = Pin<Output<PushPull>, 'A', 3>;
 pub type DevDisplay = Display;
 
-pub fn hw_init(
+pub fn hw_init<'a>(
     device: pac::Peripherals,
     core: cortex_m::peripheral::Peripherals,
 ) -> (
@@ -105,7 +115,6 @@ pub fn hw_init(
     // This queue routes the events to the controller.
     static Q_EVENTS: QEvents = MpMcQueue::new();
 
-
     // Setup ----------> can bus interface
     let (can_tx, can_rx) = init_can(
         device.CAN1,
@@ -130,7 +139,23 @@ pub fn hw_init(
         Keyboard::new(keyboard_pins, enc1_res, enc2_res, &Q_EVENTS)
     };
 
-    // Setup ----------> Eeprom driver and idle loop
+    // Setup ----------> FileSys driver for idle loop
+    let sdio_pins: SdioPins = (
+        gpioc.pc12,
+        gpiod.pd2.internal_pull_up(true),
+        gpioc.pc8.internal_pull_up(true),
+        gpioc.pc9.internal_pull_up(true),
+        gpioc.pc10.internal_pull_up(true),
+        gpioc.pc11.internal_pull_up(true),
+    );
+    //let sd_detect = gpioc.pc0.internal_pull_up(true).into_input();
+    let file_sys = FileSys::new(
+        device.SDIO,
+        &clocks,
+        sdio_pins,
+    );
+
+    // Setup ----------> Eeprom driver for idle loop
     let scl = gpiob.pb6.internal_pull_up(true);
     let sda = gpiob.pb7.internal_pull_up(true);
     let i2c = device.I2C1.i2c((scl, sda), 400.kHz(), &clocks);
@@ -141,7 +166,7 @@ pub fn hw_init(
     for item in eeprom.iter_over(vario_display::EepromTopic::ConfigValues) {
         core_model.restore_persistent_item(item);
     }
-    let idle = IdleLoop::new(eeprom, c_sto_items);
+    let idle_loop = IdleLoop::new(eeprom, c_sto_items, file_sys, &Q_EVENTS);
 
     // Setup ----------> controller
     let dev_controller = DevController::new(&mut core_model, &Q_EVENTS, c_rx_frames);
@@ -183,7 +208,7 @@ pub fn hw_init(
         core_model,
         dev_mono_timer,
         dev_view,
-        idle,
+        idle_loop,
         frame_buffer,
         keyboard,
         statistics,

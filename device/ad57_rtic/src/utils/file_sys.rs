@@ -1,0 +1,190 @@
+
+use heapless::{String, Vec};
+use defmt::*;
+use stm32f4xx_hal::{
+    rcc::Clocks,
+    pac::SDIO,
+    gpio::Pin,
+    sdio::{SdCard, Sdio},
+    flash::{FlashExt, LockedFlash},
+};
+use fatfs::{
+    NullTimeProvider, LossyOemCpConverter, FileSystem, FsOptions, Read,
+};
+use embedded_storage::nor_flash::NorFlash;
+use crate::{
+    driver::FileIo,
+    utils::{stm32_crc, DevError},
+};
+use vario_display::{SwVersion, SW_VERSION};
+
+const BEGIN_FLASH: usize = 0x0800_0000;
+const BEGIN_UPPER_FLASH: usize = 0x0808_0000;
+
+#[repr(C)]
+#[derive(Default)]
+struct MetaData {
+    magic: u64,
+    crc: u32,
+    meta_version: u32,
+    storage_addr: usize,
+    hw_version: [u8; 4],
+    sw_version: SwVersion,
+    copy_func: usize,
+    new_app: usize,
+    new_app_len: usize,
+    new_app_dest: usize, 
+}
+
+pub type SdioPins = (
+    Pin<'C', 12>,
+    Pin<'D', 2>,
+    Pin<'C', 8>,
+    Pin<'C', 9>,
+    Pin<'C', 10>,
+    Pin<'C', 11>,
+);
+
+pub struct FileSys {
+    image_name: Option<String<12>>,
+    image_size: usize,
+    update_available: bool,
+    meta_data: MetaData,
+    fs: Option<fatfs::FileSystem<FileIo, NullTimeProvider, LossyOemCpConverter>>,
+}
+
+impl FileSys {
+    pub fn new(
+        dp_sdio: SDIO,
+        clocks: &Clocks,
+        pins: SdioPins,
+    ) -> Self {
+        let mut fs = None;
+        let sdio: Sdio<SdCard> = Sdio::new(dp_sdio, pins, clocks);
+        if let Ok(fileio) = FileIo::new(sdio) {
+            if let Ok(fs_) = FileSystem::new(
+                fileio, 
+                FsOptions::new()) {
+                fs = Some(fs_);
+            }
+        }
+
+        let mut file_sys = FileSys {
+            image_name: None,
+            image_size: 0,
+            update_available: false,
+            meta_data: MetaData::default(),
+            fs, 
+        };
+        file_sys.find_image();
+        match file_sys.copy_image() {
+            Ok(()) => file_sys.update_available = true,
+            Err(_) => file_sys.image_name = None,
+        }
+        file_sys
+    }
+
+    pub fn update_available(&mut self) -> Option<SwVersion> {
+        if self.update_available {
+            self.update_available = false;
+            Some(self.meta_data.sw_version)
+        } else {
+            None
+        }
+    }
+
+
+    pub fn copy_image(&mut self) -> Result<(), DevError> {
+        trace!("Try to copy");
+        if let Some(fs) = &self.fs {
+            trace!("FileSys is still there");
+            let mut buf = [0_u8;512];
+            let mut bytes_read: u32 = 0;
+
+            trace!("Try to get root_dir");
+            let root_dir = fs.root_dir();
+            trace!("Try to get image_file");
+            if self.image_name.is_none() {
+                return Err(DevError::NoItemAvailable)
+            }
+            let path: &str = self.image_name.as_ref().unwrap().as_str();
+            let mut image_file = root_dir.open_file(path)?;
+        
+            trace!("Try to get Flash");
+            let dp = unsafe {stm32f4xx_hal::pac::Peripherals::steal()};
+            let mut flash = LockedFlash::new(dp.FLASH);
+            let mut unlocked_flash = flash.unlocked();
+            let flash_offset = self.meta_data.storage_addr - BEGIN_FLASH;
+            
+            trace!("Erase Flash");
+            NorFlash::erase(
+                &mut unlocked_flash, 
+                flash_offset as u32,
+                (flash_offset + self.image_size) as u32).unwrap();
+        
+            trace!("Write Image");
+            loop {
+                let b_read = image_file.read(&mut buf)?;
+                NorFlash::write(
+                    &mut unlocked_flash, 
+                    flash_offset as u32 + bytes_read,
+                    &buf).unwrap();
+                bytes_read += b_read as u32;
+                if b_read == 0 {
+                    break;
+                }
+                if bytes_read % 10240 == 0 {
+                    trace!("\x0d{} kBytes copied", bytes_read/1024);
+                }
+            }
+            drop(unlocked_flash);
+
+            trace!("\nCheck CRC");
+            let upper_flash_u32 =  unsafe { core::mem::transmute::<usize, &[u32; 0x2_0000]>(BEGIN_UPPER_FLASH) };
+            let new_app_end_idx = self.meta_data.new_app - BEGIN_UPPER_FLASH + self.meta_data.new_app_len;
+
+            let crc = stm32_crc(&upper_flash_u32[3..new_app_end_idx/4]);       
+            if crc != self.meta_data.crc {
+                trace!("CRC Check failed");
+                self.image_name = None;
+                return Err(DevError::CrcError);
+            }
+
+            trace!("\x0dOk {} Bytes copied from SdCard to Flash", bytes_read);
+        }
+        Ok((    ))
+    }
+
+    pub fn install_and_restart(&self) {
+        if self.image_name.is_some() {
+            // This call starts the update. First the consistency of the loaded data is checked, then the 
+            // data from the upper flash area is copied to the lower one and then the new app is started.
+            let func = unsafe { core::mem::transmute::<usize, fn()>(self.meta_data.copy_func) };
+            func();
+        }
+    }
+
+    fn find_image(&mut self) {
+        if let Some(fs) = &self.fs {
+            let root_dir = fs.root_dir();
+            let mut fn_vec: Vec<u8, 12> = Vec::new();
+            for dir_entry in root_dir.iter() {
+                let entry = dir_entry.unwrap();
+                if entry.short_file_name_as_bytes() == "IMAGE.BIN".as_bytes() {
+                    fn_vec = Vec::from_slice(entry.short_file_name_as_bytes()).unwrap();
+                    self.image_size = entry.len() as usize;
+                }
+            }
+            let file_name: String<12> = String::from_utf8(fn_vec).unwrap_or(String::new());
+            trace!("File name {}", file_name.as_str());
+            const META_DATA_SIZE: usize = core::mem::size_of::<MetaData>();
+            let meta_data_as_u8arr = unsafe {core::mem::transmute::<&mut MetaData, &mut [u8; META_DATA_SIZE]>(&mut self.meta_data) };
+            if let Ok(mut file) = root_dir.open_file(file_name.as_str()) {
+                let _ = file.read_exact(meta_data_as_u8arr); // silently ignore errors, signature will be checked anyway
+            }
+            if self.meta_data.magic == 0x1c80_73ab_2085_3579 && self.meta_data.sw_version != SW_VERSION {
+                self.image_name = Some(file_name);
+            }
+        } 
+    }
+}
