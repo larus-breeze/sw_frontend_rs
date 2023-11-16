@@ -1,6 +1,6 @@
 use defmt::trace;
 
-use crate::{driver::delay_ms, Error};
+use crate::{driver::delay_ms, utils::DevError};
 use eeprom24x::{addr_size::TwoBytes, page_size::B32, Eeprom24x, SlaveAddr};
 use stm32f4xx_hal::{i2c::I2c, pac::I2C1};
 use vario_display::{
@@ -47,19 +47,19 @@ pub struct Eeprom {
 #[allow(dead_code)]
 impl Eeprom {
     /// Create a Persistence Instance
-    pub fn new(i2c: I2c<I2C1>) -> Result<Self, Error> {
+    pub fn new(i2c: I2c<I2C1>) -> Result<Self, DevError> {
         let addr = SlaveAddr::default();
         let mut eeprom = Eeprom24x::new_24x64(i2c, addr);
         let mut magic = [0_u8; 8];
         eeprom
             .read_data(eeprom::IDENTIFICATION_BLOCK, &mut magic)
-            .map_err(|_| Error::EepromOrI2c1)?;
+            .map_err(|_| DevError::EepromOrI2c1)?;
         delay_ms(10);
         if magic != eeprom::MAGIC {
             // Write magic number
             eeprom
                 .write_page(eeprom::IDENTIFICATION_BLOCK, &eeprom::MAGIC)
-                .map_err(|_| Error::EepromOrI2c1)?;
+                .map_err(|_| DevError::EepromOrI2c1)?;
             delay_ms(10);
 
             // Clear DAT
@@ -68,7 +68,7 @@ impl Eeprom {
             while address < (eeprom::DAT + eeprom::DAT_LEN) {
                 eeprom
                     .write_page(address, &data)
-                    .map_err(|_| Error::EepromOrI2c1)?;
+                    .map_err(|_| DevError::EepromOrI2c1)?;
                 delay_ms(10);
                 address += 8;
             }
@@ -81,7 +81,7 @@ impl Eeprom {
     ///
     /// The data is stored at the desired location defined by the ID. An entry is made in the data
     /// allocation table (DAT), if desired (dat_bit in PersitentItem).
-    pub fn write_item(&mut self, item: PersistenceItem) -> Result<(), Error> {
+    pub fn write_item(&mut self, item: PersistenceItem) -> Result<(), DevError> {
         if item.id == PersistenceId::DoNotStore {
             return Ok(());
         }
@@ -91,18 +91,18 @@ impl Eeprom {
         }
         self.eeprom
             .write_page(address, &item.data)
-            .map_err(|_| Error::EepromOrI2c1)?;
+            .map_err(|_| DevError::EepromOrI2c1)?;
         delay_ms(10);
         Ok(())
     }
 
     /// Read data from storage - do not check the DAT
-    pub fn read_item_unchecked(&mut self, id: PersistenceId) -> Result<PersistenceItem, Error> {
+    pub fn read_item_unchecked(&mut self, id: PersistenceId) -> Result<PersistenceItem, DevError> {
         let address = eeprom::DATA_STORAGE + id as u32 * 4;
         let mut data = [0_u8; 4];
         self.eeprom
             .read_data(address, &mut data)
-            .map_err(|_| Error::EepromOrI2c1)?;
+            .map_err(|_| DevError::EepromOrI2c1)?;
         Ok(PersistenceItem {
             id,
             dat_bit: false,
@@ -111,11 +111,11 @@ impl Eeprom {
     }
 
     /// Read data from storage - return error if DAT bit is not set
-    pub fn read_item(&mut self, id: PersistenceId) -> Result<PersistenceItem, Error> {
+    pub fn read_item(&mut self, id: PersistenceId) -> Result<PersistenceItem, DevError> {
         if self.test_id(id) {
             self.read_item_unchecked(id)
         } else {
-            Err(Error::NoItemAvailable)
+            Err(DevError::NoItemAvailable)
         }
     }
 
@@ -128,11 +128,11 @@ impl Eeprom {
     }
 
     /// Returns a byte of the DAT
-    fn read_bitfield_byte(&mut self, adr: u32) -> Result<u8, Error> {
+    fn read_bitfield_byte(&mut self, adr: u32) -> Result<u8, DevError> {
         let byte_adr = eeprom::DAT + adr;
         self.eeprom
             .read_byte(byte_adr)
-            .map_err(|_| Error::EepromOrI2c1)
+            .map_err(|_| DevError::EepromOrI2c1)
     }
 
     /// Tests a id, if coresponing dat_bit is set
@@ -146,18 +146,18 @@ impl Eeprom {
     }
 
     /// Set dat_bit in table of contentspub fn iter_over(&mut self, p_type: PersistType) -> PersistenceIterator
-    fn set_id(&mut self, id: PersistenceId) -> Result<(), Error> {
+    fn set_id(&mut self, id: PersistenceId) -> Result<(), DevError> {
         let byte_adr = eeprom::DAT + (id as u32) / 8;
         let bit_pattern: u8 = 1 << (id as u32) % 8;
         let found = self
             .eeprom
             .read_byte(byte_adr)
-            .map_err(|_| Error::EepromOrI2c1)?;
+            .map_err(|_| DevError::EepromOrI2c1)?;
         let target = found | bit_pattern;
         if found != target {
             self.eeprom
                 .write_byte(byte_adr, target)
-                .map_err(|_| Error::EepromOrI2c1)?;
+                .map_err(|_| DevError::EepromOrI2c1)?;
             delay_ms(10);
         }
         Ok(())
