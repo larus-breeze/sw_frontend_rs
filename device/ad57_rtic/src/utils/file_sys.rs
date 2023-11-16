@@ -21,6 +21,7 @@ use vario_display::{SwVersion, SW_VERSION};
 const BEGIN_FLASH: usize = 0x0800_0000;
 const BEGIN_UPPER_FLASH: usize = 0x0808_0000;
 
+/// The meta data structure describes what is contained in the upload
 #[repr(C)]
 #[derive(Default)]
 struct MetaData {
@@ -36,6 +37,7 @@ struct MetaData {
     new_app_dest: usize, 
 }
 
+/// Pin definition for SDIO Peripheral
 pub type SdioPins = (
     Pin<'C', 12>,
     Pin<'D', 2>,
@@ -45,6 +47,10 @@ pub type SdioPins = (
     Pin<'C', 11>,
 );
 
+/// FileSys handles access to the flash file system
+///
+/// Note: The current solution can only be used with bots. It neither supports the change of sd
+/// cards nor can it be used while the real-time system is in use. 
 pub struct FileSys {
     image_name: Option<String<12>>,
     image_size: usize,
@@ -54,6 +60,7 @@ pub struct FileSys {
 }
 
 impl FileSys {
+    /// Create FileSys
     pub fn new(
         dp_sdio: SDIO,
         clocks: &Clocks,
@@ -84,6 +91,7 @@ impl FileSys {
         file_sys
     }
 
+    /// If an update is available, its version is returned
     pub fn update_available(&mut self) -> Option<SwVersion> {
         if self.update_available {
             self.update_available = false;
@@ -93,36 +101,31 @@ impl FileSys {
         }
     }
 
-
+    /// Copies the image to the upper flash area
+    /// 
+    /// Note: This routine currently only works during the boot process.
     pub fn copy_image(&mut self) -> Result<(), DevError> {
-        trace!("Try to copy");
         if let Some(fs) = &self.fs {
-            trace!("FileSys is still there");
             let mut buf = [0_u8;512];
             let mut bytes_read: u32 = 0;
 
-            trace!("Try to get root_dir");
             let root_dir = fs.root_dir();
-            trace!("Try to get image_file");
             if self.image_name.is_none() {
                 return Err(DevError::NoItemAvailable)
             }
             let path: &str = self.image_name.as_ref().unwrap().as_str();
             let mut image_file = root_dir.open_file(path)?;
         
-            trace!("Try to get Flash");
             let dp = unsafe {stm32f4xx_hal::pac::Peripherals::steal()};
             let mut flash = LockedFlash::new(dp.FLASH);
             let mut unlocked_flash = flash.unlocked();
             let flash_offset = self.meta_data.storage_addr - BEGIN_FLASH;
             
-            trace!("Erase Flash");
             NorFlash::erase(
                 &mut unlocked_flash, 
                 flash_offset as u32,
                 (flash_offset + self.image_size) as u32).unwrap();
         
-            trace!("Write Image");
             loop {
                 let b_read = image_file.read(&mut buf)?;
                 NorFlash::write(
@@ -133,13 +136,9 @@ impl FileSys {
                 if b_read == 0 {
                     break;
                 }
-                if bytes_read % 10240 == 0 {
-                    trace!("\x0d{} kBytes copied", bytes_read/1024);
-                }
             }
             drop(unlocked_flash);
 
-            trace!("\nCheck CRC");
             let upper_flash_u32 =  unsafe { core::mem::transmute::<usize, &[u32; 0x2_0000]>(BEGIN_UPPER_FLASH) };
             let new_app_end_idx = self.meta_data.new_app - BEGIN_UPPER_FLASH + self.meta_data.new_app_len;
 
@@ -150,11 +149,12 @@ impl FileSys {
                 return Err(DevError::CrcError);
             }
 
-            trace!("\x0dOk {} Bytes copied from SdCard to Flash", bytes_read);
+            trace!("Image written, {} Bytes", bytes_read);
         }
         Ok((    ))
     }
 
+    /// Install first the new software and then start the new application
     pub fn install_and_restart(&self) {
         if self.image_name.is_some() {
             // This call starts the update. First the consistency of the loaded data is checked, then the 
@@ -164,6 +164,9 @@ impl FileSys {
         }
     }
 
+    /// Looks on the sd card if a image is available
+    /// 
+    /// Note: This routine currently only works during the boot process.
     fn find_image(&mut self) {
         if let Some(fs) = &self.fs {
             let root_dir = fs.root_dir();
