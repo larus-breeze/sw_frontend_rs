@@ -1,15 +1,9 @@
+mod crc;
+mod error;
 mod statistics;
+mod file_sys;
 
+pub use crc::*;
 pub use statistics::{Statistics, Task};
-
-///
-/// An error holding its source (pins or SPI)
-///
-#[derive(Debug)]
-#[allow(unused)]
-pub enum Error {
-    DisplayError,
-    PinError,
-    EepromOrI2c1,
-    NoItemAvailable,
-}
+pub use error::*;
+pub use file_sys::*;
