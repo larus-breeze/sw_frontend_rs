@@ -20,6 +20,8 @@ def stm32_crc(data):
             buf = bytearray()
     return crc
 
+def version(major, minor, patch, buildindex=0):
+        return major + (minor<<8) + (patch<<16) + (buildindex<<24)
 
 class ReadApp():
     """Read elf file and store all binaries and symbols"""
@@ -48,40 +50,6 @@ class ReadApp():
         binary = bytearray(binary_len)
         for ofs, data in segment_data:
             binary[ofs:ofs + len(data)] = data
-
-
-        """section_data = []
-        sec_data = None
-        print(f"           {'Section Name':22} {'Address':8} {'Offset':8} {'Length':>8}")
-        for section in self.elf_file.iter_sections():
-            if isinstance(section, RelocationSection):
-                print("Error: Section with relocation found. This cannot be handled so far.")
-                sys.exit(1)
-            adr = section['sh_addr']
-            ofs = section['sh_offset']
-            s_type = section['sh_type']
-            length = len(section.data())
-            data = section.data()
-
-            if adr >= flash_start and adr <= flash_end and length > 0:
-                section_data.append((adr - flash_start, data))
-                print(f"  Included {section.name:22} {adr:08X} {ofs:08X} {length:8X} {s_type}")
-                if adr + length > last_adr:
-                    last_adr = adr + length
-            else:
-                print(f"           {section.name:22} {adr:08X} {ofs:08X} {length:8X} {s_type}")
-
-            if section.name == ".data":
-                print(f"  Included {section.name:22} {adr:08X} {ofs:08X} {length:8X} {s_type}")
-                sec_data = data
-
-        sec_data_ofs = last_adr -flash_start
-        binary_len = last_adr - flash_start + len(sec_data)
-
-        binary = bytearray(binary_len)
-        for ofs, data in section_data:
-            binary[ofs:ofs + len(data)] = data
-        binary[sec_data_ofs:sec_data_ofs + len(sec_data)] = sec_data"""
 
         # Be shure, that binary is word aligned
         while len(binary) % 4 != 0: # Go safe to get 4 byte alignment 
@@ -153,8 +121,21 @@ class Binary():
             bin_file.write(binary)
 
 print("Larus App Image Generator")
+print(hex(version(2,0,1,0)))
 binary = Binary(storage_adr=0x0808_0000)
-binary.read_new_app(new_app="vario.elf", new_app_start=0x0800_0000, new_app_max=0x0807_ffff)
-binary.read_copy_app(copy_app="assets/copy_stm32f407_1m.elf", copy_app_start=0x0808_1000, copy_app_max=0x0808_5000)
-binary.write_file("image.bin", hw_version=0x01000000, sw_version=0x02000000)
+binary.read_new_app(
+    new_app="vario.elf", 
+    new_app_start=0x0800_0000, 
+    new_app_max=0x0807_ffff
+)
+binary.read_copy_app(
+    copy_app="assets/copy_stm32f407_1m.elf", 
+    copy_app_start=0x0808_1000, 
+    copy_app_max=0x0808_5000
+)
+binary.write_file(
+    "image.bin", 
+    hw_version=version(1, 0, 0, 0), 
+    sw_version=version(0, 1, 0, 0)
+)
 
