@@ -49,7 +49,7 @@ pub type SdioPins = (
 
 /// FileSys handles access to the flash file system
 ///
-/// Note: The current solution can only be used with bots. It neither supports the change of sd
+/// Note: The current solution can only be used while booting. It neither supports the change of sd
 /// cards nor can it be used while the real-time system is in use. 
 pub struct FileSys {
     image_name: Option<String<12>>,
@@ -179,7 +179,7 @@ impl FileSys {
                 }
             }
             let file_name: String<12> = String::from_utf8(fn_vec).unwrap_or(String::new());
-            trace!("File name {}", file_name.as_str());
+            trace!("Image file name {}", file_name.as_str());
             const META_DATA_SIZE: usize = core::mem::size_of::<MetaData>();
             let meta_data_as_u8arr = unsafe {core::mem::transmute::<&mut MetaData, &mut [u8; META_DATA_SIZE]>(&mut self.meta_data) };
             if let Ok(mut file) = root_dir.open_file(file_name.as_str()) {
