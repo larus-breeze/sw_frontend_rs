@@ -6,3 +6,4 @@
 *.f110
 *.pyc
 device/pc/eeprom.bin
+device/ad57_rtic/image.bin
