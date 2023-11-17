@@ -1,4 +1,4 @@
-Firmware for displaying the Larus sensor values
+Firmware for Displaying the Larus Sensor Values
 ===============================================
 
 General information
@@ -8,7 +8,7 @@ This is a vario front end for gliders, which displays the measured values of the
 
 The following target systems are currently supported:
 - A PC simulation (Linux, Windows) for development and testing
-- Ad57 from Air Avionik (commercial 57mm built-in instrument)
+- Ad57 from Air Avionics (commercial 57mm built-in instrument)
 
 ![tools](https://github.com/larus-breeze/sw_frontend_rs/assets/3678273/74c01117-cf99-40b7-b68e-ff5c3c36fc2b)
 The figure shows the simulation environment of the solution.
