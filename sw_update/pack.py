@@ -1,7 +1,6 @@
 #!/bin/python3
 
-import sys, io
-import struct
+import sys, io, toml, struct
 
 from elftools.elf.elffile import ELFFile
 from elftools.elf.relocation import RelocationSection
@@ -20,8 +19,14 @@ def stm32_crc(data):
             buf = bytearray()
     return crc
 
-def version(major, minor, patch, buildindex=0):
-        return major + (minor<<8) + (patch<<16) + (buildindex<<24)
+def get_version(version_str):
+        shift_fact = 0
+        version = 0
+        for no in version_str.split('.'):
+            version += int(no) << shift_fact
+            shift_fact += 8
+
+        return version
 
 class ReadApp():
     """Read elf file and store all binaries and symbols"""
@@ -35,14 +40,14 @@ class ReadApp():
         segment_data = []
 
         print(f"\nLoading app image from segments in '{self.file_name}'")
-        print(f"  {'Address':8} {'Length':8}")
+        print(f"    {'Address':8}   {'Length':8}")
         for segment in self.elf_file.iter_segments():
             addr = segment['p_paddr']
             if addr >= flash_start and addr < flash_end:
                 data = segment.data()
                 length = len(data)
         
-                print(f"  {addr:08X} {length:08X}")
+                print(f"  0x{addr:08X} 0x{length:08X}")
                 segment_data.append((addr - flash_start, data))
                 last_adr = addr + length
 
@@ -66,76 +71,70 @@ class ReadApp():
 
 class Binary():
     """A class to create binary Larus images"""
-    def __init__(self, storage_adr):
+    def __init__(self, image):
         """storage_adr: Address where the image is to be stored"""
-        self.storage_adr = storage_adr
+        self.name = image["name"]
+        self.addr_storage = image["addr_storage"]
+        self.hw_version = get_version(image["hw_version"])
+        self.sw_version = get_version(image["sw_version"])
 
-    def read_new_app(self, new_app, new_app_start, new_app_max):
+    def read_new_app(self, app):
         """Load the app that is to be executed later"""
-        new_app = ReadApp(new_app)
-        self.new_app_dest = new_app_start
-        self.new_app_bin = new_app.get_binary(new_app_start, new_app_max)
+        new_app = ReadApp(app["elf"])
+        self.app_addr_start = app["addr_start"]
+        app_addr_max = app["addr_max"]
+        self.app_bin = new_app.get_binary(self.app_addr_start, app_addr_max)
 
-    def read_copy_app(self, copy_app, copy_app_start, copy_app_max):
+    def read_copy_app(self, copy):
         """Load the copy routine that loads the future app in the right place."""
-        copy_app = ReadApp(copy_app)
-        self.copy_app_bin = copy_app.get_binary(copy_app_start, copy_app_max)
+        copy_app = ReadApp(copy["elf"])
+        self.copy_app_addr_start = copy["addr_start"]
+        copy_app_addr_max = copy["addr_max"]
+        self.copy_bin = copy_app.get_binary(self.copy_app_addr_start, copy_app_addr_max)
         self.copy_func = copy_app.get_symbol_address("main")
 
-    def create_meta_data(self, hw_version, sw_version):
+    def create_meta_data(self):
         """Create the meta data needed"""
         data = {
              'Magic Number': 0x1c80_73ab_2085_3579,
              'CRC <place holder>': 0x12345678,
              'Meta Data Version': 1,
-             'Storage Address': self.storage_adr,
-             'Hardware Version': hw_version,
-             'Software Version': sw_version,
+             'Storage Address': self.addr_storage,
+             'Hardware Version': self.hw_version,
+             'Software Version': self.sw_version,
              'Copy Function': self.copy_func,
-             'New App': self.storage_adr + 0x1000 + len(self.copy_app_bin),
-             'New App Len': len(self.new_app_bin),
-             'New App Dest': self.new_app_dest
+             'New App': self.addr_storage + 0x1000 + len(self.copy_bin),
+             'New App Len': len(self.app_bin),
+             'New App Dest': self.app_addr_start
         }
         print('\nCreating Meta Data:')
         for key, value in data.items():
-            print(f"  {key:21}{value:08X}")
+            print(f"  {key:21}0x{value:08X}")
 
 
         self.meta_data = struct.pack ('<QLLLLLLLLL', *data.values())
-        while len(self.meta_data) < 0x1000:
+        while len(self.meta_data) < (self.copy_app_addr_start - self.addr_storage): # Fill til copy 
             self.meta_data += b'\x00'
 
-    def write_file(self, file_name, hw_version, sw_version):
+    def write_file(self):
         """Save binary to disk"""
-        self.create_meta_data(hw_version, sw_version)
-        binary = bytearray(self.meta_data + self.copy_app_bin + self.new_app_bin)
+        self.create_meta_data()
+        binary = bytearray(self.meta_data + self.copy_bin + self.app_bin)
 
         print("\nCalculate CRC 'Storage Address' -> <end>")
         crc_data = stm32_crc(binary[12:]) # Start at storag_adr -> end
         binary[8:12] = struct.pack("<L", crc_data)
-        print(f"  CRC inserted         {crc_data:08X}")
+        print(f"  CRC inserted         0x{crc_data:08X}")
 
         print(f"\nTotal size of binary: {round(len(binary) / 1024)}k")
-        print(f"Writing binary to file '{file_name}'")
-        with open(file_name, "wb") as bin_file:
+        print(f"Writing binary to file '{self.name}'")
+        with open(self.name, "wb") as bin_file:
             bin_file.write(binary)
 
-print("Larus App Image Generator")
-print(hex(version(2,0,1,0)))
-binary = Binary(storage_adr=0x0808_0000)
-binary.read_new_app(
-    new_app="vario.elf", 
-    new_app_start=0x0800_0000, 
-    new_app_max=0x0807_ffff
-)
-binary.read_copy_app(
-    copy_app="assets/copy_stm32f407_1m.elf", 
-    copy_app_start=0x0808_1000, 
-    copy_app_max=0x0808_5000
-)
-binary.write_file(
-    "image.bin", 
-    hw_version=version(1, 0, 0, 0), 
-    sw_version=version(0, 1, 0, 0)
-)
-
+print("Larus App Image Packer")
+with open("pack.toml", "r") as f:
+    spec = toml.load(f)
+    image = Binary(spec["image"])
+    image.read_new_app(spec["app"])
+    image.read_copy_app(spec["copy"])
+    image.write_file()
