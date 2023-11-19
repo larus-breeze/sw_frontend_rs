@@ -21,7 +21,7 @@ impl SwUpdateController {
         match core_model.control.firmware_update_state {
             DeviceEvent::FwAvailable(_) => {
                 match key_event {
-                    KeyEvent::BtnEnc => 
+                    KeyEvent::Btn1 => 
                         core_model.storage_item(StorageItem::SdCardItem(SdCardCmd::SwUpdateAccepted)),
                     _ => {
                         core_model.config.display_active = core_model.config.last_display_active;

@@ -24,7 +24,7 @@ where
             let v_str = version.as_string();
             text
                 .push_str(v_str.as_str())
-                .push_str("\nAccept with knob\nother keys reject")
+                .push_str("\nAccept with key 1\nother keys reject")
         },
         DeviceEvent::PrepareFwUpload => {
             text.push_str("Preparing...")
