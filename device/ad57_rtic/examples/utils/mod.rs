@@ -1,6 +1,13 @@
+#[allow(dead_code)]
+mod concat;
+#[allow(dead_code)]
 mod file_io;
+#[allow(dead_code)]
+mod keyboard;
 
+pub use concat::*;
 pub use file_io::*;
+pub use keyboard::*;
 
 /*
 #[allow(dead_code)]
