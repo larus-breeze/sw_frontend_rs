@@ -5,8 +5,7 @@ use stm32h7xx_hal::{
     pac::fmc::{BTR1, BTR2, BTR3, BTR4,},
     pac::fmc::{BWTR1, BWTR2, BWTR3, BWTR4,},
 };
-
-pub use display_interface::{DisplayError, WriteOnlyDataCommand};
+use display_interface::{DataFormat, DisplayError, WriteOnlyDataCommand};
 
 #[allow(dead_code)]
 pub struct LcdInterface {
@@ -263,26 +262,8 @@ impl LcdInterface {
         config_bwtr(bwtr4);
 
         Self {
-            p0,
-            p1,
-            p2,
-            p3,
-            p4,
-            p5,
-            p6,
-            p7,
-            p8,
-            p9,
-            p10,
-            p11,
-            p12,
-            p13,
-            p14,
-            p15,
-            dc,
-            wr,
-            noe,
-            cs,
+            p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15,
+            dc, wr, noe, cs,
         }
     }
 
@@ -307,8 +288,6 @@ impl LcdInterface {
         }
     }
 }
-
-use display_interface::DataFormat;
 
 impl WriteOnlyDataCommand for LcdInterface {
     fn send_commands(&mut self, cmds: DataFormat<'_>) -> Result<(), DisplayError> {
