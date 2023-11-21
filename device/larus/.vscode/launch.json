@@ -1,0 +1,80 @@
+{
+    // Use IntelliSense to learn about possible attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "type": "cortex-debug",
+        "request": "launch",
+        "name": "Deb vario",
+        "servertype": "openocd",
+        "gdbPath": "/usr/bin/gdb-multiarch",
+        "cwd": "${workspaceRoot}",
+        "preLaunchTask": "Cargo Build (debug)",
+        "runToEntryPoint": "main",
+        "executable": "./target/thumbv7em-none-eabihf/debug/vario",
+        "device": "STM32H743VGTx",
+        "configFiles": [
+          "interface/stlink.cfg",
+          "target/stm32h7x.cfg"
+        ],
+        "postLaunchCommands": [
+          "monitor rtt server start 8765 0",
+          // should span the *right* part of RAM
+          // get address $ rust-nm -S target/thumbv7*/debug/vario | grep RTT
+          "monitor rtt setup 0x20000020 0x30 \"SEGGER RTT\"",
+          "monitor rtt start",
+      ],
+        "svdFile": "${workspaceRoot}/STM32F7x3.svd",
+      },
+      {
+        "type": "cortex-debug",
+        "request": "launch",
+        "name": "Run vario",
+        "servertype": "openocd",
+        "gdbPath": "/usr/bin/gdb-multiarch",
+        "cwd": "${workspaceRoot}",
+        "preLaunchTask": "Cargo Build (release)",
+        "runToEntryPoint": "main",
+        "executable": "./target/thumbv7em-none-eabihf/release/vario",
+        "device": "STM32H743VGTx",
+        "configFiles": [
+          "interface/stlink.cfg",
+          "target/stm32h7x.cfg"
+        ],
+        "postLaunchCommands": [
+          "monitor rtt server start 8765 0",
+          // should span the *right* part of RAM
+          // get address $ rust-nm -S target/thumbv7*/release/vario | grep RTT
+          "monitor rtt setup 0x20000020 0x30 \"SEGGER RTT\"",
+          "monitor rtt start",
+      ],
+        "svdFile": "${workspaceRoot}/STM32F7x3.svd",
+      },
+      {
+        "type": "cortex-debug",
+        "request": "launch",
+        "name": "Deb blinky",
+        "servertype": "openocd",
+        "gdbPath": "/usr/bin/gdb-multiarch",
+        "cwd": "${workspaceRoot}",
+        "preLaunchTask": "Cargo Build Examples (debug)",
+        "runToEntryPoint": "main",
+        "executable": "./target/thumbv7em-none-eabihf/debug/examples/blinky",
+        "device": "STM32H743VGTx",
+        "configFiles": [
+          "interface/stlink.cfg",
+          "target/stm32h7x.cfg"
+        ],
+        "postLaunchCommands": [
+          "monitor rtt server start 8765 0",
+          // should span the *right* part of RAM
+          // get address $ rust-nm -S target/thumbv7*/debug/vario | grep RTT
+          "monitor rtt setup 0x20000020 0x30 \"SEGGER RTT\"",
+          "monitor rtt start",
+      ],
+        "svdFile": "${workspaceRoot}/STM32F7x3.svd",
+      },
+    ]
+  }
