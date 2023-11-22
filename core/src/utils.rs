@@ -5,7 +5,7 @@ mod colors;
 mod concat;
 mod error;
 mod events;
-mod persistence;
+mod idle_events;
 mod rgb565_colors;
 mod version;
 
@@ -14,7 +14,7 @@ pub use colors::Colors;
 pub use concat::Concat;
 pub use error::CoreError;
 pub use events::*;
-pub use persistence::*;
+pub use idle_events::*;
 pub use rgb565_colors::RGB565_COLORS;
 pub use version::*;
 
