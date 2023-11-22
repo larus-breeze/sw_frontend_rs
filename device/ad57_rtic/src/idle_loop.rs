@@ -1,17 +1,20 @@
 use defmt::trace;
 
-use vario_display::{CIdleEvents, IdleEvent, DeviceEvent, Event, SdCardCmd};
+use stm32f4xx_hal::watchdog::IndependentWatchdog;
 
+use vario_display::{CIdleEvents, IdleEvent, DeviceEvent, Event, SdCardCmd};
 use crate::{
     driver::{Eeprom, QEvents, delay_ms},
     utils::FileSys,
 };
+
 
 pub struct IdleLoop {
     eeprom: Eeprom,
     c_pers_items: CIdleEvents,
     file_sys: FileSys,
     q_events: &'static QEvents,
+    watchdog: IndependentWatchdog,
 }
 
 impl IdleLoop {
@@ -20,20 +23,22 @@ impl IdleLoop {
         c_pers_items: CIdleEvents,
         file_sys: FileSys,
         q_events: &'static QEvents,
+        watchdog: IndependentWatchdog,
     ) -> Self {
         IdleLoop {
             eeprom,
             c_pers_items,
             file_sys,
             q_events,
+            watchdog
         }
     }
 
     pub fn idle_loop(&mut self) -> ! {
         loop {
             while self.c_pers_items.len() > 0 {
-                let storage_item = self.c_pers_items.dequeue().unwrap();
-                match storage_item {
+                let idle_event = self.c_pers_items.dequeue().unwrap();
+                match idle_event {
                     IdleEvent::EepromItem(item) => {
                         trace!("Stored id {:?}", item.id as u32);
                         self.eeprom.write_item(item).unwrap();
@@ -50,6 +55,7 @@ impl IdleLoop {
                             _ => (),
                         }
                     },
+                    IdleEvent::FeedTheDog => self.watchdog.feed(),
                 }
             }
 

@@ -6,6 +6,7 @@ use heapless::spsc::{Queue, Producer, Consumer};
 pub enum IdleEvent {
     EepromItem(PersistenceItem),
     SdCardItem(SdCardCmd),
+    FeedTheDog,
 }
 
 #[repr(u16)]
