@@ -33,6 +33,7 @@ use stm32f4xx_hal::{
     pac,
     prelude::*,
     timer::monotonic::SysMonoTimerExt,
+    watchdog::IndependentWatchdog,
 };
 use systick_monotonic::*;
 use vario_display::{CoreModel, QIdleEvents, Event};
@@ -166,7 +167,6 @@ pub fn hw_init<'a>(
     for item in eeprom.iter_over(vario_display::EepromTopic::ConfigValues) {
         core_model.restore_persistent_item(item);
     }
-    let idle_loop = IdleLoop::new(eeprom, c_sto_items, file_sys, &Q_EVENTS);
 
     // Setup ----------> controller
     let dev_controller = DevController::new(&mut core_model, &Q_EVENTS, c_rx_frames);
@@ -199,6 +199,9 @@ pub fn hw_init<'a>(
     let mut backlight = gpiob.pb4.into_push_pull_output();
     backlight.set_high(); // Is fixed at the moment, perhaps PWM in the future
 
+    // Setup ----------> Idleloop (last, because of the dog)
+    let watchdog = IndependentWatchdog::new(device.IWDG);
+    let idle_loop = IdleLoop::new(eeprom, c_sto_items, file_sys, &Q_EVENTS, watchdog);
     trace!("AD57 initialized");
 
     (

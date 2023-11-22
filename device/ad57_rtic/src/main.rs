@@ -149,9 +149,15 @@ mod app {
 
         task_controller::spawn_after(DevDuration::millis(100)).unwrap();
         let controller = cx.local.controller;
+        let all_alive = cx.shared.statistics.lock(|statistics| statistics.all_alive());
         cx.shared
             .core_model
-            .lock(|core_model| controller.tick(core_model));
+            .lock(|core_model| {
+                if all_alive {
+                    core_model.send_idle_event(IdleEvent::FeedTheDog);
+                }
+                controller.tick(core_model)
+            });
 
         task_end!(cx, Task::Controller);
     }
