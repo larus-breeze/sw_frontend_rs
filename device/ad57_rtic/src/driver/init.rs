@@ -35,7 +35,7 @@ use stm32f4xx_hal::{
     timer::monotonic::SysMonoTimerExt,
 };
 use systick_monotonic::*;
-use vario_display::{CoreModel, QStorageItems, Event};
+use vario_display::{CoreModel, QIdleEvents, Event};
 use {defmt_rtt as _, panic_probe as _};
 
 // Todo: use Timer as Timebase also for busy waiting
@@ -107,9 +107,9 @@ pub fn hw_init<'a>(
 
     // This queue routes the StorageItems from the controller to the idle loop.
     let (p_sto_items, c_sto_items) = {
-        static mut Q_STO_ITEMS: QStorageItems = Queue::new();
+        static mut Q_IDLE_EVENTS: QIdleEvents = Queue::new();
         // Note: unsafe is ok here, because [heapless::spsc] queue protects against UB
-        unsafe { Q_STO_ITEMS.split() }
+        unsafe { Q_IDLE_EVENTS.split() }
     };
 
     // This queue routes the events to the controller.

@@ -3,7 +3,7 @@ use heapless::spsc::{Queue, Producer, Consumer};
 
 #[repr(u16)]
 #[derive(Debug, Copy, Clone)]
-pub enum StorageItem {
+pub enum IdleEvent {
     EepromItem(PersistenceItem),
     SdCardItem(SdCardCmd),
 }
@@ -93,7 +93,7 @@ impl PersistenceItem {
 }
 
 // This queue transports the configuration PersItems from controller to the idle loop.
-const MAX_STO_ITEMS: usize = 20;
-pub type QStorageItems = Queue<StorageItem, MAX_STO_ITEMS>;
-pub type PStorageItems = Producer<'static, StorageItem, MAX_STO_ITEMS>;
-pub type CStorageItems = Consumer<'static, StorageItem, MAX_STO_ITEMS>;
+const MAX_IDLE_EVENTS: usize = 20;
+pub type QIdleEvents = Queue<IdleEvent, MAX_IDLE_EVENTS>;
+pub type PIdleEvents = Producer<'static, IdleEvent, MAX_IDLE_EVENTS>;
+pub type CIdleEvents = Consumer<'static, IdleEvent, MAX_IDLE_EVENTS>;
