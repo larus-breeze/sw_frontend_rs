@@ -22,10 +22,10 @@ impl SwUpdateController {
             DeviceEvent::FwAvailable(_) => {
                 match key_event {
                     KeyEvent::Btn1 => 
-                        core_model.storage_item(IdleEvent::SdCardItem(SdCardCmd::SwUpdateAccepted)),
+                        core_model.send_idle_event(IdleEvent::SdCardItem(SdCardCmd::SwUpdateAccepted)),
                     _ => {
                         core_model.config.display_active = core_model.config.last_display_active;
-                        core_model.storage_item(IdleEvent::SdCardItem(SdCardCmd::SwUpdateCanceld));
+                        core_model.send_idle_event(IdleEvent::SdCardItem(SdCardCmd::SwUpdateCanceld));
                     }
                 }
             },

@@ -25,21 +25,21 @@ pub struct CoreModel {
     pub control: Control,
     pub glider_data: GliderData,
     pub sensor: Sensor,
-    p_sto_items: PIdleEvents,
+    p_idle_events: PIdleEvents,
 }
 
 impl CoreModel {
-    pub fn new(p_sto_items: PIdleEvents) -> Self {
+    pub fn new(p_idle_events: PIdleEvents) -> Self {
         let calculated = Calculated::default();
         let config = Config::default();
         let control = Control::default();
         let glider_data = GliderData::default();
         let sensor = Sensor::default();
-        CoreModel { calculated, config, control, glider_data, sensor, p_sto_items }
+        CoreModel { calculated, config, control, glider_data, sensor, p_idle_events }
     }
 
-    pub fn storage_item(&mut self, storage_item: IdleEvent) {
-        let _ = self.p_sto_items.enqueue(storage_item);
+    pub fn send_idle_event(&mut self, idle_event: IdleEvent) {
+        let _ = self.p_idle_events.enqueue(idle_event);
     }
 
     pub fn restore_persistent_item(&mut self, item: PersistenceItem) {
