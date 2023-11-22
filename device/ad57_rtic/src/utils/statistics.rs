@@ -21,6 +21,9 @@ pub enum Task {
 }
 
 const MAX: u8 = 5;
+// Pattern defines, which taks must be active to feed the watchdog
+const ALL_ALIVE_PATTERN: u32 = 0b0001_1100;
+
 
 impl Task {
     pub fn from_usize(u: usize) -> Self {
@@ -67,6 +70,7 @@ pub struct Statistics {
     next_show: DevInstant,
     stack: [u8; TASK_CNT],
     stack_cnt: usize,
+    alive: u32,
 }
 
 const INTERVAL: usize = 3;
@@ -91,6 +95,7 @@ impl Statistics {
             next_show: app::monotonics::now() + DevDuration::secs(1),
             stack: [0u8; TASK_CNT],
             stack_cnt: 0,
+            alive: 0,
         }
     }
 
@@ -98,6 +103,7 @@ impl Statistics {
     /// started before, the counting is interrupted for this and the intermediate result is
     /// stored.
     pub fn start_task(&mut self, task: Task) {
+        self.alive |= 1 << (task as u8);
         let now = self.timer.now().ticks();
 
         if self.stack_cnt > 0 {
@@ -165,5 +171,13 @@ impl Statistics {
             info!("Workload {}%", workload);
             self.next_show += DevDuration::secs(INTERVAL as u64);
         }
+    }
+
+    pub fn all_alive(&mut self) -> bool {
+        let r = (self.alive & ALL_ALIVE_PATTERN) == ALL_ALIVE_PATTERN;
+        if r {
+            self.alive = 0;
+        }
+        r
     }
 }
