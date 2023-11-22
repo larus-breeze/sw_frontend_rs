@@ -1,6 +1,6 @@
 use embedded_graphics::geometry::{Angle, AngleUnit};
-use crate::{StorageItem, PersistenceItem, PersistenceId, Mass};
-use crate::utils::{PStorageItems, DeviceEvent};
+use crate::{IdleEvent, PersistenceItem, PersistenceId, Mass};
+use crate::utils::{PIdleEvents, DeviceEvent};
 
 use crate::{
     controller::Editable,
@@ -25,11 +25,11 @@ pub struct CoreModel {
     pub control: Control,
     pub glider_data: GliderData,
     pub sensor: Sensor,
-    p_sto_items: PStorageItems,
+    p_sto_items: PIdleEvents,
 }
 
 impl CoreModel {
-    pub fn new(p_sto_items: PStorageItems) -> Self {
+    pub fn new(p_sto_items: PIdleEvents) -> Self {
         let calculated = Calculated::default();
         let config = Config::default();
         let control = Control::default();
@@ -38,7 +38,7 @@ impl CoreModel {
         CoreModel { calculated, config, control, glider_data, sensor, p_sto_items }
     }
 
-    pub fn storage_item(&mut self, storage_item: StorageItem) {
+    pub fn storage_item(&mut self, storage_item: IdleEvent) {
         let _ = self.p_sto_items.enqueue(storage_item);
     }
 

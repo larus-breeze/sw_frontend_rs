@@ -1,6 +1,6 @@
 use defmt::trace;
 
-use vario_display::{CStorageItems, StorageItem, DeviceEvent, Event, SdCardCmd};
+use vario_display::{CIdleEvents, IdleEvent, DeviceEvent, Event, SdCardCmd};
 
 use crate::{
     driver::{Eeprom, QEvents, delay_ms},
@@ -9,7 +9,7 @@ use crate::{
 
 pub struct IdleLoop {
     eeprom: Eeprom,
-    c_pers_items: CStorageItems,
+    c_pers_items: CIdleEvents,
     file_sys: FileSys,
     q_events: &'static QEvents,
 }
@@ -17,7 +17,7 @@ pub struct IdleLoop {
 impl IdleLoop {
     pub fn new(
         eeprom: Eeprom, 
-        c_pers_items: CStorageItems,
+        c_pers_items: CIdleEvents,
         file_sys: FileSys,
         q_events: &'static QEvents,
     ) -> Self {
@@ -34,11 +34,11 @@ impl IdleLoop {
             while self.c_pers_items.len() > 0 {
                 let storage_item = self.c_pers_items.dequeue().unwrap();
                 match storage_item {
-                    StorageItem::EepromItem(item) => {
+                    IdleEvent::EepromItem(item) => {
                         trace!("Stored id {:?}", item.id as u32);
                         self.eeprom.write_item(item).unwrap();
                     },
-                    StorageItem::SdCardItem(item) => {
+                    IdleEvent::SdCardItem(item) => {
                         match item {
                             SdCardCmd::SwUpdateAccepted => {
                                 let event = Event::DeviceItem(DeviceEvent::UploadInProgress);
