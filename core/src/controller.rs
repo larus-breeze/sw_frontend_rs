@@ -142,7 +142,7 @@ impl CoreController {
                     ),
                     _ => PersistenceItem::do_not_store(),
                 };
-                core_model.storage_item(crate::IdleEvent::EepromItem(p_item));
+                core_model.send_idle_event(crate::IdleEvent::EepromItem(p_item));
             }
         }
 
