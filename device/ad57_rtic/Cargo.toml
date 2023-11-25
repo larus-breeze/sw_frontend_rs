@@ -13,6 +13,7 @@ cortex-m-rt = "0.7"
 panic-halt = "0.2"
 stm32f4xx-hal = { version = "0.17", features = ["rt", "stm32f407", "fsmc_lcd", "can", "can1", "rtic", "sdio", "sdio-host"] }
 bxcan = "0.7"
+fmc_lcd = { path="../common/fmc_lcd" }
 
 heapless = "0.8"
 cortex-m-rtic = "1.1.4"

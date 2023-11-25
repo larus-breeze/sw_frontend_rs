@@ -4,10 +4,13 @@ mod concat;
 mod file_io;
 #[allow(dead_code)]
 mod keyboard;
+#[allow(dead_code)]
+mod r61580;
 
 pub use concat::*;
 pub use file_io::*;
 pub use keyboard::*;
+pub use r61580::*;
 
 /*
 #[allow(dead_code)]
