@@ -1,7 +1,7 @@
 
 //! FMC/FSMC timing
 
-use super::fsmc;
+use crate::{Btr1, Bwtr1};
 
 
 /// Memory access modes
@@ -126,7 +126,7 @@ impl Timing {
     }
 }
 
-pub fn config_btr(btr: &fsmc::BTR, read_timing: &Timing) {
+pub fn config_btr(btr: &Btr1, read_timing: &Timing) {
     btr.modify(|_, w| unsafe { w
         .accmod()
         .bits(read_timing.access_mode as u8) // Mode A
@@ -141,7 +141,7 @@ pub fn config_btr(btr: &fsmc::BTR, read_timing: &Timing) {
     });
 }
 
-pub fn config_bwtr(bwtr: &fsmc::BWTR, write_timing: &Timing) {
+pub fn config_bwtr(bwtr: &Bwtr1, write_timing: &Timing) {
     bwtr.modify(|_, w| unsafe { w
         .accmod()
         .bits(write_timing.access_mode as u8) // Mode A

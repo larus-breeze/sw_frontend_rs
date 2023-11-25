@@ -18,6 +18,7 @@ rtt-target = { version = "0.3.1", features = ["cortex-m"] }
 display-interface = "0.4"
 embedded-graphics = "0.7.1"
 st7789 = "0.7.0"
+fmc_lcd = { path="../common/fmc_lcd", features = ["stm32h743"] }
 
 panic-probe = { version = "0.3", features = ["print-defmt"] }
 defmt = "0.3"
