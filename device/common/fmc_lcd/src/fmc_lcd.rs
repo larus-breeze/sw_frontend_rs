@@ -1,15 +1,13 @@
+use display_interface::{DataFormat, DisplayError, WriteOnlyDataCommand};
 use super::{
     hal::gpio,
     FSMC,
-};
-use display_interface::{DataFormat, DisplayError, WriteOnlyDataCommand};
-pub use super::{
-    timing::{AccessMode, Timing, config_btr, config_bwtr},
     fmcregs::{
         Bcr1, Bcr2, Bcr3, Bcr4,
         Btr1, Btr2, Btr3, Btr4,
         Bwtr1, Bwtr2, Bwtr3, Bwtr4,
-    }
+    },
+    timing::{Timing, config_btr, config_bwtr}
 };
 
 macro_rules! config_pin {
