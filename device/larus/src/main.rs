@@ -1,8 +1,6 @@
 #![no_main]
 #![no_std]
 
-mod fmc_lcd;
-
 use defmt::*;
 use defmt_rtt as _;
 use panic_rtt_target as _;

@@ -1,7 +1,6 @@
 use super::{
     hal::gpio,
     FSMC,
-    hal::rcc::{Enable, Reset},
 };
 use display_interface::{DataFormat, DisplayError, WriteOnlyDataCommand};
 pub use super::{
@@ -127,12 +126,6 @@ impl LcdInterface {
         read_timing: &'a Timing,
         write_timing: &'a Timing,
     ) -> Self {
-        unsafe {
-            // Enable the FSMC/FMC peripheral
-            FSMC::enable_unchecked();
-            FSMC::reset_unchecked();
-        }
-
         config_bcr(&fsmc.bcr1);
         let bcr = unsafe {core::mem::transmute::<&Bcr2, &Bcr1>(&fsmc.bcr2)};
         config_bcr(bcr);
