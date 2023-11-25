@@ -1,7 +1,7 @@
 
 //! FMC/FSMC timing
 
-use crate::{Btr1, Bwtr1};
+use super::fmcregs::{Btr1, Bwtr1};
 
 
 /// Memory access modes
