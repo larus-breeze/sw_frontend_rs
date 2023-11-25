@@ -3,8 +3,10 @@
 /device/ad57_rtic/target
 /device/larus/target
 /device/pc/target
+/device/common/fmc_lcd/target
 /sw_update/target
 *.f110
 *.pyc
 device/pc/eeprom.bin
 device/ad57_rtic/image.bin
+device/common/fmc_lcd/Cargo.lock

@@ -1,0 +1,12 @@
+[package]
+name = "fmc_lcd"
+categories = ["embedded", "no-std"]
+description = "FMC Driver for stm32f407 and stm32h743"
+keywords = ["arm", "cortex-m"]
+license = "MIT OR Apache-2.0"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+stm32f4xx-hal = { version = "0.17", features = ["rt", "stm32f407", "fsmc"] }
+display-interface = "0.4"
