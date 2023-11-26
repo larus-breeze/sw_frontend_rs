@@ -32,7 +32,7 @@ use stm32f4xx_hal::{
     gpio::alt::fsmc,
     pac,
     prelude::*,
-    timer::monotonic::{SysMonoTimerExt, fugit::ExtU32},
+    timer::monotonic::SysMonoTimerExt,
     watchdog::IndependentWatchdog,
 };
 use systick_monotonic::*;
@@ -200,8 +200,7 @@ pub fn hw_init<'a>(
     backlight.set_high(); // Is fixed at the moment, perhaps PWM in the future
 
     // Setup ----------> Idleloop (last, because of the dog)
-    let mut watchdog = IndependentWatchdog::new(device.IWDG);
-    watchdog.start(ExtU32::millis(1000));
+    let watchdog = IndependentWatchdog::new(device.IWDG);
     let idle_loop = IdleLoop::new(eeprom, c_sto_items, file_sys, &Q_EVENTS, watchdog);
     trace!("AD57 initialized");
 

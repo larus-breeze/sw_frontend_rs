@@ -13,7 +13,7 @@ pub enum IdleEvent {
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum SdCardCmd {
     SwUpdateAccepted,
-    SwUpdateCanceld,
+    SwUpdateCanceled,
 }
 
 #[repr(u16)]

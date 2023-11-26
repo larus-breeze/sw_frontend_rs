@@ -1,11 +1,14 @@
 use defmt::trace;
 
-use stm32f4xx_hal::watchdog::IndependentWatchdog;
+use stm32f4xx_hal::{
+    watchdog::IndependentWatchdog,
+    timer::monotonic::fugit::ExtU32,
+};
 
 use vario_display::{CIdleEvents, IdleEvent, DeviceEvent, Event, SdCardCmd};
 use crate::{
     driver::{Eeprom, QEvents, delay_ms},
-    utils::FileSys,
+    utils::{FileSys, FirmwarUpadate},
 };
 
 
@@ -52,16 +55,26 @@ impl IdleLoop {
                                     self.file_sys.install_and_restart();
                                 }
                             },
-                            _ => (),
+                            SdCardCmd::SwUpdateCanceled => {
+                                self.watchdog.start(ExtU32::millis(1000));
+                                trace!("Start watchdog");
+                            }
                         }
                     },
                     IdleEvent::FeedTheDog => self.watchdog.feed(),
                 }
             }
 
-            if let Some(version) = self.file_sys.update_available() {
-                let event = Event::DeviceItem(DeviceEvent::FwAvailable(version));
-                let _ = self.q_events.enqueue(event);
+            match self.file_sys.update_available() {
+                FirmwarUpadate::Available(version) => {
+                    let event = Event::DeviceItem(DeviceEvent::FwAvailable(version));
+                    let _ = self.q_events.enqueue(event);
+                },
+                FirmwarUpadate::NotAvailable => {
+                    self.watchdog.start(ExtU32::millis(1000));
+                    trace!("Start watchdog");
+                },
+                FirmwarUpadate::ToMuchRequests => (),
             }
 
             // Sleep and save power at the end
