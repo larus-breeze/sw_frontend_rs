@@ -102,12 +102,10 @@ impl FileSys {
     pub fn update_available(&mut self) -> FirmwarUpadate {
         let r = match self.update_available {
             FirmwarUpadate::Available(version) => {
-                trace!("update_available() YES");
                 self.update_available = FirmwarUpadate::ToMuchRequests;
                 FirmwarUpadate::Available(version)
             },
             FirmwarUpadate::NotAvailable => {
-                trace!("update_available() NO");
                 self.update_available = FirmwarUpadate::ToMuchRequests;
                 FirmwarUpadate::NotAvailable
             },
@@ -183,7 +181,6 @@ impl FileSys {
     /// 
     /// Note: This routine currently only works during the boot process.
     fn find_image(&mut self) -> bool {
-        trace!("Find image()");
         if let Some(fs) = &self.fs {
             let root_dir = fs.root_dir();
             let mut fn_vec: Vec<u8, 12> = Vec::new();
@@ -201,7 +198,6 @@ impl FileSys {
             if let Ok(mut file) = root_dir.open_file(file_name.as_str()) {
                 let _ = file.read_exact(meta_data_as_u8arr); // silently ignore errors, signature will be checked anyway
             }
-            trace!("SdCard {}, Self {}", self.meta_data.sw_version, SW_VERSION);
             if self.meta_data.magic == 0x1c80_73ab_2085_3579 && self.meta_data.sw_version != SW_VERSION {
                 self.image_name = Some(file_name);
             }
