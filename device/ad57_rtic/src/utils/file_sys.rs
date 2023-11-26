@@ -9,11 +9,11 @@ use stm32f4xx_hal::{
     flash::{FlashExt, LockedFlash},
 };
 use fatfs::{
-    NullTimeProvider, LossyOemCpConverter, FileSystem, FsOptions, Read,
+    NullTimeProvider, LossyOemCpConverter, FileSystem, FsOptions, Read, Write,
 };
 use embedded_storage::nor_flash::NorFlash;
 use crate::{
-    driver::FileIo,
+    driver::{FileIo, get_error_log},
     utils::{stm32_crc, DevError},
 };
 use vario_display::{SwVersion, SW_VERSION};
@@ -89,6 +89,7 @@ impl FileSys {
             meta_data: MetaData::default(),
             fs, 
         };
+        file_sys.write_error_log();
         if file_sys.find_image() {
             match file_sys.copy_image() {
                 Ok(()) => file_sys.update_available = FirmwarUpadate::Available(file_sys.meta_data.sw_version),
@@ -164,7 +165,7 @@ impl FileSys {
 
             trace!("Image written, {} Bytes", bytes_read);
         }
-        Ok((    ))
+        Ok(())
     }
 
     /// Install first the new software and then start the new application
@@ -203,5 +204,23 @@ impl FileSys {
             }
         }
         self.image_name.is_some()
+    }
+
+    /// Writes error log if available to sdcard
+    /// 
+    /// Note: This routine currently only works during the boot process.
+    fn write_error_log(&mut self) {
+        let error_log = get_error_log();
+        if error_log.len() > 0 {
+            if let Some(fs) = &self.fs {
+                let root_dir = fs.root_dir();
+                let file = root_dir.create_file("error.log");
+                if let Ok(mut file) = file {
+                    let _ = file.truncate();
+                    let _ = file.write_all(error_log);
+                    trace!("error.log: {} bytes written", error_log.len());
+                }
+            }
+        }
     }
 }

@@ -6,6 +6,7 @@ mod frame_buffer;
 mod init;
 mod keyboard;
 mod r61580;
+mod panic;
 
 pub use canbus::*;
 pub use display::{flush, DevLcdPins, Display};
@@ -15,5 +16,6 @@ pub use frame_buffer::FrameBuffer;
 pub use init::*;
 pub use keyboard::*;
 pub use r61580::R61580;
+pub use panic::*;
 
 pub use init::*;

@@ -37,7 +37,7 @@ use stm32f4xx_hal::{
 };
 use systick_monotonic::*;
 use vario_display::{CoreModel, QIdleEvents, Event};
-use {defmt_rtt as _, panic_probe as _};
+use defmt_rtt as _;
 
 // Todo: use Timer as Timebase also for busy waiting
 pub fn delay_ms(millis: u32) {
