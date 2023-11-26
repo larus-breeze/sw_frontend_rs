@@ -13,6 +13,7 @@ num = { version = "0.4.0", default-features = false }
 heapless = "0.8"
 byteorder = { version = "1.4", default-features = false }
 embedded-hal = "0.2.7"
+defmt = "0.3"
 
 [features]
 default = ["display_size_227x285", "eeprom_size_8192"]

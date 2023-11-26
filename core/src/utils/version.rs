@@ -2,7 +2,7 @@ use core::cmp::Ordering;
 use heapless::String;
 use crate::utils::Concat;
 
-pub const SW_VERSION: SwVersion = SwVersion { version: [0, 1, 0, 0]};
+pub const SW_VERSION: SwVersion = SwVersion { version: [0, 1, 3, 0]};
 pub const HW_VERSION: HwVersion = HwVersion { version: [3, 0, 0, 0]};
 
 #[repr(C)]
@@ -62,3 +62,16 @@ impl Default for SwVersion {
     }
 }
 
+impl defmt::Format for SwVersion {
+    fn format(&self, f: defmt::Formatter) {
+        // format the bitfields of the register as struct fields
+        defmt::write!(
+           f,
+           "SW {}.{}.{}_{}",
+           self.version[0],
+           self.version[1],
+           self.version[2],
+           self.version[3],
+        )
+    }
+}

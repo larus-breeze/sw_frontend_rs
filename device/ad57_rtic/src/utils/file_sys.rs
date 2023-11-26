@@ -47,6 +47,12 @@ pub type SdioPins = (
     Pin<'C', 11>,
 );
 
+pub enum FirmwarUpadate {
+    Available(SwVersion),
+    NotAvailable,
+    ToMuchRequests,
+}
+
 /// FileSys handles access to the flash file system
 ///
 /// Note: The current solution can only be used while booting. It neither supports the change of sd
@@ -54,7 +60,7 @@ pub type SdioPins = (
 pub struct FileSys {
     image_name: Option<String<12>>,
     image_size: usize,
-    update_available: bool,
+    update_available: FirmwarUpadate,
     meta_data: MetaData,
     fs: Option<fatfs::FileSystem<FileIo, NullTimeProvider, LossyOemCpConverter>>,
 }
@@ -79,26 +85,35 @@ impl FileSys {
         let mut file_sys = FileSys {
             image_name: None,
             image_size: 0,
-            update_available: false,
+            update_available: FirmwarUpadate::NotAvailable,
             meta_data: MetaData::default(),
             fs, 
         };
-        file_sys.find_image();
-        match file_sys.copy_image() {
-            Ok(()) => file_sys.update_available = true,
-            Err(_) => file_sys.image_name = None,
-        }
+        if file_sys.find_image() {
+            match file_sys.copy_image() {
+                Ok(()) => file_sys.update_available = FirmwarUpadate::Available(file_sys.meta_data.sw_version),
+                Err(_) => file_sys.image_name = None,
+            }
+            }
         file_sys
     }
 
     /// If an update is available, its version is returned
-    pub fn update_available(&mut self) -> Option<SwVersion> {
-        if self.update_available {
-            self.update_available = false;
-            Some(self.meta_data.sw_version)
-        } else {
-            None
-        }
+    pub fn update_available(&mut self) -> FirmwarUpadate {
+        let r = match self.update_available {
+            FirmwarUpadate::Available(version) => {
+                trace!("update_available() YES");
+                self.update_available = FirmwarUpadate::ToMuchRequests;
+                FirmwarUpadate::Available(version)
+            },
+            FirmwarUpadate::NotAvailable => {
+                trace!("update_available() NO");
+                self.update_available = FirmwarUpadate::ToMuchRequests;
+                FirmwarUpadate::NotAvailable
+            },
+            FirmwarUpadate::ToMuchRequests => FirmwarUpadate::ToMuchRequests,
+        };
+        r
     }
 
     /// Copies the image to the upper flash area
@@ -167,7 +182,8 @@ impl FileSys {
     /// Looks on the sd card if a image is available
     /// 
     /// Note: This routine currently only works during the boot process.
-    fn find_image(&mut self) {
+    fn find_image(&mut self) -> bool {
+        trace!("Find image()");
         if let Some(fs) = &self.fs {
             let root_dir = fs.root_dir();
             let mut fn_vec: Vec<u8, 12> = Vec::new();
@@ -185,9 +201,11 @@ impl FileSys {
             if let Ok(mut file) = root_dir.open_file(file_name.as_str()) {
                 let _ = file.read_exact(meta_data_as_u8arr); // silently ignore errors, signature will be checked anyway
             }
+            trace!("SdCard {}, Self {}", self.meta_data.sw_version, SW_VERSION);
             if self.meta_data.magic == 0x1c80_73ab_2085_3579 && self.meta_data.sw_version != SW_VERSION {
                 self.image_name = Some(file_name);
             }
-        } 
+        }
+        self.image_name.is_some()
     }
 }
