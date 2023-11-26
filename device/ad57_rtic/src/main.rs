@@ -31,7 +31,7 @@ mod idle_loop;
 mod macros;
 mod utils;
 
-use {defmt_rtt as _, panic_probe as _};
+use defmt_rtt as _;
 
 use dev_controller::*;
 use dev_view::*;
