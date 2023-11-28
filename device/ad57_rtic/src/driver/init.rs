@@ -171,11 +171,8 @@ pub fn hw_init<'a>(
     // Setup ----------> controller
     let dev_controller = DevController::new(&mut core_model, &Q_EVENTS, c_rx_frames);
 
-    // Setup ----------> frame buffer
-    let frame_buffer = FrameBuffer::new();
-
     // Setup ----------> LCD driver peripheral of STM32F407 and view component
-    let dev_view = {
+    let (dev_view, frame_buffer) = {
         //use stm32f4xx_hal::gpio::alt::fsmc as alt;
         let lcd_pins: DevLcdPins = LcdPins::new(
             DataPins16::new(
@@ -191,8 +188,8 @@ pub fn hw_init<'a>(
         let lcd_reset = gpiod.pd3.into_push_pull_output();
 
         // Initialize the display and clear the screen
-        let display = Display::new(device.FSMC, lcd_pins, lcd_reset, frame_buffer.split());
-        DevView::new(display, p_tx_frames)
+        let (display, frame_buffer) = Display::new(device.FSMC, lcd_pins, lcd_reset);
+        (DevView::new(display, p_tx_frames), frame_buffer)
     };
 
     // Setup ----------> Backlight Port an switch on the lcd

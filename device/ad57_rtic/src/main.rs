@@ -185,7 +185,7 @@ mod app {
     #[task(local = [frame_buffer], shared = [statistics], priority=4)]
     fn task_lcd_copy(mut cx: task_lcd_copy::Context) {
         task_start!(cx, Task::LcdCopy);
-        flush(cx.local.frame_buffer);
+        cx.local.frame_buffer.flush();
         task_end!(cx, Task::LcdCopy);
     }
 
