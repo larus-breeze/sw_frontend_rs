@@ -85,23 +85,18 @@ fn main() -> ! {
         .address_hold(1)
         .access_mode(AccessMode::ModeB);
 
+    unsafe {
+        // Enable the FSMC/FMC peripheral
+        FSMC::enable_unchecked();
+        FSMC::reset_unchecked();
+    }
+
     let interface = LcdInterface::new(
         dp.FSMC,
         lcd_pins,
         &timing,
         &timing,
     );
-
-    // The 32F412GDISCOVERY board has an FRD154BP2902-CTP LCD. There is no easily available
-    // datasheet, so the behavior of this code is based on the working demonstration C code:
-    // https://github.com/STMicroelectronics/STM32CubeF4/blob/e084518f363e04344dc37822210a75e87377b200/Drivers/BSP/STM32412G-Discovery/stm32412g_discovery_lcd.c
-    // https://github.com/STMicroelectronics/STM32CubeF4/blob/e084518f363e04344dc37822210a75e87377b200/Drivers/BSP/Components/st7789h2/st7789h2.c
-
-    unsafe {
-        // Enable the FSMC/FMC peripheral
-        FSMC::enable_unchecked();
-        FSMC::reset_unchecked();
-    }
 
     // Add LCD controller driver
     let mut lcd = R61580::new(

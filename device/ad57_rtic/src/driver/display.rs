@@ -3,10 +3,10 @@ use crate::driver::r61580::{
 };
 use crate::{driver::frame_buffer::FrameBuffer, Colors};
 use stm32f4xx_hal::{
-    fsmc_lcd::{AccessMode, DataPins16, FsmcLcd, LcdPins, Timing},
-    gpio::{alt::fsmc, Output, Pin},
-    pac::FSMC,
+    gpio::{Output, Pin},
+    rcc::{Enable, Reset},
 };
+use fmc_lcd::{FSMC, LcdPins, LcdInterface, Timing, AccessMode};
 
 use core::convert::TryInto;
 use embedded_graphics::{prelude::*, primitives::Rectangle};
@@ -16,7 +16,6 @@ const PORT_AVAIL_HEI_M1: u32 = PORTRAIT_AVAIL_HEIGHT as u32 - 1;
 const PORT_AVAIL_WID_M1: u32 = PORTRAIT_AVAIL_WIDTH as u32 - 1;
 
 pub type LcdReset = Pin<'D', 3, Output>;
-pub type DevLcdPins = LcdPins<DataPins16, fsmc::Address, fsmc::ChipSelect1>;
 
 #[allow(unused)]
 pub struct Display {
@@ -25,7 +24,7 @@ pub struct Display {
 }
 
 impl Display {
-    pub fn new(fsmc: FSMC, lcd_pins: DevLcdPins, lcd_reset: LcdReset) -> (Self, FrameBuffer) {
+    pub fn new(fsmc: FSMC, lcd_pins: LcdPins, lcd_reset: LcdReset) -> (Self, FrameBuffer) {
         let timing = Timing::default()
             .data(3)
             .address_setup(6)
@@ -33,7 +32,13 @@ impl Display {
             .address_hold(1)
             .access_mode(AccessMode::ModeB);
 
-        let (_fsmc, mut lcd_interface) = FsmcLcd::new(fsmc, lcd_pins, &timing, &timing);
+        unsafe {
+            // Enable the FSMC/FMC peripheral
+            stm32f4xx_hal::pac::FSMC::enable_unchecked();
+            stm32f4xx_hal::pac::FSMC::reset_unchecked();
+        }
+    
+        let mut lcd_interface = LcdInterface::new(fsmc, lcd_pins, &timing, &timing);
 
         // Initialize RG61580 LCD driver
         let mut lcd = R61580::new(&mut lcd_interface, lcd_reset);
@@ -95,7 +100,7 @@ impl OriginDimensions for Display {
 
 impl DrawImage for Display {
     fn draw_img(&mut self, img: &[u8], offset: Point) -> Result<(), CoreError> {
-        // Safety: the img format has been defined in terms of compatibility, so the conversion is ok here
+        // Safety: the img format has been defined in terms of compatibility,(_fsmc,  so the conversion is ok here
         let img16 =
             unsafe { core::slice::from_raw_parts(img.as_ptr() as *const u16, img.len() / 2) };
         // At the moment we only know format 1

@@ -3,7 +3,7 @@ use crate::driver::{
     init_can, 
     keyboard::*, 
     CanRx, CanTx,
-    DevLcdPins, Display, Eeprom,
+    Display, Eeprom,
     QRxFrames, QTxFrames
 };
 use crate::{
@@ -28,13 +28,12 @@ use crate::{
 use defmt::*;
 use heapless::{spsc::Queue, mpmc::MpMcQueue};
 use stm32f4xx_hal::{
-    fsmc_lcd::{DataPins16, LcdPins},
-    gpio::alt::fsmc,
     pac,
     prelude::*,
     timer::monotonic::SysMonoTimerExt,
     watchdog::IndependentWatchdog,
 };
+use fmc_lcd::{DataPins16, LcdPins};
 use systick_monotonic::*;
 use vario_display::{CoreModel, QIdleEvents, Event};
 use defmt_rtt as _;
@@ -174,17 +173,17 @@ pub fn hw_init<'a>(
     // Setup ----------> LCD driver peripheral of STM32F407 and view component
     let (dev_view, frame_buffer) = {
         //use stm32f4xx_hal::gpio::alt::fsmc as alt;
-        let lcd_pins: DevLcdPins = LcdPins::new(
+        let lcd_pins = LcdPins::new(
             DataPins16::new(
                 gpiod.pd14, gpiod.pd15, gpiod.pd0, gpiod.pd1, gpioe.pe7, gpioe.pe8, gpioe.pe9,
                 gpioe.pe10, gpioe.pe11, gpioe.pe12, gpioe.pe13, gpioe.pe14, gpioe.pe15, gpiod.pd8,
                 gpiod.pd9, gpiod.pd10,
             ),
-            fsmc::Address::from(gpiod.pd11),
+            gpiod.pd11,
             gpiod.pd4,
             gpiod.pd5,
-            fsmc::ChipSelect1::from(gpiod.pd7),
-        );
+            gpiod.pd7,
+            );
         let lcd_reset = gpiod.pd3.into_push_pull_output();
 
         // Initialize the display and clear the screen
