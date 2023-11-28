@@ -1,8 +1,7 @@
 use crate::driver::r61580::{
-    Instruction, Orientation, AVAIL_PIXELS, PORTRAIT_AVAIL_HEIGHT, PORTRAIT_AVAIL_WIDTH,
-    PORTRAIT_ORIGIN_X, PORTRAIT_ORIGIN_Y, R61580,
+    Orientation, AVAIL_PIXELS, PORTRAIT_AVAIL_HEIGHT, PORTRAIT_AVAIL_WIDTH, R61580,
 };
-use crate::{driver::frame_buffer::FrameBuffer, Colors, RGB565_COLORS};
+use crate::{driver::frame_buffer::FrameBuffer, Colors};
 use stm32f4xx_hal::{
     fsmc_lcd::{AccessMode, DataPins16, FsmcLcd, LcdPins, Timing},
     gpio::{alt::fsmc, Output, Pin},
@@ -26,7 +25,7 @@ pub struct Display {
 }
 
 impl Display {
-    pub fn new(fsmc: FSMC, lcd_pins: DevLcdPins, lcd_reset: LcdReset, fb: FrameBuffer) -> Self {
+    pub fn new(fsmc: FSMC, lcd_pins: DevLcdPins, lcd_reset: LcdReset) -> (Self, FrameBuffer) {
         let timing = Timing::default()
             .data(3)
             .address_setup(6)
@@ -34,13 +33,15 @@ impl Display {
             .address_hold(1)
             .access_mode(AccessMode::ModeB);
 
-        let (_fsmc, mut interface) = FsmcLcd::new(fsmc, lcd_pins, &timing, &timing);
+        let (_fsmc, mut lcd_interface) = FsmcLcd::new(fsmc, lcd_pins, &timing, &timing);
 
         // Initialize RG61580 LCD driver
-        let mut lcd = R61580::new(&mut interface, lcd_reset);
-        let _ = lcd.set_orientation(&mut interface, Orientation::Portrait);
+        let mut lcd = R61580::new(&mut lcd_interface, lcd_reset);
+        let _ = lcd.set_orientation(&mut lcd_interface, Orientation::Portrait);
+        let frame_buffer = FrameBuffer::new(lcd_interface);
+        let fb = frame_buffer.split();
 
-        Display { buf: fb.buf, lcd }
+        (Display { buf: fb.buf, lcd }, frame_buffer)
     }
 }
 
@@ -118,35 +119,5 @@ impl DrawImage for Display {
             idx += px_cnt;
         }
         Ok(())
-    }
-}
-
-pub fn flush(frame_buffer: &FrameBuffer) {
-    #[inline]
-    fn write_command(cmd: u8) {
-        // Safety: Writing u8 is atomic, so unsafe is ok
-        unsafe { core::ptr::write_volatile(0x60000000 as *mut u8, cmd) }
-    }
-
-    #[inline]
-    fn write_data(data: u16) {
-        // Safety: Writing u16 is atomic, so unsafe is ok
-        unsafe { core::ptr::write_volatile(0x60020000 as *mut u16, data) };
-    }
-
-    fn write_command_and_data(cmd: u8, data: u16) {
-        write_command(cmd);
-        write_data(data)
-    }
-
-    for y in 0..PORTRAIT_AVAIL_HEIGHT {
-        write_command_and_data(Instruction::PosX as u8, PORTRAIT_ORIGIN_X);
-        write_command_and_data(Instruction::PosY as u8, y + PORTRAIT_ORIGIN_Y);
-        write_command(Instruction::Gram as u8);
-        let idx_y = (y * PORTRAIT_AVAIL_WIDTH) as usize;
-        for x in 0..PORTRAIT_AVAIL_WIDTH as usize {
-            let color = frame_buffer.buf[x + idx_y] as usize;
-            write_data(RGB565_COLORS[color]);
-        }
     }
 }

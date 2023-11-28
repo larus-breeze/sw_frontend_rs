@@ -9,7 +9,7 @@ mod r61580;
 mod panic;
 
 pub use canbus::*;
-pub use display::{flush, DevLcdPins, Display};
+pub use display::{DevLcdPins, Display};
 pub use eeprom::*;
 pub use file_io::*;
 pub use frame_buffer::FrameBuffer;
