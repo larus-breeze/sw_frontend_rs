@@ -22,7 +22,7 @@ pub type DevLcdPins = LcdPins<DataPins16, fsmc::Address, fsmc::ChipSelect1>;
 #[allow(unused)]
 pub struct Display {
     buf: &'static mut [u8; AVAIL_PIXELS],
-    lcd: R61580<LcdReset>,
+    lcd: R61580,
 }
 
 impl Display {
@@ -34,12 +34,11 @@ impl Display {
             .address_hold(1)
             .access_mode(AccessMode::ModeB);
 
-        let (_fsmc, _interface) = FsmcLcd::new(fsmc, lcd_pins, &timing, &timing);
+        let (_fsmc, mut interface) = FsmcLcd::new(fsmc, lcd_pins, &timing, &timing);
 
         // Initialize RG61580 LCD driver
-        let mut lcd = R61580::new(lcd_reset);
-        lcd.init();
-        let _ = lcd.set_orientation(Orientation::Portrait);
+        let mut lcd = R61580::new(&mut interface, lcd_reset);
+        let _ = lcd.set_orientation(&mut interface, Orientation::Portrait);
 
         Display { buf: fb.buf, lcd }
     }
