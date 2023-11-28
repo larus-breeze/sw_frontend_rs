@@ -3,7 +3,7 @@ use crate::driver::r61580::{
     Instruction, AVAIL_PIXELS, PORTRAIT_AVAIL_HEIGHT, PORTRAIT_AVAIL_WIDTH,
     PORTRAIT_ORIGIN_X, PORTRAIT_ORIGIN_Y,
 };
-use stm32f4xx_hal::fsmc_lcd::{SubBank1, Lcd};
+use fmc_lcd::LcdInterface;
 
 #[allow(dead_code)]
 pub struct FrameBuffer 
@@ -24,14 +24,14 @@ pub struct FrameBuffer
     // the DMA process. After the complete copying of the data the DMA interrupt service routine sets the flag to true.
     // Before the next buffer write, this flag can be used to assess whether the copy process was completed successfully.
     pub buf: &'static mut [u8; AVAIL_PIXELS],
-    di: Option<Lcd<SubBank1>>,
+    di: Option<LcdInterface>,
     idx_x: usize,
     idx_y: usize,
 }
 
 #[allow(clippy::new_without_default)]
 impl FrameBuffer {
-    pub fn new(di: Lcd<SubBank1>) -> Self {
+    pub fn new(di: LcdInterface) -> Self {
         #[link_section = ".ccmram.BUFFERS"]
         static mut FRAME_BUFFER: [u8; AVAIL_PIXELS] = [0; AVAIL_PIXELS];
 
