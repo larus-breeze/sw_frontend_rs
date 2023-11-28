@@ -116,14 +116,18 @@ pub struct LcdInterface {
 }
 
 impl LcdInterface {
-    /// Create new parallel GPIO interface for communication with a display driver
-    #[allow(clippy::too_many_arguments)]
     pub fn new<'a>(
         fsmc: FSMC,
         lcd_pins: LcdPins,
         read_timing: &'a Timing,
         write_timing: &'a Timing,
     ) -> Self {
+
+        // Safety
+        // The bcrx, btrx, bwtrx registers are treated in the same way in the fsmc_lcd component 
+        // of stm32f4xx_hal. However, the registers are named differently in the stm32f4xx_hal 
+        // and stm32h7xx_hal components. In order to be able to program the registers efficiently, 
+        // it is pretended here that they are absolutely identical. In this respect, unsafe is ok.
         config_bcr(&fsmc.bcr1);
         let bcr = unsafe {core::mem::transmute::<&Bcr2, &Bcr1>(&fsmc.bcr2)};
         config_bcr(bcr);
@@ -147,11 +151,6 @@ impl LcdInterface {
         config_bwtr(bwtr, write_timing);
         let bwtr = unsafe {core::mem::transmute::<&Bwtr4, &Bwtr1>(&fsmc.bwtr4)};
         config_bwtr(bwtr, write_timing);
-
-        /*config_bwtr(&fsmc.bwtr1, write_timing);
-        config_bwtr(&fsmc.bwtr2, write_timing);
-        config_bwtr(&fsmc.bwtr3, write_timing);
-        config_bwtr(&fsmc.bwtr4, write_timing);*/
 
         Self { lcd_pins }
     }
