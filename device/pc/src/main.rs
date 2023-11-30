@@ -100,7 +100,7 @@ fn main() -> Result<(), core::convert::Infallible> {
                             };
                             controller.device_action(&mut core_model, &device_event);
                             KeyEvent::NoEvent
-                        }
+                        },
                         _ => {
                             println!("Key with no effect {:?}", keycode);
                             KeyEvent::NoEvent

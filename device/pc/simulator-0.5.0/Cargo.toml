@@ -1,0 +1,35 @@
+[package]
+version = "0.5.0"
+name = "embedded-graphics-simulator"
+description = "Embedded graphics simulator"
+authors = ["James Waples <james@wapl.es>", "Ralf Fuest <mail@rfuest.de>"]
+repository = "https://github.com/embedded-graphics/simulator"
+documentation = "https://docs.rs/embedded-graphics-simulator"
+categories = ["embedded", "no-std"]
+keywords = ["embedded-graphics", "simulator", "graphics", "embedded"]
+readme = "./README.md"
+license = "MIT OR Apache-2.0"
+edition = "2021"
+exclude = [
+    "/.circleci/",
+    "/.github/",
+    ".gitignore",
+]
+
+[badges]
+circle-ci = { repository = "embedded-graphics/simulator", branch = "master" }
+
+[dependencies]
+image = "0.23.14"
+base64 = "0.13.0"
+embedded-graphics = "0.8.0"
+sdl2 = { version = "0.35.1", optional = true }
+ouroboros = { version = "0.15.5", optional = true }
+
+concurrent-queue = "2.3.0"
+once_cell = "1.18.0"
+
+[features]
+default = ["with-sdl"]
+fixed_point = ["embedded-graphics/fixed_point"]
+with-sdl = ["sdl2", "ouroboros"]

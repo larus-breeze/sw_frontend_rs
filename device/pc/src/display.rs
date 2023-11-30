@@ -8,7 +8,6 @@ pub struct MockDisplay {
     pub display: SimulatorDisplay<Colors>,
 }
 
-
 impl MockDisplay {
     /// Creates a new display.
     ///
