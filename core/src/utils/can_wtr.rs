@@ -1,5 +1,7 @@
 use byteorder::{ByteOrder, LittleEndian as LE};
-use embedded_hal::can::{Frame, Id, StandardId};
+use embedded_hal::can::{Id, StandardId};
+use heapless::spsc::{Queue, Producer, Consumer};
+use bxcan::Frame;
 
 pub struct CanFrame {
     id: u16,
@@ -63,7 +65,7 @@ impl CanFrame {
     }
 }
 
-impl Frame for CanFrame {
+impl embedded_hal::can::Frame for CanFrame {
     fn new(id: impl Into<Id>, data: &[u8]) -> Option<Self> {
         let id = match id.into() {
             Id::Standard(id) => id,
@@ -108,3 +110,9 @@ impl Frame for CanFrame {
         &self.data[..self.len as usize]
     }
 }
+
+// This queue transports the can bus frames from the view component to the can tx driver.
+const MAX_TX_FRAMES: usize = 10;
+pub type QTxFrames = Queue<Frame, MAX_TX_FRAMES>;
+pub type PTxFrames = Producer<'static, Frame, MAX_TX_FRAMES>;
+pub type CTxFrames = Consumer<'static, Frame, MAX_TX_FRAMES>;

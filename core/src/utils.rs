@@ -10,6 +10,7 @@ mod rgb565_colors;
 mod version;
 
 pub use can_ids::*;
+pub use can_wtr::*;
 pub use colors::Colors;
 pub use concat::Concat;
 pub use error::CoreError;

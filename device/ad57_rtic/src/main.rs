@@ -174,9 +174,7 @@ mod app {
         });
         task_view::spawn_at(view.wake_up_at()).unwrap();
         task_lcd_copy::spawn().unwrap();
-        if view.can_activate() {
-            rtic::pend(stm32f4xx_hal::interrupt::CAN1_TX);
-        }
+        rtic::pend(stm32f4xx_hal::interrupt::CAN1_TX);
 
         task_end!(cx, Task::LcdView);
     }

@@ -2,7 +2,6 @@ use embedded_graphics::{
     pixelcolor::Rgb888,
     prelude::{PixelColor, Point, Size},
 };
-use std::time::Duration;
 use sdl2::{
     event::Event,
     keyboard::{Keycode, Mod},
