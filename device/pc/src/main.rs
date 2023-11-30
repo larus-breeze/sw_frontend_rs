@@ -36,12 +36,12 @@ fn main() -> Result<(), core::convert::Infallible> {
     let mut window = Window::new("Vario - Mock", &OutputSettings::default());
 
     // This queue routes the PersItems from the controller to the idle loop.
-    let (p_sto_items, mut c_sto_items) = {
-    static mut Q_STO_ITEMS: QStorageItems = Queue::new();
+    let (p_idle_events, mut c_idle_events) = {
+    static mut Q_IDLE_EVENTS: QIdleEvents = Queue::new();
     // Note: unsafe is ok here, because [heapless::spsc] queue protects against UB
-    unsafe { Q_STO_ITEMS.split() }
+    unsafe { Q_IDLE_EVENTS.split() }
     };
-    let mut core_model = CoreModel::new(p_sto_items);
+    let mut core_model = CoreModel::new(p_idle_events);
     let mut eeprom = Eeprom::new().unwrap();
 
     for item in eeprom.iter_over(EepromTopic::ConfigValues) {
@@ -116,17 +116,18 @@ fn main() -> Result<(), core::convert::Infallible> {
         controller.time_action(&mut core_model);
         view.draw(&mut core_model).unwrap();
 
-        while c_sto_items.len() > 0 {
-            let item = c_sto_items.dequeue().unwrap();
-            println!("StorageItem {:?}", &item);
-            match item {
-                StorageItem::EepromItem(item) => eeprom.write_item(item).unwrap(),
-                StorageItem::SdCardItem(item) => {
+        while c_idle_events.len() > 0 {
+            let idle_event = c_idle_events.dequeue().unwrap();
+            println!("StorageItem {:?}", &idle_event);
+            match idle_event {
+                IdleEvent::EepromItem(item) => eeprom.write_item(item).unwrap(),
+                IdleEvent::SdCardItem(item) => {
                     match item {
-                        SdCardCmd::SwUpdateCanceld => sw_update_status = 0,
+                        SdCardCmd::SwUpdateCanceled => sw_update_status = 0,
                         _ => (),
                     }
                 },
+                IdleEvent::FeedTheDog => (), // Now Watchdog in this demo app
             }
         }
 
