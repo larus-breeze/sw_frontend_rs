@@ -106,7 +106,7 @@ pub fn hw_init<'a>(
     };
 
     // This queue routes the StorageItems from the controller to the idle loop.
-    let (p_sto_items, c_sto_items) = {
+    let (p_idle_events, c_idle_events) = {
         static mut Q_IDLE_EVENTS: QIdleEvents = Queue::new();
         // Note: unsafe is ok here, because [heapless::spsc] queue protects against UB
         unsafe { Q_IDLE_EVENTS.split() }
@@ -162,7 +162,7 @@ pub fn hw_init<'a>(
     let mut eeprom = Eeprom::new(i2c).unwrap();
 
     // Setup ----------> CoreModel
-    let mut core_model = CoreModel::new(p_sto_items);
+    let mut core_model = CoreModel::new(p_idle_events);
     for item in eeprom.iter_over(vario_display::EepromTopic::ConfigValues) {
         core_model.restore_persistent_item(item);
     }
@@ -197,7 +197,7 @@ pub fn hw_init<'a>(
 
     // Setup ----------> Idleloop (last, because of the dog)
     let watchdog = IndependentWatchdog::new(device.IWDG);
-    let idle_loop = IdleLoop::new(eeprom, c_sto_items, file_sys, &Q_EVENTS, watchdog);
+    let idle_loop = IdleLoop::new(eeprom, c_idle_events, file_sys, &Q_EVENTS, watchdog);
     trace!("AD57 initialized");
 
     (

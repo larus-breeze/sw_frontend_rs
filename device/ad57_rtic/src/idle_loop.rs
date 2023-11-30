@@ -14,7 +14,7 @@ use crate::{
 
 pub struct IdleLoop {
     eeprom: Eeprom,
-    c_pers_items: CIdleEvents,
+    c_idle_events: CIdleEvents,
     file_sys: FileSys,
     q_events: &'static QEvents,
     watchdog: IndependentWatchdog,
@@ -23,14 +23,14 @@ pub struct IdleLoop {
 impl IdleLoop {
     pub fn new(
         eeprom: Eeprom, 
-        c_pers_items: CIdleEvents,
+        c_idle_events: CIdleEvents,
         file_sys: FileSys,
         q_events: &'static QEvents,
         watchdog: IndependentWatchdog,
     ) -> Self {
         IdleLoop {
             eeprom,
-            c_pers_items,
+            c_idle_events,
             file_sys,
             q_events,
             watchdog
@@ -39,8 +39,8 @@ impl IdleLoop {
 
     pub fn idle_loop(&mut self) -> ! {
         loop {
-            while self.c_pers_items.len() > 0 {
-                let idle_event = self.c_pers_items.dequeue().unwrap();
+            while self.c_idle_events.len() > 0 {
+                let idle_event = self.c_idle_events.dequeue().unwrap();
                 match idle_event {
                     IdleEvent::EepromItem(item) => {
                         trace!("Stored id {:?}", item.id as u32);
