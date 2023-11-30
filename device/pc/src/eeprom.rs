@@ -2,7 +2,7 @@
 use std::io::{Read, Write};
 use std::convert::TryInto;
 
-use vario_display::{
+use corelib::{
     eeprom, PersistenceId, PersistenceItem, 
     EepromTopic, CONFIG_VALUES_START, CONFIG_VALUES_END
 };

@@ -5,7 +5,7 @@ use stm32f4xx_hal::{
     timer::monotonic::fugit::ExtU32,
 };
 
-use vario_display::{CIdleEvents, IdleEvent, DeviceEvent, Event, SdCardCmd};
+use corelib::{CIdleEvents, IdleEvent, DeviceEvent, Event, SdCardCmd};
 use crate::{
     driver::{Eeprom, QEvents, delay_ms},
     utils::{FileSys, FirmwarUpadate},

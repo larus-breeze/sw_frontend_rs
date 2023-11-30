@@ -16,7 +16,7 @@ use crate::{
     driver::{FileIo, get_error_log},
     utils::{stm32_crc, DevError},
 };
-use vario_display::{SwVersion, SW_VERSION};
+use corelib::{SwVersion, SW_VERSION};
 
 const BEGIN_FLASH: usize = 0x0800_0000;
 const BEGIN_UPPER_FLASH: usize = 0x0808_0000;

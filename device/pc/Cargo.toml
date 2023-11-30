@@ -13,6 +13,6 @@ byteorder = { version = "1.4", default-features = false }
 
 heapless = "0.8"
 
-[dependencies.vario_display]
+[dependencies.corelib]
 path = "../../core"
 features = ["display_size_227x285"]

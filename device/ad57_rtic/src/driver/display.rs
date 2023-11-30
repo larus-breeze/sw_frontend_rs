@@ -10,7 +10,7 @@ use fmc_lcd::{FSMC, LcdPins, LcdInterface, Timing, AccessMode};
 
 use core::convert::TryInto;
 use embedded_graphics::{prelude::*, primitives::Rectangle};
-use vario_display::*;
+use corelib::*;
 
 const PORT_AVAIL_HEI_M1: u32 = PORTRAIT_AVAIL_HEIGHT as u32 - 1;
 const PORT_AVAIL_WID_M1: u32 = PORTRAIT_AVAIL_WIDTH as u32 - 1;

@@ -35,7 +35,7 @@ use stm32f4xx_hal::{
 };
 use fmc_lcd::{DataPins16, LcdPins};
 use systick_monotonic::*;
-use vario_display::{CoreModel, QIdleEvents, Event};
+use corelib::{CoreModel, QIdleEvents, Event};
 use defmt_rtt as _;
 
 // Todo: use Timer as Timebase also for busy waiting
@@ -163,7 +163,7 @@ pub fn hw_init<'a>(
 
     // Setup ----------> CoreModel
     let mut core_model = CoreModel::new(p_idle_events);
-    for item in eeprom.iter_over(vario_display::EepromTopic::ConfigValues) {
+    for item in eeprom.iter_over(corelib::EepromTopic::ConfigValues) {
         core_model.restore_persistent_item(item);
     }
 
