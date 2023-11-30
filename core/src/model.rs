@@ -1,6 +1,6 @@
 use embedded_graphics::geometry::{Angle, AngleUnit};
 use crate::{IdleEvent, PersistenceItem, PersistenceId, Mass};
-use crate::utils::{PIdleEvents, DeviceEvent};
+use crate::utils::{PIdleEvents, DeviceEvent, PTxFrames};
 
 use crate::{
     controller::Editable,
@@ -26,16 +26,17 @@ pub struct CoreModel {
     pub glider_data: GliderData,
     pub sensor: Sensor,
     p_idle_events: PIdleEvents,
+    _p_tx_frames: PTxFrames,
 }
 
 impl CoreModel {
-    pub fn new(p_idle_events: PIdleEvents) -> Self {
+    pub fn new(p_idle_events: PIdleEvents, p_tx_frames: PTxFrames) -> Self {
         let calculated = Calculated::default();
         let config = Config::default();
         let control = Control::default();
         let glider_data = GliderData::default();
         let sensor = Sensor::default();
-        CoreModel { calculated, config, control, glider_data, sensor, p_idle_events }
+        CoreModel { calculated, config, control, glider_data, sensor, p_idle_events, _p_tx_frames: p_tx_frames }
     }
 
     pub fn send_idle_event(&mut self, idle_event: IdleEvent) {
@@ -52,6 +53,13 @@ impl CoreModel {
             _ => (),
         }
     }
+
+    /*fn send_frame(&mut self) {
+        let frame = Frame::new_data(StandardId::new(self.frame_count).unwrap(), []);
+        let _ = self.p_tx_frames.enqueue(frame);
+        self.frame_count += 1;
+        trace!("Can paket enqueued")
+    }*/
 }
 
 

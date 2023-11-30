@@ -6,14 +6,9 @@ use stm32f4xx_hal::{
     gpio::Pin,
     pac::CAN1,
 };
+use corelib:: CTxFrames;
 
 use corelib::{frontend, sensor};
-
-// This queue transports the can bus frames from the view component to the can tx driver.
-const MAX_TX_FRAMES: usize = 10;
-pub type QTxFrames = Queue<Frame, MAX_TX_FRAMES>;
-pub type PTxFrames = Producer<'static, Frame, MAX_TX_FRAMES>;
-pub type CTxFrames = Consumer<'static, Frame, MAX_TX_FRAMES>;
 
 // This queue transports the can bus frames from the can rx driver to the controller.
 const MAX_RX_FRAMES: usize = 20;

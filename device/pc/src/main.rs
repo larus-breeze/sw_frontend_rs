@@ -37,11 +37,18 @@ fn main() -> Result<(), core::convert::Infallible> {
 
     // This queue routes the PersItems from the controller to the idle loop.
     let (p_idle_events, mut c_idle_events) = {
-    static mut Q_IDLE_EVENTS: QIdleEvents = Queue::new();
-    // Note: unsafe is ok here, because [heapless::spsc] queue protects against UB
-    unsafe { Q_IDLE_EVENTS.split() }
+        static mut Q_IDLE_EVENTS: QIdleEvents = Queue::new();
+        // Note: unsafe is ok here, because [heapless::spsc] queue protects against UB
+        unsafe { Q_IDLE_EVENTS.split() }
     };
-    let mut core_model = CoreModel::new(p_idle_events);
+    // This queue transports the can bus frames from the view component to the can tx driver.
+    let (p_tx_frames, _c_tx_frames) = {
+        static mut Q_TX_FRAMES: QTxFrames = Queue::new();
+        // Note: unsafe is ok here, because [heapless::spsc] queue protects against UB
+        unsafe { Q_TX_FRAMES.split() }
+    };
+    
+    let mut core_model = CoreModel::new(p_idle_events, p_tx_frames);
     let mut eeprom = Eeprom::new().unwrap();
 
     for item in eeprom.iter_over(EepromTopic::ConfigValues) {

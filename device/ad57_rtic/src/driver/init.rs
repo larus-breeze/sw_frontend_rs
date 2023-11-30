@@ -4,7 +4,7 @@ use crate::driver::{
     keyboard::*, 
     CanRx, CanTx,
     Display, Eeprom,
-    QRxFrames, QTxFrames
+    QRxFrames,
 };
 use crate::{
     dev_controller::DevController, 
@@ -35,7 +35,7 @@ use stm32f4xx_hal::{
 };
 use fmc_lcd::{DataPins16, LcdPins};
 use systick_monotonic::*;
-use corelib::{CoreModel, QIdleEvents, Event};
+use corelib::{CoreModel, QIdleEvents, Event, QTxFrames};
 use defmt_rtt as _;
 
 // Todo: use Timer as Timebase also for busy waiting
@@ -162,7 +162,7 @@ pub fn hw_init<'a>(
     let mut eeprom = Eeprom::new(i2c).unwrap();
 
     // Setup ----------> CoreModel
-    let mut core_model = CoreModel::new(p_idle_events);
+    let mut core_model = CoreModel::new(p_idle_events, p_tx_frames);
     for item in eeprom.iter_over(corelib::EepromTopic::ConfigValues) {
         core_model.restore_persistent_item(item);
     }
@@ -188,7 +188,7 @@ pub fn hw_init<'a>(
 
         // Initialize the display and clear the screen
         let (display, frame_buffer) = Display::new(device.FSMC, lcd_pins, lcd_reset);
-        (DevView::new(display, p_tx_frames), frame_buffer)
+        (DevView::new(display), frame_buffer)
     };
 
     // Setup ----------> Backlight Port an switch on the lcd
