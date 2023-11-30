@@ -2,7 +2,7 @@ use embedded_graphics::prelude::*;
 use embedded_graphics_simulator::{
     OutputSettingsBuilder, SimulatorDisplay,
 };
-use vario_display::*;
+use corelib::*;
 
 pub struct MockDisplay {
     pub display: SimulatorDisplay<Colors>,

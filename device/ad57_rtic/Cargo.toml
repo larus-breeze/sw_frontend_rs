@@ -37,7 +37,7 @@ fatfs = { version = "0.4.0", default-features = false, path = "../common/rust-fa
 defmt-default = []
 
 
-[dependencies.vario_display]
+[dependencies.corelib]
 path = "../../core"
 features = ["display_size_227x285"]
 

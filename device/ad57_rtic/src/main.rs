@@ -38,7 +38,7 @@ use dev_view::*;
 use driver::*;
 use idle_loop::*;
 use utils::*;
-use vario_display::*;
+use corelib::*;
 
 #[app(device = stm32f4xx_hal::pac, peripherals = true, dispatchers = [SPI1, SPI2, DMA2_STREAM0, DMA2_STREAM1])]
 mod app {

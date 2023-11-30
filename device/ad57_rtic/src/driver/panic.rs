@@ -2,7 +2,7 @@ use embedded_storage::nor_flash::NorFlash;
 use defmt::trace;
 use defmt_rtt as _;
 use stm32f4xx_hal::flash::{LockedFlash, FlashExt};
-use vario_display::Concat;
+use corelib::Concat;
 
 const FLASH_START: usize = 0x0800_0000;
 const PANIC_BUF: usize = 0x0807_c000;

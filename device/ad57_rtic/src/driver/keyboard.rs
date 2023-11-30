@@ -2,7 +2,7 @@ use stm32f4xx_hal::{
     gpio::Pin,
     pac::{RCC, TIM4, TIM5},
 };
-use vario_display::{KeyEvent, Event};
+use corelib::{KeyEvent, Event};
 use crate::driver::QEvents;
 
 const BTN_1: u8 = 0b0000_0001;

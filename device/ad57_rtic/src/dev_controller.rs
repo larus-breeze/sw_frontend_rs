@@ -1,4 +1,4 @@
-use vario_display::{CoreModel, Event}; // sensor
+use corelib::{CoreModel, Event}; // sensor
 
 use crate::{
     driver::{CRxFrames, QEvents},

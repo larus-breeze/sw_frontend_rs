@@ -2,7 +2,7 @@ use crate::{
     driver::{DevDuration, DevInstant, PTxFrames},
     DevDisplay,
 };
-use vario_display::*;
+use corelib::*;
 
 pub struct DevView {
     core_view: CoreView<DevDisplay>,

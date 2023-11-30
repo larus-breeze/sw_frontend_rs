@@ -6,7 +6,7 @@ use byteorder::{ByteOrder, LittleEndian as LE};
 use embedded_graphics::prelude::*;
 use embedded_graphics_simulator::{sdl2::Keycode, OutputSettings, SimulatorEvent, Window};
 use heapless::spsc::Queue;
-use vario_display::*;
+use corelib::*;
 use eeprom::Eeprom;
 use display::MockDisplay;
 

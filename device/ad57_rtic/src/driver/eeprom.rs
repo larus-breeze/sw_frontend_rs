@@ -3,7 +3,7 @@ use defmt::trace;
 use crate::{driver::delay_ms, utils::DevError};
 use eeprom24x::{addr_size::TwoBytes, page_size::B32, Eeprom24x, SlaveAddr};
 use stm32f4xx_hal::{i2c::I2c, pac::I2C1};
-use vario_display::{
+use corelib::{
     eeprom, EepromTopic, PersistenceId, PersistenceItem, CONFIG_VALUES_END, CONFIG_VALUES_START,
 };
 
