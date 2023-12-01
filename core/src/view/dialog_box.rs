@@ -8,9 +8,7 @@ use embedded_graphics::{
 };
 use u8g2_fonts::types::{FontColor, HorizontalAlignment, VerticalPosition};
 
-
-pub struct DialogBox<'a> 
-{
+pub struct DialogBox<'a> {
     header: &'a str,
     background_color: Colors,
     header_color: Colors,
@@ -18,11 +16,10 @@ pub struct DialogBox<'a>
     text_color: Colors,
 }
 
-impl<'a> DialogBox<'a> 
-{
+impl<'a> DialogBox<'a> {
     pub fn new(
-        header: &'a str, 
-        background_color: Colors, 
+        header: &'a str,
+        background_color: Colors,
         header_color: Colors,
         underline_color: Colors,
         text_color: Colors,
@@ -71,9 +68,7 @@ impl<'a> DialogBox<'a>
             )?;
             y_pos += 40;
         }
-    
+
         Ok(())
-
-
     }
 }

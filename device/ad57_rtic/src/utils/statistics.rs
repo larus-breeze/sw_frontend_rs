@@ -24,7 +24,6 @@ const MAX: u8 = 5;
 // Pattern defines, which taks must be active to feed the watchdog
 const ALL_ALIVE_PATTERN: u32 = 0b0001_1100;
 
-
 impl Task {
     pub fn from_usize(u: usize) -> Self {
         if u <= MAX as usize {

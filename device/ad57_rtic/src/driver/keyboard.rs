@@ -1,9 +1,9 @@
+use crate::driver::QEvents;
+use corelib::{Event, KeyEvent};
 use stm32f4xx_hal::{
     gpio::Pin,
     pac::{RCC, TIM4, TIM5},
 };
-use corelib::{KeyEvent, Event};
-use crate::driver::QEvents;
 
 const BTN_1: u8 = 0b0000_0001;
 const BTN_2: u8 = 0b0000_0010;
@@ -231,7 +231,9 @@ impl Keyboard {
                     BTN_2_3 => self.q_events.enqueue(Event::KeyItem(KeyEvent::Btn23S3)),
                     BTN_3_ESC => self.q_events.enqueue(Event::KeyItem(KeyEvent::Btn3EscS3)),
                     BTN_1_ESC => self.q_events.enqueue(Event::KeyItem(KeyEvent::Btn1EscS3)),
-                    BTN_1_ESC_ENC => self.q_events.enqueue(Event::KeyItem(KeyEvent::Btn1EscEncS3)),
+                    BTN_1_ESC_ENC => self
+                        .q_events
+                        .enqueue(Event::KeyItem(KeyEvent::Btn1EscEncS3)),
                     _ => Ok(()),
                 };
                 self.first_go_to_0 = true;
@@ -245,7 +247,9 @@ impl Keyboard {
         if count != self.enc_1_cnt {
             let mut delta = count.wrapping_sub(self.enc_1_cnt) as i16;
             while delta > 0 {
-                let _ = self.q_events.enqueue(Event::KeyItem(KeyEvent::Rotary1Right));
+                let _ = self
+                    .q_events
+                    .enqueue(Event::KeyItem(KeyEvent::Rotary1Right));
                 delta -= 1;
             }
             while delta < 0 {
@@ -260,7 +264,9 @@ impl Keyboard {
         if count != self.enc_2_cnt {
             let mut delta = count.wrapping_sub(self.enc_2_cnt) as i32;
             while delta > 0 {
-                let _ = self.q_events.enqueue(Event::KeyItem(KeyEvent::Rotary2Right));
+                let _ = self
+                    .q_events
+                    .enqueue(Event::KeyItem(KeyEvent::Rotary2Right));
                 delta -= 1;
             }
             while delta < 0 {

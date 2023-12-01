@@ -1,10 +1,9 @@
-use stm32f4xx_hal::sdio::{SdCard, Sdio, ClockFreq};
-use fatfs::{self, SeekFrom, IoError, IoBase, Read, Write, Seek};
-
+use fatfs::{self, IoBase, IoError, Read, Seek, SeekFrom, Write};
+use stm32f4xx_hal::sdio::{ClockFreq, SdCard, Sdio};
 
 ///
 /// Errros from FileIo
-/// 
+///
 #[allow(dead_code)]
 #[derive(Debug)]
 pub enum FioError {
@@ -32,16 +31,16 @@ impl IoError for FioError {
 }
 
 /// Adapter for fatfs, to access the SD Card
-/// 
-/// FileIo fulfills the traits defined by fatfs in order to access the SD card. The implementation 
-/// is simple, but with little focus on performance. Only a 512 byte buffer is used to cache the 
-/// read and write data. 
+///
+/// FileIo fulfills the traits defined by fatfs in order to access the SD card. The implementation
+/// is simple, but with little focus on performance. Only a 512 byte buffer is used to cache the
+/// read and write data.
 pub struct FileIo {
     size: u64,
     sdio: Sdio<SdCard>,
     current: u64,
     blockaddr: u32,
-    block: [u8; 512],   
+    block: [u8; 512],
     is_on_sdcard: bool,
 }
 
@@ -49,33 +48,37 @@ impl FileIo {
     /// Create a FileIo instance
     pub fn new(sdio: Sdio<SdCard>) -> Result<Self, FioError> {
         let block = [0_u8; 512];
-        let mut fileio = FileIo { 
-                size: 0, 
-                sdio, 
-                current: 0, 
-                blockaddr: 0,
-                block, 
-                is_on_sdcard: true, 
+        let mut fileio = FileIo {
+            size: 0,
+            sdio,
+            current: 0,
+            blockaddr: 0,
+            block,
+            is_on_sdcard: true,
         };
         fileio.init()?;
         Ok(fileio)
     }
 
     /// Initialize the instance
-    /// 
+    ///
     /// Note: It is currently not possible to access different SD cards with the stm32f4xx_hal
     ///  crate during the course. See also: https://github.com/stm32-rs/stm32f4xx-hal/issues/692.
     ///
-    /// This separate init() routine is already prepared for the fact that it will be possible 
+    /// This separate init() routine is already prepared for the fact that it will be possible
     /// to access several SD cards at some point.
     fn init(&mut self) -> Result<(), FioError> {
-        self.sdio.init(ClockFreq::F24Mhz).map_err(|_| FioError::InitError)?;
+        self.sdio
+            .init(ClockFreq::F24Mhz)
+            .map_err(|_| FioError::InitError)?;
         let card = self.sdio.card().map_err(|_| FioError::InitError)?;
         self.size = card.csd.card_size();
         self.blockaddr = 0;
         self.current = 0;
         self.is_on_sdcard = true;
-        self.sdio.read_block(self.blockaddr, &mut self.block).map_err(|_| FioError::ReadError)?;
+        self.sdio
+            .read_block(self.blockaddr, &mut self.block)
+            .map_err(|_| FioError::ReadError)?;
         if self.block[0x01FE..0x0200] != [0x55, 0xAA] {
             Err(FioError::NoSignature)
         } else {
@@ -83,14 +86,17 @@ impl FileIo {
         }
     }
 
-
     /// This function reads in a block and manages a cache buffer of 512 bytes.
     fn read_block(&mut self, blockaddr: u32) -> Result<(), FioError> {
         if blockaddr != self.blockaddr {
             if !self.is_on_sdcard {
-                self.sdio.write_block(self.blockaddr, &self.block).map_err(|_| FioError::WriteError)?;
+                self.sdio
+                    .write_block(self.blockaddr, &self.block)
+                    .map_err(|_| FioError::WriteError)?;
             }
-            self.sdio.read_block(blockaddr, &mut self.block).map_err(|_| FioError::ReadError)?;
+            self.sdio
+                .read_block(blockaddr, &mut self.block)
+                .map_err(|_| FioError::ReadError)?;
             self.blockaddr = blockaddr;
             self.is_on_sdcard = true;
         }
@@ -113,7 +119,7 @@ impl Seek for FileIo {
         };
         //rprintln!("SeekFrom {:?}, idx {}", pos, idx);
         if idx < 0 {
-            return Err(FioError::SeekNegative)
+            return Err(FioError::SeekNegative);
         }
         self.current = idx as u64;
         Ok(self.current)
@@ -152,7 +158,9 @@ impl Read for FileIo {
 impl Write for FileIo {
     fn flush(&mut self) -> Result<(), FioError> {
         if !self.is_on_sdcard {
-            self.sdio.write_block(self.blockaddr, &self.block).map_err(|_| FioError::WriteError)?;
+            self.sdio
+                .write_block(self.blockaddr, &self.block)
+                .map_err(|_| FioError::WriteError)?;
             self.is_on_sdcard = true;
         }
         Ok(())

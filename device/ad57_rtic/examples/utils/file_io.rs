@@ -1,5 +1,5 @@
+use fatfs::{self, IoBase, IoError, Read, Seek, SeekFrom, Write};
 use stm32f4xx_hal::sdio::{SdCard, Sdio};
-use fatfs::{self, SeekFrom, IoError, IoBase, Read, Write, Seek};
 
 #[allow(dead_code)]
 #[derive(Debug)]
@@ -42,26 +42,31 @@ impl FileIo {
         let size = card.csd.card_size();
         let mut block = [0_u8; 512];
         let blockaddr = 0;
-        sdio.read_block(blockaddr, &mut block).map_err(|_| Error::SdReadError)?;
+        sdio.read_block(blockaddr, &mut block)
+            .map_err(|_| Error::SdReadError)?;
         if block[0x01FE..0x0200] != [0x55, 0xAA] {
             return Err(Error::SdNoSignature);
         }
-        Ok(FileIo { 
-            size, 
-            sdio, 
-            current: 0, 
+        Ok(FileIo {
+            size,
+            sdio,
+            current: 0,
             blockaddr,
-            block, 
-            is_on_sdcard: true 
+            block,
+            is_on_sdcard: true,
         })
     }
 
     fn read_block(&mut self, blockaddr: u32) -> Result<(), Error> {
         if blockaddr != self.blockaddr {
             if !self.is_on_sdcard {
-                self.sdio.write_block(blockaddr, &self.block).map_err(|_| Error::SdWriteError)?;
+                self.sdio
+                    .write_block(blockaddr, &self.block)
+                    .map_err(|_| Error::SdWriteError)?;
             }
-            self.sdio.read_block(blockaddr, &mut self.block).map_err(|_| Error::SdReadError)?;
+            self.sdio
+                .read_block(blockaddr, &mut self.block)
+                .map_err(|_| Error::SdReadError)?;
             self.blockaddr = blockaddr;
             self.is_on_sdcard = true;
         }
@@ -82,7 +87,7 @@ impl Seek for FileIo {
         };
         //rprintln!("SeekFrom {:?}, idx {}", pos, idx);
         if idx < 0 {
-            return Err(Error::SdSeekNegative)
+            return Err(Error::SdSeekNegative);
         }
         self.current = idx as u64;
         Ok(self.current)
@@ -119,7 +124,9 @@ impl Read for FileIo {
 impl Write for FileIo {
     fn flush(&mut self) -> Result<(), Error> {
         if !self.is_on_sdcard {
-            self.sdio.write_block(self.blockaddr, &self.block).map_err(|_| Error::SdWriteError)?;
+            self.sdio
+                .write_block(self.blockaddr, &self.block)
+                .map_err(|_| Error::SdWriteError)?;
             self.is_on_sdcard = true;
         }
         Ok(())

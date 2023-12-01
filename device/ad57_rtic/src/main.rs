@@ -33,12 +33,12 @@ mod utils;
 
 use defmt_rtt as _;
 
+use corelib::*;
 use dev_controller::*;
 use dev_view::*;
 use driver::*;
 use idle_loop::*;
 use utils::*;
-use corelib::*;
 
 #[app(device = stm32f4xx_hal::pac, peripherals = true, dispatchers = [SPI1, SPI2, DMA2_STREAM0, DMA2_STREAM1])]
 mod app {
@@ -149,15 +149,16 @@ mod app {
 
         task_controller::spawn_after(DevDuration::millis(100)).unwrap();
         let controller = cx.local.controller;
-        let all_alive = cx.shared.statistics.lock(|statistics| statistics.all_alive());
-        cx.shared
-            .core_model
-            .lock(|core_model| {
-                if all_alive {
-                    core_model.send_idle_event(IdleEvent::FeedTheDog);
-                }
-                controller.tick(core_model)
-            });
+        let all_alive = cx
+            .shared
+            .statistics
+            .lock(|statistics| statistics.all_alive());
+        cx.shared.core_model.lock(|core_model| {
+            if all_alive {
+                core_model.send_idle_event(IdleEvent::FeedTheDog);
+            }
+            controller.tick(core_model)
+        });
 
         task_end!(cx, Task::Controller);
     }

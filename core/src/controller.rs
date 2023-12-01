@@ -9,11 +9,10 @@ use sw_upted::SwUpdateController;
 
 use crate::{
     flight_physics::Polar,
-    model::{EditMode, VarioModeControl, DisplayActive},
+    model::{DisplayActive, EditMode, VarioModeControl},
     system_of_units::FloatToSpeed,
     utils::{read_can_frame, KeyEvent},
-    CoreModel, VarioMode, POLARS,
-    PersistenceItem, PersistenceId, DeviceEvent
+    CoreModel, DeviceEvent, PersistenceId, PersistenceItem, VarioMode, POLARS,
 };
 use embedded_hal::can::Frame;
 
@@ -71,9 +70,10 @@ impl CoreController {
             DeviceEvent::FwAvailable(_) => {
                 core_model.config.last_display_active = core_model.config.display_active;
                 core_model.config.display_active = DisplayActive::FirmwareUpdate;
-            },
-            DeviceEvent::UploadFinished =>
-                core_model.config.display_active = core_model.config.last_display_active,
+            }
+            DeviceEvent::UploadFinished => {
+                core_model.config.display_active = core_model.config.last_display_active
+            }
 
             _ => (),
         }
@@ -121,24 +121,23 @@ impl CoreController {
             if core_model.control.edit_ticks == 0 {
                 let p_item = match core_model.control.edit_var {
                     Editable::McCready => PersistenceItem::from_f32(
-                        PersistenceId::McCready, 
-                        core_model.config.mc_cready.to_m_s()
+                        PersistenceId::McCready,
+                        core_model.config.mc_cready.to_m_s(),
                     ),
-                    Editable::Volume => PersistenceItem::from_i8(
-                        PersistenceId::Volume,
-                        core_model.config.volume,
-                    ),
+                    Editable::Volume => {
+                        PersistenceItem::from_i8(PersistenceId::Volume, core_model.config.volume)
+                    }
                     Editable::WaterBallast => PersistenceItem::from_f32(
                         PersistenceId::WaterBallast,
-                        core_model.glider_data.water_ballast.to_kg()
+                        core_model.glider_data.water_ballast.to_kg(),
                     ),
                     Editable::Glider => PersistenceItem::from_i32(
                         PersistenceId::Glider,
-                        core_model.config.glider_idx
+                        core_model.config.glider_idx,
                     ),
                     Editable::PilotWeight => PersistenceItem::from_f32(
                         PersistenceId::PilotWeight,
-                        core_model.glider_data.pilot_weight.to_kg()
+                        core_model.glider_data.pilot_weight.to_kg(),
                     ),
                     _ => PersistenceItem::do_not_store(),
                 };

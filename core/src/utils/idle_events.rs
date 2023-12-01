@@ -1,5 +1,4 @@
-use heapless::spsc::{Queue, Producer, Consumer};
-
+use heapless::spsc::{Consumer, Producer, Queue};
 
 #[repr(u16)]
 #[derive(Debug, Copy, Clone)]
@@ -32,7 +31,7 @@ pub mod eeprom {
     pub const SIZE: u32 = 8192;
     pub const IDENTIFICATION_BLOCK: u32 = 0;
     pub const DAT: u32 = 32; // Data allocation table
-    pub const DAT_LEN: u32 = SIZE/8/4;
+    pub const DAT_LEN: u32 = SIZE / 8 / 4;
     pub const DATA_STORAGE: u32 = DAT + DAT_LEN;
     pub const MAX_ITEM_COUNT: u32 = (SIZE - DATA_STORAGE) / 4;
     pub const MAGIC: [u8; 8] = [0x1e, 0xf9, 0xb4, 0xaf, 0x22, 0xe1, 0xe5, 0xeb];
@@ -49,7 +48,7 @@ impl From<u16> for PersistenceId {
     fn from(src: u16) -> Self {
         if src < eeprom::MAX_ITEM_COUNT as u16 {
             // Safety: Only valid or possible values are transmuted
-            unsafe{core::mem::transmute::<u16, PersistenceId>(src)}
+            unsafe { core::mem::transmute::<u16, PersistenceId>(src) }
         } else {
             panic!()
         }
@@ -59,25 +58,41 @@ impl From<u16> for PersistenceId {
 #[derive(Debug, Copy, Clone)]
 pub struct PersistenceItem {
     pub id: PersistenceId,
-    pub dat_bit: bool,  // Data allocation table
+    pub dat_bit: bool, // Data allocation table
     pub data: [u8; 4],
 }
 
 impl PersistenceItem {
     pub fn do_not_store() -> Self {
-        PersistenceItem { id: PersistenceId::DoNotStore, dat_bit: false, data: [0,0,0,0] }
+        PersistenceItem {
+            id: PersistenceId::DoNotStore,
+            dat_bit: false,
+            data: [0, 0, 0, 0],
+        }
     }
 
     pub fn from_i8(id: PersistenceId, value: i8) -> Self {
-        PersistenceItem { id, dat_bit: true, data: (value as i32).to_le_bytes() }
+        PersistenceItem {
+            id,
+            dat_bit: true,
+            data: (value as i32).to_le_bytes(),
+        }
     }
 
     pub fn from_i32(id: PersistenceId, value: i32) -> Self {
-        PersistenceItem { id, dat_bit: true, data: value.to_le_bytes() }
+        PersistenceItem {
+            id,
+            dat_bit: true,
+            data: value.to_le_bytes(),
+        }
     }
 
     pub fn from_f32(id: PersistenceId, value: f32) -> Self {
-        PersistenceItem { id, dat_bit: true, data: value.to_le_bytes() }
+        PersistenceItem {
+            id,
+            dat_bit: true,
+            data: value.to_le_bytes(),
+        }
     }
 
     pub fn to_i8(&self) -> i8 {

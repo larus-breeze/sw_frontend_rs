@@ -6,16 +6,15 @@ mod utils;
 use defmt::trace;
 use {defmt_rtt as _, panic_probe as _};
 
-
 use cortex_m_rt::entry;
-use stm32f4xx_hal::{
-    pac::{CorePeripherals, Peripherals},
-    sdio::{ClockFreq, SdCard, Sdio},
-    flash::{FlashExt, LockedFlash},
-    crc32::Crc32,
-    prelude::*,
-};
 use embedded_storage::nor_flash::NorFlash;
+use stm32f4xx_hal::{
+    crc32::Crc32,
+    flash::{FlashExt, LockedFlash},
+    pac::{CorePeripherals, Peripherals},
+    prelude::*,
+    sdio::{ClockFreq, SdCard, Sdio},
+};
 
 use fatfs::Read;
 use utils::*;
@@ -36,9 +35,8 @@ struct MetaData {
     copy_func: usize,
     new_app: usize,
     new_app_len: usize,
-    new_app_dest: usize, 
+    new_app_dest: usize,
 }
-
 
 #[entry]
 fn main() -> ! {
@@ -49,7 +47,8 @@ fn main() -> ! {
 
     trace!("init");
 
-    let clocks = rcc.cfgr
+    let clocks = rcc
+        .cfgr
         .use_hse(16.MHz())
         .require_pll48clk()
         .sysclk(168.MHz())
@@ -109,29 +108,31 @@ fn main() -> ! {
     const UPPER_FLASH_OFS: u32 = 0x0008_0000;
     let meta_data = unsafe { core::mem::transmute::<u32, &MetaData>(STORAGE_ADR) };
 
-    let mut buf = [0_u8;512];
+    let mut buf = [0_u8; 512];
     let mut bytes_read: u32 = 0;
     let mut image_file = root_dir.open_file("IMAGE.BIN").unwrap();
 
     let mut flash = LockedFlash::new(dp.FLASH);
     let mut unlocked_flash = flash.unlocked();
     trace!("Erase Flash");
-    NorFlash::erase(&mut unlocked_flash, UPPER_FLASH_OFS, UPPER_FLASH_OFS + image_size as u32).unwrap();
+    NorFlash::erase(
+        &mut unlocked_flash,
+        UPPER_FLASH_OFS,
+        UPPER_FLASH_OFS + image_size as u32,
+    )
+    .unwrap();
 
     trace!("Write Image");
     loop {
         let b_read = image_file.read(&mut buf).unwrap();
-        NorFlash::write(
-            &mut unlocked_flash, 
-            UPPER_FLASH_OFS + bytes_read,
-            &buf).unwrap();
+        NorFlash::write(&mut unlocked_flash, UPPER_FLASH_OFS + bytes_read, &buf).unwrap();
         //delay_ms(10);
         bytes_read += b_read as u32;
         if b_read == 0 {
             break;
         }
         if bytes_read % 10240 == 0 {
-            trace!("\x0d{} kBytes copied", bytes_read/1024);
+            trace!("\x0d{} kBytes copied", bytes_read / 1024);
         }
     }
     drop(unlocked_flash);
@@ -145,30 +146,29 @@ fn main() -> ! {
     }
 
     // Check CRC of uploaded data
-    let upper_flash_u32 =  unsafe { core::mem::transmute::<u32, &[u32; 0x2_0000]>(STORAGE_ADR) };
+    let upper_flash_u32 = unsafe { core::mem::transmute::<u32, &[u32; 0x2_0000]>(STORAGE_ADR) };
     let new_app_start_idx = meta_data.new_app - STORAGE_ADR as usize;
     let new_app_end_idx = new_app_start_idx + meta_data.new_app_len;
 
     let mut crc_stm32 = Crc32::new(dp.CRC);
     crc_stm32.init();
-    let crc = crc_stm32.update(&upper_flash_u32[3..new_app_end_idx/4]);
+    let crc = crc_stm32.update(&upper_flash_u32[3..new_app_end_idx / 4]);
 
     if crc == meta_data.crc {
         trace!("Ok Crc {=u32:X}", crc);
     } else {
         trace!("CrC is not correct");
-        loop {}; // We should never come here;
+        loop {} // We should never come here;
     }
 
-    // Note: You should also check whether the hardware version is correct and whether it makes 
+    // Note: You should also check whether the hardware version is correct and whether it makes
     // sense to reflash the software (software version).
 
-    // This call starts the update. First the consistency of the loaded data is checked, then the 
+    // This call starts the update. First the consistency of the loaded data is checked, then the
     // data from the upper flash area is copied to the lower one and then the new app is started.
     trace!("Copy and start new app, please be patient");
     let func = unsafe { core::mem::transmute::<usize, fn()>(meta_data.copy_func) };
     func();
 
-    loop {}; // We should never come here;
+    loop {} // We should never come here;
 }
-

@@ -1,4 +1,5 @@
 use bxcan::{filter::ListEntry16, Fifo, Frame, Interrupt, StandardId};
+use corelib::CTxFrames;
 use defmt::*;
 use heapless::spsc::{Consumer, Producer, Queue};
 use stm32f4xx_hal::{
@@ -6,7 +7,6 @@ use stm32f4xx_hal::{
     gpio::Pin,
     pac::CAN1,
 };
-use corelib:: CTxFrames;
 
 use corelib::{frontend, sensor};
 

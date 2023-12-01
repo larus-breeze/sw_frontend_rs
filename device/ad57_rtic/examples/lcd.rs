@@ -2,29 +2,23 @@
 #![no_std]
 mod utils;
 
-use defmt::*;
 use core::iter::{Cloned, Cycle};
 use core::slice::Iter;
+use defmt::*;
 use {defmt_rtt as _, panic_probe as _};
 
 use cortex_m_rt::entry;
-use stm32f4xx_hal::{
-    pac::{CorePeripherals, Peripherals, FSMC},
-    rcc::{Enable, Reset},
-    prelude::*,
-};
 use embedded_graphics::pixelcolor::Rgb565;
 use embedded_graphics::prelude::*;
+use stm32f4xx_hal::{
+    pac::{CorePeripherals, Peripherals, FSMC},
+    prelude::*,
+    rcc::{Enable, Reset},
+};
 
 use embedded_graphics::primitives::{Circle, PrimitiveStyle};
-use fmc_lcd::{
-    LcdPins, DataPins16, LcdInterface,
-    Timing, AccessMode,
-};
-use utils::{
-    R61580,
-    Orientation,
-};
+use fmc_lcd::{AccessMode, DataPins16, LcdInterface, LcdPins, Timing};
+use utils::{Orientation, R61580};
 
 pub fn delay_ms(millis: u32) {
     let cycles = millis * 168_000;
@@ -40,7 +34,6 @@ enum Error {
 
 #[entry]
 fn main() -> ! {
-
     // Setup clocks
     let cp = CorePeripherals::take().unwrap();
     let dp = Peripherals::take().unwrap();
@@ -48,7 +41,8 @@ fn main() -> ! {
 
     trace!("init");
 
-    let clocks = rcc.cfgr
+    let clocks = rcc
+        .cfgr
         .use_hse(16.MHz())
         .sysclk(168.MHz())
         .hclk(168.MHz())
@@ -74,7 +68,6 @@ fn main() -> ! {
         gpiod.pd7,
     );
 
-
     let lcd_reset = gpiod.pd3.into_push_pull_output();
     let mut backlight = gpiob.pb4.into_push_pull_output();
 
@@ -91,20 +84,10 @@ fn main() -> ! {
         FSMC::reset_unchecked();
     }
 
-    let interface = LcdInterface::new(
-        dp.FSMC,
-        lcd_pins,
-        &timing,
-        &timing,
-    );
+    let interface = LcdInterface::new(dp.FSMC, lcd_pins, &timing, &timing);
 
     // Add LCD controller driver
-    let mut lcd = R61580::new(
-        interface,
-        lcd_reset,
-        240,
-        320,
-    );
+    let mut lcd = R61580::new(interface, lcd_reset, 240, 320);
     // Initialise the display and clear the screen
     lcd.init(&mut delay);
     lcd.set_orientation(Orientation::Portrait, &mut delay);

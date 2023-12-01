@@ -16,7 +16,6 @@ pub enum Key {
     None,
 }
 
-
 pub struct Keyboard {
     btn_1: Pin<'A', 7>,
     btn_2: Pin<'C', 5>,
@@ -48,12 +47,9 @@ impl KeyboardPins {
     }
 }
 
-
 impl Keyboard {
     /// Create Keys instance and initialize hardware
-    pub fn new(
-        keyboard_pins: KeyboardPins,
-    ) -> Self {
+    pub fn new(keyboard_pins: KeyboardPins) -> Self {
         // Config the key buttons
         let btn_1 = keyboard_pins.p1.into_pull_up_input();
         let btn_2 = keyboard_pins.p2.into_pull_up_input();
@@ -61,7 +57,7 @@ impl Keyboard {
         let btn_esc = keyboard_pins.p4.into_pull_up_input();
         let btn_enc = keyboard_pins.p5.into_pull_up_input();
 
-Self {
+        Self {
             btn_1, // 5 port pins for buttons
             btn_2,
             btn_3,
@@ -114,7 +110,7 @@ Self {
                 BTN_ENC => return Key::ButtonKnob,
                 _ => (),
             };
-        } 
+        }
         self.last_btn_state = btn_state;
         Key::None
     }

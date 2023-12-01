@@ -1,9 +1,7 @@
-
-
 /// Calculate CRC like the stm32 controller hardware
-/// 
-/// The CRC here is calculated using the same algorithm as that integrated in hardware. The reason 
-/// for providing this function a second time is that no thread protection measures are required 
+///
+/// The CRC here is calculated using the same algorithm as that integrated in hardware. The reason
+/// for providing this function a second time is that no thread protection measures are required
 /// when using this solution, as is the case when using singular hardware.
 pub fn stm32_crc(data: &[u32]) -> u32 {
     let mut crc: u32 = 0xffffffff;

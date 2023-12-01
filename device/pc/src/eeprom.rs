@@ -1,10 +1,8 @@
-
-use std::io::{Read, Write};
 use std::convert::TryInto;
+use std::io::{Read, Write};
 
 use corelib::{
-    eeprom, PersistenceId, PersistenceItem, 
-    EepromTopic, CONFIG_VALUES_START, CONFIG_VALUES_END
+    eeprom, EepromTopic, PersistenceId, PersistenceItem, CONFIG_VALUES_END, CONFIG_VALUES_START,
 };
 
 const FILE_NAME: &str = "eeprom.bin";
@@ -33,7 +31,7 @@ impl Eeprom {
             // Write magic number
             data[..8].copy_from_slice(&eeprom::MAGIC);
 
-            for idx in eeprom::DAT .. eeprom::DATA_STORAGE {
+            for idx in eeprom::DAT..eeprom::DATA_STORAGE {
                 data[idx as usize] = 0;
             }
             println!("Initialize DAT");
@@ -42,18 +40,18 @@ impl Eeprom {
     }
 
     /// Write a PersistentItem into the data store
-    /// 
-    /// The data is stored at the desired location defined by the ID. An entry is made in the data 
-    /// allocation table (DAT), if desired (dat_bit in PersitentItem). 
-    pub fn write_item(&mut self, item: PersistenceItem) -> Result <(), Error> {
+    ///
+    /// The data is stored at the desired location defined by the ID. An entry is made in the data
+    /// allocation table (DAT), if desired (dat_bit in PersitentItem).
+    pub fn write_item(&mut self, item: PersistenceItem) -> Result<(), Error> {
         if item.id == PersistenceId::DoNotStore {
-            return Ok(())
+            return Ok(());
         }
         let address = (eeprom::DATA_STORAGE + item.id as u32 * 4) as usize;
         if item.dat_bit {
             self.set_id(item.id)?;
         }
-        self.data[address..address+4].copy_from_slice(&item.data);
+        self.data[address..address + 4].copy_from_slice(&item.data);
         let mut f = std::fs::File::create(FILE_NAME).unwrap();
         f.write(&self.data).unwrap();
         Ok(())
@@ -63,8 +61,12 @@ impl Eeprom {
     pub fn read_item_unchecked(&mut self, id: PersistenceId) -> Result<PersistenceItem, Error> {
         let address = (eeprom::DATA_STORAGE + id as u32 * 4) as usize;
         let mut data = [0_u8; 4];
-        data.copy_from_slice(&self.data[address..address+4]);
-        Ok(PersistenceItem { id, dat_bit: false, data })
+        data.copy_from_slice(&self.data[address..address + 4]);
+        Ok(PersistenceItem {
+            id,
+            dat_bit: false,
+            data,
+        })
     }
 
     /// Read data from storage - return error if DAT bit is not set
@@ -104,17 +106,18 @@ impl Eeprom {
 /// Helper struct for Iteration
 pub struct PersistenceIterator<'a> {
     cur_id: u16,
-    end_id: u16, 
+    end_id: u16,
     persistence: &'a mut Eeprom,
 }
 
-impl <'a>PersistenceIterator<'a> {
+impl<'a> PersistenceIterator<'a> {
     /// Creates a iteration helper struct
     pub fn new(start_id: u16, end_id: u16, persistence: &'a mut Eeprom) -> Self {
-        PersistenceIterator { 
-            cur_id: start_id, 
+        PersistenceIterator {
+            cur_id: start_id,
             end_id,
-            persistence }
+            persistence,
+        }
     }
 }
 
@@ -123,9 +126,12 @@ impl Iterator for PersistenceIterator<'_> {
     fn next(&mut self) -> Option<Self::Item> {
         while self.cur_id < self.end_id {
             if self.persistence.test_id(self.cur_id.into()) {
-                let r = self.persistence.read_item_unchecked(self.cur_id.into()).unwrap();
+                let r = self
+                    .persistence
+                    .read_item_unchecked(self.cur_id.into())
+                    .unwrap();
                 self.cur_id += 1;
-                return Some(r)
+                return Some(r);
             } else {
                 self.cur_id += 1;
             }

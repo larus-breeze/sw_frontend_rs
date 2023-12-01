@@ -1,8 +1,6 @@
-use embedded_graphics::prelude::*;
-use embedded_graphics_simulator::{
-    OutputSettingsBuilder, SimulatorDisplay,
-};
 use corelib::*;
+use embedded_graphics::prelude::*;
+use embedded_graphics_simulator::{OutputSettingsBuilder, SimulatorDisplay};
 
 pub struct MockDisplay {
     pub display: SimulatorDisplay<Colors>,
@@ -14,11 +12,11 @@ impl MockDisplay {
     /// The display is filled with `C::from(BinaryColor::Off)`.
     pub fn new(size: Size) -> Self {
         let display = SimulatorDisplay::with_default_color(size, Colors::Black);
-        MockDisplay{display}
+        MockDisplay { display }
     }
 
     pub fn save_png(&mut self, img_path: &str) {
-        let output_settings = OutputSettingsBuilder::new().build();                            
+        let output_settings = OutputSettingsBuilder::new().build();
         let output_image = self.display.to_rgb_output_image(&output_settings);
         output_image.save_png(img_path).unwrap();
     }
@@ -51,7 +49,7 @@ impl DrawImage for MockDisplay {
                 let _ = Pixel(p, color).draw(self);
             }
             idx += px_cnt;
-        } 
+        }
         Ok(())
     }
 }
@@ -65,7 +63,7 @@ impl DrawTarget for MockDisplay {
         I: IntoIterator<Item = Pixel<Self::Color>>,
     {
         self.display.draw_iter(pixels).unwrap();
-        
+
         Ok(())
     }
 }

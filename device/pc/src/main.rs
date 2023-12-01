@@ -1,14 +1,14 @@
-mod eeprom;
 mod display;
+mod eeprom;
 
-use std::{net::UdpSocket, time::Duration};
 use byteorder::{ByteOrder, LittleEndian as LE};
+use corelib::*;
+use display::MockDisplay;
+use eeprom::Eeprom;
 use embedded_graphics::prelude::*;
 use embedded_graphics_simulator::{sdl2::Keycode, OutputSettings, SimulatorEvent, Window};
 use heapless::spsc::Queue;
-use corelib::*;
-use eeprom::Eeprom;
-use display::MockDisplay;
+use std::{net::UdpSocket, time::Duration};
 
 fn main() -> Result<(), core::convert::Infallible> {
     println!(
@@ -47,7 +47,7 @@ fn main() -> Result<(), core::convert::Infallible> {
         // Note: unsafe is ok here, because [heapless::spsc] queue protects against UB
         unsafe { Q_TX_FRAMES.split() }
     };
-    
+
     let mut core_model = CoreModel::new(p_idle_events, p_tx_frames);
     let mut eeprom = Eeprom::new().unwrap();
 
@@ -59,7 +59,9 @@ fn main() -> Result<(), core::convert::Infallible> {
     let mut controller = CoreController::new(&mut core_model);
     let mut view = CoreView::new(display);
     let socket = UdpSocket::bind("127.0.0.1:5005").expect("Could not open UDP socket");
-    socket.set_read_timeout(Some(Duration::from_millis(40))).expect("Could not set read timeout");
+    socket
+        .set_read_timeout(Some(Duration::from_millis(40)))
+        .expect("Could not set read timeout");
 
     let mut img_no = 0_u32;
     let mut sw_update_status = 0_u32;
@@ -91,7 +93,7 @@ fn main() -> Result<(), core::convert::Infallible> {
                             println!("Image {} saved to disk", &img_path);
                             view.display.save_png(&img_path);
                             KeyEvent::NoEvent
-                        },
+                        }
                         Keycode::U => {
                             let device_event = match sw_update_status {
                                 0 => DeviceEvent::FwAvailable(SW_VERSION),
@@ -100,14 +102,14 @@ fn main() -> Result<(), core::convert::Infallible> {
                                 3 => DeviceEvent::UploadFinished,
                                 _ => DeviceEvent::UploadFinished,
                             };
-                            sw_update_status = if sw_update_status == 3{
+                            sw_update_status = if sw_update_status == 3 {
                                 0
                             } else {
                                 sw_update_status + 1
                             };
                             controller.device_action(&mut core_model, &device_event);
                             KeyEvent::NoEvent
-                        },
+                        }
                         _ => {
                             println!("Key with no effect {:?}", keycode);
                             KeyEvent::NoEvent
@@ -128,11 +130,9 @@ fn main() -> Result<(), core::convert::Infallible> {
             println!("StorageItem {:?}", &idle_event);
             match idle_event {
                 IdleEvent::EepromItem(item) => eeprom.write_item(item).unwrap(),
-                IdleEvent::SdCardItem(item) => {
-                    match item {
-                        SdCardCmd::SwUpdateCanceled => sw_update_status = 0,
-                        _ => (),
-                    }
+                IdleEvent::SdCardItem(item) => match item {
+                    SdCardCmd::SwUpdateCanceled => sw_update_status = 0,
+                    _ => (),
                 },
                 IdleEvent::FeedTheDog => (), // Now Watchdog in this demo app
             }

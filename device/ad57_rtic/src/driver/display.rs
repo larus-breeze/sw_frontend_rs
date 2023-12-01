@@ -2,15 +2,15 @@ use crate::driver::r61580::{
     Orientation, AVAIL_PIXELS, PORTRAIT_AVAIL_HEIGHT, PORTRAIT_AVAIL_WIDTH, R61580,
 };
 use crate::{driver::frame_buffer::FrameBuffer, Colors};
+use fmc_lcd::{AccessMode, LcdInterface, LcdPins, Timing, FSMC};
 use stm32f4xx_hal::{
     gpio::{Output, Pin},
     rcc::{Enable, Reset},
 };
-use fmc_lcd::{FSMC, LcdPins, LcdInterface, Timing, AccessMode};
 
 use core::convert::TryInto;
-use embedded_graphics::{prelude::*, primitives::Rectangle};
 use corelib::*;
+use embedded_graphics::{prelude::*, primitives::Rectangle};
 
 const PORT_AVAIL_HEI_M1: u32 = PORTRAIT_AVAIL_HEIGHT as u32 - 1;
 const PORT_AVAIL_WID_M1: u32 = PORTRAIT_AVAIL_WIDTH as u32 - 1;
@@ -37,7 +37,7 @@ impl Display {
             stm32f4xx_hal::pac::FSMC::enable_unchecked();
             stm32f4xx_hal::pac::FSMC::reset_unchecked();
         }
-    
+
         let mut lcd_interface = LcdInterface::new(fsmc, lcd_pins, &timing, &timing);
 
         // Initialize RG61580 LCD driver

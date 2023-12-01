@@ -1,9 +1,13 @@
+use crate::utils::Concat;
 use core::cmp::Ordering;
 use heapless::String;
-use crate::utils::Concat;
 
-pub const SW_VERSION: SwVersion = SwVersion { version: [0, 1, 3, 0]};
-pub const HW_VERSION: HwVersion = HwVersion { version: [3, 0, 0, 0]};
+pub const SW_VERSION: SwVersion = SwVersion {
+    version: [0, 1, 3, 0],
+};
+pub const HW_VERSION: HwVersion = HwVersion {
+    version: [3, 0, 0, 0],
+};
 
 #[repr(C)]
 #[derive(PartialEq, Clone, Copy)]
@@ -12,9 +16,15 @@ pub struct HwVersion {
 }
 
 impl HwVersion {
-    pub fn major(&self) -> u8 { self.version[0] }
-    pub fn minor(&self) -> u8 { self.version[1] }
-    pub fn patch(&self) -> u8 { self.version[2] }
+    pub fn major(&self) -> u8 {
+        self.version[0]
+    }
+    pub fn minor(&self) -> u8 {
+        self.version[1]
+    }
+    pub fn patch(&self) -> u8 {
+        self.version[2]
+    }
 
     pub fn is_compatible(&self, other: &HwVersion) -> bool {
         if (self.major() == other.major()) & (self.minor() == other.minor()) {
@@ -28,21 +38,32 @@ impl HwVersion {
 #[repr(C)]
 #[derive(PartialEq, Clone, Copy)]
 pub struct SwVersion {
-    version: [u8; 4], 
+    version: [u8; 4],
 }
 
 impl SwVersion {
-    pub fn major(&self) -> u8 { self.version[0] }
-    pub fn minor(&self) -> u8 { self.version[1] }
-    pub fn patch(&self) -> u8 { self.version[2] }
-    pub fn build_index(&self) -> u8 { self.version[3] }
+    pub fn major(&self) -> u8 {
+        self.version[0]
+    }
+    pub fn minor(&self) -> u8 {
+        self.version[1]
+    }
+    pub fn patch(&self) -> u8 {
+        self.version[2]
+    }
+    pub fn build_index(&self) -> u8 {
+        self.version[3]
+    }
 
     pub fn as_string(&self) -> String<20> {
         Concat::<20>::default()
             .push_str("Version ")
-            .push_u8(self.version[0]).push_str(".")
-            .push_u8(self.version[1]).push_str(".")
-            .push_u8(self.version[2]).push_str("_")
+            .push_u8(self.version[0])
+            .push_str(".")
+            .push_u8(self.version[1])
+            .push_str(".")
+            .push_u8(self.version[2])
+            .push_str("_")
             .push_u8(self.version[3])
             .as_string()
     }
@@ -66,12 +87,12 @@ impl defmt::Format for SwVersion {
     fn format(&self, f: defmt::Formatter) {
         // format the bitfields of the register as struct fields
         defmt::write!(
-           f,
-           "SW {}.{}.{}_{}",
-           self.version[0],
-           self.version[1],
-           self.version[2],
-           self.version[3],
+            f,
+            "SW {}.{}.{}_{}",
+            self.version[0],
+            self.version[1],
+            self.version[2],
+            self.version[3],
         )
     }
 }
