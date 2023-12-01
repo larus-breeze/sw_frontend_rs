@@ -41,10 +41,9 @@ impl DrawImage for MockDisplay {
             let color = Colors::from(img16[idx] as u8);
             let px_cnt = img16[idx + 1] as usize;
             idx += 2;
-            for idx in idx..idx + px_cnt {
-                let i_idx = img16[idx];
-                let y = i_idx / (DISPLAY_WIDTH as u16);
-                let x = i_idx as u16 - y * DISPLAY_WIDTH as u16;
+            for i_idx in img16.iter().skip(idx).take(px_cnt) {
+                let y = *i_idx / (DISPLAY_WIDTH as u16);
+                let x = *i_idx - y * DISPLAY_WIDTH as u16;
                 let p = Point::new(offset.x + x as i32, offset.y + y as i32);
                 let _ = Pixel(p, color).draw(self);
             }

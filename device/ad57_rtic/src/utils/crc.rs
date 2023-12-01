@@ -10,7 +10,7 @@ pub fn stm32_crc(data: &[u32]) -> u32 {
             crc ^= (val as u32) << 24;
             for _ in 0..8 {
                 if (crc & 0x8000_0000) == 0 {
-                    crc = crc << 1;
+                    crc <<= 1;
                 } else {
                     crc = crc.wrapping_shl(1) ^ 0x04c1_1db7;
                 }

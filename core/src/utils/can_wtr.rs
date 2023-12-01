@@ -22,9 +22,7 @@ impl CanFrame {
     pub fn from_slice(id: u16, src: &[u8]) -> Self {
         let mut data = [0u8; 8];
         let len = src.len();
-        for idx in 0..len {
-            data[idx] = src[idx]
-        }
+        data[..len].copy_from_slice(&src[..len]);
         CanFrame {
             id,
             len: len as u8,

@@ -138,7 +138,7 @@ impl Eeprom {
     /// Tests a id, if coresponing dat_bit is set
     fn test_id(&mut self, id: PersistenceId) -> bool {
         let byte_adr = eeprom::DAT + (id as u32) / 8;
-        let bit_pattern: u8 = 1 << (id as u32) % 8;
+        let bit_pattern: u8 = 1 << ((id as u32) % 8);
         match self.eeprom.read_byte(byte_adr) {
             Ok(found) => (found & bit_pattern) != 0,
             Err(_) => false,
@@ -148,7 +148,7 @@ impl Eeprom {
     /// Set dat_bit in table of contentspub fn iter_over(&mut self, p_type: PersistType) -> PersistenceIterator
     fn set_id(&mut self, id: PersistenceId) -> Result<(), DevError> {
         let byte_adr = eeprom::DAT + (id as u32) / 8;
-        let bit_pattern: u8 = 1 << (id as u32) % 8;
+        let bit_pattern: u8 = 1 << ((id as u32) % 8);
         let found = self
             .eeprom
             .read_byte(byte_adr)

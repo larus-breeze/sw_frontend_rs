@@ -95,7 +95,7 @@ impl FileSys {
 
     /// If an update is available, its version is returned
     pub fn update_available(&mut self) -> FirmwarUpadate {
-        let r = match self.update_available {
+        match self.update_available {
             FirmwarUpadate::Available(version) => {
                 self.update_available = FirmwarUpadate::ToMuchRequests;
                 FirmwarUpadate::Available(version)
@@ -105,8 +105,7 @@ impl FileSys {
                 FirmwarUpadate::NotAvailable
             }
             FirmwarUpadate::ToMuchRequests => FirmwarUpadate::ToMuchRequests,
-        };
-        r
+        }
     }
 
     /// Copies the image to the upper flash area
@@ -213,7 +212,7 @@ impl FileSys {
     /// Note: This routine currently only works during the boot process.
     fn write_error_log(&mut self) {
         let error_log = get_error_log();
-        if error_log.len() > 0 {
+        if !error_log.is_empty() {
             if let Some(fs) = &self.fs {
                 let root_dir = fs.root_dir();
                 let file = root_dir.create_file("error.log");

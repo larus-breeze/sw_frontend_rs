@@ -7,7 +7,7 @@ use stm32f4xx_hal::flash::{FlashExt, LockedFlash};
 const FLASH_START: usize = 0x0800_0000;
 const PANIC_BUF: usize = 0x0807_c000;
 const ERR_MSG_LEN: usize = 128;
-const PANIC_BUF_END: usize = 0x0808_0000 - ERR_MSG_LEN as usize;
+const PANIC_BUF_END: usize = 0x0808_0000 - ERR_MSG_LEN;
 
 fn get_ptr_end() -> usize {
     let mut ptr = PANIC_BUF;
@@ -21,7 +21,7 @@ fn get_ptr_end() -> usize {
     ptr
 }
 
-fn write_to_flash<'a>(msg: &'a str) {
+fn write_to_flash(msg: &str) {
     let ptr = get_ptr_end();
     let dp = unsafe { stm32f4xx_hal::pac::Peripherals::steal() };
     let mut flash = LockedFlash::new(dp.FLASH);

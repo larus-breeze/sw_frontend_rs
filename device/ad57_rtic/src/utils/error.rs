@@ -16,6 +16,7 @@ pub enum Error<FSE, FE> {
     NoItemAvailable,
 }
 
+#[allow(clippy::upper_case_acronyms)]
 pub type FSE = fatfs::Error<FioError>;
 pub type FE = FioError;
 pub type DevError = Error<FSE, FE>;
