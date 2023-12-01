@@ -4,8 +4,8 @@ use demo::DemoController;
 mod vario;
 use vario::VarioController;
 
-mod sw_upted;
-use sw_upted::SwUpdateController;
+mod sw_update;
+use sw_update::SwUpdateController;
 
 use crate::{
     flight_physics::Polar,

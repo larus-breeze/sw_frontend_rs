@@ -130,24 +130,20 @@ fn main() -> Result<(), core::convert::Infallible> {
             println!("StorageItem {:?}", &idle_event);
             match idle_event {
                 IdleEvent::EepromItem(item) => eeprom.write_item(item).unwrap(),
-                IdleEvent::SdCardItem(item) => match item {
-                    SdCardCmd::SwUpdateCanceled => sw_update_status = 0,
-                    _ => (),
-                },
+                IdleEvent::SdCardItem(item) => {
+                    if item == SdCardCmd::SwUpdateCanceled {
+                        sw_update_status = 0
+                    }
+                }
                 IdleEvent::FeedTheDog => (), // Now Watchdog in this demo app
             }
         }
 
         let mut buf = [0u8; 10];
-        loop {
-            match socket.recv_from(&mut buf) {
-                Ok((cnt, _adr)) => {
-                    let id = LE::read_u16(&buf[..2]);
-                    let frame = CanFrame::from_slice(id, &buf[2..cnt]);
-                    controller.read_can_frame(&mut core_model, &frame);
-                }
-                Err(_) => break,
-            }
+        while let Ok((cnt, _adr)) = socket.recv_from(&mut buf) {
+            let id = LE::read_u16(&buf[..2]);
+            let frame = CanFrame::from_slice(id, &buf[2..cnt]);
+            controller.read_can_frame(&mut core_model, &frame);
         }
     }
     Ok(())

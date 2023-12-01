@@ -21,10 +21,9 @@ impl Eeprom {
     /// Create a Persistence Instance
     pub fn new() -> Result<Self, Error> {
         let mut data = [0_u8; 8192];
-        match std::fs::File::open(FILE_NAME) {
-            Ok(mut f) => f.read_exact(&mut data).unwrap(),
-            Err(_) => (),
-        };
+        if let Ok(mut f) = std::fs::File::open(FILE_NAME) {
+            f.read_exact(&mut data).unwrap()
+        }
 
         let magic: [u8; 8] = data[0..8].try_into().unwrap();
         if magic != eeprom::MAGIC {
@@ -53,7 +52,7 @@ impl Eeprom {
         }
         self.data[address..address + 4].copy_from_slice(&item.data);
         let mut f = std::fs::File::create(FILE_NAME).unwrap();
-        f.write(&self.data).unwrap();
+        f.write_all(&self.data).unwrap();
         Ok(())
     }
 
@@ -89,14 +88,14 @@ impl Eeprom {
     /// Tests a id, if coresponing dat_bit is set
     fn test_id(&mut self, id: PersistenceId) -> bool {
         let byte_adr = (eeprom::DAT + (id as u32) / 8) as usize;
-        let bit_pattern: u8 = 1 << (id as u32) % 8;
+        let bit_pattern: u8 = 1 << ((id as u32) % 8);
         self.data[byte_adr] & bit_pattern != 0
     }
 
     /// Set dat_bit in table of contentspub fn iter_over(&mut self, p_type: PersistType) -> PersistenceIterator
     fn set_id(&mut self, id: PersistenceId) -> Result<(), Error> {
         let byte_adr = (eeprom::DAT + (id as u32) / 8) as usize;
-        let bit_pattern: u8 = 1 << (id as u32) % 8;
+        let bit_pattern: u8 = 1 << ((id as u32) % 8);
         println!("set_id id {}, bit_pattern {:#010b}", id as u32, bit_pattern);
         self.data[byte_adr] |= bit_pattern;
         Ok(())

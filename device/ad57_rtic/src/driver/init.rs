@@ -47,7 +47,7 @@ pub type QEvents = MpMcQueue<Event, 8>;
 // pub type KeyBacklight = Pin<Output<PushPull>, 'A', 3>;
 pub type DevDisplay = Display;
 
-pub fn hw_init<'a>(
+pub fn hw_init(
     device: pac::Peripherals,
     core: cortex_m::peripheral::Peripherals,
 ) -> (

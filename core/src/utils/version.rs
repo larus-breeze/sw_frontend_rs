@@ -27,11 +27,7 @@ impl HwVersion {
     }
 
     pub fn is_compatible(&self, other: &HwVersion) -> bool {
-        if (self.major() == other.major()) & (self.minor() == other.minor()) {
-            true
-        } else {
-            false
-        }
+        (self.major() == other.major()) & (self.minor() == other.minor())
     }
 }
 
@@ -73,7 +69,7 @@ impl PartialOrd for SwVersion {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         let self_u32 = u32::from_be_bytes(self.version);
         let other_u32 = u32::from_be_bytes(other.version);
-        Some(*&self_u32.cmp(&other_u32))
+        Some(self_u32.cmp(&other_u32))
     }
 }
 

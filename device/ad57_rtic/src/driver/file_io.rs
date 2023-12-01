@@ -129,7 +129,7 @@ impl Seek for FileIo {
 /// see https://github.com/rafalh/rust-fatfs/blob/master/src/io.rs
 impl Read for FileIo {
     fn read(&mut self, buf: &mut [u8]) -> Result<usize, FioError> {
-        if (self.current >= self.size) | (buf.len() == 0) {
+        if (self.current >= self.size) | buf.is_empty() {
             Ok(0)
         } else {
             let blockaddr = (self.current / 512) as u32;
@@ -167,7 +167,7 @@ impl Write for FileIo {
     }
 
     fn write(&mut self, buf: &[u8]) -> Result<usize, FioError> {
-        if (self.current >= self.size) | (buf.len() == 0) {
+        if (self.current >= self.size) | buf.is_empty() {
             Ok(0)
         } else {
             let blockaddr = (self.current / 512) as u32;

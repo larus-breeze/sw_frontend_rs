@@ -17,8 +17,8 @@ impl SwUpdateController {
     }
 
     pub fn key_action(&mut self, core_model: &mut CoreModel, key_event: &KeyEvent) -> Result {
-        match core_model.control.firmware_update_state {
-            DeviceEvent::FwAvailable(_) => match key_event {
+        if let DeviceEvent::FwAvailable(_) = core_model.control.firmware_update_state {
+            match key_event {
                 KeyEvent::Btn1 => {
                     core_model.send_idle_event(IdleEvent::SdCardItem(SdCardCmd::SwUpdateAccepted))
                 }
@@ -26,8 +26,7 @@ impl SwUpdateController {
                     core_model.config.display_active = core_model.config.last_display_active;
                     core_model.send_idle_event(IdleEvent::SdCardItem(SdCardCmd::SwUpdateCanceled));
                 }
-            },
-            _ => (),
+            }
         }
         Result::Nothing
     }
