@@ -30,5 +30,4 @@ impl DevView {
     pub fn tick(&mut self, core_model: &mut CoreModel) -> Result<(), CoreError> {
         self.core_view.draw(core_model)
     }
-
 }

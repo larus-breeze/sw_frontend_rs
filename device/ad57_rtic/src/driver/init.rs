@@ -1,18 +1,14 @@
 use crate::driver::{
-    frame_buffer::FrameBuffer, 
-    init_can, 
-    keyboard::*, 
-    CanRx, CanTx,
-    Display, Eeprom,
-    QRxFrames,
+    frame_buffer::FrameBuffer, init_can, keyboard::*, CanRx, CanTx, Display, Eeprom, QRxFrames,
 };
 use crate::{
-    dev_controller::DevController, 
-    dev_view::DevView, 
-    idle_loop::IdleLoop, 
-    Statistics,
+    dev_controller::DevController,
+    dev_view::DevView,
+    idle_loop::IdleLoop,
     utils::{FileSys, SdioPins},
+    Statistics,
 };
+use corelib::{CoreModel, Event, QIdleEvents, QTxFrames};
 /// In the embedded rust ecosystem, hardware resources can only be used in one place. For this
 /// reason, a careful distribution of the required hardware resources to corresponding software
 /// components is necessary. This allocation is done here in the init component.
@@ -26,17 +22,13 @@ use crate::{
 /// with tasks communicatively. For example, a queue (Q_RX_FRAMES) is used for Can packets,
 /// which forwards the frames from the interrupt service routine CanRx to the task DevController.
 use defmt::*;
-use heapless::{spsc::Queue, mpmc::MpMcQueue};
-use stm32f4xx_hal::{
-    pac,
-    prelude::*,
-    timer::monotonic::SysMonoTimerExt,
-    watchdog::IndependentWatchdog,
-};
-use fmc_lcd::{DataPins16, LcdPins};
-use systick_monotonic::*;
-use corelib::{CoreModel, QIdleEvents, Event, QTxFrames};
 use defmt_rtt as _;
+use fmc_lcd::{DataPins16, LcdPins};
+use heapless::{mpmc::MpMcQueue, spsc::Queue};
+use stm32f4xx_hal::{
+    pac, prelude::*, timer::monotonic::SysMonoTimerExt, watchdog::IndependentWatchdog,
+};
+use systick_monotonic::*;
 
 // Todo: use Timer as Timebase also for busy waiting
 pub fn delay_ms(millis: u32) {
@@ -149,11 +141,7 @@ pub fn hw_init<'a>(
         gpioc.pc11.internal_pull_up(true),
     );
     //let sd_detect = gpioc.pc0.internal_pull_up(true).into_input();
-    let file_sys = FileSys::new(
-        device.SDIO,
-        &clocks,
-        sdio_pins,
-    );
+    let file_sys = FileSys::new(device.SDIO, &clocks, sdio_pins);
 
     // Setup ----------> Eeprom driver for idle loop
     let scl = gpiob.pb6.internal_pull_up(true);
@@ -183,7 +171,7 @@ pub fn hw_init<'a>(
             gpiod.pd4,
             gpiod.pd5,
             gpiod.pd7,
-            );
+        );
         let lcd_reset = gpiod.pd3.into_push_pull_output();
 
         // Initialize the display and clear the screen

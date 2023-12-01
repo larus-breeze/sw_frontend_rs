@@ -5,7 +5,6 @@ pub enum Event {
     DeviceItem(DeviceEvent),
 }
 
-
 #[repr(u8)]
 #[derive(PartialEq, Clone, Copy)]
 pub enum KeyEvent {

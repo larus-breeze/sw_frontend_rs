@@ -1,13 +1,12 @@
-use crate::RGB565_COLORS;
 use crate::driver::r61580::{
-    Instruction, AVAIL_PIXELS, PORTRAIT_AVAIL_HEIGHT, PORTRAIT_AVAIL_WIDTH,
-    PORTRAIT_ORIGIN_X, PORTRAIT_ORIGIN_Y,
+    Instruction, AVAIL_PIXELS, PORTRAIT_AVAIL_HEIGHT, PORTRAIT_AVAIL_WIDTH, PORTRAIT_ORIGIN_X,
+    PORTRAIT_ORIGIN_Y,
 };
+use crate::RGB565_COLORS;
 use fmc_lcd::LcdInterface;
 
 #[allow(dead_code)]
-pub struct FrameBuffer 
-{
+pub struct FrameBuffer {
     // REMARK: These are conceptual thoughts, currently no DMA has been implemented.
     //
     // A note aboute the safety of FrameBuffer: REMARK: A
@@ -37,7 +36,12 @@ impl FrameBuffer {
 
         let buf = unsafe { &mut FRAME_BUFFER };
 
-        FrameBuffer { buf, di: Some(di), idx_x: 0, idx_y: 0 }
+        FrameBuffer {
+            buf,
+            di: Some(di),
+            idx_x: 0,
+            idx_y: 0,
+        }
     }
 }
 
@@ -56,14 +60,19 @@ impl FrameBuffer {
         let buf2 = unsafe {
             core::mem::transmute::<*const [u8; AVAIL_PIXELS], &mut [u8; AVAIL_PIXELS]>(raw)
         };
-        FrameBuffer { buf: buf2, di: None, idx_x: 0, idx_y: 0}
+        FrameBuffer {
+            buf: buf2,
+            di: None,
+            idx_x: 0,
+            idx_y: 0,
+        }
     }
 
     pub fn flush(&mut self) {
         if self.di.is_some() {
             for y in 0..PORTRAIT_AVAIL_HEIGHT {
-            // This implementation is dirty and fast. At this point, we own the display interface, so
-            // we can go this way without fear.
+                // This implementation is dirty and fast. At this point, we own the display interface, so
+                // we can go this way without fear.
                 write_command_and_data(Instruction::PosX as u8, PORTRAIT_ORIGIN_X);
                 write_command_and_data(Instruction::PosY as u8, y + PORTRAIT_ORIGIN_Y);
                 write_command(Instruction::Gram as u8);
@@ -74,7 +83,7 @@ impl FrameBuffer {
                 }
             }
             /* Here is the implementation as intended, but slow and memory-hungry
-            
+
             if let Some(di) = &mut self.di {
                 let _ = di.send_commands(U8(&[Instruction::PosX as u8]));
                 let _ = di.send_data(U16(&[PORTRAIT_ORIGIN_X]));
@@ -91,9 +100,6 @@ impl FrameBuffer {
         }
     }
 }
-
-
-
 
 #[inline]
 fn write_command(cmd: u8) {
@@ -112,4 +118,3 @@ fn write_command_and_data(cmd: u8, data: u16) {
     write_command(cmd);
     write_data(data)
 }
-

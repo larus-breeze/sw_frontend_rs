@@ -8,14 +8,14 @@ use core::iter::once;
 use display_interface::DataFormat::{U16BEIter, U8Iter};
 use display_interface::WriteOnlyDataCommand;
 use embedded_graphics::geometry::OriginDimensions;
-use embedded_hal::digital::v2::OutputPin;
-use embedded_hal::blocking::delay::DelayMs;
 use embedded_graphics::{
-    pixelcolor::{Rgb565, raw::RawU16},
+    geometry::Size,
+    pixelcolor::{raw::RawU16, Rgb565},
     prelude::{DrawTarget, RawData},
     Pixel,
-    geometry::Size,
-}; 
+};
+use embedded_hal::blocking::delay::DelayMs;
+use embedded_hal::digital::v2::OutputPin;
 
 // Total LCD Dimensions
 pub const PORTRAIT_TOTAL_WIDTH: u16 = 240;
@@ -35,7 +35,6 @@ pub const LANDSCAPE_ORIGIN_X: u16 = PORTRAIT_ORIGIN_Y;
 pub const LANDSCAPE_ORIGIN_Y: u16 = PORTRAIT_ORIGIN_X;
 pub const LANDSCAPE_AVAIL_WIDTH: u16 = PORTRAIT_AVAIL_HEIGHT;
 pub const LANDSCAPE_AVAIL_HEIGHT: u16 = PORTRAIT_AVAIL_WIDTH;
-
 
 ///
 /// Instructions for the R61580 LCD Controller
@@ -90,8 +89,8 @@ impl Default for Orientation {
 #[allow(unused)]
 impl<DI, RST, PinE> R61580<DI, RST>
 where
-DI: WriteOnlyDataCommand,
-RST: OutputPin<Error = PinE>,
+    DI: WriteOnlyDataCommand,
+    RST: OutputPin<Error = PinE>,
 {
     ///
     /// Creates a new ST7789 driver instance
@@ -104,7 +103,12 @@ RST: OutputPin<Error = PinE>,
     /// * `height` - y axis resolution of the display in pixels
     ///
     pub fn new(di: DI, rst: RST, width: u16, height: u16) -> Self {
-        R61580 {di, rst , width, height}
+        R61580 {
+            di,
+            rst,
+            width,
+            height,
+        }
     }
 
     pub fn init(&mut self, delay_source: &mut impl DelayMs<u32>) {
@@ -164,12 +168,15 @@ RST: OutputPin<Error = PinE>,
         delay_source.delay_ms(35);
     }
 
-
     ///
     /// Sets display orientation
     ///
     #[allow(unused)]
-    pub fn set_orientation(&mut self, orientation: Orientation, delay_source: &mut impl DelayMs<u32>) {
+    pub fn set_orientation(
+        &mut self,
+        orientation: Orientation,
+        delay_source: &mut impl DelayMs<u32>,
+    ) {
         match orientation {
             Orientation::Portrait => {
                 //self.write_command_and_data(0x03, 0x1030);
@@ -317,6 +324,9 @@ where
     RST: OutputPin<Error = PinE>,
 {
     fn size(&self) -> Size {
-        Size {width: self.width as u32, height: self.height as u32}
+        Size {
+            width: self.width as u32,
+            height: self.height as u32,
+        }
     }
 }

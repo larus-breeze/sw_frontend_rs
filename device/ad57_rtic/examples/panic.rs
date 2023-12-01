@@ -3,16 +3,16 @@
 
 mod utils;
 
-use embedded_storage::nor_flash::NorFlash;
 use defmt::trace;
 use defmt_rtt as _;
-
+use embedded_storage::nor_flash::NorFlash;
 
 use cortex_m_rt::entry;
 use stm32f4xx_hal::{
+    flash::{FlashExt, LockedFlash},
     pac::{CorePeripherals, Peripherals},
+    prelude::*,
     watchdog::IndependentWatchdog,
-    prelude::*, flash::{LockedFlash, FlashExt},
 };
 
 use utils::*;
@@ -39,7 +39,7 @@ fn write_to_flash<'a>(msg: &'a str) {
     while ptr < PANIC_BUF_END {
         let b = unsafe { *(ptr as *const u8) };
         if b == 0xff {
-            break
+            break;
         }
         ptr += 1;
     }
@@ -54,8 +54,8 @@ use core::panic::PanicInfo;
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
     cortex_m::interrupt::disable(); // Please not interrupts any more, we will reset device anyway
-    
-    let msg: Concat<ERR_MSG_LEN> =if let Some(location) = info.location() {
+
+    let msg: Concat<ERR_MSG_LEN> = if let Some(location) = info.location() {
         Concat::from_str("panic in '")
             .push_str(location.file())
             .push_str("' line ")
@@ -66,7 +66,7 @@ fn panic(info: &PanicInfo) -> ! {
     };
     trace!("{}", msg.as_str());
     write_to_flash(msg.as_str());
-loop {}
+    loop {}
 }
 
 #[entry]
@@ -76,7 +76,8 @@ fn main() -> ! {
     let dp = Peripherals::take().unwrap();
     let rcc = dp.RCC.constrain();
 
-    let _clocks = rcc.cfgr
+    let _clocks = rcc
+        .cfgr
         .use_hse(16.MHz())
         .sysclk(168.MHz())
         .hclk(168.MHz())
@@ -88,8 +89,7 @@ fn main() -> ! {
     let gpiob = dp.GPIOB.split();
     let gpioc = dp.GPIOC.split();
 
-    let keyboard_pins =
-        KeyboardPins::new(gpioa.pa7, gpioc.pc5, gpiob.pb0, gpiob.pb1, gpioa.pa6);
+    let keyboard_pins = KeyboardPins::new(gpioa.pa7, gpioc.pc5, gpiob.pb0, gpiob.pb1, gpioa.pa6);
     let mut keyboard = Keyboard::new(keyboard_pins);
 
     let mut watchdog = IndependentWatchdog::new(dp.IWDG);
@@ -105,10 +105,9 @@ fn main() -> ! {
             trace!("{}", key as u32);
         }
         match key {
-            Key::Button4 => loop {},    // Watchdog test
-            Key::Button3 => panic!(),   // Panic test
+            Key::Button4 => loop {},  // Watchdog test
+            Key::Button3 => panic!(), // Panic test
             _ => (),
         }
     }
 }
-

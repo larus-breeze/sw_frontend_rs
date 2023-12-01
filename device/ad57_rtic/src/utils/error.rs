@@ -29,15 +29,23 @@ impl From<fatfs::Error<FioError>> for DevError {
             fatfs::Error::InvalidInput => Error::FileSystem(fatfs::Error::InvalidInput),
             fatfs::Error::NotFound => Error::FileSystem(fatfs::Error::NotFound),
             fatfs::Error::AlreadyExists => Error::FileSystem(fatfs::Error::AlreadyExists),
-            fatfs::Error::DirectoryIsNotEmpty => Error::FileSystem(fatfs::Error::DirectoryIsNotEmpty),
-            fatfs::Error::CorruptedFileSystem => Error::FileSystem(fatfs::Error::CorruptedFileSystem),
+            fatfs::Error::DirectoryIsNotEmpty => {
+                Error::FileSystem(fatfs::Error::DirectoryIsNotEmpty)
+            }
+            fatfs::Error::CorruptedFileSystem => {
+                Error::FileSystem(fatfs::Error::CorruptedFileSystem)
+            }
             fatfs::Error::NotEnoughSpace => Error::FileSystem(fatfs::Error::NotEnoughSpace),
-            fatfs::Error::InvalidFileNameLength => Error::FileSystem(fatfs::Error::InvalidFileNameLength),
-            fatfs::Error::UnsupportedFileNameCharacter => Error::FileSystem(fatfs::Error::UnsupportedFileNameCharacter),
+            fatfs::Error::InvalidFileNameLength => {
+                Error::FileSystem(fatfs::Error::InvalidFileNameLength)
+            }
+            fatfs::Error::UnsupportedFileNameCharacter => {
+                Error::FileSystem(fatfs::Error::UnsupportedFileNameCharacter)
+            }
             _ => Error::Unknown,
         }
     }
-} 
+}
 
 impl From<FioError> for DevError {
     fn from(error: FioError) -> DevError {

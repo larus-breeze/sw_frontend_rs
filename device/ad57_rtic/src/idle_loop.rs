@@ -1,16 +1,12 @@
 use defmt::trace;
 
-use stm32f4xx_hal::{
-    watchdog::IndependentWatchdog,
-    timer::monotonic::fugit::ExtU32,
-};
+use stm32f4xx_hal::{timer::monotonic::fugit::ExtU32, watchdog::IndependentWatchdog};
 
-use corelib::{CIdleEvents, IdleEvent, DeviceEvent, Event, SdCardCmd};
 use crate::{
-    driver::{Eeprom, QEvents, delay_ms},
+    driver::{delay_ms, Eeprom, QEvents},
     utils::{FileSys, FirmwarUpadate},
 };
-
+use corelib::{CIdleEvents, DeviceEvent, Event, IdleEvent, SdCardCmd};
 
 pub struct IdleLoop {
     eeprom: Eeprom,
@@ -22,7 +18,7 @@ pub struct IdleLoop {
 
 impl IdleLoop {
     pub fn new(
-        eeprom: Eeprom, 
+        eeprom: Eeprom,
         c_idle_events: CIdleEvents,
         file_sys: FileSys,
         q_events: &'static QEvents,
@@ -33,7 +29,7 @@ impl IdleLoop {
             c_idle_events,
             file_sys,
             q_events,
-            watchdog
+            watchdog,
         }
     }
 
@@ -45,7 +41,7 @@ impl IdleLoop {
                     IdleEvent::EepromItem(item) => {
                         trace!("Stored id {:?}", item.id as u32);
                         self.eeprom.write_item(item).unwrap();
-                    },
+                    }
                     IdleEvent::SdCardItem(item) => {
                         match item {
                             SdCardCmd::SwUpdateAccepted => {
@@ -54,13 +50,13 @@ impl IdleLoop {
                                     delay_ms(200); // Give the display a chance to update
                                     self.file_sys.install_and_restart();
                                 }
-                            },
+                            }
                             SdCardCmd::SwUpdateCanceled => {
                                 self.watchdog.start(ExtU32::millis(1000));
                                 trace!("Start watchdog");
                             }
                         }
-                    },
+                    }
                     IdleEvent::FeedTheDog => self.watchdog.feed(),
                 }
             }
@@ -69,11 +65,11 @@ impl IdleLoop {
                 FirmwarUpadate::Available(version) => {
                     let event = Event::DeviceItem(DeviceEvent::FwAvailable(version));
                     let _ = self.q_events.enqueue(event);
-                },
+                }
                 FirmwarUpadate::NotAvailable => {
                     self.watchdog.start(ExtU32::millis(1000));
                     trace!("Start watchdog");
-                },
+                }
                 FirmwarUpadate::ToMuchRequests => (),
             }
 

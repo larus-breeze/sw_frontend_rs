@@ -1,11 +1,14 @@
 //! This crate provides a ST7789 driver to connect to TFT displays.
 
-use display_interface::{DataFormat::{U16BEIter, U8Iter}, WriteOnlyDataCommand};
+use display_interface::{
+    DataFormat::{U16BEIter, U8Iter},
+    WriteOnlyDataCommand,
+};
 use embedded_hal::digital::v2::OutputPin;
 
-use core::iter::once;
 use crate::driver::init::delay_ms;
 use crate::utils::DevError;
+use core::iter::once;
 
 // Total LCD Dimensions
 pub const PORTRAIT_TOTAL_WIDTH: u16 = 240;
@@ -70,8 +73,7 @@ impl Default for Orientation {
 }
 
 #[allow(unused)]
-impl R61580
-{
+impl R61580 {
     ///
     /// Creates a new ST7789 driver instance
     ///
@@ -82,12 +84,11 @@ impl R61580
     /// * `size_x` - x axis resolution of the display in pixels
     /// * `size_y` - y axis resolution of the display in pixels
     ///
-    pub fn new<DI, RST, PinE>(di: &mut DI, mut rst: RST) -> Self 
+    pub fn new<DI, RST, PinE>(di: &mut DI, mut rst: RST) -> Self
     where
         RST: OutputPin<Error = PinE>,
         DI: WriteOnlyDataCommand,
     {
-
         // Performs a hard reset using the RST pin sequence
         let _ = rst.set_high();
         delay_ms(1); // ensure the pin change will get registered
@@ -95,7 +96,6 @@ impl R61580
         delay_ms(2); // ensure the pin change will get registered
         let _ = rst.set_high();
         delay_ms(2); // ensure the pin change will get registered
-
 
         // Check, if display answers
         write_command(di, 0);
@@ -149,14 +149,18 @@ impl R61580
 
         write_command_and_data(di, 0x0007, 0x0100); // Display Control 1: BASEE=1
         delay_ms(35);
-        R61580 { }
+        R61580 {}
     }
 
     ///
     /// Sets display orientation
     ///
     #[allow(unused)]
-    pub fn set_orientation<DI>(&mut self, di: &mut DI, orientation: Orientation) -> Result<(), DevError> 
+    pub fn set_orientation<DI>(
+        &mut self,
+        di: &mut DI,
+        orientation: Orientation,
+    ) -> Result<(), DevError>
     where
         DI: WriteOnlyDataCommand,
     {
@@ -167,15 +171,18 @@ impl R61580
                 write_command_and_data(di, Instruction::PosX as u8, 0);
                 write_command_and_data(di, Instruction::PosY as u8, 0);
                 write_command_and_data(di, Instruction::HSA as u8, PORTRAIT_ORIGIN_X);
-                write_command_and_data(di, 
+                write_command_and_data(
+                    di,
                     Instruction::HEA as u8,
                     PORTRAIT_ORIGIN_X + PORTRAIT_AVAIL_WIDTH - 1,
                 );
-                write_command_and_data(di, 
+                write_command_and_data(
+                    di,
                     Instruction::VSA as u8,
                     PORTRAIT_TOTAL_HEIGHT - PORTRAIT_AVAIL_HEIGHT - PORTRAIT_ORIGIN_Y + 1,
                 );
-                write_command_and_data(di, 
+                write_command_and_data(
+                    di,
                     Instruction::VEA as u8,
                     PORTRAIT_TOTAL_HEIGHT - PORTRAIT_ORIGIN_Y,
                 );
@@ -186,15 +193,18 @@ impl R61580
                 write_command_and_data(di, Instruction::PosX as u8, 0);
                 write_command_and_data(di, Instruction::PosY as u8, 0);
                 write_command_and_data(di, Instruction::HSA as u8, LANDSCAPE_ORIGIN_Y);
-                write_command_and_data(di, 
+                write_command_and_data(
+                    di,
                     Instruction::HEA as u8,
                     LANDSCAPE_ORIGIN_Y + LANDSCAPE_AVAIL_HEIGHT - 1,
                 );
-                write_command_and_data(di, 
+                write_command_and_data(
+                    di,
                     Instruction::VSA as u8,
                     LANDSCAPE_TOTAL_WIDTH - LANDSCAPE_AVAIL_WIDTH - LANDSCAPE_ORIGIN_X + 1,
                 );
-                write_command_and_data(di, 
+                write_command_and_data(
+                    di,
                     Instruction::VEA as u8,
                     LANDSCAPE_TOTAL_WIDTH - LANDSCAPE_ORIGIN_X,
                 );

@@ -1,32 +1,30 @@
 use crate::{
-    utils::{KeyEvent, IdleEvent, DeviceEvent},
+    controller::Result,
     model::CoreModel,
-    controller::Result, SdCardCmd,
+    utils::{DeviceEvent, IdleEvent, KeyEvent},
+    SdCardCmd,
 };
 
-pub struct SwUpdateController {
-}
+pub struct SwUpdateController {}
 
 impl SwUpdateController {
     pub fn new() -> Self {
-        SwUpdateController {  }
+        SwUpdateController {}
     }
 
     pub fn device_action(&mut self, core_model: &mut CoreModel, device_event: &DeviceEvent) {
         core_model.control.firmware_update_state = *device_event;
     }
 
-
     pub fn key_action(&mut self, core_model: &mut CoreModel, key_event: &KeyEvent) -> Result {
         match core_model.control.firmware_update_state {
-            DeviceEvent::FwAvailable(_) => {
-                match key_event {
-                    KeyEvent::Btn1 => 
-                        core_model.send_idle_event(IdleEvent::SdCardItem(SdCardCmd::SwUpdateAccepted)),
-                    _ => {
-                        core_model.config.display_active = core_model.config.last_display_active;
-                        core_model.send_idle_event(IdleEvent::SdCardItem(SdCardCmd::SwUpdateCanceled));
-                    }
+            DeviceEvent::FwAvailable(_) => match key_event {
+                KeyEvent::Btn1 => {
+                    core_model.send_idle_event(IdleEvent::SdCardItem(SdCardCmd::SwUpdateAccepted))
+                }
+                _ => {
+                    core_model.config.display_active = core_model.config.last_display_active;
+                    core_model.send_idle_event(IdleEvent::SdCardItem(SdCardCmd::SwUpdateCanceled));
                 }
             },
             _ => (),
@@ -34,5 +32,3 @@ impl SwUpdateController {
         Result::Nothing
     }
 }
-
-

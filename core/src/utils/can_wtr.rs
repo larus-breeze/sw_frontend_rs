@@ -1,7 +1,7 @@
+use bxcan::Frame;
 use byteorder::{ByteOrder, LittleEndian as LE};
 use embedded_hal::can::{Id, StandardId};
-use heapless::spsc::{Queue, Producer, Consumer};
-use bxcan::Frame;
+use heapless::spsc::{Consumer, Producer, Queue};
 
 pub struct CanFrame {
     id: u16,
@@ -12,7 +12,11 @@ pub struct CanFrame {
 #[allow(unused)]
 impl CanFrame {
     pub fn empty_from_id(id: u16) -> Self {
-        CanFrame {id, len: 0, data: [0u8; 8]}
+        CanFrame {
+            id,
+            len: 0,
+            data: [0u8; 8],
+        }
     }
 
     pub fn from_slice(id: u16, src: &[u8]) -> Self {
@@ -21,7 +25,11 @@ impl CanFrame {
         for idx in 0..len {
             data[idx] = src[idx]
         }
-        CanFrame {id, len: len as u8, data}
+        CanFrame {
+            id,
+            len: len as u8,
+            data,
+        }
     }
 
     fn push_u32(&mut self, val: u32) {

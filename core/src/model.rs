@@ -1,6 +1,6 @@
+use crate::utils::{DeviceEvent, PIdleEvents, PTxFrames};
+use crate::{IdleEvent, Mass, PersistenceId, PersistenceItem};
 use embedded_graphics::geometry::{Angle, AngleUnit};
-use crate::{IdleEvent, PersistenceItem, PersistenceId, Mass};
-use crate::utils::{PIdleEvents, DeviceEvent, PTxFrames};
 
 use crate::{
     controller::Editable,
@@ -36,7 +36,15 @@ impl CoreModel {
         let control = Control::default();
         let glider_data = GliderData::default();
         let sensor = Sensor::default();
-        CoreModel { calculated, config, control, glider_data, sensor, p_idle_events, _p_tx_frames: p_tx_frames }
+        CoreModel {
+            calculated,
+            config,
+            control,
+            glider_data,
+            sensor,
+            p_idle_events,
+            _p_tx_frames: p_tx_frames,
+        }
     }
 
     pub fn send_idle_event(&mut self, idle_event: IdleEvent) {
@@ -47,8 +55,12 @@ impl CoreModel {
         match item.id {
             PersistenceId::Volume => self.config.volume = item.to_i8(),
             PersistenceId::McCready => self.config.mc_cready = Speed::from_m_s(item.to_f32()),
-            PersistenceId::WaterBallast => self.glider_data.water_ballast = Mass::from_kg(item.to_f32()),
-            PersistenceId::PilotWeight => self.glider_data.pilot_weight = Mass::from_kg(item.to_f32()),
+            PersistenceId::WaterBallast => {
+                self.glider_data.water_ballast = Mass::from_kg(item.to_f32())
+            }
+            PersistenceId::PilotWeight => {
+                self.glider_data.pilot_weight = Mass::from_kg(item.to_f32())
+            }
             PersistenceId::Glider => self.config.glider_idx = item.to_i32(),
             _ => (),
         }
@@ -61,7 +73,6 @@ impl CoreModel {
         trace!("Can paket enqueued")
     }*/
 }
-
 
 /// Flymode display variants
 ///
@@ -116,7 +127,7 @@ pub enum DisplayActive {
 pub struct Calculated {
     pub speed_to_fly: AirSpeed,
     pub speed_to_fly_dif: Speed,
-    pub speed_to_fly_1s: Speed,     // ref. IAS
+    pub speed_to_fly_1s: Speed, // ref. IAS
     pub thermal_climb_rate: Speed,
 }
 
@@ -165,7 +176,7 @@ pub struct Control {
     pub edit_var: Editable,
     pub edit_ticks: u32,   // Used by the editor for the timeout
     pub demo_acitve: bool, // Activates the demo mode
-    pub firmware_update_state: DeviceEvent, 
+    pub firmware_update_state: DeviceEvent,
 }
 
 impl Default for Control {

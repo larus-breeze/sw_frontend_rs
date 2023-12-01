@@ -1,11 +1,11 @@
 use defmt::trace;
 
 use crate::{driver::delay_ms, utils::DevError};
-use eeprom24x::{addr_size::TwoBytes, page_size::B32, Eeprom24x, SlaveAddr};
-use stm32f4xx_hal::{i2c::I2c, pac::I2C1};
 use corelib::{
     eeprom, EepromTopic, PersistenceId, PersistenceItem, CONFIG_VALUES_END, CONFIG_VALUES_START,
 };
+use eeprom24x::{addr_size::TwoBytes, page_size::B32, Eeprom24x, SlaveAddr};
+use stm32f4xx_hal::{i2c::I2c, pac::I2C1};
 
 pub struct Eeprom {
     eeprom: Eeprom24x<I2c<I2C1>, B32, TwoBytes>,

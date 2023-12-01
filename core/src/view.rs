@@ -8,7 +8,11 @@ pub(crate) mod dialog_box;
 pub(crate) mod elements;
 pub(crate) mod vario;
 
-use crate::{model::{CoreModel, DisplayActive}, utils::Colors, CoreError, DrawImage, DISPLAY_HEIGHT, DISPLAY_WIDTH};
+use crate::{
+    model::{CoreModel, DisplayActive},
+    utils::Colors,
+    CoreError, DrawImage, DISPLAY_HEIGHT, DISPLAY_WIDTH,
+};
 
 // Debug build runs at 10 Hz
 #[cfg(debug_assertions)]
@@ -44,7 +48,6 @@ where
             DisplayActive::Vario => vario::draw(&mut self.display, core_model)?,
             DisplayActive::FirmwareUpdate => sw_update::draw(&mut self.display, core_model)?,
         }
-        
 
         if core_model.control.edit_ticks > 0 {
             edit::draw(&mut self.display, core_model)?;
