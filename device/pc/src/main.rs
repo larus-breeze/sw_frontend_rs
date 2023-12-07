@@ -42,7 +42,7 @@ fn main() -> Result<(), core::convert::Infallible> {
         unsafe { Q_IDLE_EVENTS.split() }
     };
     // This queue transports the can bus frames from the view component to the can tx driver.
-    let (p_tx_frames, _c_tx_frames) = {
+    let (p_tx_frames, mut c_tx_frames) = {
         static mut Q_TX_FRAMES: QTxFrames = Queue::new();
         // Note: unsafe is ok here, because [heapless::spsc] queue protects against UB
         unsafe { Q_TX_FRAMES.split() }
@@ -125,6 +125,20 @@ fn main() -> Result<(), core::convert::Infallible> {
         controller.time_action(&mut core_model);
         view.draw(&mut core_model).unwrap();
 
+        while c_tx_frames.len() > 0 {
+            let frame = c_tx_frames.dequeue().unwrap();
+            if let bxcan::Id::Standard(standard_id) = frame.id() {
+                if standard_id.as_raw() == 0 {
+                    let data = frame.data().unwrap();
+                    let frequency = LE::read_u16(&data[..2]);
+                    let duty_cycle = LE::read_u16(&data[2..4]);
+                    let volume = data[4];
+                    let continuous= data[5] == 1;
+                    window.sound(frequency, volume, continuous, duty_cycle);
+                }
+            }
+        }
+
         while c_idle_events.len() > 0 {
             let idle_event = c_idle_events.dequeue().unwrap();
             println!("StorageItem {:?}", &idle_event);
@@ -142,7 +156,7 @@ fn main() -> Result<(), core::convert::Infallible> {
         let mut buf = [0u8; 10];
         while let Ok((cnt, _adr)) = socket.recv_from(&mut buf) {
             let id = LE::read_u16(&buf[..2]);
-            let frame = CanFrame::from_slice(id, &buf[2..cnt]);
+            let frame: bxcan::Frame = CanFrame::from_slice(id, &buf[2..cnt]).into();
             controller.read_can_frame(&mut core_model, &frame);
         }
     }

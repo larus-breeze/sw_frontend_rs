@@ -8,6 +8,7 @@ mod sw_update;
 use sw_update::SwUpdateController;
 
 use crate::{
+    can_frame_sound,
     flight_physics::Polar,
     model::{DisplayActive, EditMode, VarioModeControl},
     system_of_units::FloatToSpeed,
@@ -15,6 +16,9 @@ use crate::{
     CoreModel, DeviceEvent, PersistenceId, PersistenceItem, VarioMode, POLARS,
 };
 use embedded_hal::can::Frame;
+
+#[allow(unused_imports)]
+use micromath::F32Ext;
 
 const UPDATE_RATE: u32 = 10;
 
@@ -153,6 +157,39 @@ impl CoreController {
             self.polar.speed_to_fly(climb_rate - sink_rate, mc_cready);
         core_model.calculated.speed_to_fly_dif =
             core_model.calculated.speed_to_fly.ias() - core_model.sensor.airspeed.ias();
+
+        // calculate sound parameters and push can frame to queue
+        let cms = &core_model.sensor;
+        let cmc = &core_model.config;
+        let (frequency, continuous, volume) = match core_model.control.vario_mode {
+            VarioMode::Vario => (
+                cmc.snd_center_freq * (cmc.snd_exp_mul * cms.climb_rate.to_m_s()).exp(),
+                cms.climb_rate.to_m_s() < 0.0,
+                cmc.volume,
+            ),
+            VarioMode::SpeedToFly => {
+                let sped_to_fly_val = core_model.calculated.speed_to_fly_dif.to_km_h() / -10.0;
+                if sped_to_fly_val.abs() < 1.0 {
+                    (500.0, true, 0) // speed to fly is ok, so be quiet
+                } else {
+                    (
+                        cmc.snd_center_freq * (cmc.snd_exp_mul * sped_to_fly_val).exp(),
+                        sped_to_fly_val < 0.0,
+                        cmc.volume,
+                    )
+                }
+            }
+        };
+
+        // create CAN frame
+        let can_frame = can_frame_sound(
+            frequency as u16,
+            volume as u8,
+            cmc.snd_duty_cycle,
+            continuous,
+        );
+        // add CAN frame to queue, ignore if the queue is full
+        let _ = core_model.p_tx_frames.enqueue(can_frame);
 
         // The following actions are performed infrequently and alternately
         self.tick = (self.tick + 1) % 10; // 10 Hz -> every second from beginning
