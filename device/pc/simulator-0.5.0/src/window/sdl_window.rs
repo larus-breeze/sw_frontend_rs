@@ -94,7 +94,7 @@ impl SdlWindow {
 
         let desired_spec = desired_spec();
         let audio_device = audio_subsystem.open_playback(None, &desired_spec, |_| {
-            let audio_params = AudioParams::new(440.0, 0.05, true);
+            let audio_params = AudioParams::new(440.0, 0.05, true, 80);
             // initialize the audio callback
             SquareWave::new(&AUDIO_QUEUE, audio_params)
         }).unwrap();
@@ -135,8 +135,8 @@ impl SdlWindow {
         }
     }
 
-    pub fn sound(&mut self, frequency: f32, volume: f32, continous: bool) {
-        self.audio_queue.push(AudioParams::new(frequency, volume, continous)).unwrap();
+    pub fn sound(&mut self, frequency: f32, volume: f32, continuous: bool, duty_cycle: u32) {
+        self.audio_queue.push(AudioParams::new(frequency, volume, continuous, duty_cycle)).unwrap();
     }
 
     pub fn update(&mut self, framebuffer: &OutputImage<Rgb888>) {

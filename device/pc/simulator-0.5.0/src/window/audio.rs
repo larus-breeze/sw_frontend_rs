@@ -15,13 +15,14 @@ pub fn desired_spec() -> AudioSpecDesired {
 pub struct AudioParams {
     phase_inc: f32,
     volume: f32,
-    continous: bool,
+    continuous: bool,
+    duty_cycle: u32
 }
 
 impl AudioParams {
-    pub fn new(frequency: f32, volume: f32, continous: bool) -> Self {
+    pub fn new(frequency: f32, volume: f32, continuous: bool, duty_cycle: u32) -> Self {
         let phase_inc = frequency / SAMPLE_FREQUENCY as f32;
-        AudioParams { phase_inc, volume, continous }
+        AudioParams { phase_inc, volume, continuous, duty_cycle }
     }
 }
 
@@ -48,12 +49,13 @@ impl AudioCallback for SquareWave {
         }
         // Generate triangular oscillation
         for x in out.iter_mut() {
-            *x = if self.params.continous {
+            *x = if self.params.continuous {
                 (2.0*self.phase - 1.0) * self.params.volume
-            } else { 
-                match self.wave_cnt % 80 {
-                    0..=50 => (2.0*self.phase - 1.0) * self.params.volume,
-                    _ => 0.0,
+            } else {
+                if (self.wave_cnt % self.params.duty_cycle) < (self.params.duty_cycle / 2) {
+                    (2.0*self.phase - 1.0) * self.params.volume
+                } else {
+                    0.0
                 }
             };
             

@@ -1,7 +1,24 @@
-use bxcan::Frame;
+use bxcan::{Data, Frame, StandardId};
 use byteorder::{ByteOrder, LittleEndian as LE};
-use embedded_hal::can::{Id, StandardId};
 use heapless::spsc::{Consumer, Producer, Queue};
+
+pub fn can_frame_sound(frequency: u16, volume: u8, duty_cycle: u16, continuous: bool) -> Frame {
+    CanFrame::empty_from_id(0x00)
+        .push_u16(frequency)
+        .push_u16(duty_cycle)
+        .push_u8(volume)
+        .push_u8(if continuous { 1 } else { 0 })
+        .into()
+}
+
+impl core::convert::From<CanFrame> for Frame {
+    fn from(val: CanFrame) -> Self {
+        // Note: id must be < 1024, data.len() <= 8
+        let id = StandardId::new(val.id).unwrap();
+        let data = Data::new(&val.data[..val.len as usize]).unwrap();
+        Frame::new_data(id, data)
+    }
+}
 
 pub struct CanFrame {
     id: u16,
@@ -30,90 +47,51 @@ impl CanFrame {
         }
     }
 
-    fn push_u32(&mut self, val: u32) {
+    fn push_u32(mut self, val: u32) -> Self {
         let idx = self.len as usize;
         self.len += 4;
         LE::write_u32(&mut self.data[idx..(self.len as usize)], val);
+        self
     }
 
-    fn push_u16(&mut self, val: u16) {
+    fn push_u16(mut self, val: u16) -> Self {
         let idx = self.len as usize;
         self.len += 2;
         LE::write_u16(&mut self.data[idx..(self.len as usize)], val);
+        self
     }
 
-    fn push_u8(&mut self, val: u8) {
+    fn push_u8(mut self, val: u8) -> Self {
         self.data[self.len as usize] = val;
         self.len += 1;
+        self
     }
 
-    fn push_i32(&mut self, val: i32) {
+    fn push_i32(mut self, val: i32) -> Self {
         let idx = self.len as usize;
         self.len += 4;
         LE::write_i32(&mut self.data[idx..(self.len as usize)], val);
+        self
     }
 
-    fn push_i16(&mut self, val: i16) {
+    fn push_i16(mut self, val: i16) -> Self {
         let idx = self.len as usize;
         self.len += 2;
         LE::write_i16(&mut self.data[idx..(self.len as usize)], val);
+        self
     }
 
-    fn push_i8(&mut self, val: i8) {
+    fn push_i8(mut self, val: i8) -> Self {
         self.data[self.len as usize] = val as u8;
         self.len += 1;
+        self
     }
 
-    fn push_f32(&mut self, val: f32) {
+    fn push_f32(mut self, val: f32) -> Self {
         let idx = self.len as usize;
         self.len += 4;
         LE::write_f32(&mut self.data[idx..(self.len as usize)], val);
-    }
-}
-
-impl embedded_hal::can::Frame for CanFrame {
-    fn new(id: impl Into<Id>, data: &[u8]) -> Option<Self> {
-        let id = match id.into() {
-            Id::Standard(id) => id,
-            Id::Extended(_id) => return None,
-        };
-        if data.len() > 8 {
-            return None;
-        }
-
-        let mut bytes = [0; 8];
-        bytes[..data.len()].copy_from_slice(data);
-        let len = data.len() as u8;
-
-        Some(Self {
-            id: id.as_raw(),
-            len,
-            data: bytes,
-        })
-    }
-
-    fn new_remote(_id: impl Into<Id>, _dlc: usize) -> Option<Self> {
-        None
-    }
-
-    fn is_extended(&self) -> bool {
-        false
-    }
-
-    fn is_remote_frame(&self) -> bool {
-        false
-    }
-
-    fn id(&self) -> Id {
-        Id::Standard(StandardId::new(self.id).unwrap())
-    }
-
-    fn dlc(&self) -> usize {
-        self.len as usize
-    }
-
-    fn data(&self) -> &[u8] {
-        &self.data[..self.len as usize]
+        self
     }
 }
 

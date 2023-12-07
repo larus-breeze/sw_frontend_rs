@@ -176,10 +176,11 @@ impl Window {
     }
 
     /// Push data to the speaker
-    pub fn sound(&mut self, frequency: f32, volume: f32, continous: bool) {
+    pub fn sound(&mut self, frequency: u16, volume: u8, continuous: bool, duty_cycle: u16) {
+        let vol = 0.005 * volume as f32;
         self.sdl_window
             .as_mut()
             .unwrap()
-            .sound(frequency, volume, continous);
+            .sound(frequency as f32, vol, continuous, duty_cycle as u32);
     }
 }

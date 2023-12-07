@@ -87,6 +87,30 @@ impl PersistenceItem {
         }
     }
 
+    pub fn from_u8(id: PersistenceId, value: u8) -> Self {
+        PersistenceItem {
+            id,
+            dat_bit: true,
+            data: (value as u32).to_le_bytes(),
+        }
+    }
+
+    pub fn from_u16(id: PersistenceId, value: u16) -> Self {
+        PersistenceItem {
+            id,
+            dat_bit: true,
+            data: (value as u32).to_le_bytes(),
+        }
+    }
+
+    pub fn from_u32(id: PersistenceId, value: u32) -> Self {
+        PersistenceItem {
+            id,
+            dat_bit: true,
+            data: value.to_le_bytes(),
+        }
+    }
+
     pub fn from_f32(id: PersistenceId, value: f32) -> Self {
         PersistenceItem {
             id,
@@ -101,6 +125,18 @@ impl PersistenceItem {
 
     pub fn to_i32(&self) -> i32 {
         i32::from_le_bytes(self.data)
+    }
+
+    pub fn to_u8(&self) -> u8 {
+        i32::from_le_bytes(self.data) as u8
+    }
+
+    pub fn to_u16(&self) -> u16 {
+        i32::from_le_bytes(self.data) as u16
+    }
+
+    pub fn to_u32(&self) -> u32 {
+        u32::from_le_bytes(self.data)
     }
 
     pub fn to_f32(&self) -> f32 {
