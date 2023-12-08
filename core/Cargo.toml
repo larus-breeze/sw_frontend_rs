@@ -17,6 +17,6 @@ defmt = "0.3"
 bxcan = "0.7"
 
 [features]
-default = ["display_size_227x285", "eeprom_size_8192"]
-display_size_227x285 = []
+default = ["air_avionics_ad57", "eeprom_size_8192"]
+air_avionics_ad57 = []
 eeprom_size_8192 = []

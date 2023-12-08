@@ -39,7 +39,7 @@ defmt-default = []
 
 [dependencies.corelib]
 path = "../../core"
-features = ["display_size_227x285"]
+features = ["air_avionics_ad57"]
 
 [[bin]]
 name = "vario"

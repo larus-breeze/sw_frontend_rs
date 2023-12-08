@@ -39,9 +39,9 @@ use embedded_graphics::prelude::*;
 use micromath::F32Ext;
 
 // Basic dimensions of the used display
-#[cfg(feature = "display_size_227x285")]
+#[cfg(feature = "air_avionics_ad57")]
 pub const DISPLAY_WIDTH: u32 = 227;
-#[cfg(feature = "display_size_227x285")]
+#[cfg(feature = "air_avionics_ad57")]
 pub const DISPLAY_HEIGHT: u32 = 285;
 
 /// Trait of a function to bring an image to the screen. The format of the image files is
