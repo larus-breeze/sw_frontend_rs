@@ -1,6 +1,7 @@
 use crate::{
+    basic_config::DISPLAY_WIDTH,
     utils::{Colors, FONT_HELV_18},
-    CoreError, DrawImage, DISPLAY_WIDTH,
+    CoreError, DrawImage,
 };
 use embedded_graphics::{
     prelude::*,

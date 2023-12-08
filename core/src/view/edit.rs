@@ -1,9 +1,10 @@
 use crate::{
+    basic_config::{DISPLAY_HEIGHT, DISPLAY_WIDTH},
     controller::Editable,
     model::{CoreModel, VarioModeControl},
     utils::{Colors, FONT_HELV_14, FONT_HELV_18},
     view::SCREEN_CENTER,
-    Concat, CoreError, DrawImage, DISPLAY_HEIGHT, DISPLAY_WIDTH, POLARS,
+    Concat, CoreError, DrawImage, POLARS,
 };
 use embedded_graphics::{
     prelude::*,

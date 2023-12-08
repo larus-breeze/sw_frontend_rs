@@ -8,6 +8,7 @@ mod sw_update;
 use sw_update::SwUpdateController;
 
 use crate::{
+    basic_config::CONTROLLER_TICK_RATE,
     can_frame_sound,
     flight_physics::Polar,
     model::{DisplayActive, EditMode, VarioModeControl},
@@ -19,8 +20,6 @@ use embedded_hal::can::Frame;
 
 #[allow(unused_imports)]
 use micromath::F32Ext;
-
-const UPDATE_RATE: u32 = 10;
 
 #[repr(u8)]
 #[derive(Clone, Copy)]
@@ -110,7 +109,7 @@ impl CoreController {
             Result::Edit(mode, var, timeout) => {
                 core_model.control.edit_mode = mode;
                 core_model.control.edit_var = var;
-                core_model.control.edit_ticks = timeout * UPDATE_RATE;
+                core_model.control.edit_ticks = timeout * CONTROLLER_TICK_RATE;
                 self.check_edit_results(core_model)
             }
             Result::Nothing => (),
@@ -192,7 +191,7 @@ impl CoreController {
         let _ = core_model.p_tx_frames.enqueue(can_frame);
 
         // The following actions are performed infrequently and alternately
-        self.tick = (self.tick + 1) % 10; // 10 Hz -> every second from beginning
+        self.tick = (self.tick + 1) % CONTROLLER_TICK_RATE; // every second from beginning
         match self.tick {
             // Recalculate the polar coefficients based on the current data
             1 => self
