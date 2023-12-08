@@ -9,9 +9,10 @@ pub(crate) mod elements;
 pub(crate) mod vario;
 
 use crate::{
+    basic_config::{DISPLAY_HEIGHT, DISPLAY_WIDTH},
     model::{CoreModel, DisplayActive},
     utils::Colors,
-    CoreError, DrawImage, DISPLAY_HEIGHT, DISPLAY_WIDTH,
+    CoreError, DrawImage,
 };
 
 // Debug build runs at 10 Hz

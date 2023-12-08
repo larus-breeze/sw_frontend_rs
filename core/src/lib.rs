@@ -38,11 +38,13 @@ use embedded_graphics::prelude::*;
 #[allow(unused_imports)]
 use micromath::F32Ext;
 
-// Basic dimensions of the used display
+// Basic config
 #[cfg(feature = "air_avionics_ad57")]
-pub const DISPLAY_WIDTH: u32 = 227;
-#[cfg(feature = "air_avionics_ad57")]
-pub const DISPLAY_HEIGHT: u32 = 285;
+pub mod basic_config {
+    pub const DISPLAY_WIDTH: u32 = 227;
+    pub const DISPLAY_HEIGHT: u32 = 285;
+    pub const CONTROLLER_TICK_RATE: u32 = 10;
+}
 
 /// Trait of a function to bring an image to the screen. The format of the image files is
 /// specifically designed to be ultra-fast. It is defined in the Python script
