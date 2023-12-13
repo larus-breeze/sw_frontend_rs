@@ -235,14 +235,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "fmc_lcd"
-version = "0.1.0"
-dependencies = [
- "display-interface",
- "stm32h7xx-hal",
-]
-
-[[package]]
 name = "fugit"
 version = "0.3.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -623,7 +615,6 @@ dependencies = [
  "display-interface",
  "embedded-graphics",
  "embedded-hal",
- "fmc_lcd",
  "nb 1.1.0",
  "panic-halt",
  "panic-probe",
