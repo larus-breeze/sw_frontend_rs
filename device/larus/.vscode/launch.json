@@ -26,7 +26,7 @@
           "monitor rtt setup 0x20000020 0x30 \"SEGGER RTT\"",
           "monitor rtt start",
       ],
-        "svdFile": "${workspaceRoot}/STM32F7x3.svd",
+        "svdFile": "${workspaceRoot}/STM32H743.svd",
       },
       {
         "type": "cortex-debug",
@@ -50,7 +50,7 @@
           "monitor rtt setup 0x20000020 0x30 \"SEGGER RTT\"",
           "monitor rtt start",
       ],
-        "svdFile": "${workspaceRoot}/STM32F7x3.svd",
+        "svdFile": "${workspaceRoot}/STM32H743.svd",
       },
       {
         "type": "cortex-debug",
@@ -74,7 +74,7 @@
           "monitor rtt setup 0x20000020 0x30 \"SEGGER RTT\"",
           "monitor rtt start",
       ],
-        "svdFile": "${workspaceRoot}/STM32F7x3.svd",
+        "svdFile": "${workspaceRoot}/STM32H743.svd",
       },
     ]
   }
