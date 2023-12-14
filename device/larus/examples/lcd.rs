@@ -6,7 +6,6 @@ mod driver;
 use defmt::*;
 use defmt_rtt as _;
 use panic_rtt_target as _;
-use stm32h7xx_hal::rcc::ResetEnable;
 
 use core::iter::{Cloned, Cycle};
 use core::slice::Iter;
@@ -16,9 +15,9 @@ use embedded_graphics::pixelcolor::Rgb565;
 use embedded_graphics::prelude::*;
 use embedded_graphics::primitives::{Circle, PrimitiveStyle};
 use stm32h7xx_hal::{
-    pac::{CorePeripherals, Peripherals},
+    pac::{CorePeripherals, Peripherals as DevicePeripherals},
     prelude::*,
-    rcc::rec::FmcClkSel,
+    rcc::{rec::FmcClkSel, PllConfigStrategy},
 };
 
 use driver::*;
@@ -40,7 +39,7 @@ enum Error {
 fn main() -> ! {
     // Setup clocks
     let mut cp = CorePeripherals::take().unwrap();
-    let dp = Peripherals::take().unwrap();
+    let dp = DevicePeripherals::take().unwrap();
 
     info!("init");
 
@@ -51,20 +50,21 @@ fn main() -> ! {
     let rcc = dp.RCC.constrain();
     let ccdr = rcc
         .use_hse(25.MHz())
-        .sys_ck(200.MHz())
-        .hclk(200.MHz()) // FMC clock from HCLK by default
-        .pll2_p_ck(100.MHz())
-        .pll2_r_ck(100.MHz())
+        .sys_ck(192.MHz())
+        .hclk(192.MHz()) // FMC clock from HCLK by default
+        .pll1_strategy(PllConfigStrategy::Iterative)
+        .pll1_q_ck(32.MHz())
+        .pll2_p_ck(96.MHz())
+        .pll2_r_ck(96.MHz())
         .freeze(pwrcfg, &dp.SYSCFG);
-
-    // Modify the kernel clock for FMC. See RM0433 Rev 7 Section 8.5.8.
-    let prec = ccdr.peripheral.FMC.kernel_clk_mux(FmcClkSel::Pll2R);
-    // Enable AHB access and reset peripheral
-    prec.enable().reset();
 
     // Initialise system...
     cp.SCB.enable_icache();
     cp.DWT.enable_cycle_counter();
+
+    // Modify the kernel clock for FMC. See RM0433 Rev 7 Section 8.5.8.
+    let pfmc = ccdr.peripheral.FMC;
+    let pfmc = pfmc.kernel_clk_mux(FmcClkSel::Pll2R);
 
     let mut delay = cp.SYST.delay(ccdr.clocks);
 
@@ -84,10 +84,7 @@ fn main() -> ! {
         gpiod.pd5,
         gpiod.pd7,
     );
-    //let read_timing = Timing::default().data(8).address_setup(8).bus_turnaround(0);
-    //let write_timing = Timing::default().data(3).address_setup(3).bus_turnaround(0);
-
-    let interface = LcdInterface::new(dp.FMC, lcd_pins);
+    let interface = LcdInterface::new(pfmc, dp.FMC, lcd_pins);
 
     let lcd_reset = gpioc.pc0.into_push_pull_output();
     let backlight_control = gpiof.pf5.into_push_pull_output();
@@ -105,15 +102,6 @@ fn main() -> ! {
     lcd.set_orientation(st7789::Orientation::PortraitSwapped)
         .unwrap();
     lcd.clear(Rgb565::BLACK).unwrap();
-    /*let colors = (0..160*240).map(|_| Rgb565::GREEN.into_storage()); // blank entire HW RAM contents
-    lcd.set_pixels(0, 0, 239, 159, colors).unwrap();
-    let colors = (0..160*240).map(|_| Rgb565::GREEN.into_storage()); // blank entire HW RAM contents
-    lcd.set_pixels(0, 160, 239, 319, colors).unwrap();
-    for x in 0..240 {
-        for y in 0..320 {
-            lcd.set_pixel(x, y, Rgb565::RED.into_storage()).unwrap();
-        }
-    }*/
 
     // Draw some circles
     let test_colors = [

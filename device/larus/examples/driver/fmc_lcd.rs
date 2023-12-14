@@ -1,5 +1,9 @@
 use display_interface::{DataFormat, DisplayError, WriteOnlyDataCommand};
-use stm32h7xx_hal::{gpio, pac::FMC};
+use stm32h7xx_hal::{
+    gpio,
+    pac::FMC,
+    rcc::{rec::Fmc, ResetEnable},
+};
 
 macro_rules! config_pin {
     ($pin:expr) => {{
@@ -126,7 +130,10 @@ pub struct LcdInterface {
 }
 
 impl LcdInterface {
-    pub fn new<'a>(_fsmc: FMC, lcd_pins: LcdPins) -> Self {
+    pub fn new<'a>(pfmc: Fmc, _fsmc: FMC, lcd_pins: LcdPins) -> Self {
+        // Enable AHB access and reset peripheral
+        pfmc.enable().reset();
+
         // Safety
         // The required configuration of the FMC_LCD is taken from a Cube IDE example in C from
         // STM. Unsafe can be used without restrictions in this context.
