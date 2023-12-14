@@ -12,14 +12,14 @@ use core::iter::{Cloned, Cycle};
 use core::slice::Iter;
 
 use cortex_m_rt::entry;
-use stm32h7xx_hal::{
-    pac::{CorePeripherals, Peripherals},
-    rcc::rec::FmcClkSel,
-    prelude::*,
-};
 use embedded_graphics::pixelcolor::Rgb565;
 use embedded_graphics::prelude::*;
 use embedded_graphics::primitives::{Circle, PrimitiveStyle};
+use stm32h7xx_hal::{
+    pac::{CorePeripherals, Peripherals},
+    prelude::*,
+    rcc::rec::FmcClkSel,
+};
 
 use driver::*;
 use st7789::ST7789;
@@ -60,13 +60,11 @@ fn main() -> ! {
     // Modify the kernel clock for FMC. See RM0433 Rev 7 Section 8.5.8.
     let prec = ccdr.peripheral.FMC.kernel_clk_mux(FmcClkSel::Pll2R);
     // Enable AHB access and reset peripheral
-    prec.enable().reset(); 
+    prec.enable().reset();
 
     // Initialise system...
     cp.SCB.enable_icache();
     cp.DWT.enable_cycle_counter();
-
-
 
     let mut delay = cp.SYST.delay(ccdr.clocks);
 
@@ -89,10 +87,7 @@ fn main() -> ! {
     //let read_timing = Timing::default().data(8).address_setup(8).bus_turnaround(0);
     //let write_timing = Timing::default().data(3).address_setup(3).bus_turnaround(0);
 
-    let interface = LcdInterface::new(
-        dp.FMC,
-        lcd_pins,
-    );
+    let interface = LcdInterface::new(dp.FMC, lcd_pins);
 
     let lcd_reset = gpioc.pc0.into_push_pull_output();
     let backlight_control = gpiof.pf5.into_push_pull_output();
@@ -107,7 +102,8 @@ fn main() -> ! {
     );
     // Initialise the display and clear the screen
     lcd.init(&mut delay).unwrap();
-    lcd.set_orientation(st7789::Orientation::PortraitSwapped).unwrap();
+    lcd.set_orientation(st7789::Orientation::PortraitSwapped)
+        .unwrap();
     lcd.clear(Rgb565::BLACK).unwrap();
     /*let colors = (0..160*240).map(|_| Rgb565::GREEN.into_storage()); // blank entire HW RAM contents
     lcd.set_pixels(0, 0, 239, 159, colors).unwrap();
@@ -118,7 +114,6 @@ fn main() -> ! {
             lcd.set_pixel(x, y, Rgb565::RED.into_storage()).unwrap();
         }
     }*/
-
 
     // Draw some circles
     let test_colors = [

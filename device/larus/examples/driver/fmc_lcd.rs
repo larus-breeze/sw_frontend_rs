@@ -1,15 +1,12 @@
 use display_interface::{DataFormat, DisplayError, WriteOnlyDataCommand};
 use stm32h7xx_hal::{gpio, pac::FMC};
 
-
 macro_rules! config_pin {
-    ($pin:expr) => {
-        {
-            let mut p = $pin.into_pull_up_input().into_alternate::<12>();
-            p.set_speed(gpio::Speed::VeryHigh);
-            p
-        }
-    };
+    ($pin:expr) => {{
+        let mut p = $pin.into_pull_up_input().into_alternate::<12>();
+        p.set_speed(gpio::Speed::VeryHigh);
+        p
+    }};
 }
 
 #[allow(dead_code)]
@@ -66,8 +63,23 @@ impl DataPins16 {
         let p13 = config_pin!(p13);
         let p14 = config_pin!(p14);
         let p15 = config_pin!(p15);
-        DataPins16 { 
-            p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p10, p11, p12, p13, p14, p15 
+        DataPins16 {
+            p0,
+            p1,
+            p2,
+            p3,
+            p4,
+            p5,
+            p6,
+            p7,
+            p8,
+            p9,
+            p10,
+            p11,
+            p12,
+            p13,
+            p14,
+            p15,
         }
     }
 }
@@ -93,10 +105,15 @@ impl LcdPins {
         let read_enable = config_pin!(read_enable);
         let write_enable = config_pin!(write_enable);
         let chip_select = config_pin!(chip_select);
-        LcdPins {data_pins, address, read_enable, write_enable, chip_select}
+        LcdPins {
+            data_pins,
+            address,
+            read_enable,
+            write_enable,
+            chip_select,
+        }
     }
 }
-
 
 type Address = gpio::Pin<'D', 11, gpio::Alternate<12>>;
 type ReadEnable = gpio::Pin<'D', 4, gpio::Alternate<12>>;
@@ -109,23 +126,19 @@ pub struct LcdInterface {
 }
 
 impl LcdInterface {
-    pub fn new<'a>(
-        _fsmc: FMC,
-        lcd_pins: LcdPins,
-    ) -> Self {
-
+    pub fn new<'a>(_fsmc: FMC, lcd_pins: LcdPins) -> Self {
         // Safety
-        // The required configuration of the FMC_LCD is taken from a Cube IDE example in C from 
+        // The required configuration of the FMC_LCD is taken from a Cube IDE example in C from
         // STM. Unsafe can be used without restrictions in this context.
         const BCR1: usize = 0x52004000;
         const BTR1: usize = 0x52004004;
         const BWTR1: usize = 0x52004104;
 
         unsafe {
-            core::ptr::write_volatile(BCR1 as *mut u32, 0x01001091);    // config BCR1
-            core::ptr::write_volatile(BTR1 as *mut u32, 0xfff02f1);     // config BTR1
-            core::ptr::write_volatile(BWTR1 as *mut u32, 0xfffffff);    // config BWTR1
-            core::ptr::write_volatile(BCR1 as *mut u32, 0x81001091);    // enable NORSRAM and FMC
+            core::ptr::write_volatile(BCR1 as *mut u32, 0x01001091); // config BCR1
+            core::ptr::write_volatile(BTR1 as *mut u32, 0xfff02f1); // config BTR1
+            core::ptr::write_volatile(BWTR1 as *mut u32, 0xfffffff); // config BWTR1
+            core::ptr::write_volatile(BCR1 as *mut u32, 0x81001091); // enable NORSRAM and FMC
         }
 
         Self { lcd_pins }
@@ -218,4 +231,3 @@ impl WriteOnlyDataCommand for LcdInterface {
         Ok(())
     }
 }
-

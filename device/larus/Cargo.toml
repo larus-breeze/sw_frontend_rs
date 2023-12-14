@@ -19,10 +19,15 @@ display-interface = "0.4"
 embedded-graphics = "0.7.1"
 st7789 = "0.7.0"
 
+heapless = "0.8"
+
 panic-probe = { version = "0.3", features = ["print-defmt"] }
 defmt = "0.3"
 defmt-rtt = "0.4"
 
+[dependencies.corelib]
+path = "../../core"
+features = ["air_avionics_ad57"]
 
 [[bin]]
 name = "vario"
