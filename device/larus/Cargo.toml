@@ -6,28 +6,32 @@ edition = "2021"
 
 
 [dependencies]
-nb = "1"
-embedded-hal = { version = "0.2.6", features = ["unproven"] }
+
+# hardware
 cortex-m = { version = "^0.7.7", features = ["critical-section-single-core"] }
 cortex-m-rt = ">=0.6.15,<0.8"
 cortex-m-rtic = "1.1"
-panic-halt = "0.2.0"
-stm32h7xx-hal = { version = "0.15.1", features = ["rt", "stm32h743", "fmc"] }
+fdcan = "0.2"
 panic-rtt-target = { version = "0.1.2", features = ["cortex-m"] }
 rtt-target = { version = "0.3.1", features = ["cortex-m"] }
-display-interface = "0.4"
-embedded-graphics = "0.7.1"
 st7789 = "0.7.0"
+stm32h7xx-hal = { version = "0.15.1", features = ["rt", "stm32h743", "fmc", "can"] }
 
-heapless = "0.8"
-
-panic-probe = { version = "0.3", features = ["print-defmt"] }
+# general
 defmt = "0.3"
 defmt-rtt = "0.4"
+embedded-hal = { version = "0.2.6", features = ["unproven"] }
+heapless = "0.8"
+nb = "1"
+panic-halt = "0.2.0"
+panic-probe = { version = "0.3", features = ["print-defmt"] }
 
-[dependencies.corelib]
-path = "../../core"
-features = ["air_avionics_ad57"]
+# app specific
+embedded-graphics = "0.7.1"
+display-interface = "0.4"
+
+# local
+corelib = { path = "../../core", features = ["air_avionics_ad57"] }
 
 [[bin]]
 name = "vario"
