@@ -23,18 +23,6 @@ use stm32h7xx_hal::{
 use driver::*;
 use st7789::ST7789;
 
-pub fn delay_ms(millis: u32) {
-    let cycles = millis * 168_000;
-    cortex_m::asm::delay(cycles)
-}
-
-#[allow(dead_code)]
-#[derive(Debug)]
-enum Error {
-    EepromOrI2c1,
-    NoItemAvailable,
-}
-
 #[entry]
 fn main() -> ! {
     // Setup clocks
@@ -47,6 +35,7 @@ fn main() -> ! {
     let pwr = dp.PWR.constrain();
     let pwrcfg = pwr.freeze();
 
+    // Initialize clock system
     let rcc = dp.RCC.constrain();
     let ccdr = rcc
         .use_hse(25.MHz())
@@ -58,7 +47,7 @@ fn main() -> ! {
         .pll2_r_ck(96.MHz())
         .freeze(pwrcfg, &dp.SYSCFG);
 
-    // Initialise system...
+    // Initialize system...
     cp.SCB.enable_icache();
     cp.DWT.enable_cycle_counter();
 
