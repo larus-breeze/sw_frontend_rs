@@ -276,6 +276,20 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "156d7a2fdd98ebbf9ae579cbceca3058cff946e13f8e17b90e3511db0508c723"
 
 [[package]]
+name = "fdcan"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "553fb8420a8ca433ed032a3f284deeb95c12e4d3d25cdc15196669a27b2ae34b"
+dependencies = [
+ "bitflags",
+ "nb 1.1.0",
+ "paste",
+ "static_assertions",
+ "vcell",
+ "volatile-register",
+]
+
+[[package]]
 name = "float-cmp"
 version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -647,6 +661,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a8f112729512f8e442d81f95a8a7ddf2b7c6b8a1a6f509a95864142b30cab2d3"
 
 [[package]]
+name = "static_assertions"
+version = "1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
+
+[[package]]
 name = "stm32-fmc"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -679,6 +699,7 @@ dependencies = [
  "embedded-dma",
  "embedded-hal",
  "embedded-storage",
+ "fdcan",
  "fugit",
  "nb 1.1.0",
  "paste",
@@ -763,6 +784,7 @@ dependencies = [
  "display-interface",
  "embedded-graphics 0.7.1",
  "embedded-hal",
+ "fdcan",
  "heapless 0.8.0",
  "nb 1.1.0",
  "panic-halt",
