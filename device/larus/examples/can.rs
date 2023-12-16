@@ -4,24 +4,23 @@
 mod driver;
 
 use nb::block;
-use core::num::{NonZeroU16, NonZeroU8};
-//use core::{cell::RefCell, num::{NonZeroU16, NonZeroU8}};
+use core::{cell::RefCell, num::{NonZeroU16, NonZeroU8}};
 use defmt::*;
 use defmt_rtt as _;
 use panic_rtt_target as _;
-//use cortex_m::{asm, interrupt::Mutex};
+use cortex_m::interrupt::Mutex;
 use cortex_m_rt::entry;
 use stm32h7xx_hal::{
     pac::{
-        CorePeripherals, Peripherals as DevicePeripherals, interrupt, NVIC, //FDCAN1
+        CorePeripherals, Peripherals as DevicePeripherals, interrupt, NVIC, FDCAN1
     },
     prelude::*,
-//    can,
+    can,
     gpio::Speed,
     rcc::{PllConfigStrategy, rec}, //device::fdcan1,
 };
 use fdcan::{
-//    FdCan, ConfigMode, InternalLoopbackMode,
+    InternalLoopbackMode, //FdCan, ConfigMode, 
     interrupt::Interrupt,
     config::NominalBitTiming,
     filter::{StandardFilter, StandardFilterSlot},
@@ -102,13 +101,13 @@ fn main() -> ! {
         StandardFilter::accept_all_into_fifo0(),
     );
 
-    info!("-- Set CAN into normal mode");
-    let mut can = can.into_internal_loopback();
+    info!("-- Set CAN mode");
+    let can = can.into_internal_loopback();
     //let mut can = can.into_normal();
 
-    /*cortex_m::interrupt::free(|cs| {
+    cortex_m::interrupt::free(|cs| {
         FDCAN1.borrow(cs).replace(Some(can));
-    });*/
+    });
 
     unsafe {
         cp.NVIC.set_priority(interrupt::FDCAN1_IT0, 1);
@@ -132,26 +131,39 @@ fn main() -> ! {
 //    info!("Initial Header: {:?}", &header);
 
     info!("Transmit initial message");
-    block!(can.transmit(header, &buffer)).unwrap();
+    cortex_m::interrupt::free(|cs| {
+        let mut rc = FDCAN1.borrow(cs).borrow_mut();
+        let can = rc.as_mut().unwrap();
+        block!(can.transmit(header, &buffer)).unwrap();
+    });
 
     loop {
-        if let Ok(rxheader) = block!(can.receive0(&mut buffer)) {
+        let res_rxheader = cortex_m::interrupt::free(|cs| {
+            let mut rc = FDCAN1.borrow(cs).borrow_mut();
+            let can = rc.as_mut().unwrap();
+            block!(can.receive0(&mut buffer))
+        });
+        if let Ok(rx_header) = res_rxheader {
             //info!("Received Header Id: {:?}", rxheader);
             info!("received data: {:?}", &buffer);
-
             delay.delay_ms(1_u16);
-            block!(can.transmit(rxheader.unwrap().to_tx_header(None), &buffer))
-                .unwrap();
+
+            let tx_header = rx_header.unwrap().to_tx_header(None);
+            cortex_m::interrupt::free(|cs| {
+                let mut rc = FDCAN1.borrow(cs).borrow_mut();
+                let can = rc.as_mut().unwrap();
+                block!(can.transmit(tx_header, &buffer)).unwrap();
+            });
             info!("Transmit: {:?}", buffer);
         }
     }
 
 }
 
-/*static FDCAN1: Mutex<RefCell<Option<fdcan::FdCan<can::Can<FDCAN1>, InternalLoopbackMode>>>> =
+static FDCAN1: Mutex<RefCell<Option<fdcan::FdCan<can::Can<FDCAN1>, InternalLoopbackMode>>>> =
     Mutex::new(RefCell::new(None));
 
-#[interrupt]
+/*#[interrupt]
 fn FDCAN1_IT0() {
     cortex_m::interrupt::free(|cs| {
         let mut rc = FDCAN1.borrow(cs).borrow_mut();
