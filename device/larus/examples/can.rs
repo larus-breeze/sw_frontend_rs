@@ -3,29 +3,31 @@
 
 mod driver;
 
-use nb::block;
-use core::{cell::RefCell, num::{NonZeroU16, NonZeroU8}};
-use defmt::*;
-use defmt_rtt as _;
-use panic_rtt_target as _;
+use core::{
+    cell::RefCell,
+    num::{NonZeroU16, NonZeroU8},
+};
 use cortex_m::interrupt::Mutex;
 use cortex_m_rt::entry;
-use stm32h7xx_hal::{
-    pac::{
-        CorePeripherals, Peripherals as DevicePeripherals, interrupt, NVIC, FDCAN1
-    },
-    prelude::*,
-    can,
-    gpio::Speed,
-    rcc::{PllConfigStrategy, rec}, //device::fdcan1,
-};
+use defmt::*;
+use defmt_rtt as _;
 use fdcan::{
-    InternalLoopbackMode, //FdCan, ConfigMode, 
-    interrupt::Interrupt,
     config::NominalBitTiming,
     filter::{StandardFilter, StandardFilterSlot},
     frame::{FrameFormat, TxFrameHeader},
     id::StandardId,
+    interrupt::{Interrupt, InterruptLine, Interrupts},
+    InternalLoopbackMode, //FdCan, ConfigMode,
+    RegisterBlock,
+};
+use nb::block;
+use panic_rtt_target as _;
+use stm32h7xx_hal::{
+    can,
+    gpio::Speed,
+    pac::{interrupt, CorePeripherals, Peripherals as DevicePeripherals, FDCAN1, NVIC},
+    prelude::*,
+    rcc::{rec, PllConfigStrategy}, //device::fdcan1,
 };
 
 #[allow(dead_code)]
@@ -79,9 +81,6 @@ fn main() -> ! {
         info!("-- Create CAN 1 instance");
         dp.FDCAN1.fdcan(tx, rx, fdcan_prec)
     };
-    
-    can.set_protocol_exception_handling(false);
-    can.enable_interrupt(Interrupt::TxEmpty);
 
     info!("-- Configure nominal timing");
     // Kernel Clock 32MHz, Bit rate: 1MBit/s, Sample Point 87.5%
@@ -102,8 +101,21 @@ fn main() -> ! {
     );
 
     info!("-- Set CAN mode");
-    let can = can.into_internal_loopback();
+    can.set_protocol_exception_handling(false);
+    can.select_interrupt_line_1(Interrupts::TX_COMPLETE);
+
+    // Unsafe during init of peripheral is ok
+    unsafe {
+        // FDCAN_TXBTIE Tx buffer transmission interrupt enable register
+        core::ptr::write_volatile(0x4000a0e0 as *mut u32, 0xffff_ffff);
+    }
+    let mut can = can.into_internal_loopback();
     //let mut can = can.into_normal();
+
+    // can.enable_interrupt(Interrupt::RxFifo0NewMsg);
+    can.enable_interrupt_line(InterruptLine::_0, true);
+    can.enable_interrupt_line(InterruptLine::_1, true);
+    can.enable_interrupts(Interrupts::RX_FIFO0_NEW_MSG | Interrupts::TX_COMPLETE);
 
     cortex_m::interrupt::free(|cs| {
         FDCAN1.borrow(cs).replace(Some(can));
@@ -112,13 +124,13 @@ fn main() -> ! {
     unsafe {
         cp.NVIC.set_priority(interrupt::FDCAN1_IT0, 1);
         NVIC::unmask(interrupt::FDCAN1_IT0);
+        NVIC::unmask(interrupt::FDCAN1_IT1);
     }
-
 
     info!("Create Message Data");
     let mut buffer = [
-        0xAA, 0xAA, 0xAA, 0xAA, 0xFF, 0xFF, 0xFF, 0xFF, 0x0, 0x0, 0x0, 0x0,
-        0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+        0xAA, 0xAA, 0xAA, 0xAA, 0xFF, 0xFF, 0xFF, 0xFF, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
+        0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0, 0x0,
     ];
     info!("Create Message Header");
     let header = TxFrameHeader {
@@ -128,7 +140,7 @@ fn main() -> ! {
         bit_rate_switching: false,
         marker: None,
     };
-//    info!("Initial Header: {:?}", &header);
+    //    info!("Initial Header: {:?}", &header);
 
     info!("Transmit initial message");
     cortex_m::interrupt::free(|cs| {
@@ -141,33 +153,45 @@ fn main() -> ! {
         let res_rxheader = cortex_m::interrupt::free(|cs| {
             let mut rc = FDCAN1.borrow(cs).borrow_mut();
             let can = rc.as_mut().unwrap();
-            block!(can.receive0(&mut buffer))
+            can.receive0(&mut buffer)
         });
         if let Ok(rx_header) = res_rxheader {
             //info!("Received Header Id: {:?}", rxheader);
             info!("received data: {:?}", &buffer);
-            delay.delay_ms(1_u16);
+            delay.delay_ms(100_u16);
 
+            (buffer[0], _) = buffer[0].overflowing_add(1);
             let tx_header = rx_header.unwrap().to_tx_header(None);
             cortex_m::interrupt::free(|cs| {
                 let mut rc = FDCAN1.borrow(cs).borrow_mut();
                 let can = rc.as_mut().unwrap();
-                block!(can.transmit(tx_header, &buffer)).unwrap();
+                can.transmit(tx_header, &buffer).unwrap();
             });
             info!("Transmit: {:?}", buffer);
         }
+        delay.delay_ms(1_u16);
     }
-
 }
 
 static FDCAN1: Mutex<RefCell<Option<fdcan::FdCan<can::Can<FDCAN1>, InternalLoopbackMode>>>> =
     Mutex::new(RefCell::new(None));
 
-/*#[interrupt]
+#[interrupt]
 fn FDCAN1_IT0() {
+    info!("FDCAN1_IT0 interrupt");
     cortex_m::interrupt::free(|cs| {
         let mut rc = FDCAN1.borrow(cs).borrow_mut();
         let can = rc.as_mut().unwrap();
-        can.clear_interrupt(Interrupt::TxEmpty);
+        can.clear_interrupt(Interrupt::RxFifo0NewMsg);
     })
-}*/
+}
+
+#[interrupt]
+fn FDCAN1_IT1() {
+    info!("FDCAN1_IT1 interrupt");
+    cortex_m::interrupt::free(|cs| {
+        let mut rc = FDCAN1.borrow(cs).borrow_mut();
+        let can = rc.as_mut().unwrap();
+        can.clear_interrupt(Interrupt::TxComplete);
+    })
+}
