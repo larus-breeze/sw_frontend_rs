@@ -55,13 +55,13 @@
       {
         "type": "cortex-debug",
         "request": "launch",
-        "name": "Deb blinky",
+        "name": "Deb can",
         "servertype": "openocd",
         "gdbPath": "/usr/bin/gdb-multiarch",
         "cwd": "${workspaceRoot}",
         "preLaunchTask": "Cargo Build Examples (debug)",
         "runToEntryPoint": "main",
-        "executable": "./target/thumbv7em-none-eabihf/debug/examples/blinky",
+        "executable": "./target/thumbv7em-none-eabihf/debug/examples/can",
         "device": "STM32H743VGTx",
         "configFiles": [
           "interface/stlink.cfg",
