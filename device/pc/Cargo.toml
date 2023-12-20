@@ -16,4 +16,4 @@ bxcan = "0.7"
 
 [dependencies.corelib]
 path = "../../core"
-features = ["display_size_227x285"]
+features = ["air_avionics_ad57"]

@@ -1,6 +1,5 @@
-use bxcan::{filter::ListEntry16, Fifo, Frame, Interrupt, StandardId};
+use bxcan::{filter::ListEntry16, Fifo, Frame, Interrupt, StandardId, Data, Id};
 use corelib::CTxFrames;
-use defmt::*;
 use heapless::spsc::{Consumer, Producer, Queue};
 use stm32f4xx_hal::{
     can::{Can, CanExt},
@@ -8,13 +7,13 @@ use stm32f4xx_hal::{
     pac::CAN1,
 };
 
-use corelib::{frontend, sensor};
+use corelib::{frontend, sensor, CanFrame};
 
 // This queue transports the can bus frames from the can rx driver to the controller.
 const MAX_RX_FRAMES: usize = 20;
-pub type QRxFrames = Queue<Frame, MAX_RX_FRAMES>;
-pub type PRxFrames = Producer<'static, Frame, MAX_RX_FRAMES>;
-pub type CRxFrames = Consumer<'static, Frame, MAX_RX_FRAMES>;
+pub type QRxFrames = Queue<CanFrame, MAX_RX_FRAMES>;
+pub type PRxFrames = Producer<'static, CanFrame, MAX_RX_FRAMES>;
+pub type CRxFrames = Consumer<'static, CanFrame, MAX_RX_FRAMES>;
 
 /// Initialize peripheral bxcan and generate instances to send and receive can bus frames
 pub fn init_can(
@@ -74,7 +73,6 @@ pub fn init_can(
 pub struct CanTx {
     tx: bxcan::Tx<Can<CAN1>>,
     c_tx_frames: CTxFrames,
-    extra_frame: Option<Frame>,
 }
 
 impl CanTx {
@@ -83,7 +81,6 @@ impl CanTx {
         CanTx {
             c_tx_frames,
             tx,
-            extra_frame: None,
         }
     }
 
@@ -93,31 +90,12 @@ impl CanTx {
 
         self.tx.clear_interrupt_flags(); // we want receive next irqs
 
-        // we first check if there is anything left in the extra frame buffer
-        if let Some(frame) = &self.extra_frame {
-            if let Ok(transmit_status) = self.tx.transmit(frame) {
-                if let Some(frame) = transmit_status.dequeued_frame() {
-                    // Dropping into a mailbox did not work. We need to save the unstored
-                    // frame and wait until something is free again
-                    self.extra_frame = Some(frame.clone());
-                    return; // All mailboxes are full
-                } else {
-                    self.extra_frame = None;
-                    trace!("Extra frame put into can tx mailbox");
-                }
-            }
-        }
-
         // now we work off the queue
         while let Some(frame) = self.c_tx_frames.dequeue() {
-            if let Ok(transmit_status) = self.tx.transmit(&frame) {
-                if let Some(frame) = transmit_status.dequeued_frame() {
-                    // Dropping into a mailbox did not work. We need to save the unstored
-                    // frame and wait until something is free again
-                    self.extra_frame = Some(frame.clone());
-                    return; // All mailboxes are full
-                }
-            }
+            let id = StandardId::new(frame.id()).unwrap();
+            let data = Data::new(frame.data()).unwrap();
+            let bx_frame = Frame::new_data(id, data);
+            let _ = self.tx.transmit(&bx_frame); // Silently ignore errors
         }
     }
 }
@@ -140,8 +118,12 @@ impl CanRx {
         while self.p_rx_frames.capacity() > self.p_rx_frames.len() {
             match self.rx0.receive() {
                 // silently ignore errors
-                Ok(frame) => {
-                    let _ = self.p_rx_frames.enqueue(frame);
+                Ok(bx_frame) => {
+                    let id = bx_frame.id();
+                    if let Id::Standard(standard_id) = id {
+                        let frame = CanFrame::from_slice(standard_id.as_raw(), bx_frame.data().unwrap());
+                        let _ = self.p_rx_frames.enqueue(frame);
+                    }
                 }
                 Err(_) => return,
             }
