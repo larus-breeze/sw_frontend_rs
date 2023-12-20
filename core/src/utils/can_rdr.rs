@@ -1,18 +1,14 @@
 use crate::{
     AirSpeed, CoreModel, FloatToAcceleration, FloatToAngularVelocity, FloatToDensity,
-    FloatToPressure, FloatToSpeed, FlyMode,
+    FloatToPressure, FloatToSpeed, FlyMode, CanFrame,
 };
 use byteorder::{ByteOrder, LittleEndian as LE};
 use embedded_graphics::prelude::AngleUnit;
 
 use crate::utils::sensor;
-use embedded_hal::can::{Frame, Id};
 
-pub fn read_can_frame<F: Frame>(cm: &mut CoreModel, frame: &F) {
-    let id = match frame.id() {
-        Id::Extended(_) => return, // we don't use extended Ids
-        Id::Standard(standard_id) => standard_id.as_raw(),
-    };
+pub fn read_can_frame(cm: &mut CoreModel, frame: &CanFrame) {
+    let id = frame.id();
     let mut rdr = Reader::new(frame.data());
 
     match id {

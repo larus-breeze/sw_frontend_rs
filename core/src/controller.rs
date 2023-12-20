@@ -14,10 +14,8 @@ use crate::{
     model::{DisplayActive, EditMode, VarioModeControl},
     system_of_units::FloatToSpeed,
     utils::{read_can_frame, KeyEvent},
-    CoreModel, DeviceEvent, PersistenceId, PersistenceItem, VarioMode, POLARS,
+    CoreModel, DeviceEvent, PersistenceId, PersistenceItem, VarioMode, POLARS, CanFrame,
 };
-use embedded_hal::can::Frame;
-
 #[allow(unused_imports)]
 use micromath::F32Ext;
 
@@ -228,7 +226,7 @@ impl CoreController {
     }
 
     /// Interprets a Can Frame and stores the results in the CoreModel
-    pub fn read_can_frame<F: Frame>(&self, core_model: &mut CoreModel, frame: &F) {
+    pub fn read_can_frame(&self, core_model: &mut CoreModel, frame: &CanFrame) {
         read_can_frame(core_model, frame)
     }
 
