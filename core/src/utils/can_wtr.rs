@@ -1,27 +1,18 @@
-use bxcan::{Data, Frame, StandardId};
 use byteorder::{ByteOrder, LittleEndian as LE};
 use heapless::spsc::{Consumer, Producer, Queue};
 
-pub fn can_frame_sound(frequency: u16, volume: u8, duty_cycle: u16, continuous: bool) -> Frame {
+pub fn can_frame_sound(frequency: u16, volume: u8, duty_cycle: u16, continuous: bool) -> CanFrame {
     CanFrame::empty_from_id(0x00)
         .push_u16(frequency)
         .push_u16(duty_cycle)
         .push_u8(volume)
         .push_u8(if continuous { 1 } else { 0 })
-        .into()
 }
 
-impl core::convert::From<CanFrame> for Frame {
-    fn from(val: CanFrame) -> Self {
-        // Note: id must be < 1024, data.len() <= 8
-        let id = StandardId::new(val.id).unwrap();
-        let data = Data::new(&val.data[..val.len as usize]).unwrap();
-        Frame::new_data(id, data)
-    }
-}
-
+#[derive(Copy, Clone)]
 pub struct CanFrame {
     id: u16,
+    rtr: bool,
     len: u8,
     data: [u8; 8],
 }
@@ -31,7 +22,17 @@ impl CanFrame {
     pub fn empty_from_id(id: u16) -> Self {
         CanFrame {
             id,
+            rtr: false,
             len: 0,
+            data: [0u8; 8],
+        }
+    }
+
+    pub fn remote_trans_rq(id: u16, len: u8) -> Self {
+        CanFrame {
+            id,
+            rtr: true,
+            len,
             data: [0u8; 8],
         }
     }
@@ -42,9 +43,26 @@ impl CanFrame {
         data[..len].copy_from_slice(&src[..len]);
         CanFrame {
             id,
+            rtr: false,
             len: len as u8,
             data,
         }
+    }
+
+    pub fn id(&self) -> u16 {
+        self.id
+    }
+
+    pub fn is_rtr(&self) -> bool {
+        self.rtr
+    }
+
+    pub fn data(&self) -> &[u8] {
+        &self.data[..self.len as usize]
+    }
+
+    pub fn dlc(&self) -> u8 {
+        self.len
     }
 
     fn push_u32(mut self, val: u32) -> Self {
@@ -97,6 +115,6 @@ impl CanFrame {
 
 // This queue transports the can bus frames from the view component to the can tx driver.
 const MAX_TX_FRAMES: usize = 10;
-pub type QTxFrames = Queue<Frame, MAX_TX_FRAMES>;
-pub type PTxFrames = Producer<'static, Frame, MAX_TX_FRAMES>;
-pub type CTxFrames = Consumer<'static, Frame, MAX_TX_FRAMES>;
+pub type QTxFrames = Queue<CanFrame, MAX_TX_FRAMES>;
+pub type PTxFrames = Producer<'static, CanFrame, MAX_TX_FRAMES>;
+pub type CTxFrames = Consumer<'static, CanFrame, MAX_TX_FRAMES>;

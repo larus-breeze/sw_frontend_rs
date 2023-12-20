@@ -1,85 +1,103 @@
-use bxcan::{filter::ListEntry16, Fifo, Frame, Interrupt, StandardId};
+use core::{
+    num::{NonZeroU16, NonZeroU8},
+    ops::Deref,
+};
+use fdcan::{
+    config::NominalBitTiming,
+    filter::{StandardFilter, StandardFilterSlot},
+    frame::{FrameFormat, TxFrameHeader},
+    id::{Id, StandardId},
+    interrupt::{Interrupt, InterruptLine, Interrupts},
+    InternalLoopbackMode, ConfigMode, FdCan,
+    Tx, Rx, Fifo0, ReceiveOverrun, FdCanControl,
+};
 use corelib::CTxFrames;
 use defmt::*;
+//use embedded_hal::can::{Frame, Id};
 use heapless::spsc::{Consumer, Producer, Queue};
-use stm32f4xx_hal::{
-    can::{Can, CanExt},
+use stm32h7xx_hal::{
     gpio::Pin,
-    pac::CAN1,
+    can,
+    gpio::Speed,
+    pac::{interrupt, CorePeripherals, Peripherals as DevicePeripherals, FDCAN1, NVIC},
+    prelude::*,
+    rcc::{rec, PllConfigStrategy, rec::Fdcan},
 };
 
-use corelib::{frontend, sensor};
+use corelib::{frontend, sensor, CanFrame};
 
 // This queue transports the can bus frames from the can rx driver to the controller.
 const MAX_RX_FRAMES: usize = 20;
-pub type QRxFrames = Queue<Frame, MAX_RX_FRAMES>;
-pub type PRxFrames = Producer<'static, Frame, MAX_RX_FRAMES>;
-pub type CRxFrames = Consumer<'static, Frame, MAX_RX_FRAMES>;
+pub type QRxFrames = Queue< CanFrame, MAX_RX_FRAMES>;
+pub type PRxFrames = Producer<'static, CanFrame, MAX_RX_FRAMES>;
+pub type CRxFrames = Consumer<'static, CanFrame, MAX_RX_FRAMES>;
 
 /// Initialize peripheral bxcan and generate instances to send and receive can bus frames
 pub fn init_can(
-    can_1: CAN1,
-    tx: Pin<'A', 12>,
-    rx: Pin<'A', 11>,
+    fdcan_prec: Fdcan,
+    fdcan_1: FDCAN1,
+    rx: Pin<'H', 14>,
+    tx: Pin<'H', 13>,
     c_tx_frames: CTxFrames,
     p_rx_frames: PRxFrames,
 ) -> (CanTx, CanRx) {
     let mut can = {
-        let rx = rx.into_alternate::<9>();
-        let tx = tx.into_alternate::<9>();
-        let can = can_1.can((tx, rx));
-        bxcan::Can::builder(can)
-            // APB1 (PCLK1): 42MHz, Bit rate: 1 MBit/s, Sample Point 87.5%
-            // Value was calculated with http://www.bittiming.can-wiki.info/
-            .set_bit_timing(0x001a0002)
-            .enable()
+        let rx = rx.into_alternate::<9>().speed(Speed::VeryHigh);
+        let tx = tx.into_alternate::<9>().speed(Speed::VeryHigh);
+        fdcan_1.fdcan(tx, rx, fdcan_prec)
     };
+    // Kernel Clock 32MHz, Bit rate: 1MBit/s, Sample Point 87.5%
+    // Value was calculated with http://www.bittiming.can-wiki.info/
+    // TODO: use the can_bit_timings crate
+    let data_bit_timing = NominalBitTiming {
+        prescaler: NonZeroU16::new(2).unwrap(),
+        seg1: NonZeroU8::new(13).unwrap(),
+        seg2: NonZeroU8::new(2).unwrap(),
+        sync_jump_width: NonZeroU8::new(1).unwrap(),
+    };
+    can.set_nominal_bit_timing(data_bit_timing);
 
-    let mut filters = can.modify_filters();
-    filters
-        .clear()
-        //.enable_bank(0, Fifo::Fifo0, Mask32::accept_all());
-        .enable_bank(
-            0,
-            Fifo::Fifo0,
-            [
-                ListEntry16::data_frames_with_id(StandardId::new(sensor::AIRSPEED).unwrap()),
-                ListEntry16::data_frames_with_id(StandardId::new(sensor::VARIO).unwrap()),
-                ListEntry16::data_frames_with_id(StandardId::new(sensor::WIND).unwrap()),
-                ListEntry16::data_frames_with_id(StandardId::new(sensor::ATHMOSPHERE).unwrap()),
-            ],
-        )
-        .enable_bank(
-            1,
-            Fifo::Fifo0,
-            [
-                ListEntry16::data_frames_with_id(StandardId::new(sensor::TURN_COORD).unwrap()),
-                ListEntry16::data_frames_with_id(StandardId::new(sensor::ACCELERATION).unwrap()),
-                ListEntry16::data_frames_with_id(StandardId::new(frontend::NOTHING).unwrap()),
-                ListEntry16::data_frames_with_id(StandardId::new(frontend::NOTHING).unwrap()),
-            ],
-        );
-    drop(filters); // Drop filters to leave filter configuraiton mode.
+    can.set_standard_filter(
+        StandardFilterSlot::_0,
+        StandardFilter::accept_all_into_fifo0(),
+    );
+    can.set_protocol_exception_handling(false);
+    can.select_interrupt_line_1(Interrupts::TX_COMPLETE);
 
-    can.enable_interrupt(Interrupt::Fifo0MessagePending);
-    can.enable_interrupt(Interrupt::TransmitMailboxEmpty);
+    // Unsafe during init of peripheral is ok
+    unsafe {
+        // FDCAN_TXBTIE Tx buffer transmission interrupt enable register
+        core::ptr::write_volatile(0x4000a0e0 as *mut u32, 0xffff_ffff);
+    }
+    let mut can = can.into_internal_loopback();
+    //let mut can = can.into_normal();
 
-    let (tx, rx0, _rx1) = can.split();
+    // can.enable_interrupt(Interrupt::RxFifo0NewMsg);
+    can.enable_interrupt_line(InterruptLine::_0, true);
+    can.enable_interrupt_line(InterruptLine::_1, true);
+    can.enable_interrupts(Interrupts::RX_FIFO0_NEW_MSG | Interrupts::TX_COMPLETE);
+
+    let (
+        ctrl, 
+        tx, 
+        rx, 
+        _
+    ) = can.split();
     let tx_can = CanTx::new(c_tx_frames, tx);
-    let rx_can = CanRx::new(p_rx_frames, rx0);
+    let rx_can = CanRx::new(p_rx_frames, rx, ctrl);
     (tx_can, rx_can)
 }
 
 /// Interrupt service for sending can bus frames
 pub struct CanTx {
-    tx: bxcan::Tx<Can<CAN1>>,
+    tx: Tx<can::Can<FDCAN1>, InternalLoopbackMode>,
     c_tx_frames: CTxFrames,
-    extra_frame: Option<Frame>,
+    extra_frame: Option<CanFrame>,
 }
 
 impl CanTx {
     /// Generate the service
-    fn new(c_tx_frames: CTxFrames, tx: bxcan::Tx<Can<CAN1>>) -> Self {
+    fn new(c_tx_frames: CTxFrames, tx: Tx<can::Can<FDCAN1>, InternalLoopbackMode>) -> Self {
         CanTx {
             c_tx_frames,
             tx,
@@ -89,34 +107,24 @@ impl CanTx {
 
     /// Method to call during an active interrupt
     pub fn on_interrupt(&mut self) {
-        // trace!("Can tx irq");
-
-        self.tx.clear_interrupt_flags(); // we want receive next irqs
-
-        // we first check if there is anything left in the extra frame buffer
-        if let Some(frame) = &self.extra_frame {
-            if let Ok(transmit_status) = self.tx.transmit(frame) {
-                if let Some(frame) = transmit_status.dequeued_frame() {
-                    // Dropping into a mailbox did not work. We need to save the unstored
-                    // frame and wait until something is free again
-                    self.extra_frame = Some(frame.clone());
-                    return; // All mailboxes are full
-                } else {
-                    self.extra_frame = None;
-                    trace!("Extra frame put into can tx mailbox");
-                }
-            }
-        }
+        self.tx.clear_transmission_completed_flag(); // we want receive next irqs
 
         // now we work off the queue
-        while let Some(frame) = self.c_tx_frames.dequeue() {
-            if let Ok(transmit_status) = self.tx.transmit(&frame) {
-                if let Some(frame) = transmit_status.dequeued_frame() {
-                    // Dropping into a mailbox did not work. We need to save the unstored
-                    // frame and wait until something is free again
-                    self.extra_frame = Some(frame.clone());
-                    return; // All mailboxes are full
-                }
+        while !self.tx.tx_queue_is_full() && self.c_tx_frames.len() > 0 {
+            match self.c_tx_frames.dequeue() {
+                Some(frame) => {
+                    let header = TxFrameHeader {
+                        len: frame.dlc(),
+                        id: StandardId::new(frame.id()).unwrap().into(),
+                        frame_format: FrameFormat::Standard,
+                        bit_rate_switching: false,
+                        marker: None,
+                    };
+                    let buffer = frame.data();
+                    // tx queue is not full, so the result of transmit can be ignored
+                    let _r = self.tx.transmit(header, buffer);
+                },
+                None => return,
             }
         }
     }
@@ -125,23 +133,43 @@ impl CanTx {
 /// Interrupt service for receiving can bus frames
 pub struct CanRx {
     p_rx_frames: PRxFrames,
-    rx0: bxcan::Rx0<Can<CAN1>>,
+    rx: Rx<can::Can<FDCAN1>, InternalLoopbackMode, Fifo0>,
+    ctrl: FdCanControl<can::Can<FDCAN1>, InternalLoopbackMode>,
 }
 
 impl CanRx {
     /// Create the service
-    fn new(p_rx_frames: PRxFrames, rx0: bxcan::Rx0<Can<CAN1>>) -> Self {
-        CanRx { p_rx_frames, rx0 }
+    fn new(
+        p_rx_frames: PRxFrames, rx: Rx<can::Can<FDCAN1>, 
+        InternalLoopbackMode, Fifo0>,
+        ctrl: FdCanControl<can::Can<FDCAN1>, InternalLoopbackMode>) -> Self {
+        CanRx { p_rx_frames, rx, ctrl }
     }
 
     /// Call this, when irq is active
     pub fn on_interrupt(&mut self) {
-        // trace!("Can rx irq");
+        self.ctrl.clear_interrupt(Interrupt::RxFifo0NewMsg);
+
         while self.p_rx_frames.capacity() > self.p_rx_frames.len() {
-            match self.rx0.receive() {
+            let mut buffer = [0u8; 8];
+            match self.rx.receive(&mut buffer) {
                 // silently ignore errors
-                Ok(frame) => {
-                    let _ = self.p_rx_frames.enqueue(frame);
+                Ok(over_run) => {
+                    match over_run {
+                        ReceiveOverrun::NoOverrun(rx_info) => {
+                            if let Id::Standard(standard_id) = rx_info.id {
+                                let id = standard_id.as_raw();
+                                let len = rx_info.len;
+                                let can_frame = if rx_info.rtr {
+                                    CanFrame::remote_trans_rq(id, len)
+                                } else {
+                                    CanFrame::from_slice(id, &buffer[..len as usize])
+                                };
+                                let _ = self.p_rx_frames.enqueue(can_frame);
+                            }
+                        },
+                        ReceiveOverrun::Overrun(_) => (),
+                    }
                 }
                 Err(_) => return,
             }

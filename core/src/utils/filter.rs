@@ -1,7 +1,5 @@
 use core::ops::{Mul, Add, Sub};
 
-
-
 struct Pt1 <T>
 where
     T: Mul<f32, Output = T> + Add<T, Output = T> + Sub<T, Output = T> + Copy
