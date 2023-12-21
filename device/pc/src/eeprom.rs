@@ -1,140 +1,71 @@
-use std::convert::TryInto;
 use std::io::{Read, Write};
 
 use corelib::{
-    eeprom, EepromTopic, PersistenceId, PersistenceItem, CONFIG_VALUES_END, CONFIG_VALUES_START,
+    eeprom, EepromTrait, CoreError,
 };
+
+use storage_items::Eeprom;
 
 const FILE_NAME: &str = "eeprom.bin";
 
-#[derive(Debug)]
-pub enum Error {
-    NoItemAvailable,
-}
-
-pub struct Eeprom {
+pub struct Storage {
     data: [u8; 8192],
 }
 
-#[allow(dead_code)]
-impl Eeprom {
-    /// Create a Persistence Instance
-    pub fn new() -> Result<Self, Error> {
-        let mut data = [0_u8; 8192];
+impl Storage {
+    pub fn new() -> Result<Eeprom<Storage>, CoreError> {
+        let mut data = [0_u8; eeprom::SIZE as usize];
         if let Ok(mut f) = std::fs::File::open(FILE_NAME) {
             f.read_exact(&mut data).unwrap()
         }
-
-        let magic: [u8; 8] = data[0..8].try_into().unwrap();
-        if magic != eeprom::MAGIC {
-            // Write magic number
-            data[..8].copy_from_slice(&eeprom::MAGIC);
-
-            for idx in eeprom::DAT..eeprom::DATA_STORAGE {
-                data[idx as usize] = 0;
-            }
-            println!("Initialize DAT");
-        }
-        Ok(Eeprom { data })
+        let storage = Storage {data};
+        Eeprom::new(storage)
     }
+}
 
-    /// Write a PersistentItem into the data store
-    ///
-    /// The data is stored at the desired location defined by the ID. An entry is made in the data
-    /// allocation table (DAT), if desired (dat_bit in PersitentItem).
-    pub fn write_item(&mut self, item: PersistenceItem) -> Result<(), Error> {
-        if item.id == PersistenceId::DoNotStore {
-            return Ok(());
+impl EepromTrait for Storage {
+
+    fn write_byte(&mut self, address: u32, data: u8) -> Result<(), CoreError> {
+        //println!("write_byte({:04x}, {})", address, data);
+        if address >= eeprom::SIZE {
+            return Err(CoreError::OutOfRange);
         }
-        let address = (eeprom::DATA_STORAGE + item.id as u32 * 4) as usize;
-        if item.dat_bit {
-            self.set_id(item.id)?;
-        }
-        self.data[address..address + 4].copy_from_slice(&item.data);
+        self.data[address as usize] = data;
         let mut f = std::fs::File::create(FILE_NAME).unwrap();
         f.write_all(&self.data).unwrap();
         Ok(())
     }
 
-    /// Read data from storage - do not check the DAT
-    pub fn read_item_unchecked(&mut self, id: PersistenceId) -> Result<PersistenceItem, Error> {
-        let address = (eeprom::DATA_STORAGE + id as u32 * 4) as usize;
-        let mut data = [0_u8; 4];
-        data.copy_from_slice(&self.data[address..address + 4]);
-        Ok(PersistenceItem {
-            id,
-            dat_bit: false,
-            data,
-        })
-    }
-
-    /// Read data from storage - return error if DAT bit is not set
-    pub fn read_item(&mut self, id: PersistenceId) -> Result<PersistenceItem, Error> {
-        if self.test_id(id) {
-            self.read_item_unchecked(id)
-        } else {
-            Err(Error::NoItemAvailable)
+    fn write_page(&mut self, address: u32, data: &[u8]) -> Result<(), CoreError> {
+        //println!("write_page({:04x}, {:?})", address, data);
+        let start = address as usize;
+        let end = address as usize + data.len();
+        if end as u32 > eeprom::SIZE {
+            return Err(CoreError::OutOfRange);
         }
-    }
-
-    /// Returns an iterator to the desired topic area
-    pub fn iter_over(&mut self, p_type: EepromTopic) -> PersistenceIterator {
-        let (start_id, end_id) = match p_type {
-            EepromTopic::ConfigValues => (CONFIG_VALUES_START, CONFIG_VALUES_END),
-        };
-        PersistenceIterator::new(start_id, end_id, self)
-    }
-
-    /// Tests a id, if coresponing dat_bit is set
-    fn test_id(&mut self, id: PersistenceId) -> bool {
-        let byte_adr = (eeprom::DAT + (id as u32) / 8) as usize;
-        let bit_pattern: u8 = 1 << ((id as u32) % 8);
-        self.data[byte_adr] & bit_pattern != 0
-    }
-
-    /// Set dat_bit in table of contentspub fn iter_over(&mut self, p_type: PersistType) -> PersistenceIterator
-    fn set_id(&mut self, id: PersistenceId) -> Result<(), Error> {
-        let byte_adr = (eeprom::DAT + (id as u32) / 8) as usize;
-        let bit_pattern: u8 = 1 << ((id as u32) % 8);
-        println!("set_id id {}, bit_pattern {:#010b}", id as u32, bit_pattern);
-        self.data[byte_adr] |= bit_pattern;
+        self.data[start..end].copy_from_slice(data);
+        let mut f = std::fs::File::create(FILE_NAME).unwrap();
+        f.write_all(&self.data).unwrap();
         Ok(())
     }
-}
 
-/// Helper struct for Iteration
-pub struct PersistenceIterator<'a> {
-    cur_id: u16,
-    end_id: u16,
-    persistence: &'a mut Eeprom,
-}
-
-impl<'a> PersistenceIterator<'a> {
-    /// Creates a iteration helper struct
-    pub fn new(start_id: u16, end_id: u16, persistence: &'a mut Eeprom) -> Self {
-        PersistenceIterator {
-            cur_id: start_id,
-            end_id,
-            persistence,
+    fn read_byte(&mut self, address: u32) -> Result<u8, CoreError> {
+        if address >= eeprom::SIZE {
+            return Err(CoreError::OutOfRange);
         }
+        let r = self.data[address as usize];
+        //println!("read_byte({:04x}) -> {})", address, r);
+        Ok(r)
     }
-}
 
-impl Iterator for PersistenceIterator<'_> {
-    type Item = PersistenceItem;
-    fn next(&mut self) -> Option<Self::Item> {
-        while self.cur_id < self.end_id {
-            if self.persistence.test_id(self.cur_id.into()) {
-                let r = self
-                    .persistence
-                    .read_item_unchecked(self.cur_id.into())
-                    .unwrap();
-                self.cur_id += 1;
-                return Some(r);
-            } else {
-                self.cur_id += 1;
-            }
+    fn read_data(&mut self, address: u32, data: &mut [u8]) -> Result<(), CoreError> {
+        let start = address as usize;
+        let end = address as usize + data.len();
+        if end as u32 > eeprom::SIZE {
+            return Err(CoreError::OutOfRange);
         }
-        None
+        data.copy_from_slice(&self.data[start..end]);
+        //println!("read_data({:04x}) -> {:?})", address, data);
+        Ok(())
     }
 }

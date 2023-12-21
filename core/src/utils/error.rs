@@ -6,7 +6,8 @@ pub enum CoreError {
     U8g2BackgroundColorNotSupported,
     U8g2GlyphNotFound,
     EepromOrI2c1,
-    NoItemAvailable
+    NoItemAvailable,
+    OutOfRange,
 }
 
 impl From<u8g2_fonts::Error<CoreError>> for CoreError {

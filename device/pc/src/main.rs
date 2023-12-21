@@ -7,7 +7,7 @@ use corelib::{*,
 };
 
 use display::MockDisplay;
-use eeprom::Eeprom;
+use eeprom::Storage;
 use embedded_graphics::prelude::*;
 use embedded_graphics_simulator::{sdl2::Keycode, OutputSettings, SimulatorEvent, Window};
 use heapless::spsc::Queue;
@@ -53,7 +53,7 @@ fn main() -> Result<(), core::convert::Infallible> {
     };
 
     let mut core_model = CoreModel::new(p_idle_events, p_tx_frames);
-    let mut eeprom = Eeprom::new().unwrap();
+    let mut eeprom = Storage::new().unwrap();
 
     for item in eeprom.iter_over(EepromTopic::ConfigValues) {
         core_model.restore_persistent_item(item);

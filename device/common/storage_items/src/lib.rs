@@ -1,18 +1,13 @@
-use embedded_hal::blocking::delay::DelayMs;
-//use crate::{driver::delay_ms, utils::CoreError};
 use corelib::{ 
     CoreError, eeprom, EepromTopic, PersistenceId, PersistenceItem, 
-    CONFIG_VALUES_END, CONFIG_VALUES_START,
+    CONFIG_VALUES_END, CONFIG_VALUES_START, EepromTrait,
 };
-use eeprom24x::Eeprom24xTrait;
 
-pub struct Eeprom<S, D> 
+pub struct Eeprom<S> 
 where
-    S: Eeprom24xTrait,
-    D: DelayMs<u32>,
+    S: EepromTrait,
 {
     eeprom: S,
-    delay: D, 
 }
 
 /// Store configuration data in an EEPROM
@@ -49,13 +44,12 @@ where
 /// - The data to be stored must be defined individually
 ///
 #[allow(dead_code)]
-impl<S, D> Eeprom<S, D> 
+impl<S> Eeprom<S> 
 where
-    S: Eeprom24xTrait,
-    D: DelayMs<u32>,
+    S: EepromTrait,
 {
     /// Create a Persistence Instance
-    pub fn new(mut eeprom: S, mut delay: D) -> Result<Self, CoreError> {
+    pub fn new(mut eeprom: S) -> Result<Self, CoreError> {
         let mut magic = [0_u8; 8];
         eeprom
             .read_data(eeprom::IDENTIFICATION_BLOCK, &mut magic)
@@ -65,7 +59,6 @@ where
             eeprom
                 .write_page(eeprom::IDENTIFICATION_BLOCK, &eeprom::MAGIC)
                 .map_err(|_| CoreError::EepromOrI2c1)?;
-            delay.delay_ms(10);
 
             // Clear DAT
             let mut address = eeprom::DAT;
@@ -74,11 +67,10 @@ where
                 eeprom
                     .write_page(address, &data)
                     .map_err(|_| CoreError::EepromOrI2c1)?;
-                delay.delay_ms(10);
                 address += 8;
             }
         }
-        Ok(Eeprom { eeprom, delay })
+        Ok(Eeprom { eeprom })
     }
 
     /// Write a PersistentItem into the data store
@@ -96,7 +88,6 @@ where
         self.eeprom
             .write_page(address, &item.data)
             .map_err(|_| CoreError::EepromOrI2c1)?;
-        self.delay.delay_ms(10);
         Ok(())
     }
 
@@ -124,7 +115,7 @@ where
     }
 
     /// Returns an iterator to the desired topic area
-    pub fn iter_over(&mut self, p_type: EepromTopic) -> PersistenceIterator<S, D> {
+    pub fn iter_over(&mut self, p_type: EepromTopic) -> PersistenceIterator<S> {
         let (start_id, end_id) = match p_type {
             EepromTopic::ConfigValues => (CONFIG_VALUES_START, CONFIG_VALUES_END),
         };
@@ -162,31 +153,28 @@ where
             self.eeprom
                 .write_byte(byte_adr, target)
                 .map_err(|_| CoreError::EepromOrI2c1)?;
-            self.delay.delay_ms(10);
         }
         Ok(())
     }
 }
 
 /// Helper struct for Iteration
-pub struct PersistenceIterator<'a, S, D> 
+pub struct PersistenceIterator<'a, S> 
 where
-    S: Eeprom24xTrait,
-    D: DelayMs<u32>,
+    S: EepromTrait,
 {
     cur_id: u16,
     end_id: u16,
     cur_byte: u8,
-    persistence: &'a mut Eeprom<S, D>,
+    persistence: &'a mut Eeprom<S>,
 }
 
-impl<'a, S, D> PersistenceIterator<'a, S, D> 
+impl<'a, S> PersistenceIterator<'a, S> 
 where
-    S: Eeprom24xTrait,
-    D: DelayMs<u32>,
+    S: EepromTrait,
 {
     /// Creates a iteration helper struct
-    pub fn new(start_id: u16, end_id: u16, persistence: &'a mut Eeprom<S, D>) -> Self {
+    pub fn new(start_id: u16, end_id: u16, persistence: &'a mut Eeprom<S>) -> Self {
         PersistenceIterator {
             cur_id: start_id,
             end_id,
@@ -196,10 +184,9 @@ where
     }
 }
 
-impl<S, D> Iterator for PersistenceIterator<'_, S, D> 
+impl<S> Iterator for PersistenceIterator<'_, S> 
 where
-    S: Eeprom24xTrait,
-    D: DelayMs<u32>,
+    S: EepromTrait,
 {
     type Item = PersistenceItem;
     fn next(&mut self) -> Option<Self::Item> {

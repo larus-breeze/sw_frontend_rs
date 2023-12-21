@@ -204,16 +204,30 @@ dependencies = [
 ]
 
 [[package]]
+name = "eeprom24x"
+version = "0.6.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bfbf82c7da4264160da270637038860fae049e4eb54b132a7059835f5b06529d"
+dependencies = [
+ "embedded-hal",
+ "embedded-storage",
+ "nb 1.1.0",
+]
+
+[[package]]
 name = "eg-examples"
 version = "0.1.0"
 dependencies = [
  "bxcan",
  "byteorder",
  "corelib",
+ "eeprom24x",
  "embedded-graphics",
  "embedded-graphics-simulator",
+ "embedded-hal",
  "heapless",
  "micromath 1.1.1",
+ "storage_items",
 ]
 
 [[package]]
@@ -267,6 +281,12 @@ dependencies = [
  "nb 0.1.3",
  "void",
 ]
+
+[[package]]
+name = "embedded-storage"
+version = "0.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a21dea9854beb860f3062d10228ce9b976da520a73474aed3171ec276bc0c032"
 
 [[package]]
 name = "float-cmp"
@@ -639,6 +659,15 @@ name = "stable_deref_trait"
 version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a8f112729512f8e442d81f95a8a7ddf2b7c6b8a1a6f509a95864142b30cab2d3"
+
+[[package]]
+name = "storage_items"
+version = "0.1.0"
+dependencies = [
+ "corelib",
+ "eeprom24x",
+ "embedded-hal",
+]
 
 [[package]]
 name = "syn"

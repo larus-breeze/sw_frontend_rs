@@ -1,4 +1,5 @@
 use heapless::spsc::{Consumer, Producer, Queue};
+use crate::CoreError;
 
 #[repr(u16)]
 #[derive(Debug, Copy, Clone)]
@@ -149,3 +150,32 @@ const MAX_IDLE_EVENTS: usize = 20;
 pub type QIdleEvents = Queue<IdleEvent, MAX_IDLE_EVENTS>;
 pub type PIdleEvents = Producer<'static, IdleEvent, MAX_IDLE_EVENTS>;
 pub type CIdleEvents = Consumer<'static, IdleEvent, MAX_IDLE_EVENTS>;
+
+pub trait EepromTrait {
+    /// Write a single byte in an address.
+    ///
+    /// After writing a byte, the EEPROM enters an internally-timed write cycle
+    /// to the nonvolatile memory.
+    /// During this time all inputs are disabled and the EEPROM will not
+    /// respond until the write is complete.
+    fn write_byte(&mut self, address: u32, data: u8) -> Result<(), CoreError>;
+
+    /// Write up to a page starting in an address.
+    ///
+    /// The maximum amount of data that can be written depends on the page
+    /// size of the device and its overall capacity. If too much data is passed,
+    /// the error `Error::TooMuchData` will be returned.
+    ///
+    /// After writing a byte, the EEPROM enters an internally-timed write cycle
+    /// to the nonvolatile memory.
+    /// During this time all inputs are disabled and the EEPROM will not
+    /// respond until the write is complete.
+    fn write_page(&mut self, address: u32, data: &[u8]) -> Result<(), CoreError>;
+
+    /// Read a single byte from an address.
+    fn read_byte(&mut self, address: u32) -> Result<u8, CoreError>;
+
+    /// Read starting in an address as many bytes as necessary to fill the data array provided.
+    fn read_data(&mut self, address: u32, data: &mut [u8]) -> Result<(), CoreError>;
+
+}
