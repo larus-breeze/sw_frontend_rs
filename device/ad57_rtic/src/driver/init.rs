@@ -1,5 +1,5 @@
 use crate::driver::{
-    frame_buffer::FrameBuffer, init_can, keyboard::*, CanRx, CanTx, Display, Eeprom, QRxFrames,
+    frame_buffer::FrameBuffer, init_can, keyboard::*, CanRx, CanTx, Display, QRxFrames, Storage,
 };
 use crate::{
     dev_controller::DevController,
@@ -147,7 +147,7 @@ pub fn hw_init(
     let scl = gpiob.pb6.internal_pull_up(true);
     let sda = gpiob.pb7.internal_pull_up(true);
     let i2c = device.I2C1.i2c((scl, sda), 400.kHz(), &clocks);
-    let mut eeprom = Eeprom::new(i2c).unwrap();
+    let mut eeprom = Storage::new(i2c).unwrap();
 
     // Setup ----------> CoreModel
     let mut core_model = CoreModel::new(p_idle_events, p_tx_frames);
