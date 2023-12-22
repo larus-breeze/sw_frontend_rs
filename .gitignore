@@ -5,7 +5,6 @@
 /device/pc/target
 /device/pc/simulator-0.5.0/target
 /device/common/fmc_lcd/target
-/device/common/storage_items/target
 /sw_update/target
 *.f110
 *.pyc

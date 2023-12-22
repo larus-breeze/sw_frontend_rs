@@ -1,10 +1,6 @@
 use std::io::{Read, Write};
 
-use corelib::{
-    eeprom, EepromTrait, CoreError,
-};
-
-use storage_items::Eeprom;
+use corelib::{eeprom, CoreError, Eeprom, EepromTrait};
 
 const FILE_NAME: &str = "eeprom.bin";
 
@@ -18,13 +14,12 @@ impl Storage {
         if let Ok(mut f) = std::fs::File::open(FILE_NAME) {
             f.read_exact(&mut data).unwrap()
         }
-        let storage = Storage {data};
+        let storage = Storage { data };
         Eeprom::new(storage)
     }
 }
 
 impl EepromTrait for Storage {
-
     fn write_byte(&mut self, address: u32, data: u8) -> Result<(), CoreError> {
         //println!("write_byte({:04x}, {})", address, data);
         if address >= eeprom::SIZE {
