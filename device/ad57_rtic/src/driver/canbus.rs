@@ -1,4 +1,4 @@
-use bxcan::{filter::ListEntry16, Fifo, Frame, Interrupt, StandardId, Data, Id};
+use bxcan::{filter::ListEntry16, Data, Fifo, Frame, Id, Interrupt, StandardId};
 use corelib::CTxFrames;
 use heapless::spsc::{Consumer, Producer, Queue};
 use stm32f4xx_hal::{
@@ -78,10 +78,7 @@ pub struct CanTx {
 impl CanTx {
     /// Generate the service
     fn new(c_tx_frames: CTxFrames, tx: bxcan::Tx<Can<CAN1>>) -> Self {
-        CanTx {
-            c_tx_frames,
-            tx,
-        }
+        CanTx { c_tx_frames, tx }
     }
 
     /// Method to call during an active interrupt
@@ -121,7 +118,8 @@ impl CanRx {
                 Ok(bx_frame) => {
                     let id = bx_frame.id();
                     if let Id::Standard(standard_id) = id {
-                        let frame = CanFrame::from_slice(standard_id.as_raw(), bx_frame.data().unwrap());
+                        let frame =
+                            CanFrame::from_slice(standard_id.as_raw(), bx_frame.data().unwrap());
                         let _ = self.p_rx_frames.enqueue(frame);
                     }
                 }
