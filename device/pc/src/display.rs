@@ -1,4 +1,7 @@
-use corelib::{*, basic_config::{DISPLAY_HEIGHT, DISPLAY_WIDTH}};
+use corelib::{
+    basic_config::{DISPLAY_HEIGHT, DISPLAY_WIDTH},
+    *,
+};
 use embedded_graphics::prelude::*;
 use embedded_graphics_simulator::{OutputSettingsBuilder, SimulatorDisplay};
 

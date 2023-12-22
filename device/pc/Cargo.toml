@@ -17,4 +17,3 @@ eeprom24x = "0.6.0"
 embedded-hal = "0.2"
 
 corelib = { path = "../../core", features = ["air_avionics_ad57"] }
-storage_items = { path = "../common/storage_items" }
