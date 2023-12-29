@@ -17,7 +17,7 @@ use embedded_graphics::primitives::{Circle, PrimitiveStyle};
 use stm32h7xx_hal::{
     pac::{CorePeripherals, Peripherals as DevicePeripherals},
     prelude::*,
-    rcc::{rec::FmcClkSel, PllConfigStrategy},
+    rcc::rec::FmcClkSel,
 };
 
 use driver::*;
@@ -31,21 +31,7 @@ fn main() -> ! {
 
     info!("init");
 
-    // Constrain and Freeze power
-    let pwr = dp.PWR.constrain();
-    let pwrcfg = pwr.freeze();
-
-    // Initialize clock system
-    let rcc = dp.RCC.constrain();
-    let ccdr = rcc
-        .use_hse(25.MHz())
-        .sys_ck(192.MHz())
-        .hclk(192.MHz()) // FMC clock from HCLK by default
-        .pll1_strategy(PllConfigStrategy::Iterative)
-        .pll1_q_ck(32.MHz())
-        .pll2_p_ck(96.MHz())
-        .pll2_r_ck(96.MHz())
-        .freeze(pwrcfg, &dp.SYSCFG);
+    let ccdr = set_clocksys!(dp);
 
     // Initialize system...
     cp.SCB.enable_icache();

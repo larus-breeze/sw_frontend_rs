@@ -3,21 +3,20 @@
 
 mod driver;
 
-use driver::*;
 use core::cell::RefCell;
+use corelib::{CanFrame, QTxFrames};
 use cortex_m::interrupt::Mutex;
 use cortex_m_rt::entry;
 use defmt::*;
 use defmt_rtt as _;
+use driver::*;
+use heapless::spsc::Queue;
 use panic_rtt_target as _;
 use stm32h7xx_hal::{
     pac::{interrupt, CorePeripherals, Peripherals as DevicePeripherals, NVIC},
     prelude::*,
     rcc::{rec, PllConfigStrategy},
 };
-use corelib::{CanFrame, QTxFrames};
-use heapless::spsc::Queue;
-
 
 #[entry]
 fn main() -> ! {
@@ -70,12 +69,12 @@ fn main() -> ! {
     let fdcan_1 = dp.FDCAN1;
 
     let (tx_can, rx_can) = init_can(
-        fdcan_prec, 
-        fdcan_1, 
-        gpioh.ph14, 
-        gpioh.ph13, 
-        c_tx_frames, 
-        p_rx_frames
+        fdcan_prec,
+        fdcan_1,
+        gpioh.ph14,
+        gpioh.ph13,
+        c_tx_frames,
+        p_rx_frames,
     );
     cortex_m::interrupt::free(|cs| {
         TX_CAN.borrow(cs).replace(Some(tx_can));
@@ -89,7 +88,7 @@ fn main() -> ! {
         NVIC::unmask(interrupt::FDCAN1_IT1);
     }
 
-    let mut buffer: [u8; 8] = [1,2,3,4,5,6,7,8];
+    let mut buffer: [u8; 8] = [1, 2, 3, 4, 5, 6, 7, 8];
 
     loop {
         let tx_frame = CanFrame::from_slice(0x100, &buffer);
@@ -109,7 +108,8 @@ static TX_CAN: Mutex<RefCell<Option<CanTx>>> = Mutex::new(RefCell::new(None));
 static RX_CAN: Mutex<RefCell<Option<CanRx>>> = Mutex::new(RefCell::new(None));
 
 #[interrupt]
-fn FDCAN1_IT0() {  // rx
+fn FDCAN1_IT0() {
+    // rx
     // info!("FDCAN1_IT0 interrupt");
     cortex_m::interrupt::free(|cs| {
         let mut rc = RX_CAN.borrow(cs).borrow_mut();
@@ -119,7 +119,8 @@ fn FDCAN1_IT0() {  // rx
 }
 
 #[interrupt]
-fn FDCAN1_IT1() {  // tx
+fn FDCAN1_IT1() {
+    // tx
     // info!("FDCAN1_IT1 interrupt");
     cortex_m::interrupt::free(|cs| {
         let mut rc = TX_CAN.borrow(cs).borrow_mut();
