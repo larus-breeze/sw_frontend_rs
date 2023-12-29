@@ -2,33 +2,32 @@ use core::{
     num::{NonZeroU16, NonZeroU8},
     ops::Deref,
 };
+use corelib::CTxFrames;
+use defmt::*;
 use fdcan::{
     config::NominalBitTiming,
     filter::{StandardFilter, StandardFilterSlot},
     frame::{FrameFormat, TxFrameHeader},
     id::{Id, StandardId},
     interrupt::{Interrupt, InterruptLine, Interrupts},
-    InternalLoopbackMode, ConfigMode, FdCan,
-    Tx, Rx, Fifo0, ReceiveOverrun, FdCanControl,
+    ConfigMode, FdCan, FdCanControl, Fifo0, InternalLoopbackMode, ReceiveOverrun, Rx, Tx,
 };
-use corelib::CTxFrames;
-use defmt::*;
 //use embedded_hal::can::{Frame, Id};
 use heapless::spsc::{Consumer, Producer, Queue};
 use stm32h7xx_hal::{
-    gpio::Pin,
     can,
+    gpio::Pin,
     gpio::Speed,
     pac::{interrupt, CorePeripherals, Peripherals as DevicePeripherals, FDCAN1, NVIC},
     prelude::*,
-    rcc::{rec, PllConfigStrategy, rec::Fdcan},
+    rcc::{rec, rec::Fdcan, PllConfigStrategy},
 };
 
 use corelib::{frontend, sensor, CanFrame};
 
 // This queue transports the can bus frames from the can rx driver to the controller.
 const MAX_RX_FRAMES: usize = 20;
-pub type QRxFrames = Queue< CanFrame, MAX_RX_FRAMES>;
+pub type QRxFrames = Queue<CanFrame, MAX_RX_FRAMES>;
 pub type PRxFrames = Producer<'static, CanFrame, MAX_RX_FRAMES>;
 pub type CRxFrames = Consumer<'static, CanFrame, MAX_RX_FRAMES>;
 
@@ -77,12 +76,7 @@ pub fn init_can(
     can.enable_interrupt_line(InterruptLine::_1, true);
     can.enable_interrupts(Interrupts::RX_FIFO0_NEW_MSG | Interrupts::TX_COMPLETE);
 
-    let (
-        ctrl, 
-        tx, 
-        rx, 
-        _
-    ) = can.split();
+    let (ctrl, tx, rx, _) = can.split();
     let tx_can = CanTx::new(c_tx_frames, tx);
     let rx_can = CanRx::new(p_rx_frames, rx, ctrl);
     (tx_can, rx_can)
@@ -123,7 +117,7 @@ impl CanTx {
                     let buffer = frame.data();
                     // tx queue is not full, so the result of transmit can be ignored
                     let _r = self.tx.transmit(header, buffer);
-                },
+                }
                 None => return,
             }
         }
@@ -140,10 +134,15 @@ pub struct CanRx {
 impl CanRx {
     /// Create the service
     fn new(
-        p_rx_frames: PRxFrames, rx: Rx<can::Can<FDCAN1>, 
-        InternalLoopbackMode, Fifo0>,
-        ctrl: FdCanControl<can::Can<FDCAN1>, InternalLoopbackMode>) -> Self {
-        CanRx { p_rx_frames, rx, ctrl }
+        p_rx_frames: PRxFrames,
+        rx: Rx<can::Can<FDCAN1>, InternalLoopbackMode, Fifo0>,
+        ctrl: FdCanControl<can::Can<FDCAN1>, InternalLoopbackMode>,
+    ) -> Self {
+        CanRx {
+            p_rx_frames,
+            rx,
+            ctrl,
+        }
     }
 
     /// Call this, when irq is active
@@ -154,23 +153,21 @@ impl CanRx {
             let mut buffer = [0u8; 8];
             match self.rx.receive(&mut buffer) {
                 // silently ignore errors
-                Ok(over_run) => {
-                    match over_run {
-                        ReceiveOverrun::NoOverrun(rx_info) => {
-                            if let Id::Standard(standard_id) = rx_info.id {
-                                let id = standard_id.as_raw();
-                                let len = rx_info.len;
-                                let can_frame = if rx_info.rtr {
-                                    CanFrame::remote_trans_rq(id, len)
-                                } else {
-                                    CanFrame::from_slice(id, &buffer[..len as usize])
-                                };
-                                let _ = self.p_rx_frames.enqueue(can_frame);
-                            }
-                        },
-                        ReceiveOverrun::Overrun(_) => (),
+                Ok(over_run) => match over_run {
+                    ReceiveOverrun::NoOverrun(rx_info) => {
+                        if let Id::Standard(standard_id) = rx_info.id {
+                            let id = standard_id.as_raw();
+                            let len = rx_info.len;
+                            let can_frame = if rx_info.rtr {
+                                CanFrame::remote_trans_rq(id, len)
+                            } else {
+                                CanFrame::from_slice(id, &buffer[..len as usize])
+                            };
+                            let _ = self.p_rx_frames.enqueue(can_frame);
+                        }
                     }
-                }
+                    ReceiveOverrun::Overrun(_) => (),
+                },
                 Err(_) => return,
             }
         }
