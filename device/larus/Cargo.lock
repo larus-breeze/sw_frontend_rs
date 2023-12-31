@@ -478,22 +478,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "panic-halt"
-version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "de96540e0ebde571dc55c73d60ef407c653844e6f9a1e2fdbd40c07b9252d812"
-
-[[package]]
-name = "panic-probe"
-version = "0.3.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "aa6fa5645ef5a760cd340eaa92af9c1ce131c8c09e7f8926d8a24b59d26652b9"
-dependencies = [
- "cortex-m",
- "defmt",
-]
-
-[[package]]
 name = "panic-rtt-target"
 version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -581,7 +565,6 @@ version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "065d6058bb1204f51a562a67209e1817cf714759d5cf845aa45c75fa7b0b9d9b"
 dependencies = [
- "cortex-m",
  "ufmt-write",
 ]
 
@@ -787,11 +770,8 @@ dependencies = [
  "fugit",
  "heapless 0.8.0",
  "nb 1.1.0",
- "panic-halt",
- "panic-probe",
  "panic-rtt-target",
  "rtic-monotonic",
- "rtt-target",
  "st7789",
  "stm32h7xx-hal",
 ]
