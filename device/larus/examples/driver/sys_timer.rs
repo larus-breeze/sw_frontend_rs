@@ -47,7 +47,7 @@ defmt::timestamp!("{=u32:us}", timestamp());
 pub fn delay_ms(ms: u32) {
     let target = timestamp().wrapping_add(ms*1_000);
     loop {
-        let diff = target.wrapping_sub(timestamp()) as i32; 
+        let diff = target.wrapping_sub(timestamp()) as i32;
         if diff <= 0 {
             break;
         }
@@ -117,16 +117,25 @@ impl MonoTimer {
         // specified duration.
         tim.egr.write(|w| w.ug().set_bit());                    // apply_freq()
 
-        tim.dier.write(|w| w.uie().set_bit());                  // listen(timer::Event::TimeOut)
-        tim.dier.write(|w| w.cc1ie().set_bit());                // listen(timer::Event::CaptureCompare1)
-
         // Test overflow
-        tim.cnt.write(|w| w.bits(4_291_000_000));
+        tim.cnt.write(|w| w.bits(0));
 
         // Start counter
         tim.cr1.modify(|_, w| w.cen().set_bit());               // resume()
 
         MonoTimer { tim, overflow: 0 }
+    }
+
+    /// Enable overflow and ccr1 interrupt
+    pub fn listen(&mut self) {
+        self.tim.dier.write(|w| w.uie().set_bit());             // listen(timer::Event::TimeOut)
+        self.tim.dier.write(|w| w.cc1ie().set_bit());           // listen(timer::Event::CaptureCompare1)
+    }
+
+    /// Set timer counter for test purposes
+    pub fn set_time(&mut self, ticks: u64) {
+        self.overflow = ticks & 0xffff_ffff_0000_0000;
+        self.tim.cnt.write(|w| w.bits(ticks as u32));
     }
 }
 
@@ -156,7 +165,7 @@ impl rtic_monotonic::Monotonic for MonoTimer {
     }
 
     unsafe fn reset(&mut self) {
-        // we do just nothing
+        self.listen()
     }
 
     fn set_compare(&mut self, instant: Self::Instant) {

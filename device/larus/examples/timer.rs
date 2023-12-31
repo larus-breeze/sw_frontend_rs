@@ -30,7 +30,9 @@ fn main() -> ! {
     info!("init");
 
     let ccdr = set_clocksys!(dp);
-    let timer = MonoTimer::new(dp.TIM2, ccdr.peripheral.TIM2, &ccdr.clocks);
+    let mut timer = MonoTimer::new(dp.TIM2, ccdr.peripheral.TIM2, &ccdr.clocks);
+    timer.set_time(4_290_000_000);
+    timer.listen();
 
     cortex_m::interrupt::free(|cs| {
         TIMER.borrow(cs).replace(Some(timer));
@@ -48,7 +50,7 @@ loop {
         timer.now()
     });
     info!("timestamp64: {}", now.ticks());
-    delay_ms(1000);
+    delay_us(999_978);
     }
 }
 
@@ -58,5 +60,6 @@ fn TIM2() {
         let mut rc = TIMER.borrow(cs).borrow_mut();
         let timer = rc.as_mut().unwrap();
         timer.on_interrupt();
+        timer.clear_compare_flag();
     })
 }
