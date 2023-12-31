@@ -40,7 +40,7 @@ mod app {
         info!("init");
 
         // Schedule `foo` to run 1 second in the future
-        let tp_foo = Instant::<u64, 1, 1_000_000>::from_ticks(0x1_0000_0000);
+        let tp_foo = Instant::<u64, 1, 1_000_000>::from_ticks(1_000_000);
         bar::spawn_at(tp_foo).unwrap();
         foo::spawn_at(tp_foo).unwrap();
 
