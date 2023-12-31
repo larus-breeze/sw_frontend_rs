@@ -14,20 +14,16 @@ mod eeprom;
 mod fmc_lcd;
 #[allow(unused)]
 mod keyboard;
+#[allow(unused)]
+mod sys_timer;
 
 pub use canbus::*;
 pub use eeprom::*;
 pub use fmc_lcd::*;
 pub use keyboard::*;
+pub use sys_timer::*;
 
 pub type QEvents = MpMcQueue<Event, 8>;
-
-// Todo: use Timer as Timebase also for busy waiting
-#[allow(unused)]
-pub fn delay_ms(millis: u32) {
-    let cycles = millis * 200_000;
-    cortex_m::asm::delay(cycles)
-}
 
 // The macro ensures, that all examples use the same clock settings
 macro_rules! set_clocksys {
