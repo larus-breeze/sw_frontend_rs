@@ -173,7 +173,7 @@ impl rtic_monotonic::Monotonic for MonoTimer {
                 .cnt.read().bits()
                 .wrapping_add(0xffff_fffe), // Will overflow
         };
-        self.tim.ccr[1].write(|w| unsafe { w.bits(val) });
+        self.tim.ccr[0].write(|w| unsafe { w.bits(val) });
     }
 
     fn clear_compare_flag(&mut self) {
