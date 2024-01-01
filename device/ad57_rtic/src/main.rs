@@ -67,7 +67,7 @@ mod app {
     }
 
     /// Time base for the real-time system
-    #[monotonic(binds = SysTick, default = true)]
+    #[monotonic(binds = TIM2, default = true)]
     type Mono = DevMonoTimer;
 
     /// Initialization of the hardware and software
@@ -86,7 +86,7 @@ mod app {
             statistics,
         ) = hw_init(cx.device, cx.core);
 
-        view.setup_timer(monotonics::now());
+        view.setup_timer(DevInstant::from_ticks(timestamp() as u64));
         task_view::spawn().unwrap();
         task_controller::spawn().unwrap();
         task_keyboard::spawn().unwrap();
@@ -173,7 +173,8 @@ mod app {
         cx.shared.core_model.lock(|core_model| {
             let _ = view.tick(core_model);
         });
-        task_view::spawn_at(view.wake_up_at()).unwrap();
+        let wake_up_at = view.wake_up_at();
+        task_view::spawn_at(wake_up_at).unwrap();
         task_lcd_copy::spawn().unwrap();
         rtic::pend(stm32f4xx_hal::interrupt::CAN1_TX);
 

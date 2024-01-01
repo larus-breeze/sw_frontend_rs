@@ -1,5 +1,6 @@
 use crate::driver::{
     frame_buffer::FrameBuffer, init_can, keyboard::*, CanRx, CanTx, Display, QRxFrames, Storage,
+    MonoTimer,
 };
 use crate::{
     dev_controller::DevController,
@@ -26,20 +27,13 @@ use defmt_rtt as _;
 use fmc_lcd::{DataPins16, LcdPins};
 use heapless::{mpmc::MpMcQueue, spsc::Queue};
 use stm32f4xx_hal::{
-    pac, prelude::*, timer::monotonic::SysMonoTimerExt, watchdog::IndependentWatchdog,
+    pac, prelude::*, watchdog::IndependentWatchdog,
 };
-use systick_monotonic::*;
 
-// Todo: use Timer as Timebase also for busy waiting
-pub fn delay_ms(millis: u32) {
-    let cycles = millis * 168_000;
-    cortex_m::asm::delay(cycles)
-}
-
-pub const TICKS_PER_SECOND: u32 = 1_000;
+pub const TICKS_PER_SECOND: u32 = 1_000_000;
 pub type DevDuration = fugit::Duration<u64, 1, TICKS_PER_SECOND>;
 pub type DevInstant = fugit::Instant<u64, 1, TICKS_PER_SECOND>;
-pub type DevMonoTimer = Systick<TICKS_PER_SECOND>;
+pub type DevMonoTimer = MonoTimer;
 
 pub type QEvents = MpMcQueue<Event, 8>;
 
@@ -49,7 +43,7 @@ pub type DevDisplay = Display;
 
 pub fn hw_init(
     device: pac::Peripherals,
-    core: cortex_m::peripheral::Peripherals,
+    _core: cortex_m::peripheral::Peripherals,
 ) -> (
     CanRx,
     CanTx,
@@ -74,6 +68,9 @@ pub fn hw_init(
     // trace!("APB1 freq {}", clocks.pclk1().0);   // 42 Mhz
     // trace!("APB2 freq {}", clocks.pclk2().0);   // 84 Mhz
     // trace!("Sysclock freq {}", clocks.sysclk().0); // 168 Mhz
+
+    // Setup ----------> timer
+    let dev_mono_timer = MonoTimer::new(device.TIM2, &clocks);
 
     // Take ownership of GPIO ports
     let gpioa = device.GPIOA.split();
@@ -116,11 +113,8 @@ pub fn hw_init(
         p_rx_frames,
     );
 
-    // Setup ----------> timer
-    let dev_mono_timer = pac::SYST::monotonic(core.SYST, &clocks);
-
     // Setup ----------> statistics
-    let statistics = Statistics::new(device.TIM2, &clocks);
+    let statistics = Statistics::new();
 
     // Setup ----------> The front key interface
     let keyboard = {
