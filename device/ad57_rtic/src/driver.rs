@@ -7,6 +7,7 @@ mod init;
 mod keyboard;
 mod panic;
 mod r61580;
+mod sys_timer;
 
 pub use canbus::*;
 pub use display::Display;
@@ -17,5 +18,6 @@ pub use init::*;
 pub use keyboard::*;
 pub use panic::*;
 pub use r61580::R61580;
+pub use sys_timer::*;
 
 pub use init::*;

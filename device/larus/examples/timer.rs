@@ -8,7 +8,6 @@ use defmt_rtt as _;
 use panic_rtt_target as _;
 
 use core::cell::RefCell;
-
 use cortex_m::interrupt::Mutex;
 use cortex_m_rt::entry;
 
