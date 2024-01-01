@@ -18,4 +18,5 @@ defmt = "0.3"
 [features]
 default = ["air_avionics_ad57", "eeprom_size_8192"]
 air_avionics_ad57 = []
+larus_ad57 = []
 eeprom_size_8192 = []
