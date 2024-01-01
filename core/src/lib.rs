@@ -45,6 +45,12 @@ pub mod basic_config {
     pub const DISPLAY_HEIGHT: u32 = 285;
     pub const CONTROLLER_TICK_RATE: u32 = 10;
 }
+#[cfg(feature = "larus_ad57")]
+pub mod basic_config {
+    pub const DISPLAY_WIDTH: u32 = 240;
+    pub const DISPLAY_HEIGHT: u32 = 320;
+    pub const CONTROLLER_TICK_RATE: u32 = 10;
+}
 
 /// Trait of a function to bring an image to the screen. The format of the image files is
 /// specifically designed to be ultra-fast. It is defined in the Python script

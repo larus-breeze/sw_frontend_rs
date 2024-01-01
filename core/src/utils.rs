@@ -1,7 +1,8 @@
 mod can_ids;
 mod can_rdr;
 mod can_wtr;
-mod colors;
+mod colors8;
+mod colors16;
 mod concat;
 mod error;
 mod events;
@@ -12,7 +13,10 @@ mod version;
 
 pub use can_ids::*;
 pub use can_wtr::*;
-pub use colors::Colors;
+#[cfg(feature = "air_avionics_ad57")]
+pub use colors8::Colors;
+#[cfg(feature = "larus_ad57")]
+pub use colors16::Colors;
 pub use concat::Concat;
 pub use error::CoreError;
 pub use events::*;
