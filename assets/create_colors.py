@@ -381,7 +381,11 @@ with open(f"core/src/utils/rgb565_colors.rs", "w") as f:
         colorDesc = f"// {idx:3} {colorName} RGB({rgb.red}, {rgb.green}, {rgb.blue})"
         colors565 += f"    {color}{colorDesc}\n"
 
-    f.write(COOLORS565_TEMPLATE.replace('@col_cnt@', col_cnt).replace('@colors565@', colors565))
+    f.write(
+        COOLORS565_TEMPLATE
+            .replace('@col_cnt@', col_cnt)
+            .replace('@colors565@', colors565)
+    )
 
 
 with open('assets/colors.html', 'w') as f:
@@ -395,4 +399,7 @@ with open('assets/colors.html', 'w') as f:
         content += f'          <td>{col}</td>\n'
         content += f'          <td>{rgb_desc}</td>\n'
         content += f'        </tr>\n'
-    f.write(HTML_TEMPLATE.replace('@@@', content))
+    f.write(
+        HTML_TEMPLATE
+            .replace('@@@', content)
+    )

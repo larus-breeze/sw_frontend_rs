@@ -20,4 +20,8 @@ micromath = { version = "1.1.0", default-features = false }
 eeprom24x = "0.6.0"
 embedded-hal = "0.2"
 
-corelib = { path = "../../core", features = ["air_avionics_ad57"] }
+# local
+[dependencies.corelib]
+path = "../../core"
+default-features = false
+features = ["air_avionics_ad57", "eeprom_size_8192"]

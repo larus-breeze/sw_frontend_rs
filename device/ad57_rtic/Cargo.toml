@@ -35,8 +35,13 @@ nb = "1"
 static_cell = "1.2.0"
 
 # local
-corelib = { path = "../../core", features = ["air_avionics_ad57"] }
 fmc_lcd = { path="../common/fmc_lcd", features = ["stm32f407"] }
+
+[dependencies.corelib]
+path = "../../core"
+default-features = false
+features = ["air_avionics_ad57", "eeprom_size_8192"]
+
 
 [features]
 defmt-default = []

@@ -31,7 +31,10 @@ heapless = "0.8"
 nb = "1"
 
 # local
-corelib = { path = "../../core", features = ["air_avionics_ad57"] }
+[dependencies.corelib]
+path = "../../core"
+default-features = false 
+features = ["larus_ad57", "eeprom_size_8192"] 
 
 [[bin]]
 name = "vario"
