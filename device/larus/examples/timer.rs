@@ -12,15 +12,12 @@ use cortex_m::interrupt::Mutex;
 use cortex_m_rt::entry;
 
 use pac::interrupt;
-use stm32h7xx_hal::{
-    pac, prelude::*,
-};
 use rtic_monotonic::Monotonic;
+use stm32h7xx_hal::{pac, prelude::*};
 
 use driver::*;
 
 static TIMER: Mutex<RefCell<Option<MonoTimer>>> = Mutex::new(RefCell::new(None));
-
 
 #[entry]
 fn main() -> ! {
@@ -42,14 +39,14 @@ fn main() -> ! {
         pac::NVIC::unmask(interrupt::TIM2);
     }
 
-loop {
-    let now = cortex_m::interrupt::free(|cs| {
-        let mut rc = TIMER.borrow(cs).borrow_mut();
-        let timer = rc.as_mut().unwrap();
-        timer.now()
-    });
-    info!("timestamp64: {}", now.ticks());
-    delay_us(999_978);
+    loop {
+        let now = cortex_m::interrupt::free(|cs| {
+            let mut rc = TIMER.borrow(cs).borrow_mut();
+            let timer = rc.as_mut().unwrap();
+            timer.now()
+        });
+        info!("timestamp64: {}", now.ticks());
+        delay_us(999_978);
     }
 }
 
