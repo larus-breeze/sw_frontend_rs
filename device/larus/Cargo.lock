@@ -68,10 +68,10 @@ version = "0.1.0"
 dependencies = [
  "byteorder",
  "defmt",
- "embedded-graphics 0.8.1",
+ "embedded-graphics",
  "embedded-hal",
  "heapless 0.8.0",
- "micromath 2.1.0",
+ "micromath",
  "num",
  "u8g2-fonts",
 ]
@@ -213,38 +213,15 @@ dependencies = [
 
 [[package]]
 name = "embedded-graphics"
-version = "0.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "750082c65094fbcc4baf9ba31583ce9a8bb7f52cadfb96f6164b1bc7f922f32b"
-dependencies = [
- "az",
- "byteorder",
- "embedded-graphics-core 0.3.3",
- "float-cmp 0.8.0",
- "micromath 1.1.1",
-]
-
-[[package]]
-name = "embedded-graphics"
 version = "0.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0649998afacf6d575d126d83e68b78c0ab0e00ca2ac7e9b3db11b4cbe8274ef0"
 dependencies = [
  "az",
  "byteorder",
- "embedded-graphics-core 0.4.0",
- "float-cmp 0.9.0",
- "micromath 2.1.0",
-]
-
-[[package]]
-name = "embedded-graphics-core"
-version = "0.3.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b8b1239db5f3eeb7e33e35bd10bd014e7b2537b17e071f726a09351431337cfa"
-dependencies = [
- "az",
- "byteorder",
+ "embedded-graphics-core",
+ "float-cmp",
+ "micromath",
 ]
 
 [[package]]
@@ -285,15 +262,6 @@ dependencies = [
  "static_assertions",
  "vcell",
  "volatile-register",
-]
-
-[[package]]
-name = "float-cmp"
-version = "0.8.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e1267f4ac4f343772758f7b1bdcbe767c218bbab93bb432acbf5162bbf85a6c4"
-dependencies = [
- "num-traits",
 ]
 
 [[package]]
@@ -386,12 +354,6 @@ dependencies = [
  "autocfg",
  "scopeguard",
 ]
-
-[[package]]
-name = "micromath"
-version = "1.1.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bc4010833aea396656c2f91ee704d51a6f1329ec2ab56ffd00bfd56f7481ea94"
 
 [[package]]
 name = "micromath"
@@ -625,11 +587,9 @@ dependencies = [
 [[package]]
 name = "st7789"
 version = "0.7.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "86e89eaa897f8688aa897a7a8a62847e00e3f49f804d918bdebd14d4a1beb5ab"
 dependencies = [
  "display-interface",
- "embedded-graphics-core 0.3.3",
+ "embedded-graphics-core",
  "embedded-hal",
  "heapless 0.7.16",
  "nb 1.1.0",
@@ -737,7 +697,7 @@ version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c53bd76579dcab4b69ffe77c895b8dffa4a9b3273c0a5105afc4d3768a5064ed"
 dependencies = [
- "embedded-graphics-core 0.4.0",
+ "embedded-graphics-core",
 ]
 
 [[package]]
@@ -764,7 +724,7 @@ dependencies = [
  "defmt-rtt",
  "display-interface",
  "eeprom24x",
- "embedded-graphics 0.7.1",
+ "embedded-graphics",
  "embedded-hal",
  "fdcan",
  "fugit",

@@ -19,12 +19,12 @@ rtic-monotonic = "1.0.0"
 # hardware specific
 eeprom24x = "0.6.0"
 fdcan = "0.2"
-st7789 = "0.7.0"
+st7789 = { path = "../common/st7789" }
 stm32h7xx-hal = { version = "0.15.1", features = ["rt", "stm32h743", "fmc", "can"] }
 
 # other libraries
 display-interface = "0.4"
-embedded-graphics = "0.7.1"
+embedded-graphics = "0.8.0"
 embedded-hal = { version = "0.2.6", features = ["unproven"] }
 fugit = "0.3"
 heapless = "0.8"

@@ -13,6 +13,8 @@ mod eeprom;
 #[allow(unused)]
 mod fmc_lcd;
 #[allow(unused)]
+mod frame_buffer;
+#[allow(unused)]
 mod keyboard;
 #[allow(unused)]
 mod sys_timer;
@@ -20,6 +22,7 @@ mod sys_timer;
 pub use canbus::*;
 pub use eeprom::*;
 pub use fmc_lcd::*;
+pub use frame_buffer::*;
 pub use keyboard::*;
 pub use sys_timer::*;
 
@@ -40,7 +43,7 @@ macro_rules! set_clocksys {
             .hclk(100.MHz())
             .pll1_q_ck(32.MHz()) // CAN
             .pll2_p_ck(100.MHz()) // ?
-            .pll2_r_ck(50.MHz()) // LCD
+            .pll2_r_ck(80.MHz()) // LCD
             .freeze(pwrcfg, &$dp.SYSCFG);
         ccdr
     }};
