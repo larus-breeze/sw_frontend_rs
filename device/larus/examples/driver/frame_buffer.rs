@@ -1,0 +1,258 @@
+/// The display driver consists of two components:
+/// - Display unit, which uses the draw target trait and is used to build the content.
+/// - Framebuffer, which is used to copy the content to the LCD.
+///
+/// Both components access the same buffer memory. Decoupling is achieved by calling the copy
+/// routine after the image has been built up.
+use corelib::{
+    basic_config::{DISPLAY_HEIGHT, DISPLAY_WIDTH},
+    Colors, CoreError, DrawImage, RGB565_COLORS,
+};
+use embedded_graphics::{
+    draw_target::DrawTarget, pixelcolor::PixelColor, prelude::*, primitives::Rectangle,
+};
+use stm32h7xx_hal::{
+    device::MDMA,
+    dma::{
+        dma::DmaConfig,
+        mdma::{MdmaConfig, MdmaIncrement, StreamX},
+        traits::Direction,
+        MasterTransfer, MemoryToMemory, Transfer,
+    },
+};
+
+use crate::driver::{timestamp, LcdInterface};
+use st7789::ST7789;
+
+const AVAIL_PIXELS: usize = (DISPLAY_WIDTH * DISPLAY_HEIGHT) as usize;
+
+type DisplayDriver = ST7789<
+    LcdInterface,
+    stm32h7xx_hal::gpio::Pin<'C', 0, stm32h7xx_hal::gpio::Output>,
+    stm32h7xx_hal::gpio::Pin<'F', 5, stm32h7xx_hal::gpio::Output>,
+>;
+type Stream0 = StreamX<stm32h7xx_hal::device::MDMA, 0>;
+type Transfer0 = Transfer<
+    StreamX<MDMA, 0>,
+    MemoryToMemory<u16>,
+    MemoryToMemory<u16>,
+    &'static mut [u16; 25600],
+    MasterTransfer,
+>;
+
+#[link_section = ".axisram.AXISRAM"]
+static mut FRAME_BUFFER: [u16; AVAIL_PIXELS] = [0; AVAIL_PIXELS];
+
+#[derive(Copy, Clone, PartialEq, Eq)]
+enum DmaState {
+    State1 = 0x2400_0000,
+    State2 = 0x2400_c800,
+    State3 = 0x2401_9000,
+}
+
+const MDMA_GISR0: *const u16 = 0x5200_0000 as *const u16;
+
+pub struct FrameBuffer {
+    buf: &'static mut [u16; AVAIL_PIXELS],
+    di_driver: DisplayDriver,
+    dma_transfer: Option<Transfer0>,
+    dma_state: DmaState,
+}
+
+impl FrameBuffer {
+    pub fn new(di_driver: DisplayDriver, stream0: Stream0) -> (Self, Display) {
+        let buf = unsafe { &mut FRAME_BUFFER };
+        let raw = buf as *const [u16; AVAIL_PIXELS];
+        let buf2 = unsafe {
+            core::mem::transmute::<*const [u16; AVAIL_PIXELS], &mut [u16; AVAIL_PIXELS]>(raw)
+        };
+
+        let src: &'static mut [u16; 25600] =
+            unsafe { core::mem::transmute(DmaState::State1 as u32 as *mut u16) };
+        let dst: &'static mut [u16; 25600] =
+            unsafe { core::mem::transmute(0xc002_0000 as *mut u16) };
+        let mut dma_transfer: Transfer<
+            Stream0,
+            MemoryToMemory<u16>,
+            _,
+            &'static mut [u16; 25600],
+            MasterTransfer,
+        > = Transfer::init_master(
+            stream0,
+            MemoryToMemory::new(),
+            dst,
+            Some(src),
+            Self::config(),
+        );
+        (
+            FrameBuffer {
+                buf,
+                di_driver,
+                dma_transfer: Some(dma_transfer),
+                dma_state: DmaState::State1,
+            },
+            Display { buf: buf2 },
+        )
+    }
+
+    fn config() -> MdmaConfig {
+        MdmaConfig::default()
+            .source_increment(MdmaIncrement::Increment)
+            .destination_increment(MdmaIncrement::Fixed)
+            .transfer_complete_interrupt(true)
+    }
+
+    pub fn flush(&mut self) {
+        let buf = [0_u16; 0];
+        self.di_driver
+            .set_pixels(0, 0, DISPLAY_WIDTH as u16, DISPLAY_HEIGHT as u16, buf);
+        self.dma_state = DmaState::State1;
+
+        let mut dma_transfer = self.dma_transfer.take().unwrap();
+        let (stream0, _, _, _) = dma_transfer.free();
+
+        let src: &'static mut [u16; 25600] =
+            unsafe { core::mem::transmute(self.dma_state as u32 as *mut u16) };
+        let dst: &'static mut [u16; 25600] =
+            unsafe { core::mem::transmute(0xc002_0000 as *mut u16) };
+        let mut dma_transfer: Transfer<
+            Stream0,
+            MemoryToMemory<u16>,
+            _,
+            &'static mut [u16; 25600],
+            MasterTransfer,
+        > = Transfer::init_master(
+            stream0,
+            MemoryToMemory::new(),
+            dst,
+            Some(src),
+            Self::config(),
+        );
+
+        dma_transfer.start(|_| {});
+        self.dma_transfer = Some(dma_transfer);
+    }
+
+    pub fn on_interrupt(&mut self) {
+        if (unsafe { core::ptr::read_volatile(MDMA_GISR0) } & 0x0001) != 0 {
+            // Is there an interrupt on stream0
+            let mut dma_transfer = self.dma_transfer.take().unwrap();
+
+            self.dma_state = match self.dma_state {
+                DmaState::State1 => DmaState::State2,
+                DmaState::State2 => DmaState::State3,/// 
+                DmaState::State3 => {
+                    dma_transfer.clear_transfer_complete_interrupt();
+                    self.dma_transfer = Some(dma_transfer);
+                    return;
+                }
+            };
+
+            let (stream0, _, _, _) = dma_transfer.free();
+            let src: &'static mut [u16; 25600] =
+                unsafe { core::mem::transmute(self.dma_state as u32 as *mut u16) };
+            let dst: &'static mut [u16; 25600] =
+                unsafe { core::mem::transmute(0xc002_0000 as *mut u16) };
+            let mut dma_transfer: Transfer<
+                Stream0,
+                MemoryToMemory<u16>,
+                _,
+                &'static mut [u16; 25600],
+                MasterTransfer,
+            > = Transfer::init_master(
+                stream0,
+                MemoryToMemory::new(),
+                dst,
+                Some(src),
+                Self::config(),
+            );
+
+            dma_transfer.start(|_| {});
+            self.dma_transfer = Some(dma_transfer);
+        }
+    }
+}
+
+const PORT_AVAIL_HEI_M1: u32 = DISPLAY_HEIGHT - 1;
+const PORT_AVAIL_WID_M1: u32 = DISPLAY_WIDTH - 1;
+
+pub struct Display {
+    buf: &'static mut [u16; AVAIL_PIXELS],
+}
+
+impl DrawTarget for Display {
+    type Color = Colors;
+    type Error = CoreError;
+
+    fn draw_iter<I>(&mut self, pixels: I) -> Result<(), Self::Error>
+    where
+        I: IntoIterator<Item = Pixel<Self::Color>>,
+    {
+        for Pixel(coord, color) in pixels.into_iter() {
+            // Check if the pixel coordinates are out of bounds. `DrawTarget` implementation are required
+            // to discard any out of bounds pixels without returning an error or causing a panic.
+            if let Ok((x @ 0..=PORT_AVAIL_WID_M1, y @ 0..=PORT_AVAIL_HEI_M1)) = coord.try_into() {
+                let index: u32 = x + y * DISPLAY_WIDTH;
+                self.buf[index as usize] = color.into_storage();
+            }
+        }
+
+        Ok(())
+    }
+
+    fn fill_solid(&mut self, area: &Rectangle, color: Self::Color) -> Result<(), Self::Error> {
+        // Clamp the rectangle coordinates to the valid range by determining
+        // the intersection of the fill area and the visible display area
+        // by using Rectangle::intersection.
+        let area = area.intersection(&self.bounding_box());
+        let mut row_start_idx = (area.top_left.y as u32) * DISPLAY_WIDTH + area.top_left.x as u32;
+
+        for _row in 0..area.size.height {
+            for idx in row_start_idx..(row_start_idx + area.size.width) {
+                self.buf[idx as usize] = color.into_storage();
+            }
+            row_start_idx += DISPLAY_WIDTH;
+        }
+        Ok(())
+    }
+
+    fn clear(&mut self, color: Self::Color) -> Result<(), Self::Error> {
+        self.buf[0..AVAIL_PIXELS].fill(color.into_storage());
+        Ok(())
+    }
+}
+
+impl OriginDimensions for Display {
+    fn size(&self) -> Size {
+        Size::new(DISPLAY_WIDTH, DISPLAY_HEIGHT)
+    }
+}
+
+impl DrawImage for Display {
+    fn draw_img(&mut self, img: &[u8], offset: Point) -> Result<(), CoreError> {
+        // Safety: the img format has been defined in terms of compatibility,(_fsmc,  so the conversion is ok here
+        let img16 =
+            unsafe { core::slice::from_raw_parts(img.as_ptr() as *const u16, img.len() / 2) };
+        // At the moment we only know format 1
+        assert!(img16[0] == 1);
+
+        // The image is really built for our display?
+        assert!(img16[1] == DISPLAY_WIDTH as u16);
+        assert!(img16[2] + offset.y as u16 <= DISPLAY_HEIGHT as u16);
+
+        // Let's write the pixels
+        let color_cnt = img16[3];
+        let mut idx = 4;
+        let ofs = offset.x as usize + offset.y as usize * DISPLAY_WIDTH as usize;
+        for _ in 0..color_cnt {
+            let color = RGB565_COLORS[img16[idx] as usize];
+            let px_cnt = img16[idx + 1] as usize;
+            idx += 2;
+            for b_idx in img16.iter().skip(idx).take(px_cnt) {
+                self.buf[*b_idx as usize + ofs] = color;
+            }
+            idx += px_cnt;
+        }
+        Ok(())
+    }
+}
