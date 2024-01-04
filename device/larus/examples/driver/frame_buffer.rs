@@ -4,6 +4,7 @@
 ///
 /// Both components access the same buffer memory. Decoupling is achieved by calling the copy
 /// routine after the image has been built up.
+use core::{mem::transmute, ptr::addr_of};
 use corelib::{
     basic_config::{DISPLAY_HEIGHT, DISPLAY_WIDTH},
     Colors, CoreError, DrawImage, RGB565_COLORS,
@@ -19,6 +20,7 @@ use stm32h7xx_hal::{
         traits::Direction,
         MasterTransfer, MemoryToMemory, Transfer,
     },
+    gpio::{Output, Pin},
 };
 
 use crate::driver::{timestamp, LcdInterface};
@@ -26,14 +28,10 @@ use st7789::ST7789;
 
 const AVAIL_PIXELS: usize = (DISPLAY_WIDTH * DISPLAY_HEIGHT) as usize;
 
-type DisplayDriver = ST7789<
-    LcdInterface,
-    stm32h7xx_hal::gpio::Pin<'C', 0, stm32h7xx_hal::gpio::Output>,
-    stm32h7xx_hal::gpio::Pin<'F', 5, stm32h7xx_hal::gpio::Output>,
->;
-type Stream0 = StreamX<stm32h7xx_hal::device::MDMA, 0>;
+type DisplayDriver = ST7789<LcdInterface, Pin<'C', 0, Output>, Pin<'F', 5, Output>>;
+type Stream0 = StreamX<MDMA, 0>;
 type Transfer0 = Transfer<
-    StreamX<MDMA, 0>,
+    Stream0,
     MemoryToMemory<u16>,
     MemoryToMemory<u16>,
     &'static mut [u16; 25600],
@@ -51,6 +49,7 @@ enum DmaState {
 }
 
 const MDMA_GISR0: *const u16 = 0x5200_0000 as *const u16;
+const FMC_DATA: *const u16 = 0xc002_0000 as *mut u16;
 
 pub struct FrameBuffer {
     buf: &'static mut [u16; AVAIL_PIXELS],
@@ -60,12 +59,15 @@ pub struct FrameBuffer {
 }
 
 impl FrameBuffer {
+    /// Creates a frame buffer object and a display object and returns them. The display object
+    /// is used by the core component to draw the LCD image. The frame buffer is used by the DMA
+    /// copy routine to transport the image from the Stm32 to the LCD.
     pub fn new(di_driver: DisplayDriver, stream0: Stream0) -> (Self, Display) {
+        // Note on safety: The frame buffer is used as a display and as a buffer for the DMA
+        // transfer. This is ok, as these processes run one after the other and there are no
+        // conflicts.
         let buf = unsafe { &mut FRAME_BUFFER };
-        let raw = buf as *const [u16; AVAIL_PIXELS];
-        let buf2 = unsafe {
-            core::mem::transmute::<*const [u16; AVAIL_PIXELS], &mut [u16; AVAIL_PIXELS]>(raw)
-        };
+        let buf2 = unsafe { &mut FRAME_BUFFER };
 
         let dma_state = DmaState::State1;
         let dma_transfer = Self::create_transfer(stream0, dma_state);
@@ -80,24 +82,8 @@ impl FrameBuffer {
         )
     }
 
-    fn create_transfer(stream0: Stream0, dma_state: DmaState) -> Transfer0 {
-        let config = MdmaConfig::default()
-            .source_increment(MdmaIncrement::Increment)
-            .destination_increment(MdmaIncrement::Fixed)
-            .transfer_complete_interrupt(true);
-        let src_ptr = unsafe {
-            match dma_state {
-                DmaState::State1 => core::ptr::addr_of!(FRAME_BUFFER[0]),
-                DmaState::State2 => core::ptr::addr_of!(FRAME_BUFFER[25_600]),
-                DmaState::State3 => core::ptr::addr_of!(FRAME_BUFFER[51_200]),
-            }
-        };
-        let src: &'static mut [u16; 25600] = unsafe { core::mem::transmute(src_ptr) };
-        let dst: &'static mut [u16; 25600] =
-            unsafe { core::mem::transmute(0xc002_0000 as *mut u16) };
-        Transfer::init_master(stream0, MemoryToMemory::new(), dst, Some(src), config)
-    }
-
+    /// The flush() routine triggers the DMA transfer, which consists of 3 parts. Parts 2 and 3
+    /// are automatically triggered by the DMA transfer complete interrupt.
     pub fn flush(&mut self) {
         let buf = [0_u16; 0];
         self.di_driver
@@ -112,7 +98,11 @@ impl FrameBuffer {
         self.dma_transfer = Some(dma_transfer);
     }
 
+    /// The interrupt service routine completes the transfer. Note: This routine checks whether
+    /// the DMA interrupt was triggered by stream 0 before it acts. This is to ensure
+    /// compatibility with any further DMA transfers.
     pub fn on_interrupt(&mut self) {
+        // Note on safety: Reading a u16 is not a problem
         if (unsafe { core::ptr::read_volatile(MDMA_GISR0) } & 0x0001) != 0 {
             // Is there an interrupt on stream0
             let mut dma_transfer = self.dma_transfer.take().unwrap();
@@ -133,6 +123,25 @@ impl FrameBuffer {
             dma_transfer.start(|_| {});
             self.dma_transfer = Some(dma_transfer);
         }
+    }
+
+    fn create_transfer(stream0: Stream0, dma_state: DmaState) -> Transfer0 {
+        let config = MdmaConfig::default()
+            .source_increment(MdmaIncrement::Increment)
+            .destination_increment(MdmaIncrement::Fixed)
+            .transfer_complete_interrupt(true);
+        // Note on safety: The DMA requires the correct address of where to copy from and to.
+        // This process has been carefully developed and tested.
+        let src_ptr = unsafe {
+            match dma_state {
+                DmaState::State1 => addr_of!(FRAME_BUFFER[0]),
+                DmaState::State2 => addr_of!(FRAME_BUFFER[25_600]),
+                DmaState::State3 => addr_of!(FRAME_BUFFER[51_200]),
+            }
+        };
+        let src: &'static mut [u16; 25600] = unsafe { transmute(src_ptr) };
+        let dst: &'static mut [u16; 25600] = unsafe { transmute(FMC_DATA) };
+        Transfer::init_master(stream0, MemoryToMemory::new(), dst, Some(src), config)
     }
 }
 
