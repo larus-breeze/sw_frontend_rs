@@ -8,7 +8,7 @@ use crate::{
     model::{CoreModel, FlyMode, VarioMode},
     utils::Colors,
 };
-use crate::{utils::FONT_HELV_18, Concat, CoreError, DrawImage};
+use crate::{utils::FONT_HELV_18, Concat, CoreError, DrawImage, basic_config::*};
 
 use embedded_graphics::{
     geometry::AngleUnit,
@@ -32,8 +32,10 @@ struct VarioSizes {
     wind_pos: Point,
     wind_len: i32,
     wind_len_min: i32,
+    angle_m_s: f32,
 }
 
+#[cfg(feature = "air_avionics_ad57")]
 const VARIO_SIZES: VarioSizes = VarioSizes {
     diameter_stf: DIAMETER - 108,
     indicator_len: 50,
@@ -48,6 +50,25 @@ const VARIO_SIZES: VarioSizes = VarioSizes {
     wind_pos: Point::new(180, 85),
     wind_len: 105,
     wind_len_min: 50,
+    angle_m_s: 25.0,
+};
+
+#[cfg(feature = "larus_ad57")]
+const VARIO_SIZES: VarioSizes = VarioSizes {
+    diameter_stf: DIAMETER - 108,
+    indicator_len: 50,
+    indicator_width: 8,
+    left_under_pos: Point::new(43, 290),
+    pic_left_under_pos: Point::new(5, 254),
+    mc_width: 0.14,
+    mc_len: 22,
+    tcr_width: 0.25,
+    tcr_len: 22,
+    unit_pos: Point::new(122, 255),
+    wind_pos: Point::new(180, 85),
+    wind_len: 105,
+    wind_len_min: 50,
+    angle_m_s: 24.0,
 };
 
 use VARIO_SIZES as SZS;
@@ -83,31 +104,6 @@ use VARIO_COLORS as COLS;
 const WIND_MIN: f32 = 10.0; // 10 km/h
 const WIND_MAX: f32 = 30.0; // 30 km/h
 
-// Predefined (background) images
-const GLIDER: &[u8] = include_bytes!("../../assets/size_227x285/glider.lif");
-const COMPASS: &[u8] = include_bytes!("../../assets/size_227x285/compass.lif");
-const WALLPAPER: &[u8] = include_bytes!("../../assets/size_227x285/vario_wallpaper.lif");
-const SPIRAL: &[u8] = include_bytes!("../../assets/size_227x285/spiral.lif");
-const STRAIGHT: &[u8] = include_bytes!("../../assets/size_227x285/straight.lif");
-const KM_H: &[u8] = include_bytes!("../../assets/size_227x285/km_h.lif");
-const M_S: &[u8] = include_bytes!("../../assets/size_227x285/m_s.lif");
-
-// These are precalculated coordinates to draw the numbers on the display
-// see /assets/create_wallpaper_vario.py
-const WALLPAPER_SCALE: [(i32, i32, &str); 11] = [
-    (194, 238, "5"),
-    (152, 255, "4"),
-    (106, 253, "3"),
-    (66, 232, "2"),
-    (38, 196, "1"),
-    (29, 152, "0"),
-    (38, 107, "1"),
-    (66, 71, "2"),
-    (106, 50, "3"),
-    (152, 48, "4"),
-    (194, 65, "5"),
-];
-
 /// draw the vario display on Screen
 pub fn draw<D>(display: &mut D, cm: &CoreModel) -> Result<(), CoreError>
 where
@@ -115,8 +111,8 @@ where
 {
     // draw wallpaper
     display.clear(COLS.background)?;
-    display.draw_img(WALLPAPER, Point::new(0, 0))?;
-    display.draw_img(M_S, SZS.unit_pos)?;
+    display.draw_img(WALLPAPER_IMG, Point::new(0, 0))?;
+    display.draw_img(M_S_IMG, SZS.unit_pos)?;
 
     for (pos_x, pos_y, txt) in WALLPAPER_SCALE {
         let pos = Point::new(pos_x, pos_y);
@@ -131,9 +127,9 @@ where
 
     // dependend on fly_mode draw glider or north symbol
     match cm.control.fly_mode {
-        FlyMode::Circling => display.draw_img(COMPASS, Point::new(0, 0))?,
+        FlyMode::Circling => display.draw_img(NORTH_IMG, Point::new(0, 0))?,
         FlyMode::StraightFlight | FlyMode::Transition => {
-            display.draw_img(GLIDER, Point::new(0, 0))?
+            display.draw_img(GLIDER_IMG, Point::new(0, 0))?
         }
     }
 
@@ -160,7 +156,7 @@ where
     )?;*/
 
     // draw climb rate indicator
-    let angle = (25.0 * num::clamp(cm.sensor.climb_rate.to_m_s(), -5.1, 5.1)).deg();
+    let angle = (SZS.angle_m_s * num::clamp(cm.sensor.climb_rate.to_m_s(), -5.1, 5.1)).deg();
     classic_indicator(
         display,
         CENTER,
@@ -195,7 +191,7 @@ where
     )?;
 
     // draw wind direction an speed text
-    display.draw_img(KM_H, SZS.wind_pos)?;
+    display.draw_img(KM_H_IMG, SZS.wind_pos)?;
     let wind_deg = cm.sensor.wind_vector.angle().to_degrees();
     let wind_speed = cm.sensor.wind_vector.speed().to_km_h();
     let s = Concat::<25>::from_f32(wind_deg, 0).push_str("° ");
@@ -212,8 +208,8 @@ where
     // dependend on vario_mode draw speed_to_fly or average_climb_rate
     match cm.control.vario_mode {
         VarioMode::Vario => {
-            display.draw_img(SPIRAL, SZS.pic_left_under_pos)?;
-            display.draw_img(M_S, SZS.left_under_pos)?;
+            display.draw_img(SPIRAL_IMG, SZS.pic_left_under_pos)?;
+            display.draw_img(M_S_IMG, SZS.left_under_pos)?;
             let acr = num::clamp(cm.sensor.average_climb_rate.to_m_s(), -9.9, 99.9);
             let txt = Concat::<10>::from_f32(acr, 1);
             FONT_HELV_18.render_aligned(
@@ -226,8 +222,8 @@ where
             )?;
         }
         VarioMode::SpeedToFly => {
-            display.draw_img(STRAIGHT, SZS.pic_left_under_pos)?;
-            display.draw_img(KM_H, SZS.left_under_pos)?;
+            display.draw_img(STRAIGHT_IMG, SZS.pic_left_under_pos)?;
+            display.draw_img(KM_H_IMG, SZS.left_under_pos)?;
             let stf = num::clamp(cm.calculated.speed_to_fly_dif.to_km_h(), -50.0, 50.0);
             let angle_sweep = (-2.5 * stf).deg();
             Arc::with_center(CENTER, SZS.diameter_stf, 180.0.deg(), angle_sweep)
