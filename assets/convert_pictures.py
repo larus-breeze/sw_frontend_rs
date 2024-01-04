@@ -58,7 +58,7 @@ class LifGen():
                 src_px = img.load()
                 width, height = img.size
 
-                f.write(struct.pack("<LLLL", 1, self.width, height, len(color_dict)))
+                f.write(struct.pack("<LLLL", 2, self.width, height, len(color_dict)))
                 size = 16
 
                 for src_color in color_dict.keys():
@@ -92,8 +92,8 @@ lif_type1.generate(1, 'km_h.png', {0: DARK_GRAY})
 lif_type1.generate(1, 'm_s.png', {0: DARK_GRAY})
 
 lif_type1 = LifGen(240, 320, 'assets/size_240x320', 'core/assets/size_240x320')
-lif_type1.generate(1, 'glider.png', {0: DARK_GRAY}, 67, 117)
-lif_type1.generate(1, 'north.png', {0: DARK_GRAY}, 71, 53)
+lif_type1.generate(1, 'glider.png', {0: DARK_GRAY}, 82, 136)
+lif_type1.generate(1, 'north.png', {0: DARK_GRAY}, 82, 58)
 lif_type1.generate(1, 'spiral.png', {0: DARK_GRAY})
 lif_type1.generate(1, 'straight.png', {0: DARK_GRAY})
 lif_type1.generate(2, 'vario_wallpaper.png', {0: DARK_GRAY})
