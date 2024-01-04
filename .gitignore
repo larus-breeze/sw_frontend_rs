@@ -5,7 +5,6 @@
 /device/pc/target
 /device/pc/simulator-0.5.0/target
 /device/common/fmc_lcd/target
-/sw_update/target
 *.f110
 *.pyc
 device/pc/eeprom.bin
@@ -13,4 +12,3 @@ device/ad57_rtic/image.bin
 device/common/fmc_lcd/Cargo.lock
 device/pc/simulator-0.5.0/Cargo.lock
 device/common/storage_items/Cargo.lock
-device/common/st7789/Cargo.lock
