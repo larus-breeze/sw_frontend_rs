@@ -45,9 +45,9 @@ static mut FRAME_BUFFER: [u16; AVAIL_PIXELS] = [0; AVAIL_PIXELS];
 
 #[derive(Copy, Clone, PartialEq, Eq)]
 enum DmaState {
-    State1 = 0x2400_0000,
-    State2 = 0x2400_c800,
-    State3 = 0x2401_9000,
+    State1,
+    State2,
+    State3,
 }
 
 const MDMA_GISR0: *const u16 = 0x5200_0000 as *const u16;
@@ -67,39 +67,35 @@ impl FrameBuffer {
             core::mem::transmute::<*const [u16; AVAIL_PIXELS], &mut [u16; AVAIL_PIXELS]>(raw)
         };
 
-        let src: &'static mut [u16; 25600] =
-            unsafe { core::mem::transmute(DmaState::State1 as u32 as *mut u16) };
-        let dst: &'static mut [u16; 25600] =
-            unsafe { core::mem::transmute(0xc002_0000 as *mut u16) };
-        let mut dma_transfer: Transfer<
-            Stream0,
-            MemoryToMemory<u16>,
-            _,
-            &'static mut [u16; 25600],
-            MasterTransfer,
-        > = Transfer::init_master(
-            stream0,
-            MemoryToMemory::new(),
-            dst,
-            Some(src),
-            Self::config(),
-        );
+        let dma_state = DmaState::State1;
+        let dma_transfer = Self::create_transfer(stream0, dma_state);
         (
             FrameBuffer {
                 buf,
                 di_driver,
                 dma_transfer: Some(dma_transfer),
-                dma_state: DmaState::State1,
+                dma_state,
             },
             Display { buf: buf2 },
         )
     }
 
-    fn config() -> MdmaConfig {
-        MdmaConfig::default()
+    fn create_transfer(stream0: Stream0, dma_state: DmaState) -> Transfer0 {
+        let config = MdmaConfig::default()
             .source_increment(MdmaIncrement::Increment)
             .destination_increment(MdmaIncrement::Fixed)
-            .transfer_complete_interrupt(true)
+            .transfer_complete_interrupt(true);
+        let src_ptr = unsafe {
+            match dma_state {
+                DmaState::State1 => core::ptr::addr_of!(FRAME_BUFFER[0]),
+                DmaState::State2 => core::ptr::addr_of!(FRAME_BUFFER[25_600]),
+                DmaState::State3 => core::ptr::addr_of!(FRAME_BUFFER[51_200]),
+            }
+        };
+        let src: &'static mut [u16; 25600] = unsafe { core::mem::transmute(src_ptr) };
+        let dst: &'static mut [u16; 25600] =
+            unsafe { core::mem::transmute(0xc002_0000 as *mut u16) };
+        Transfer::init_master(stream0, MemoryToMemory::new(), dst, Some(src), config)
     }
 
     pub fn flush(&mut self) {
@@ -110,24 +106,7 @@ impl FrameBuffer {
 
         let mut dma_transfer = self.dma_transfer.take().unwrap();
         let (stream0, _, _, _) = dma_transfer.free();
-
-        let src: &'static mut [u16; 25600] =
-            unsafe { core::mem::transmute(self.dma_state as u32 as *mut u16) };
-        let dst: &'static mut [u16; 25600] =
-            unsafe { core::mem::transmute(0xc002_0000 as *mut u16) };
-        let mut dma_transfer: Transfer<
-            Stream0,
-            MemoryToMemory<u16>,
-            _,
-            &'static mut [u16; 25600],
-            MasterTransfer,
-        > = Transfer::init_master(
-            stream0,
-            MemoryToMemory::new(),
-            dst,
-            Some(src),
-            Self::config(),
-        );
+        let mut dma_transfer = Self::create_transfer(stream0, self.dma_state);
 
         dma_transfer.start(|_| {});
         self.dma_transfer = Some(dma_transfer);
@@ -137,35 +116,19 @@ impl FrameBuffer {
         if (unsafe { core::ptr::read_volatile(MDMA_GISR0) } & 0x0001) != 0 {
             // Is there an interrupt on stream0
             let mut dma_transfer = self.dma_transfer.take().unwrap();
+            dma_transfer.clear_transfer_complete_interrupt();
 
             self.dma_state = match self.dma_state {
                 DmaState::State1 => DmaState::State2,
-                DmaState::State2 => DmaState::State3,/// 
+                DmaState::State2 => DmaState::State3,
                 DmaState::State3 => {
-                    dma_transfer.clear_transfer_complete_interrupt();
                     self.dma_transfer = Some(dma_transfer);
                     return;
                 }
             };
 
             let (stream0, _, _, _) = dma_transfer.free();
-            let src: &'static mut [u16; 25600] =
-                unsafe { core::mem::transmute(self.dma_state as u32 as *mut u16) };
-            let dst: &'static mut [u16; 25600] =
-                unsafe { core::mem::transmute(0xc002_0000 as *mut u16) };
-            let mut dma_transfer: Transfer<
-                Stream0,
-                MemoryToMemory<u16>,
-                _,
-                &'static mut [u16; 25600],
-                MasterTransfer,
-            > = Transfer::init_master(
-                stream0,
-                MemoryToMemory::new(),
-                dst,
-                Some(src),
-                Self::config(),
-            );
+            let mut dma_transfer = Self::create_transfer(stream0, self.dma_state);
 
             dma_transfer.start(|_| {});
             self.dma_transfer = Some(dma_transfer);

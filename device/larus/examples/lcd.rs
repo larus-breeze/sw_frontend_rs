@@ -7,21 +7,24 @@ use defmt::*;
 use defmt_rtt as _;
 use panic_rtt_target as _;
 
+use core::cell::RefCell;
 use core::iter::{Cloned, Cycle};
 use core::slice::Iter;
-
+use corelib::Colors;
+use cortex_m::interrupt::Mutex;
 use cortex_m_rt::entry;
-use embedded_graphics::pixelcolor::Rgb565;
 use embedded_graphics::prelude::*;
 use embedded_graphics::primitives::{Circle, PrimitiveStyle};
 use stm32h7xx_hal::{
-    pac::{CorePeripherals, Peripherals as DevicePeripherals},
+    pac::{interrupt, CorePeripherals, Peripherals as DevicePeripherals, NVIC},
     prelude::*,
     rcc::rec::FmcClkSel,
 };
 
 use driver::*;
 use st7789::ST7789;
+
+static FRAME_BUFFER: Mutex<RefCell<Option<FrameBuffer>>> = Mutex::new(RefCell::new(None));
 
 #[entry]
 fn main() -> ! {
@@ -32,6 +35,7 @@ fn main() -> ! {
     info!("init");
 
     let ccdr = set_clocksys!(dp);
+    let _mono = MonoTimer::new(dp.TIM2, ccdr.peripheral.TIM2, &ccdr.clocks);
 
     // Initialize system...
     cp.SCB.enable_icache();
@@ -76,20 +80,34 @@ fn main() -> ! {
     lcd.init(&mut delay).unwrap();
     lcd.set_orientation(st7789::Orientation::PortraitSwapped)
         .unwrap();
-    lcd.clear(Rgb565::BLACK).unwrap();
+
+    let stream0 = stm32h7xx_hal::dma::mdma::StreamsTuple::new(dp.MDMA, ccdr.peripheral.MDMA).0;
+
+    let (frame_buffer, mut display) = FrameBuffer::new(lcd, stream0);
+
+    cortex_m::interrupt::free(|cs| {
+        FRAME_BUFFER.borrow(cs).replace(Some(frame_buffer));
+    });
+
+    display.clear(Colors::Blue).unwrap();
+
+    unsafe {
+        cp.NVIC.set_priority(interrupt::MDMA, 1);
+        NVIC::unmask(interrupt::MDMA);
+    }
 
     // Draw some circles
     let test_colors = [
-        Rgb565::new(0x4e >> 3, 0x79 >> 2, 0xa7 >> 3),
-        Rgb565::new(0xf2 >> 3, 0x8e >> 2, 0x2b >> 3),
-        Rgb565::new(0xe1 >> 3, 0x57 >> 2, 0x59 >> 3),
-        Rgb565::new(0x76 >> 3, 0xb7 >> 2, 0xb2 >> 3),
-        Rgb565::new(0x59 >> 3, 0xa1 >> 2, 0x4f >> 3),
-        Rgb565::new(0xed >> 3, 0xc9 >> 2, 0x48 >> 3),
-        Rgb565::new(0xb0 >> 3, 0x7a >> 2, 0xa1 >> 3),
-        Rgb565::new(0xff >> 3, 0x9d >> 2, 0xa7 >> 3),
-        Rgb565::new(0x9c >> 3, 0x75 >> 2, 0x5f >> 3),
-        Rgb565::new(0xba >> 3, 0xb0 >> 2, 0xac >> 3),
+        Colors::White,
+        Colors::Blue,
+        Colors::Green,
+        Colors::Red,
+        Colors::Yellow,
+        Colors::Cyan,
+        Colors::Gray,
+        Colors::Magenta,
+        Colors::Red,
+        Colors::Green,
     ];
     let center_points = [
         Point::new(70, 70),
@@ -98,9 +116,19 @@ fn main() -> ! {
         Point::new(70, 170),
     ];
     let mut drawer = ColoredCircleDrawer::new(&center_points, &test_colors);
+
     loop {
-        drawer.draw(&mut lcd).unwrap();
-        delay.delay_ms(100u16);
+        drawer.draw(&mut display).unwrap();
+
+        let ts = timestamp();
+        cortex_m::interrupt::free(|cs| {
+            let mut rc = FRAME_BUFFER.borrow(cs).borrow_mut();
+            let frame_buffer = rc.as_mut().unwrap();
+            frame_buffer.flush()
+        });
+        trace!("frame_buffer.flush() {} µs", timestamp() - ts);
+
+        delay_ms(1000);
     }
 }
 
@@ -109,11 +137,11 @@ struct ColoredCircleDrawer<'a> {
     /// Infinite iterator over circle center points
     centers: Cloned<Cycle<Iter<'a, Point>>>,
     /// Infinite iterator over Rgb565 colors
-    colors: Cloned<Cycle<Iter<'a, Rgb565>>>,
+    colors: Cloned<Cycle<Iter<'a, Colors>>>,
 }
 
 impl<'a> ColoredCircleDrawer<'a> {
-    pub fn new(centers: &'a [Point], colors: &'a [Rgb565]) -> Self {
+    pub fn new(centers: &'a [Point], colors: &'a [Colors]) -> Self {
         ColoredCircleDrawer {
             centers: centers.iter().cycle().cloned(),
             colors: colors.iter().cycle().cloned(),
@@ -123,7 +151,7 @@ impl<'a> ColoredCircleDrawer<'a> {
     /// Draws one circle onto a target
     pub fn draw<T>(&mut self, target: &mut T) -> Result<(), T::Error>
     where
-        T: DrawTarget<Color = Rgb565>,
+        T: DrawTarget<Color = Colors>,
     {
         let center = self.centers.next().unwrap();
         let color = self.colors.next().unwrap();
@@ -132,4 +160,13 @@ impl<'a> ColoredCircleDrawer<'a> {
             .into_styled(PrimitiveStyle::with_fill(color))
             .draw(target)
     }
+}
+
+#[interrupt]
+fn MDMA() {
+    cortex_m::interrupt::free(|cs| {
+        let mut rc = FRAME_BUFFER.borrow(cs).borrow_mut();
+        let frame_buffer = rc.as_mut().unwrap();
+        frame_buffer.on_interrupt()
+    });
 }
