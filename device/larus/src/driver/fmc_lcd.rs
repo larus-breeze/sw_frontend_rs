@@ -33,6 +33,7 @@ pub struct DataPins16 {
     p15: gpio::Pin<'D', 10, gpio::Alternate<12>>,
 }
 impl DataPins16 {
+    #[allow(clippy::too_many_arguments)]
     pub fn new(
         p0: gpio::Pin<'D', 14>,
         p1: gpio::Pin<'D', 15>,
@@ -130,7 +131,7 @@ pub struct LcdInterface {
 }
 
 impl LcdInterface {
-    pub fn new<'a>(pfmc: Fmc, _fsmc: FMC, lcd_pins: LcdPins) -> Self {
+    pub fn new(pfmc: Fmc, _fsmc: FMC, lcd_pins: LcdPins) -> Self {
         // Enable AHB access and reset peripheral
         pfmc.enable().reset();
 

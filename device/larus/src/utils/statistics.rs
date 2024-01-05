@@ -30,14 +30,7 @@ impl Task {
 }
 
 // define the task names
-const TASK_NAMES: [&str; TASK_CNT] = [
-    "can_rx",
-    "can_tx",
-    "lcd_view",
-    "mdma",
-    "keys",
-    "controller",
-];
+const TASK_NAMES: [&str; TASK_CNT] = ["can_rx", "can_tx", "lcd_view", "mdma", "keys", "controller"];
 const TASK_CNT: usize = (MAX + 1) as usize;
 
 // storage for the task times
@@ -142,7 +135,11 @@ impl Statistics {
                 };
                 info!(
                     "{} {} {} {} {}",
-                    task_name, stats.count / INTERVAL as u32 , stats.min_time, stats.max_time, mean
+                    task_name,
+                    stats.count / INTERVAL as u32,
+                    stats.min_time,
+                    stats.max_time,
+                    mean
                 );
                 stats.min_time = u32::MAX;
                 stats.max_time = 0;

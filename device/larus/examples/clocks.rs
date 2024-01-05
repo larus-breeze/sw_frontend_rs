@@ -6,12 +6,12 @@ mod driver;
 use cortex_m_rt::entry;
 use defmt::*;
 use defmt_rtt as _;
+use driver::*;
 use panic_rtt_target as _;
 use stm32h7xx_hal::{
     pac::{CorePeripherals, Peripherals as DevicePeripherals},
     prelude::*,
 };
-use driver::*;
 
 #[entry]
 fn main() -> ! {

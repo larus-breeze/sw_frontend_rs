@@ -10,14 +10,7 @@ use fdcan::{
 };
 //use embedded_hal::can::{Frame, Id};
 use heapless::spsc::{Consumer, Producer, Queue};
-use stm32h7xx_hal::{
-    can,
-    gpio::Pin,
-    gpio::Speed,
-    pac::FDCAN1,
-    prelude::*,
-    rcc::rec::Fdcan,
-};
+use stm32h7xx_hal::{can, gpio::Pin, gpio::Speed, pac::FDCAN1, prelude::*, rcc::rec::Fdcan};
 
 use corelib::CanFrame;
 
@@ -87,10 +80,7 @@ pub struct CanTx {
 impl CanTx {
     /// Generate the service
     fn new(c_tx_frames: CTxFrames, tx: Tx<can::Can<FDCAN1>, NormalOperationMode>) -> Self {
-        CanTx {
-            c_tx_frames,
-            tx,
-        }
+        CanTx { c_tx_frames, tx }
     }
 
     /// Method to call during an active interrupt
