@@ -11,6 +11,7 @@ use stm32h7xx_hal::{
     pac::{CorePeripherals, Peripherals as DevicePeripherals},
     prelude::*,
 };
+use driver::*;
 
 #[entry]
 fn main() -> ! {
@@ -33,13 +34,13 @@ fn main() -> ! {
     trace!("hse_ck        {}", ccdr.clocks.hse_ck().unwrap().raw());
     trace!("sys_ck        {}", ccdr.clocks.sys_ck().raw());
     trace!("hclk          {}", ccdr.clocks.hclk().raw());
-    trace!("q_ck          {}", ccdr.clocks.pll1_q_ck().unwrap().raw());
+    trace!("q_ck (CAN)    {}", ccdr.clocks.pll1_q_ck().unwrap().raw());
     trace!("p_ck          {}", ccdr.clocks.pll2_p_ck().unwrap().raw());
-    trace!("r_ck          {}", ccdr.clocks.pll3_r_ck().unwrap().raw());
+    trace!("r_ck (LCD)    {}", ccdr.clocks.pll2_r_ck().unwrap().raw());
 
-    let mut delay = cp.SYST.delay(ccdr.clocks);
+    let _mono = MonoTimer::new(dp.TIM2, ccdr.peripheral.TIM2, &ccdr.clocks);
     loop {
         trace!("Delay 3s");
-        delay.delay_ms(3_000_u32);
+        delay_ms(3_000_u32);
     }
 }

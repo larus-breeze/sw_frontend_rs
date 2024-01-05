@@ -60,8 +60,6 @@ fn main() -> ! {
     };
 
     let gpioh = dp.GPIOH.split(ccdr.peripheral.GPIOH);
-    //let rx = gpioh.ph14.into_alternate().speed(Speed::VeryHigh);
-    //let tx = gpioh.ph13.into_alternate().speed(Speed::VeryHigh);
     let fdcan_prec = ccdr
         .peripheral
         .FDCAN
