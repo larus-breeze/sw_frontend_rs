@@ -1,4 +1,4 @@
-use crate::{driver::*, utils::*, DevController, DevView};
+use crate::{driver::*, utils::*, DevController, DevView, IdleLoop};
 use corelib::{CoreModel, QIdleEvents, QTxFrames};
 use cortex_m::peripheral::Peripherals as CorePeripherals;
 use defmt::*;
@@ -12,7 +12,7 @@ use stm32h7xx_hal::{
 
 pub fn hw_init(
     dp: DevicePeripherals,
-    _cp: CorePeripherals,
+    mut cp: CorePeripherals,
 ) -> (
     CanRx,
     CanTx,
@@ -20,6 +20,7 @@ pub fn hw_init(
     DevController,
     DevView,
     FrameBuffer,
+    IdleLoop,
     Keyboard,
     MonoTimer,
     Statistics,
@@ -40,7 +41,7 @@ pub fn hw_init(
     };
 
     // This queue routes the StorageItems from the controller to the idle loop.
-    let (p_idle_events, _c_idle_events) = {
+    let (p_idle_events, c_idle_events) = {
         static mut Q_IDLE_EVENTS: QIdleEvents = Queue::new();
         // Note: unsafe is ok here, because [heapless::spsc] queue protects against UB
         unsafe { Q_IDLE_EVENTS.split() }
@@ -61,6 +62,10 @@ pub fn hw_init(
         .pll2_p_ck(100.MHz()) // ?
         .pll2_r_ck(50.MHz()) // LCD
         .freeze(pwrcfg, &dp.SYSCFG);
+
+    // Enable cortex m7 cache and cyclecounter
+    cp.SCB.enable_icache();
+    cp.DWT.enable_cycle_counter();
 
     // Setup ----------> system timer
     let mono = MonoTimer::new(dp.TIM2, ccdr.peripheral.TIM2, &ccdr.clocks);
@@ -148,7 +153,22 @@ pub fn hw_init(
     // Setup ----------> controller
     let dev_controller = DevController::new(&mut core_model, &Q_EVENTS, c_rx_frames);
 
-    info!("init");
+    // Setup ----------> Idleloop (last, because of the dog)
+    let idle_loop = {
+        let scl = gpiob.pb6.into_alternate_open_drain();
+        let sda = gpiob.pb7.into_alternate_open_drain();
+        let i2c = dp
+            .I2C1
+            .i2c((scl, sda), 400.kHz(), ccdr.peripheral.I2C1, &ccdr.clocks);
+        let mut eeprom = Storage::new(i2c).unwrap();
+        for item in eeprom.iter_over(corelib::EepromTopic::ConfigValues) {
+            core_model.restore_persistent_item(item);
+        }
+   
+        IdleLoop::new(eeprom, c_idle_events, &Q_EVENTS)
+    };
+
+    info!("Larus Ad57 finished");
 
     (
         rx_can,
@@ -157,6 +177,7 @@ pub fn hw_init(
         dev_controller,
         dev_view,
         frame_buffer,
+        idle_loop,
         keyboard,
         mono,
         statistics,

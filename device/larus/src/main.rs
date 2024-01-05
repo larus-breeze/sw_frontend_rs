@@ -4,6 +4,7 @@
 mod dev_controller;
 mod dev_view;
 mod driver;
+mod idle_loop;
 mod macros;
 mod utils;
 
@@ -16,6 +17,7 @@ use corelib::*;
 use dev_controller::*;
 use dev_view::*;
 use driver::*;
+use idle_loop::*;
 use utils::*;
 
 #[app(device = stm32h7xx_hal::pac, peripherals = true, dispatchers = [SPI1, SPI2, ETH])]
@@ -34,11 +36,12 @@ mod app {
 
     #[local]
     struct Local {
-        controller: DevController,
-        dev_view: DevView,
-        keyboard: Keyboard,
         can_rx: CanRx,
         can_tx: CanTx,
+        controller: DevController,
+        dev_view: DevView,
+        idle_loop: IdleLoop,
+        keyboard: Keyboard,
     }
 
     #[init]
@@ -50,6 +53,7 @@ mod app {
             controller,
             mut dev_view,
             frame_buffer,
+            idle_loop, 
             keyboard,
             mono,
             statistics,
@@ -71,6 +75,7 @@ mod app {
                 can_tx,
                 controller,
                 dev_view,
+                idle_loop,
                 keyboard,
             },
             init::Monotonics(mono), // Give the monotonic to RTIC
@@ -152,5 +157,10 @@ mod app {
             frame_buffer.flush();
         });
         task_end!(cx, Task::LcdView);
+    }
+
+    #[idle(local = [idle_loop])]
+    fn idle(cx: idle::Context) -> ! {
+        cx.local.idle_loop.idle_loop();
     }
 }
