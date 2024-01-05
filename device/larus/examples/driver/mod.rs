@@ -41,10 +41,10 @@ macro_rules! set_clocksys {
             .use_hse(16.MHz())
             .sys_ck(200.MHz())
             .hclk(100.MHz())
-            .pll1_q_ck(32.MHz()) // CAN
+            .pll1_q_ck(50.MHz()) // CAN
             .pll2_p_ck(100.MHz()) // ?
-            .pll2_r_ck(80.MHz()) // LCD
-            .freeze(pwrcfg, &$dp.SYSCFG);
+            .pll2_r_ck(50.MHz()) // LCD
+                .freeze(pwrcfg, &$dp.SYSCFG);
         ccdr
     }};
 }
