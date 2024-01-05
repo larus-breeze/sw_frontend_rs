@@ -15,7 +15,7 @@ mod keyboard;
 mod sys_timer;
 
 pub use canbus::*;
-//pub use eeprom::*;
+pub use eeprom::*;
 pub use fmc_lcd::*;
 pub use frame_buffer::*;
 pub use init::*;

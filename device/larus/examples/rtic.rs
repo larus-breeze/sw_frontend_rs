@@ -30,9 +30,13 @@ mod app {
     }
 
     #[init]
-    fn init(cx: init::Context) -> (Shared, Local, init::Monotonics) {
+    fn init(mut cx: init::Context) -> (Shared, Local, init::Monotonics) {
         let dp = cx.device;
         let ccdr = set_clocksys!(dp);
+        // Enable cortex m7 cache and cyclecounter
+        cx.core.SCB.enable_icache();
+        cx.core.DWT.enable_cycle_counter();
+
         let mono = MonoTimer::new(dp.TIM2, ccdr.peripheral.TIM2, &ccdr.clocks);
 
         info!("init");
