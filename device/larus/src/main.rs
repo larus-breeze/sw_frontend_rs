@@ -43,8 +43,17 @@ mod app {
 
     #[init]
     fn init(cx: init::Context) -> (Shared, Local, init::Monotonics) {
-        let (can_rx, can_tx, core_model, controller, mut dev_view, frame_buffer, keyboard, mono, statistics) =
-            hw_init(cx.device, cx.core);
+        let (
+            can_rx,
+            can_tx,
+            core_model,
+            controller,
+            mut dev_view,
+            frame_buffer,
+            keyboard,
+            mono,
+            statistics,
+        ) = hw_init(cx.device, cx.core);
 
         dev_view.setup_timer(DevInstant::from_ticks(timestamp() as u64));
         task_view::spawn().unwrap();

@@ -5,8 +5,9 @@ use defmt::*;
 use heapless::{mpmc::MpMcQueue, spsc::Queue};
 use st7789::ST7789;
 use stm32h7xx_hal::{
-    pac::Peripherals as DevicePeripherals, prelude::*, 
-    rcc::{rec, rec::FmcClkSel}
+    pac::Peripherals as DevicePeripherals,
+    prelude::*,
+    rcc::{rec, rec::FmcClkSel},
 };
 
 pub fn hw_init(
@@ -91,10 +92,16 @@ pub fn hw_init(
             .peripheral
             .FDCAN
             .kernel_clk_mux(rec::FdcanClkSel::Pll1Q);
-        let fdcan_1 = dp.FDCAN1;       
-        init_can(fdcan_prec, fdcan_1, gpioh.ph14, gpioh.ph13, c_tx_frames, p_rx_frames)
+        let fdcan_1 = dp.FDCAN1;
+        init_can(
+            fdcan_prec,
+            fdcan_1,
+            gpioh.ph14,
+            gpioh.ph13,
+            c_tx_frames,
+            p_rx_frames,
+        )
     };
-
 
     // Setup ----------> Frame buffer, Display
     let (frame_buffer, dev_view) = {

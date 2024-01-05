@@ -4,14 +4,12 @@
 ///
 /// Both components access the same buffer memory. Decoupling is achieved by calling the copy
 /// routine after the image has been built up.
-use core::{mem::transmute, ptr::addr_of};
+use core::ptr::addr_of;
 use corelib::{
     basic_config::{DISPLAY_HEIGHT, DISPLAY_WIDTH},
     Colors, CoreError, DrawImage, RGB565_COLORS,
 };
-use embedded_graphics::{
-    draw_target::DrawTarget, prelude::*, primitives::Rectangle,
-};
+use embedded_graphics::{draw_target::DrawTarget, prelude::*, primitives::Rectangle};
 use stm32h7xx_hal::{
     device::MDMA,
     dma::{
@@ -82,7 +80,8 @@ impl FrameBuffer {
     /// are automatically triggered by the DMA transfer complete interrupt.
     pub fn flush(&mut self) {
         let buf = [0_u16; 0];
-        let _ = self.di_driver
+        let _ = self
+            .di_driver
             .set_pixels(0, 0, DISPLAY_WIDTH as u16, DISPLAY_HEIGHT as u16, buf);
         self.dma_state = DmaState::State1;
 
@@ -135,8 +134,8 @@ impl FrameBuffer {
                 DmaState::State3 => addr_of!(FRAME_BUFFER[51_200]),
             }
         };
-        let src: &'static mut [u16; 25600] = unsafe { transmute(src_ptr) };
-        let dst: &'static mut [u16; 25600] = unsafe { transmute(FMC_DATA) };
+        let src: &'static mut [u16; 25600] = unsafe { &mut *(src_ptr as *mut [u16; 25600]) };
+        let dst: &'static mut [u16; 25600] = unsafe { &mut *(FMC_DATA as *mut [u16; 25600]) };
         Transfer::init_master(stream0, MemoryToMemory::new(), dst, Some(src), config)
     }
 }

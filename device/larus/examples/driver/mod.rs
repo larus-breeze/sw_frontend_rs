@@ -44,7 +44,7 @@ macro_rules! set_clocksys {
             .pll1_q_ck(50.MHz()) // CAN
             .pll2_p_ck(100.MHz()) // ?
             .pll2_r_ck(50.MHz()) // LCD
-                .freeze(pwrcfg, &$dp.SYSCFG);
+            .freeze(pwrcfg, &$dp.SYSCFG);
         ccdr
     }};
 }
