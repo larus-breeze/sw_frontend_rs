@@ -24,8 +24,8 @@ pub type CRxFrames = Consumer<'static, CanFrame, MAX_RX_FRAMES>;
 pub fn init_can(
     fdcan_prec: Fdcan,
     fdcan_1: FDCAN1,
-    rx: Pin<'H', 14>,
-    tx: Pin<'H', 13>,
+    rx: Pin<'B', 8>,
+    tx: Pin<'B', 9>,
     c_tx_frames: CTxFrames,
     p_rx_frames: PRxFrames,
 ) -> (CanTx, CanRx) {
@@ -152,7 +152,7 @@ impl CanRx {
                     }
                     ReceiveOverrun::Overrun(_) => (),
                 },
-                Err(_) => return,
+                Err(_) => return,   // Fifo is empty -> no mor datagrams
             }
         }
     }
