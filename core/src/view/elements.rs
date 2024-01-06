@@ -7,7 +7,7 @@ use embedded_graphics::{
 #[allow(unused_imports)]
 use micromath::F32Ext;
 
-use super::CENTER;
+use super::{CENTER, VARIO_SIZES as SZS};
 use crate::utils::Colors;
 
 /// Draw an indicator
@@ -135,7 +135,7 @@ where
     D: DrawTarget<Color = Colors, Error = CoreError>,
 {
     fn scale_coord(center: Point, value: f32, radius: i32) -> Point {
-        let angle = (25.0 * value).deg();
+        let angle = (SZS.angle_m_s * value).deg();
         center
             + Point::new(
                 -(angle.to_radians().cos() * (radius + 3) as f32) as i32,

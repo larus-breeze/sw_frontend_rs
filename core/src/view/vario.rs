@@ -1,8 +1,8 @@
 use super::{
     elements::{classic_indicator, scale_marker, wind_arrow}, // inverted_scale_marker,
     CENTER,
-    DIAMETER,
     RADIUS,
+    VARIO_SIZES,
 };
 use crate::{
     model::{CoreModel, FlyMode, VarioMode},
@@ -16,61 +16,6 @@ use embedded_graphics::{
     primitives::{Arc, PrimitiveStyle},
 };
 use u8g2_fonts::types::{FontColor, HorizontalAlignment, VerticalPosition};
-
-#[allow(dead_code)]
-struct VarioSizes {
-    diameter_stf: u32,
-    indicator_len: u32,
-    indicator_width: u32,
-    left_under_pos: Point,
-    pic_left_under_pos: Point,
-    mc_width: f32,
-    mc_len: u32,
-    tcr_width: f32,
-    tcr_len: u32,
-    unit_pos: Point,
-    wind_pos: Point,
-    wind_len: i32,
-    wind_len_min: i32,
-    angle_m_s: f32,
-}
-
-#[cfg(feature = "air_avionics_ad57")]
-const VARIO_SIZES: VarioSizes = VarioSizes {
-    diameter_stf: DIAMETER - 108,
-    indicator_len: 50,
-    indicator_width: 8,
-    left_under_pos: Point::new(40, 258),
-    pic_left_under_pos: Point::new(2, 222),
-    mc_width: 0.14,
-    mc_len: 22,
-    tcr_width: 0.25,
-    tcr_len: 22,
-    unit_pos: Point::new(122, 255),
-    wind_pos: Point::new(180, 85),
-    wind_len: 105,
-    wind_len_min: 50,
-    angle_m_s: 25.0,
-};
-
-#[cfg(feature = "larus_ad57")]
-const VARIO_SIZES: VarioSizes = VarioSizes {
-    diameter_stf: DIAMETER - 108,
-    indicator_len: 50,
-    indicator_width: 8,
-    left_under_pos: Point::new(43, 290),
-    pic_left_under_pos: Point::new(5, 254),
-    mc_width: 0.14,
-    mc_len: 22,
-    tcr_width: 0.25,
-    tcr_len: 22,
-    unit_pos: Point::new(122, 255),
-    wind_pos: Point::new(180, 85),
-    wind_len: 105,
-    wind_len_min: 50,
-    angle_m_s: 24.0,
-};
-
 use VARIO_SIZES as SZS;
 
 #[allow(dead_code)]
