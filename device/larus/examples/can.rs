@@ -15,7 +15,7 @@ use panic_rtt_target as _;
 use stm32h7xx_hal::{
     pac::{interrupt, CorePeripherals, Peripherals as DevicePeripherals, NVIC},
     prelude::*,
-    rcc::{rec, PllConfigStrategy},
+    rcc::rec,
 };
 
 #[entry]
@@ -26,21 +26,7 @@ fn main() -> ! {
 
     info!("init");
 
-    // Constrain and freeze power
-    let pwr = dp.PWR.constrain();
-    let pwrcfg = pwr.freeze();
-
-    // Initialize clock system
-    let rcc = dp.RCC.constrain();
-    let ccdr = rcc
-        .use_hse(25.MHz())
-        .sys_ck(192.MHz())
-        .hclk(192.MHz()) // FMC clock from HCLK by default
-        .pll1_strategy(PllConfigStrategy::Iterative)
-        .pll1_q_ck(32.MHz())
-        .pll2_p_ck(96.MHz())
-        .pll2_r_ck(96.MHz())
-        .freeze(pwrcfg, &dp.SYSCFG);
+    let ccdr = set_clocksys!(dp);
 
     // Initialize system...
     cp.SCB.enable_icache();
@@ -59,7 +45,7 @@ fn main() -> ! {
         unsafe { Q_RX_FRAMES.split() }
     };
 
-    let gpioh = dp.GPIOH.split(ccdr.peripheral.GPIOH);
+    let gpiob = dp.GPIOB.split(ccdr.peripheral.GPIOB);
     let fdcan_prec = ccdr
         .peripheral
         .FDCAN
@@ -69,8 +55,8 @@ fn main() -> ! {
     let (tx_can, rx_can) = init_can(
         fdcan_prec,
         fdcan_1,
-        gpioh.ph14,
-        gpioh.ph13,
+        gpiob.pb8,
+        gpiob.pb9,
         c_tx_frames,
         p_rx_frames,
     );

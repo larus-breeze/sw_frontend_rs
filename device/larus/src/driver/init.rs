@@ -78,7 +78,6 @@ pub fn hw_init(
     let gpiod = dp.GPIOD.split(ccdr.peripheral.GPIOD);
     let gpioe = dp.GPIOE.split(ccdr.peripheral.GPIOE);
     let gpiof = dp.GPIOF.split(ccdr.peripheral.GPIOF);
-    let gpioh = dp.GPIOH.split(ccdr.peripheral.GPIOH);
 
     // Setup ----------> The front key interface
     let keyboard = {
@@ -101,8 +100,8 @@ pub fn hw_init(
         init_can(
             fdcan_prec,
             fdcan_1,
-            gpioh.ph14,
-            gpioh.ph13,
+            gpiob.pb8,
+            gpiob.pb9,
             c_tx_frames,
             p_rx_frames,
         )

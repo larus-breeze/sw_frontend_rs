@@ -3,7 +3,6 @@ use core::{
     ops::Deref,
 };
 use corelib::CTxFrames;
-use defmt::*;
 use fdcan::{
     config::NominalBitTiming,
     filter::{StandardFilter, StandardFilterSlot},
@@ -35,8 +34,8 @@ pub type CRxFrames = Consumer<'static, CanFrame, MAX_RX_FRAMES>;
 pub fn init_can(
     fdcan_prec: Fdcan,
     fdcan_1: FDCAN1,
-    rx: Pin<'H', 14>,
-    tx: Pin<'H', 13>,
+    rx: Pin<'B', 8>,
+    tx: Pin<'B', 9>,
     c_tx_frames: CTxFrames,
     p_rx_frames: PRxFrames,
 ) -> (CanTx, CanRx) {
@@ -49,11 +48,12 @@ pub fn init_can(
     // Value was calculated with http://www.bittiming.can-wiki.info/
     // TODO: use the can_bit_timings crate
     let data_bit_timing = NominalBitTiming {
-        prescaler: NonZeroU16::new(2).unwrap(),
-        seg1: NonZeroU8::new(13).unwrap(),
-        seg2: NonZeroU8::new(2).unwrap(),
+        prescaler: NonZeroU16::new(5).unwrap(),
+        seg1: NonZeroU8::new(8).unwrap(),
+        seg2: NonZeroU8::new(1).unwrap(),
         sync_jump_width: NonZeroU8::new(1).unwrap(),
     };
+
     can.set_nominal_bit_timing(data_bit_timing);
 
     can.set_standard_filter(
