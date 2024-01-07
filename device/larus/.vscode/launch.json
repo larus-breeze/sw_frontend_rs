@@ -55,37 +55,13 @@
       {
         "type": "cortex-debug",
         "request": "launch",
-        "name": "Deb pers",
+        "name": "Deb can",
         "servertype": "openocd",
         "gdbPath": "/usr/bin/gdb-multiarch",
         "cwd": "${workspaceRoot}",
         "preLaunchTask": "Cargo Build Examples (debug)",
         "runToEntryPoint": "main",
-        "executable": "./target/thumbv7em-none-eabihf/debug/examples/pers",
-        "device": "STM32H743VGTx",
-        "configFiles": [
-          "interface/stlink.cfg",
-          "target/stm32h7x.cfg"
-        ],
-        "postLaunchCommands": [
-          "monitor rtt server start 8765 0",
-          // should span the *right* part of RAM
-          // get address $ rust-nm -S target/thumbv7*/debug/vario | grep RTT
-          "monitor rtt setup 0x20000020 0x30 \"SEGGER RTT\"",
-          "monitor rtt start",
-      ],
-        "svdFile": "${workspaceRoot}/STM32H743.svd",
-      },
-      {
-        "type": "cortex-debug",
-        "request": "launch",
-        "name": "Deb clocks",
-        "servertype": "openocd",
-        "gdbPath": "/usr/bin/gdb-multiarch",
-        "cwd": "${workspaceRoot}",
-        "preLaunchTask": "Cargo Build Examples (debug)",
-        "runToEntryPoint": "main",
-        "executable": "./target/thumbv7em-none-eabihf/debug/examples/clocks",
+        "executable": "./target/thumbv7em-none-eabihf/debug/examples/can",
         "device": "STM32H743VGTx",
         "configFiles": [
           "interface/stlink.cfg",
