@@ -6,7 +6,7 @@ use fdcan::{
     frame::{FrameFormat, TxFrameHeader},
     id::{Id, StandardId},
     interrupt::{Interrupt, InterruptLine, Interrupts},
-    FdCanControl, Fifo0, NormalOperationMode, ReceiveOverrun, Rx, Tx,
+    FdCanControl, Fifo0, NormalOperationMode, Rx, Tx,
 };
 //use embedded_hal::can::{Frame, Id};
 use heapless::spsc::{Consumer, Producer, Queue};
@@ -137,22 +137,21 @@ impl CanRx {
             let mut buffer = [0u8; 8];
             match self.rx.receive(&mut buffer) {
                 // silently ignore errors
-                Ok(over_run) => match over_run {
-                    ReceiveOverrun::NoOverrun(rx_info) => {
-                        if let Id::Standard(standard_id) = rx_info.id {
-                            let id = standard_id.as_raw();
-                            let len = rx_info.len;
-                            let can_frame = if rx_info.rtr {
-                                CanFrame::remote_trans_rq(id, len)
-                            } else {
-                                CanFrame::from_slice(id, &buffer[..len as usize])
-                            };
-                            let _ = self.p_rx_frames.enqueue(can_frame);
-                        }
+                Ok(over_run) => {
+                    // Let's ignore overrun error, unwrap() is always ok here 
+                    let rx_info = over_run.unwrap();
+                    if let Id::Standard(standard_id) = rx_info.id {
+                        let id = standard_id.as_raw();
+                        let len = rx_info.len;
+                        let can_frame = if rx_info.rtr {
+                            CanFrame::remote_trans_rq(id, len)
+                        } else {
+                            CanFrame::from_slice(id, &buffer[..len as usize])
+                        };
+                        let _ = self.p_rx_frames.enqueue(can_frame);
                     }
-                    ReceiveOverrun::Overrun(_) => (),
                 },
-                Err(_) => return,   // Fifo is empty -> no mor datagrams
+                Err(_) => return,   // Fifo is empty -> no more datagrams
             }
         }
     }
