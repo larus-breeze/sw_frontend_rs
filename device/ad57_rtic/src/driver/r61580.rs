@@ -6,7 +6,7 @@ use display_interface::{
 };
 use embedded_hal::digital::v2::OutputPin;
 
-use crate::driver::init::delay_ms;
+use crate::driver::delay_ms;
 use crate::utils::DevError;
 use core::iter::once;
 

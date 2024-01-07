@@ -6,14 +6,22 @@ publish = false
 license = "GPL3"
 
 [dependencies]
-embedded-graphics = "0.8.0"
-embedded-graphics-simulator = { path = "simulator-0.5.0" }
-micromath = { version = "1.1.0", default-features = false }
+
+# host
 byteorder = { version = "1.4", default-features = false }
 
+# other libraries
+embedded-graphics = "0.8.0"
+embedded-graphics-simulator = { path = "simulator-0.5.0" }
 heapless = "0.8"
-bxcan = "0.7"
+micromath = { version = "1.1.0", default-features = false }
 
+# hardware specific
+eeprom24x = "0.6.0"
+embedded-hal = "0.2"
+
+# local
 [dependencies.corelib]
 path = "../../core"
-features = ["air_avionics_ad57"]
+default-features = false
+features = ["larus_ad57", "eeprom_size_8192"]

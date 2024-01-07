@@ -2,17 +2,17 @@ mod display;
 mod eeprom;
 
 use byteorder::{ByteOrder, LittleEndian as LE};
-use corelib::{*,
-    basic_config::{DISPLAY_WIDTH, DISPLAY_HEIGHT}
+use corelib::{
+    basic_config::{DISPLAY_HEIGHT, DISPLAY_WIDTH},
+    *,
 };
 
 use display::MockDisplay;
-use eeprom::Eeprom;
+use eeprom::Storage;
 use embedded_graphics::prelude::*;
 use embedded_graphics_simulator::{sdl2::Keycode, OutputSettings, SimulatorEvent, Window};
 use heapless::spsc::Queue;
 use std::{net::UdpSocket, time::Duration};
-
 
 fn main() -> Result<(), core::convert::Infallible> {
     println!(
@@ -53,7 +53,7 @@ fn main() -> Result<(), core::convert::Infallible> {
     };
 
     let mut core_model = CoreModel::new(p_idle_events, p_tx_frames);
-    let mut eeprom = Eeprom::new().unwrap();
+    let mut eeprom = Storage::new().unwrap();
 
     for item in eeprom.iter_over(EepromTopic::ConfigValues) {
         core_model.restore_persistent_item(item);
@@ -136,7 +136,7 @@ fn main() -> Result<(), core::convert::Infallible> {
                 let frequency = LE::read_u16(&data[..2]);
                 let duty_cycle = LE::read_u16(&data[2..4]);
                 let volume = data[4];
-                let continuous= data[5] == 1;
+                let continuous = data[5] == 1;
                 window.sound(frequency, volume, continuous, duty_cycle);
             }
         }
@@ -158,7 +158,7 @@ fn main() -> Result<(), core::convert::Infallible> {
         let mut buf = [0u8; 10];
         while let Ok((cnt, _adr)) = socket.recv_from(&mut buf) {
             let id = LE::read_u16(&buf[..2]);
-            let frame = CanFrame::from_slice(id, &buf[2..cnt]).into();
+            let frame = CanFrame::from_slice(id, &buf[2..cnt]);
             controller.read_can_frame(&mut core_model, &frame);
         }
     }

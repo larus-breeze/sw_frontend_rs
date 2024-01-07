@@ -1,13 +1,7 @@
-use crate::{app::monotonics, DevDuration, DevInstant};
+use crate::{DevDuration, DevInstant, driver::timestamp};
 use defmt::*;
 
 use crate::app;
-use rtic::Monotonic;
-use stm32f4xx_hal::{
-    pac::TIM2,
-    rcc::Clocks,
-    timer::{MonoTimer, MonoTimerExt},
-};
 
 #[repr(u8)]
 #[derive(Clone, Copy, Debug)]
@@ -35,12 +29,6 @@ impl Task {
     }
 }
 
-// defmt::timestamp!("{=u32:us}", {
-defmt::timestamp!("{=u32:us}", {
-    // NOTE(interrupt-safe) single instruction volatile read operation
-    unsafe { core::ptr::read_volatile(0x4000_0024 as *const u32) }
-});
-
 // define the task names
 const TASK_NAMES: [&str; TASK_CNT] = [
     "can_rx",
@@ -64,7 +52,6 @@ struct StatTimes {
 }
 
 pub struct Statistics {
-    timer: MonoTimer<TIM2, 1000000>,
     stats: [StatTimes; TASK_CNT],
     next_show: DevInstant,
     stack: [u8; TASK_CNT],
@@ -76,9 +63,7 @@ const INTERVAL: usize = 3;
 
 impl Statistics {
     #[allow(clippy::new_without_default)]
-    pub fn new(tim2: TIM2, clocks: &Clocks) -> Self {
-        let timer = tim2.monotonic(clocks);
-
+    pub fn new() -> Self {
         // initialize storage
         let stats = StatTimes {
             min_time: u32::MAX,
@@ -89,7 +74,6 @@ impl Statistics {
             count: 0,
         };
         Statistics {
-            timer,
             stats: [stats; TASK_CNT],
             next_show: app::monotonics::now() + DevDuration::secs(1),
             stack: [0u8; TASK_CNT],
@@ -103,7 +87,7 @@ impl Statistics {
     /// stored.
     pub fn start_task(&mut self, task: Task) {
         self.alive |= 1 << (task as u8);
-        let now = self.timer.now().ticks();
+        let now = timestamp();
 
         if self.stack_cnt > 0 {
             let low_prio_task = self.stack[self.stack_cnt - 1];
@@ -125,7 +109,7 @@ impl Statistics {
     /// checked whether the minimum time for an output has been reached and this is executed if
     /// necessary.
     pub fn end_task(&mut self, task: Task) {
-        let now = self.timer.now().ticks();
+        let now = timestamp();
 
         let task_idx = task as usize;
         let stats = &mut self.stats[task_idx];
@@ -145,7 +129,7 @@ impl Statistics {
             let low_prio_task_idx = self.stack[self.stack_cnt - 1] as usize;
             let low_prio_stats = &mut self.stats[low_prio_task_idx];
             low_prio_stats.last_start = now;
-        } else if monotonics::now() > self.next_show {
+        } else if app::monotonics::now() > self.next_show {
             let mut workload: u32 = 0;
             info!("Task      Calls Min Max Mean");
             for (idx, task_name) in TASK_NAMES.iter().enumerate().take(TASK_CNT) {

@@ -7,33 +7,36 @@ edition = "2021"
 
 [dependencies]
 
-# hardware
+# cortex m
 cortex-m = { version = "^0.7.7", features = ["critical-section-single-core"] }
 cortex-m-rt = ">=0.6.15,<0.8"
-cortex-m-rtic = "1.1"
-fdcan = "0.2"
+cortex-m-rtic = "1.1.4"
+defmt = "0.3"
+defmt-rtt = "0.4"
 panic-rtt-target = { version = "0.1.2", features = ["cortex-m"] }
-rtt-target = { version = "0.3.1", features = ["cortex-m"] }
+rtic-monotonic = "1.0.0"
+
+# hardware specific
+eeprom24x = "0.6.0"
+fdcan = "0.2"
 st7789 = "0.7.0"
 stm32h7xx-hal = { version = "0.15.1", features = ["rt", "stm32h743", "fmc", "can", "sdmmc", "sdmmc-fatfs"] }
 sdio-host = "0.9"
 embedded-sdmmc = "0.5"
 
-# general
-defmt = "0.3"
-defmt-rtt = "0.4"
+# other libraries
+display-interface = "0.4"
+embedded-graphics = "0.8.0"
 embedded-hal = { version = "0.2.6", features = ["unproven"] }
+fugit = "0.3"
 heapless = "0.8"
 nb = "1"
-panic-halt = "0.2.0"
-panic-probe = { version = "0.3", features = ["print-defmt"] }
-
-# app specific
-embedded-graphics = "0.7.1"
-display-interface = "0.4"
 
 # local
-corelib = { path = "../../core", features = ["air_avionics_ad57"] }
+[dependencies.corelib]
+path = "../../core"
+default-features = false 
+features = ["larus_ad57", "eeprom_size_8192"] 
 
 [[bin]]
 name = "vario"

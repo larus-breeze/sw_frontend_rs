@@ -9,7 +9,7 @@ use stm32f4xx_hal::{
 };
 
 use core::convert::TryInto;
-use corelib::{*, basic_config::*};
+use corelib::{basic_config::*, *};
 use embedded_graphics::{prelude::*, primitives::Rectangle};
 
 const PORT_AVAIL_HEI_M1: u32 = PORTRAIT_AVAIL_HEIGHT as u32 - 1;
