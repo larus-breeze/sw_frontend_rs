@@ -1,6 +1,8 @@
 #![no_main]
 #![no_std]
 
+mod driver;
+
 use defmt::*;
 use defmt_rtt as _;
 use panic_rtt_target as _;
@@ -15,13 +17,7 @@ fn main() -> ! {
 
     info!("init");
 
-    // Constrain and Freeze power
-    let pwr = dp.PWR.constrain();
-    let pwrcfg = pwr.freeze();
-
-    // Constrain and Freeze clock
-    let rcc = dp.RCC.constrain();
-    let ccdr = rcc.sys_ck(100.MHz()).freeze(pwrcfg, &dp.SYSCFG);
+    let ccdr = set_clocksys!(dp);
 
     let gpioe = dp.GPIOE.split(ccdr.peripheral.GPIOE);
 

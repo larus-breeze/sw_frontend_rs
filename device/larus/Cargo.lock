@@ -68,10 +68,10 @@ version = "0.1.0"
 dependencies = [
  "byteorder",
  "defmt",
- "embedded-graphics 0.8.1",
+ "embedded-graphics",
  "embedded-hal",
  "heapless 0.8.0",
- "micromath 2.1.0",
+ "micromath",
  "num",
  "u8g2-fonts",
 ]
@@ -192,25 +192,23 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7517c040926d7b02b111884aa089177db80878533127f7c1b480d852c5fb4112"
 
 [[package]]
+name = "eeprom24x"
+version = "0.6.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "bfbf82c7da4264160da270637038860fae049e4eb54b132a7059835f5b06529d"
+dependencies = [
+ "embedded-hal",
+ "embedded-storage",
+ "nb 1.1.0",
+]
+
+[[package]]
 name = "embedded-dma"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "994f7e5b5cb23521c22304927195f236813053eb9c065dd2226a32ba64695446"
 dependencies = [
  "stable_deref_trait",
-]
-
-[[package]]
-name = "embedded-graphics"
-version = "0.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "750082c65094fbcc4baf9ba31583ce9a8bb7f52cadfb96f6164b1bc7f922f32b"
-dependencies = [
- "az",
- "byteorder",
- "embedded-graphics-core 0.3.3",
- "float-cmp 0.8.0",
- "micromath 1.1.1",
 ]
 
 [[package]]
@@ -222,8 +220,8 @@ dependencies = [
  "az",
  "byteorder",
  "embedded-graphics-core 0.4.0",
- "float-cmp 0.9.0",
- "micromath 2.1.0",
+ "float-cmp",
+ "micromath",
 ]
 
 [[package]]
@@ -257,17 +255,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "embedded-sdmmc"
-version = "0.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2f4d14180a76a8af24a45a0e1a4f9c97491b05a3b962d59d5e4ce0e6ab103736"
-dependencies = [
- "byteorder",
- "embedded-hal",
- "log",
-]
-
-[[package]]
 name = "embedded-storage"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -285,15 +272,6 @@ dependencies = [
  "static_assertions",
  "vcell",
  "volatile-register",
-]
-
-[[package]]
-name = "float-cmp"
-version = "0.8.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e1267f4ac4f343772758f7b1bdcbe767c218bbab93bb432acbf5162bbf85a6c4"
-dependencies = [
- "num-traits",
 ]
 
 [[package]]
@@ -388,18 +366,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "log"
-version = "0.4.20"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b5e6163cb8c49088c2c36f57875e58ccd8c87c7427f7fbd50ea6710b2f3f2e8f"
-
-[[package]]
-name = "micromath"
-version = "1.1.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bc4010833aea396656c2f91ee704d51a6f1329ec2ab56ffd00bfd56f7481ea94"
-
-[[package]]
 name = "micromath"
 version = "2.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -481,22 +447,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "39e3200413f237f41ab11ad6d161bc7239c84dcb631773ccd7de3dfe4b5c267c"
 dependencies = [
  "autocfg",
-]
-
-[[package]]
-name = "panic-halt"
-version = "0.2.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "de96540e0ebde571dc55c73d60ef407c653844e6f9a1e2fdbd40c07b9252d812"
-
-[[package]]
-name = "panic-probe"
-version = "0.3.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "aa6fa5645ef5a760cd340eaa92af9c1ce131c8c09e7f8926d8a24b59d26652b9"
-dependencies = [
- "cortex-m",
- "defmt",
 ]
 
 [[package]]
@@ -587,7 +537,6 @@ version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "065d6058bb1204f51a562a67209e1817cf714759d5cf845aa45c75fa7b0b9d9b"
 dependencies = [
- "cortex-m",
  "ufmt-write",
 ]
 
@@ -614,12 +563,6 @@ name = "scopeguard"
 version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "94143f37725109f92c262ed2cf5e59bce7498c01bcc1502d7b9afe439a4e9f49"
-
-[[package]]
-name = "sdio-host"
-version = "0.9.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b328e2cb950eeccd55b7f55c3a963691455dcd044cfb5354f0c5e68d2c2d6ee2"
 
 [[package]]
 name = "semver"
@@ -708,13 +651,11 @@ dependencies = [
  "cortex-m",
  "embedded-dma",
  "embedded-hal",
- "embedded-sdmmc",
  "embedded-storage",
  "fdcan",
  "fugit",
  "nb 1.1.0",
  "paste",
- "sdio-host",
  "stm32-fmc",
  "stm32h7",
  "void",
@@ -794,17 +735,15 @@ dependencies = [
  "defmt",
  "defmt-rtt",
  "display-interface",
- "embedded-graphics 0.7.1",
+ "eeprom24x",
+ "embedded-graphics",
  "embedded-hal",
- "embedded-sdmmc",
  "fdcan",
+ "fugit",
  "heapless 0.8.0",
  "nb 1.1.0",
- "panic-halt",
- "panic-probe",
  "panic-rtt-target",
- "rtt-target",
- "sdio-host",
+ "rtic-monotonic",
  "st7789",
  "stm32h7xx-hal",
 ]

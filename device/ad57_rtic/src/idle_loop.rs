@@ -3,13 +3,13 @@ use defmt::trace;
 use stm32f4xx_hal::{timer::monotonic::fugit::ExtU32, watchdog::IndependentWatchdog};
 
 use crate::{
-    driver::{delay_ms, Eeprom, QEvents},
+    driver::{delay_ms, QEvents, Storage},
     utils::{FileSys, FirmwarUpadate},
 };
-use corelib::{CIdleEvents, DeviceEvent, Event, IdleEvent, SdCardCmd};
+use corelib::{CIdleEvents, DeviceEvent, Eeprom, Event, IdleEvent, SdCardCmd};
 
 pub struct IdleLoop {
-    eeprom: Eeprom,
+    eeprom: Eeprom<Storage>,
     c_idle_events: CIdleEvents,
     file_sys: FileSys,
     q_events: &'static QEvents,
@@ -18,7 +18,7 @@ pub struct IdleLoop {
 
 impl IdleLoop {
     pub fn new(
-        eeprom: Eeprom,
+        eeprom: Eeprom<Storage>,
         c_idle_events: CIdleEvents,
         file_sys: FileSys,
         q_events: &'static QEvents,

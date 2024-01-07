@@ -44,6 +44,53 @@ pub mod basic_config {
     pub const DISPLAY_WIDTH: u32 = 227;
     pub const DISPLAY_HEIGHT: u32 = 285;
     pub const CONTROLLER_TICK_RATE: u32 = 10;
+    pub const GLIDER_IMG: &[u8] = include_bytes!("../assets/size_227x285/glider.lif");
+    pub const NORTH_IMG: &[u8] = include_bytes!("../assets/size_227x285/north.lif");
+    pub const WALLPAPER_IMG: &[u8] = include_bytes!("../assets/size_227x285/vario_wallpaper.lif");
+    pub const SPIRAL_IMG: &[u8] = include_bytes!("../assets/size_227x285/spiral.lif");
+    pub const STRAIGHT_IMG: &[u8] = include_bytes!("../assets/size_227x285/straight.lif");
+    pub const KM_H_IMG: &[u8] = include_bytes!("../assets/size_227x285/km_h.lif");
+    pub const M_S_IMG: &[u8] = include_bytes!("../assets/size_227x285/m_s.lif");
+    pub const WALLPAPER_SCALE: [(i32, i32, &str); 11] = [
+        (194, 238, "5"),
+        (152, 255, "4"),
+        (106, 253, "3"),
+        (66, 232, "2"),
+        (38, 196, "1"),
+        (29, 152, "0"),
+        (38, 107, "1"),
+        (66, 71, "2"),
+        (106, 50, "3"),
+        (152, 48, "4"),
+        (194, 65, "5"),
+    ];
+}
+
+#[cfg(feature = "larus_ad57")]
+pub mod basic_config {
+    pub const DISPLAY_WIDTH: u32 = 240;
+    pub const DISPLAY_HEIGHT: u32 = 320;
+    pub const CONTROLLER_TICK_RATE: u32 = 10;
+    pub const GLIDER_IMG: &[u8] = include_bytes!("../assets/size_240x320/glider.lif");
+    pub const NORTH_IMG: &[u8] = include_bytes!("../assets/size_240x320/north.lif");
+    pub const WALLPAPER_IMG: &[u8] = include_bytes!("../assets/size_240x320/vario_wallpaper.lif");
+    pub const SPIRAL_IMG: &[u8] = include_bytes!("../assets/size_240x320/spiral.lif");
+    pub const STRAIGHT_IMG: &[u8] = include_bytes!("../assets/size_240x320/straight.lif");
+    pub const KM_H_IMG: &[u8] = include_bytes!("../assets/size_240x320/km_h.lif");
+    pub const M_S_IMG: &[u8] = include_bytes!("../assets/size_240x320/m_s.lif");
+    pub const WALLPAPER_SCALE: [(i32, i32, &str); 11] = [
+        (211, 274, "5"),
+        (163, 290, "4"),
+        (113, 285, "3"),
+        (69, 259, "2"),
+        (39, 218, "1"),
+        (29, 169, "0"),
+        (39, 119, "1"),
+        (69, 78, "2"),
+        (113, 52, "3"),
+        (163, 47, "4"),
+        (211, 63, "5"),
+    ];
 }
 
 /// Trait of a function to bring an image to the screen. The format of the image files is
