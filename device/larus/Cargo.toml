@@ -15,7 +15,9 @@ fdcan = "0.2"
 panic-rtt-target = { version = "0.1.2", features = ["cortex-m"] }
 rtt-target = { version = "0.3.1", features = ["cortex-m"] }
 st7789 = "0.7.0"
-stm32h7xx-hal = { version = "0.15.1", features = ["rt", "stm32h743", "fmc", "can"] }
+stm32h7xx-hal = { version = "0.15.1", features = ["rt", "stm32h743", "fmc", "can", "sdmmc", "sdmmc-fatfs"] }
+sdio-host = "0.9"
+embedded-sdmmc = "0.5"
 
 # general
 defmt = "0.3"
