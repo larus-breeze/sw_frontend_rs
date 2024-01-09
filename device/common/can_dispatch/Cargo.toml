@@ -1,0 +1,12 @@
+[package]
+name = "can_dispatch"
+categories = ["embedded", "no-std"]
+description = "CAN bus dispatcher for Larus protocol"
+keywords = ["arm", "cortex-m"]
+license = "MIT OR Apache-2.0"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+heapless = "0.8"
+byteorder = { version = "1.4", default-features = false }
