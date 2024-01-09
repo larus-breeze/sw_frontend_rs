@@ -61,7 +61,7 @@
         "cwd": "${workspaceRoot}",
         "preLaunchTask": "Cargo Build Examples (debug)",
         "runToEntryPoint": "main",
-        "executable": "./target/thumbv7em-none-eabihf/debug/examples/can",
+        "executable": "./target/thumbv7em-none-eabihf/debug/examples/sdmmc_fat",
         "device": "STM32H743VGTx",
         "configFiles": [
           "interface/stlink.cfg",
