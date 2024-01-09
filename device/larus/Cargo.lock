@@ -255,6 +255,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "embedded-sdmmc"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2f4d14180a76a8af24a45a0e1a4f9c97491b05a3b962d59d5e4ce0e6ab103736"
+dependencies = [
+ "byteorder",
+ "embedded-hal",
+ "log",
+]
+
+[[package]]
 name = "embedded-storage"
 version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -364,6 +375,12 @@ dependencies = [
  "autocfg",
  "scopeguard",
 ]
+
+[[package]]
+name = "log"
+version = "0.4.20"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b5e6163cb8c49088c2c36f57875e58ccd8c87c7427f7fbd50ea6710b2f3f2e8f"
 
 [[package]]
 name = "micromath"
@@ -565,6 +582,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "94143f37725109f92c262ed2cf5e59bce7498c01bcc1502d7b9afe439a4e9f49"
 
 [[package]]
+name = "sdio-host"
+version = "0.9.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b328e2cb950eeccd55b7f55c3a963691455dcd044cfb5354f0c5e68d2c2d6ee2"
+
+[[package]]
 name = "semver"
 version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -651,11 +674,13 @@ dependencies = [
  "cortex-m",
  "embedded-dma",
  "embedded-hal",
+ "embedded-sdmmc",
  "embedded-storage",
  "fdcan",
  "fugit",
  "nb 1.1.0",
  "paste",
+ "sdio-host",
  "stm32-fmc",
  "stm32h7",
  "void",
@@ -738,12 +763,14 @@ dependencies = [
  "eeprom24x",
  "embedded-graphics",
  "embedded-hal",
+ "embedded-sdmmc",
  "fdcan",
  "fugit",
  "heapless 0.8.0",
  "nb 1.1.0",
  "panic-rtt-target",
  "rtic-monotonic",
+ "sdio-host",
  "st7789",
  "stm32h7xx-hal",
 ]
