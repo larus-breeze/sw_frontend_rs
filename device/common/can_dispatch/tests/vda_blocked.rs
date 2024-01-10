@@ -29,22 +29,15 @@ fn rng() -> u32 {
 fn vda_blocked() {
     let mut ticks: u64 = 0;
     #[allow(unused)]
-    let (
-        mut p_tx_frames,
-        mut c_tx_frames,
-        mut p_view_tx_frames,
-        mut c_view_tx_frames,
-        mut p_view_rx_frames,
-        mut c_view_rx_frames,
-    ) = get_the_queues();
+    let (mut p_view_tx_frames, mut c_view_tx_frames, mut p_view_rx_frames, mut c_view_rx_frames) =
+        get_the_queues();
 
-    let mut dis =
-        CanDispatch::<32, 8, 10, 30>::new(rng, p_tx_frames, p_view_rx_frames, c_view_tx_frames);
+    let mut dis = CanDispatch::<32, 8, 10, 30>::new(rng, p_view_rx_frames, c_view_tx_frames);
 
     // Startup and negotiating the basic_id
     for expected in TEST_DATA {
         let nt = dis.tick(ticks);
-        let result = format!("result {:?}, frame {:?}", nt, c_tx_frames.dequeue());
+        let result = format!("result {:?}, frame {:?}", nt, dis.tx_data());
         assert_eq!(&result, expected);
         if nt.is_none() {
             break;
@@ -56,7 +49,7 @@ fn vda_blocked() {
     let other_guys_frame = CanFrame::empty_from_id(0x600);
     dis.rx_data(other_guys_frame);
     let nt = dis.tick(ticks);
-    let result = format!("result {:?}, frame {:?}", nt, c_tx_frames.dequeue());
+    let result = format!("result {:?}, frame {:?}", nt, dis.tx_data());
 
     // We use the vda 0x33 and send rtr, as 0x32 is occupied
     assert_eq!(&result, "result None, frame Some(CanFrame { id: 1552, rtr: true, len: 0, data: [0, 0, 0, 0, 0, 0, 0, 0] })");
@@ -70,7 +63,7 @@ fn vda_blocked() {
 
     // Dispatch the frame
     let nt = dis.tick(ticks);
-    let result = format!("result {:?}, frame {:?}", nt, c_tx_frames.dequeue());
+    let result = format!("result {:?}, frame {:?}", nt, dis.tx_data());
 
     // This is the first real heartbeat
     assert_eq!(&result, "result None, frame Some(CanFrame { id: 1552, rtr: false, len: 0, data: [0, 0, 0, 0, 0, 0, 0, 0] })");

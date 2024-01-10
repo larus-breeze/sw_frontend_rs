@@ -9,7 +9,11 @@ pub enum Frame {
 
 impl Frame {
     pub fn specific(can_frame: CanFrame, specific_id: u16, object_id: u16) -> Self {
-        let specific_frame = SpecificFrame { can_frame, specific_id, object_id};
+        let specific_frame = SpecificFrame {
+            can_frame,
+            specific_id,
+            object_id,
+        };
         Frame::Specific(specific_frame)
     }
 }

@@ -11,28 +11,20 @@ fn rng() -> u32 {
 fn same_object_id() {
     let mut ticks: u64 = 0;
     #[allow(unused)]
-    let (
-        mut p_tx_frames,
-        mut c_tx_frames,
-        mut p_view_tx_frames,
-        mut c_view_tx_frames,
-        mut p_view_rx_frames,
-        mut c_view_rx_frames,
-    ) = get_the_queues();
+    let (mut p_view_tx_frames, mut c_view_tx_frames, mut p_view_rx_frames, mut c_view_rx_frames) =
+        get_the_queues();
 
-    let mut dis =
-        CanDispatch::<32, 8, 10, 30>::new(rng, p_tx_frames, p_view_rx_frames, c_view_tx_frames);
+    let mut dis = CanDispatch::<32, 8, 10, 30>::new(rng, p_view_rx_frames, c_view_tx_frames);
 
     // Startup and negotiating the basic_id
     for _ in 1..15 {
         let nt = dis.tick(ticks);
-        let _ = c_tx_frames.dequeue(); // clear the queue
+        let _ = dis.tx_data(); // clear the queue
         if nt.is_none() {
             break;
         }
         ticks = nt.unwrap();
     }
-
 
     // Let's set the filter for special data,
     dis.set_object_id_filter(17).unwrap();
@@ -56,7 +48,7 @@ fn same_object_id() {
     // Now, special data is passed through
     assert_eq!(result, "result None, frame Some(Specific(SpecificFrame { can_frame: CanFrame { id: 578, rtr: false, len: 0, data: [0, 0, 0, 0, 0, 0, 0, 0] }, specific_id: 2, object_id: 17 }))");
 
-    // The second device is not passed through, even though it has the same object_id. This is 
+    // The second device is not passed through, even though it has the same object_id. This is
     // desirable as identical information should only be passed through to the application once.
     let other_frame = CanFrame::empty_from_id(0x252); // Some special data
     dis.rx_data(other_frame);
