@@ -69,7 +69,6 @@ const VARIO_SIZES: VarioSizes = VarioSizes {
     angle_m_s: 24.0,
 };
 
-
 // Debug build runs at 10 Hz
 #[cfg(debug_assertions)]
 pub const FRAME_RATE: u32 = 10;

@@ -14,8 +14,10 @@ use crate::{
     model::{DisplayActive, EditMode, VarioModeControl},
     system_of_units::FloatToSpeed,
     utils::{read_can_frame, KeyEvent},
-    CoreModel, DeviceEvent, PersistenceId, PersistenceItem, VarioMode, POLARS, CanFrame,
+    CoreModel, DeviceEvent, PersistenceId, PersistenceItem, VarioMode, POLARS,
 };
+use can_dispatch::CanFrame;
+
 #[allow(unused_imports)]
 use micromath::F32Ext;
 

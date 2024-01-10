@@ -1,8 +1,8 @@
 mod can_ids;
 mod can_rdr;
 mod can_wtr;
-mod colors8;
 mod colors16;
+mod colors8;
 mod concat;
 mod error;
 mod events;
@@ -13,10 +13,10 @@ mod version;
 
 pub use can_ids::*;
 pub use can_wtr::*;
-#[cfg(feature = "air_avionics_ad57")]
-pub use colors8::Colors;
 #[cfg(feature = "larus_ad57")]
 pub use colors16::Colors;
+#[cfg(feature = "air_avionics_ad57")]
+pub use colors8::Colors;
 pub use concat::Concat;
 pub use error::CoreError;
 pub use events::*;
@@ -27,7 +27,6 @@ pub use version::*;
 
 pub use can_ids::{audio, frontend, sensor};
 pub(crate) use can_rdr::read_can_frame;
-pub use can_wtr::CanFrame;
 
 use u8g2_fonts::{fonts, FontRenderer};
 pub const FONT_HELV_14: FontRenderer = FontRenderer::new::<fonts::u8g2_font_helvR14_tf>();

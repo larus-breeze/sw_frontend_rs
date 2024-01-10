@@ -4,11 +4,11 @@ use super::{
     RADIUS,
     VARIO_SIZES,
 };
+use crate::{basic_config::*, utils::FONT_HELV_18, Concat, CoreError, DrawImage};
 use crate::{
     model::{CoreModel, FlyMode, VarioMode},
     utils::Colors,
 };
-use crate::{utils::FONT_HELV_18, Concat, CoreError, DrawImage, basic_config::*};
 
 use embedded_graphics::{
     geometry::AngleUnit,

@@ -1,7 +1,4 @@
-use crate::{ 
-    CoreError, PersistenceId, 
-};
-
+use crate::{CoreError, PersistenceId};
 
 #[cfg(feature = "eeprom_size_8192")]
 pub mod eeprom {
@@ -136,10 +133,9 @@ pub trait EepromTrait {
 
     /// Read starting in an address as many bytes as necessary to fill the data array provided.
     fn read_data(&mut self, address: u32, data: &mut [u8]) -> Result<(), CoreError>;
-
 }
 
-pub struct Eeprom<S> 
+pub struct Eeprom<S>
 where
     S: EepromTrait,
 {
@@ -180,7 +176,7 @@ where
 /// - The data to be stored must be defined individually
 ///
 #[allow(dead_code)]
-impl<S> Eeprom<S> 
+impl<S> Eeprom<S>
 where
     S: EepromTrait,
 {
@@ -295,7 +291,7 @@ where
 }
 
 /// Helper struct for Iteration
-pub struct PersistenceIterator<'a, S> 
+pub struct PersistenceIterator<'a, S>
 where
     S: EepromTrait,
 {
@@ -305,7 +301,7 @@ where
     persistence: &'a mut Eeprom<S>,
 }
 
-impl<'a, S> PersistenceIterator<'a, S> 
+impl<'a, S> PersistenceIterator<'a, S>
 where
     S: EepromTrait,
 {
@@ -320,7 +316,7 @@ where
     }
 }
 
-impl<S> Iterator for PersistenceIterator<'_, S> 
+impl<S> Iterator for PersistenceIterator<'_, S>
 where
     S: EepromTrait,
 {

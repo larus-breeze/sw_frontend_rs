@@ -1,0 +1,11 @@
+{
+	"folders": [
+		{
+			"path": "device/common/can_dispatch"
+		},
+		{
+			"path": "."
+		}
+	],
+	"settings": {}
+}
