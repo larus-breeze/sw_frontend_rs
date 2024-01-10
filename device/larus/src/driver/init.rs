@@ -11,7 +11,7 @@ use stm32h7xx_hal::{
     rcc::{rec, rec::FmcClkSel},
 };
 
-pub type DevCanDispatch = CanDispatch<32, 8, 10, 30>;
+pub type DevCanDispatch = CanDispatch<32, 8, 10, 30, DevRng>;
 
 pub fn hw_init(
     dp: DevicePeripherals,
@@ -110,12 +110,10 @@ pub fn hw_init(
         )
     };
 
-    let mut rng = dp.RNG.constrain(ccdr.peripheral.RNG, &ccdr.clocks);
-    trace!("RNG {}", rng.value().unwrap());
+    let rng = dp.RNG.constrain(ccdr.peripheral.RNG, &ccdr.clocks);
+    let rnd = DevRng::new(rng);
 
-    fn random() -> u32 {0}
-
-    let mut can_dispatch = CanDispatch::new(random, p_view_rx_frames, c_view_tx_frames);
+    let mut can_dispatch = CanDispatch::new(rnd, p_view_rx_frames, c_view_tx_frames);
     can_dispatch.set_legacy_filter(0x100, 0x120).unwrap();
 
     // Setup ----------> Frame buffer, Display
