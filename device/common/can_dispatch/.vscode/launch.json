@@ -63,16 +63,16 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug integration test 'main'",
+            "name": "Debug integration test 'simple'",
             "cargo": {
                 "args": [
                     "test",
                     "--no-run",
-                    "--test=main",
+                    "--test=simple",
                     "--package=can_dispatch"
                 ],
                 "filter": {
-                    "name": "main",
+                    "name": "simple",
                     "kind": "test"
                 }
             },

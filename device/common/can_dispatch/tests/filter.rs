@@ -11,22 +11,15 @@ fn rng() -> u32 {
 fn filter() {
     let mut ticks: u64 = 0;
     #[allow(unused)]
-    let (
-        mut p_tx_frames,
-        mut c_tx_frames,
-        mut p_view_tx_frames,
-        mut c_view_tx_frames,
-        mut p_view_rx_frames,
-        mut c_view_rx_frames,
-    ) = get_the_queues();
+    let (mut p_view_tx_frames, mut c_view_tx_frames, mut p_view_rx_frames, mut c_view_rx_frames) =
+        get_the_queues();
 
-    let mut dis =
-        CanDispatch::<32, 8, 10, 30>::new(rng, p_tx_frames, p_view_rx_frames, c_view_tx_frames);
+    let mut dis = CanDispatch::<32, 8, 10, 30>::new(rng, p_view_rx_frames, c_view_tx_frames);
 
     // Startup and negotiating the basic_id
     for _ in 1..15 {
         let nt = dis.tick(ticks);
-        let _ = c_tx_frames.dequeue(); // clear the queue
+        let _ = dis.tx_data(); // clear the queue
         if nt.is_none() {
             break;
         }
