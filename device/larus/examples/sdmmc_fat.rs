@@ -60,7 +60,12 @@ unsafe fn main() -> ! {
 
     let gpioc = dp.GPIOC.split(ccdr.peripheral.GPIOC);
     let gpiod = dp.GPIOD.split(ccdr.peripheral.GPIOD);
+    let gpioe = dp.GPIOE.split(ccdr.peripheral.GPIOE);
 
+    // Card detect.  Activate Pull Down.    Level is high in case of an inserted uSD card
+    let detect = gpioe
+    .pe3
+    .into_pull_down_input();
 
     // SDMMC pins
     let clk = gpioc
@@ -101,6 +106,11 @@ unsafe fn main() -> ! {
     &ccdr.clocks,
     );
 
+    while detect.is_low() {
+        trace!("Waiting for card detection switch...");
+        delay.delay_ms(1000u32);
+    }
+
     // Loop until we have a card
     loop {
         // On most development boards this can be increased up to 50MHz. We choose a
@@ -108,7 +118,7 @@ unsafe fn main() -> ! {
         // connected to a SD card breakout.
         match sd.init(2.MHz()) {
             Ok(_) => break,
-            Err(err) => {
+            Err(_err) => {
                 trace!("Init err");
             }
         }
@@ -128,7 +138,7 @@ unsafe fn main() -> ! {
 
     trace!("List all the directories and their info");
     sd_fatfs
-        .iterate_dir(&sd_fatfs_volume, &sd_fatfs_root_dir, |entry| {
+        .iterate_dir(&sd_fatfs_volume, &sd_fatfs_root_dir, | _entry| {
             trace!("Listing received");
         })
         .unwrap();
