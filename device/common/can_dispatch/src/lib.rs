@@ -39,6 +39,10 @@ pub type QViewRxFrames<const MAX_RX_FRAMES: usize> = Queue<Frame, MAX_RX_FRAMES>
 pub type PViewRxFrames<const MAX_RX_FRAMES: usize> = Producer<'static, Frame, MAX_RX_FRAMES>;
 pub type CViewRxFrames<const MAX_RX_FRAMES: usize> = Consumer<'static, Frame, MAX_RX_FRAMES>;
 
+pub trait CanRng {
+    fn random(&mut self, min: u32, max: u32) -> u32;
+}
+
 #[derive(PartialEq)]
 enum OpMode {
     Startup,
@@ -50,6 +54,7 @@ pub struct CanDispatch<
     const FILTER_ELEMENTS: usize,
     const MAX_TX: usize,
     const MAX_RX: usize,
+    RNG: CanRng,
 > {
     op_mode: OpMode,
     sec_tick: u8,
@@ -63,7 +68,7 @@ pub struct CanDispatch<
     // During normal operation
     vda: u16,
     can_devices: [CanDevice; 64],
-    rand_func: fn() -> u32,
+    rng: RNG,
     legacy_filter: Vec<(u16, u16), FILTER_ELEMENTS>,
     object_id_filter: FnvIndexSet<u16, FILTER_ELEMENTS>,
 
@@ -72,8 +77,8 @@ pub struct CanDispatch<
     c_view_tx_frames: CViewTxFrames<MAX_TX>,
 }
 
-impl<const VDA: u16, const FILTER_ELEMENTS: usize, const MAX_TX: usize, const MAX_RX: usize>
-    CanDispatch<VDA, FILTER_ELEMENTS, MAX_TX, MAX_RX>
+impl<const VDA: u16, const FILTER_ELEMENTS: usize, const MAX_TX: usize, const MAX_RX: usize, RNG: CanRng>
+    CanDispatch<VDA, FILTER_ELEMENTS, MAX_TX, MAX_RX, RNG>
 {
     /// Initialization of the CAN dispatcher
     ///
@@ -84,7 +89,7 @@ impl<const VDA: u16, const FILTER_ELEMENTS: usize, const MAX_TX: usize, const MA
     /// used to transmit CAN bus telegrams to the application. c_view_ c_view_tx_frames is the
     /// output of a queue that is used to transport the CAN bus telegrams from the application.
     pub fn new(
-        rand_func: fn() -> u32,
+        rng: RNG,
         p_view_rx_frames: PViewRxFrames<MAX_RX>,
         c_view_tx_frames: CViewTxFrames<MAX_TX>,
     ) -> Self {
@@ -99,7 +104,7 @@ impl<const VDA: u16, const FILTER_ELEMENTS: usize, const MAX_TX: usize, const MA
 
             vda: 0,
             can_devices: [CanDevice::default(); 64],
-            rand_func,
+            rng,
             legacy_filter: Vec::new(),
             object_id_filter: FnvIndexSet::new(),
 
@@ -247,7 +252,7 @@ impl<const VDA: u16, const FILTER_ELEMENTS: usize, const MAX_TX: usize, const MA
         let mut next = None;
         match self.next_startup_instant {
             Option::None => {
-                next = Some(ticks + 500_000 + ((self.rand_func)() % 100_000) as u64);
+                next = Some(ticks + self.rng.random(500_000, 600_000) as u64);
                 self.startup_stage = 15;
                 let can_frame = CanFrame::remote_trans_rq(self.startup_stage as u16, 0);
                 self.can_msg = Some(can_frame);
@@ -271,12 +276,12 @@ impl<const VDA: u16, const FILTER_ELEMENTS: usize, const MAX_TX: usize, const MA
                             CanFrame::remote_trans_rq(self.heartbeat_id(), 0)
                         } else {
                             // Send remote transmission request on arbritation area
-                            next = Some(current + 34_000 + ((self.rand_func)() % 33_000) as u64);
+                            next = Some(current + self.rng.random(34_000, 67_000) as u64);
                             CanFrame::remote_trans_rq(self.startup_stage as u16, 0)
                         }
                     } else {
                         // Send remote transmission request on arbritation area, same stage
-                        next = Some(current + 34_000 + ((self.rand_func)() % 33_000) as u64);
+                        next = Some(current + self.rng.random(34_000, 67_000) as u64);
                         CanFrame::remote_trans_rq(self.startup_stage as u16, 0)
                     };
                     self.can_msg = Some(can_frame);

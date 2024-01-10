@@ -25,3 +25,12 @@ pub fn get_the_queues() -> (
         c_view_rx_frames,
     )
 }
+
+pub struct Rng {}
+
+impl CanRng for Rng {
+    fn random(&mut self, min: u32, max: u32) -> u32 {
+        min + (max - min) / 2
+    }
+}
+

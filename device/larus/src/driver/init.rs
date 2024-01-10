@@ -109,9 +109,13 @@ pub fn hw_init(
             gpiob.pb9,
         )
     };
-    fn rng() -> u32 {0}
 
-    let mut can_dispatch = CanDispatch::new(rng, p_view_rx_frames, c_view_tx_frames);
+    let mut rng = dp.RNG.constrain(ccdr.peripheral.RNG, &ccdr.clocks);
+    trace!("RNG {}", rng.value().unwrap());
+
+    fn random() -> u32 {0}
+
+    let mut can_dispatch = CanDispatch::new(random, p_view_rx_frames, c_view_tx_frames);
     can_dispatch.set_legacy_filter(0x100, 0x120).unwrap();
 
     // Setup ----------> Frame buffer, Display
