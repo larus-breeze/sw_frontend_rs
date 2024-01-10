@@ -4,19 +4,15 @@ use queues::*;
 use can_dispatch::*;
 
 const TEST_DATA: [&str; 8] = [
-    "result Some(585000), frame Some(CanFrame { id: 15, rtr: true, len: 0, data: [0, 0, 0, 0, 0, 0, 0, 0] })",
-    "result Some(635000), frame Some(CanFrame { id: 14, rtr: true, len: 0, data: [0, 0, 0, 0, 0, 0, 0, 0] })",
-    "result Some(685000), frame Some(CanFrame { id: 13, rtr: true, len: 0, data: [0, 0, 0, 0, 0, 0, 0, 0] })",
-    "result Some(735000), frame Some(CanFrame { id: 12, rtr: true, len: 0, data: [0, 0, 0, 0, 0, 0, 0, 0] })",
-    "result Some(785000), frame Some(CanFrame { id: 11, rtr: true, len: 0, data: [0, 0, 0, 0, 0, 0, 0, 0] })",
-    "result Some(835000), frame Some(CanFrame { id: 10, rtr: true, len: 0, data: [0, 0, 0, 0, 0, 0, 0, 0] })",
-    "result Some(885000), frame Some(CanFrame { id: 9, rtr: true, len: 0, data: [0, 0, 0, 0, 0, 0, 0, 0] })",
-    "result Some(935000), frame Some(CanFrame { id: 9, rtr: true, len: 0, data: [0, 0, 0, 0, 0, 0, 0, 0] })",
+    "result Some(550000), frame Some(CanFrame { id: 15, rtr: true, len: 0, data: [0, 0, 0, 0, 0, 0, 0, 0] })",
+    "result Some(600500), frame Some(CanFrame { id: 14, rtr: true, len: 0, data: [0, 0, 0, 0, 0, 0, 0, 0] })",
+    "result Some(651000), frame Some(CanFrame { id: 13, rtr: true, len: 0, data: [0, 0, 0, 0, 0, 0, 0, 0] })",
+    "result Some(701500), frame Some(CanFrame { id: 12, rtr: true, len: 0, data: [0, 0, 0, 0, 0, 0, 0, 0] })",
+    "result Some(752000), frame Some(CanFrame { id: 11, rtr: true, len: 0, data: [0, 0, 0, 0, 0, 0, 0, 0] })",
+    "result Some(802500), frame Some(CanFrame { id: 10, rtr: true, len: 0, data: [0, 0, 0, 0, 0, 0, 0, 0] })",
+    "result Some(853000), frame Some(CanFrame { id: 9, rtr: true, len: 0, data: [0, 0, 0, 0, 0, 0, 0, 0] })",
+    "result Some(903500), frame Some(CanFrame { id: 9, rtr: true, len: 0, data: [0, 0, 0, 0, 0, 0, 0, 0] })",
 ];
-
-fn rng() -> u32 {
-    0x1abc_dd28
-}
 
 #[test]
 fn wait() {
@@ -25,7 +21,7 @@ fn wait() {
     let (mut p_view_tx_frames, mut c_view_tx_frames, mut p_view_rx_frames, mut c_view_rx_frames) =
         get_the_queues();
 
-    let mut dis = CanDispatch::<32, 8, 10, 30>::new(rng, p_view_rx_frames, c_view_tx_frames);
+    let mut dis = CanDispatch::<32, 8, 10, 30, Rng>::new(Rng{}, p_view_rx_frames, c_view_tx_frames);
 
     // Startup and negotiating the basic_id
     for expected in TEST_DATA {
@@ -35,6 +31,7 @@ fn wait() {
 
         let nt = dis.tick(ticks);
         let result = format!("result {:?}, frame {:?}", nt, dis.tx_data());
+        //println!("    \"{}\",", result);
         assert_eq!(&result, expected);
         if nt.is_none() {
             break;
