@@ -3,12 +3,20 @@ use crate::{
     FloatToPressure, FloatToSpeed, FlyMode,
 };
 use byteorder::{ByteOrder, LittleEndian as LE};
-use can_dispatch::CanFrame;
+use can_dispatch::*;
 use embedded_graphics::prelude::AngleUnit;
 
 use crate::utils::sensor;
 
-pub fn read_can_frame(cm: &mut CoreModel, frame: &CanFrame) {
+pub fn read_can_frame(cm: &mut CoreModel, frame: &Frame) {
+    match frame {
+        Frame::Generic(_generic_frame) => (),
+        Frame::Specific(_specific_frame) => (),
+        Frame::Legacy(can_frame) => read_legacy_frame(cm, can_frame), 
+    }
+}
+
+fn read_legacy_frame(cm: &mut CoreModel, frame: &CanFrame) {
     let id = frame.id();
     let mut rdr = Reader::new(frame.data());
 

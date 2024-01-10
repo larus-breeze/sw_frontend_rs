@@ -41,6 +41,9 @@ use micromath::F32Ext;
 // Basic config
 #[cfg(feature = "air_avionics_ad57")]
 pub mod basic_config {
+    pub const MAX_TX_FRAMES: usize = 10;
+    pub const MAX_RX_FRAMES: usize = 30;
+
     pub const DISPLAY_WIDTH: u32 = 227;
     pub const DISPLAY_HEIGHT: u32 = 285;
     pub const CONTROLLER_TICK_RATE: u32 = 10;
@@ -68,6 +71,9 @@ pub mod basic_config {
 
 #[cfg(feature = "larus_ad57")]
 pub mod basic_config {
+    pub const MAX_TX_FRAMES: usize = 10;
+    pub const MAX_RX_FRAMES: usize = 30;
+
     pub const DISPLAY_WIDTH: u32 = 240;
     pub const DISPLAY_HEIGHT: u32 = 320;
     pub const CONTROLLER_TICK_RATE: u32 = 10;
