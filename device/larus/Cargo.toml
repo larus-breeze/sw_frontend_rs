@@ -33,6 +33,8 @@ heapless = "0.8"
 nb = "1"
 
 # local
+can_dispatch = { path = "../common/can_dispatch" }
+
 [dependencies.corelib]
 path = "../../core"
 default-features = false 

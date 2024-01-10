@@ -1,34 +1,16 @@
-use core::{
-    num::{NonZeroU16, NonZeroU8},
-    ops::Deref,
-};
-use corelib::CTxFrames;
+use core::num::{NonZeroU16, NonZeroU8};
+use can_dispatch::CanFrame;
+use corelib::basic_config::MAX_TX_FRAMES;
 use fdcan::{
     config::NominalBitTiming,
     filter::{StandardFilter, StandardFilterSlot},
     frame::{FrameFormat, TxFrameHeader},
     id::{Id, StandardId},
     interrupt::{Interrupt, InterruptLine, Interrupts},
-    ConfigMode, FdCan, FdCanControl, Fifo0, InternalLoopbackMode, ReceiveOverrun, Rx, Tx,
+    FdCanControl, Fifo0, InternalLoopbackMode, Rx, Tx,
 };
 //use embedded_hal::can::{Frame, Id};
-use heapless::spsc::{Consumer, Producer, Queue};
-use stm32h7xx_hal::{
-    can,
-    gpio::Pin,
-    gpio::Speed,
-    pac::{interrupt, CorePeripherals, Peripherals as DevicePeripherals, FDCAN1, NVIC},
-    prelude::*,
-    rcc::{rec, rec::Fdcan, PllConfigStrategy},
-};
-
-use corelib::{frontend, sensor, CanFrame};
-
-// This queue transports the can bus frames from the can rx driver to the controller.
-const MAX_RX_FRAMES: usize = 20;
-pub type QRxFrames = Queue<CanFrame, MAX_RX_FRAMES>;
-pub type PRxFrames = Producer<'static, CanFrame, MAX_RX_FRAMES>;
-pub type CRxFrames = Consumer<'static, CanFrame, MAX_RX_FRAMES>;
+use stm32h7xx_hal::{can, gpio::Pin, gpio::Speed, pac::FDCAN1, prelude::*, rcc::rec::Fdcan};
 
 /// Initialize peripheral bxcan and generate instances to send and receive can bus frames
 pub fn init_can(
@@ -36,8 +18,6 @@ pub fn init_can(
     fdcan_1: FDCAN1,
     rx: Pin<'B', 8>,
     tx: Pin<'B', 9>,
-    c_tx_frames: CTxFrames,
-    p_rx_frames: PRxFrames,
 ) -> (CanTx, CanRx) {
     let mut can = {
         let rx = rx.into_alternate::<9>().speed(Speed::VeryHigh);
@@ -77,56 +57,38 @@ pub fn init_can(
     can.enable_interrupts(Interrupts::RX_FIFO0_NEW_MSG | Interrupts::TX_COMPLETE);
 
     let (ctrl, tx, rx, _) = can.split();
-    let tx_can = CanTx::new(c_tx_frames, tx);
-    let rx_can = CanRx::new(p_rx_frames, rx, ctrl);
+    let tx_can = CanTx::new(tx);
+    let rx_can = CanRx::new(rx, ctrl);
     (tx_can, rx_can)
 }
 
 /// Interrupt service for sending can bus frames
 pub struct CanTx {
     tx: Tx<can::Can<FDCAN1>, InternalLoopbackMode>,
-    c_tx_frames: CTxFrames,
-    extra_frame: Option<CanFrame>,
 }
 
 impl CanTx {
     /// Generate the service
-    fn new(c_tx_frames: CTxFrames, tx: Tx<can::Can<FDCAN1>, InternalLoopbackMode>) -> Self {
-        CanTx {
-            c_tx_frames,
-            tx,
-            extra_frame: None,
-        }
+    fn new(tx: Tx<can::Can<FDCAN1>, InternalLoopbackMode>) -> Self {
+        CanTx { tx }
     }
 
-    /// Method to call during an active interrupt
-    pub fn on_interrupt(&mut self) {
-        self.tx.clear_transmission_completed_flag(); // we want receive next irqs
-
-        // now we work off the queue
-        while !self.tx.tx_queue_is_full() && self.c_tx_frames.len() > 0 {
-            match self.c_tx_frames.dequeue() {
-                Some(frame) => {
-                    let header = TxFrameHeader {
-                        len: frame.dlc(),
-                        id: StandardId::new(frame.id()).unwrap().into(),
-                        frame_format: FrameFormat::Standard,
-                        bit_rate_switching: false,
-                        marker: None,
-                    };
-                    let buffer = frame.data();
-                    // tx queue is not full, so the result of transmit can be ignored
-                    let _r = self.tx.transmit(header, buffer);
-                }
-                None => return,
-            }
-        }
+    pub fn send_frame(&mut self, can_frame: CanFrame) {
+        let header = TxFrameHeader {
+            len: can_frame.dlc(),
+            id: StandardId::new(can_frame.id()).unwrap().into(),
+            frame_format: FrameFormat::Standard,
+            bit_rate_switching: false,
+            marker: None,
+        };
+        let buffer = can_frame.data();
+        // so the result of transmit is ignored
+        let _r = self.tx.transmit(header, buffer);
     }
 }
 
 /// Interrupt service for receiving can bus frames
 pub struct CanRx {
-    p_rx_frames: PRxFrames,
     rx: Rx<can::Can<FDCAN1>, InternalLoopbackMode, Fifo0>,
     ctrl: FdCanControl<can::Can<FDCAN1>, InternalLoopbackMode>,
 }
@@ -134,42 +96,39 @@ pub struct CanRx {
 impl CanRx {
     /// Create the service
     fn new(
-        p_rx_frames: PRxFrames,
         rx: Rx<can::Can<FDCAN1>, InternalLoopbackMode, Fifo0>,
         ctrl: FdCanControl<can::Can<FDCAN1>, InternalLoopbackMode>,
     ) -> Self {
         CanRx {
-            p_rx_frames,
             rx,
             ctrl,
         }
     }
 
     /// Call this, when irq is active
-    pub fn on_interrupt(&mut self) {
+    /// Call this, when irq is active
+    pub fn on_interrupt(&mut self) -> Option<CanFrame> {
         self.ctrl.clear_interrupt(Interrupt::RxFifo0NewMsg);
 
-        while self.p_rx_frames.capacity() > self.p_rx_frames.len() {
-            let mut buffer = [0u8; 8];
-            match self.rx.receive(&mut buffer) {
-                // silently ignore errors
-                Ok(over_run) => match over_run {
-                    ReceiveOverrun::NoOverrun(rx_info) => {
-                        if let Id::Standard(standard_id) = rx_info.id {
-                            let id = standard_id.as_raw();
-                            let len = rx_info.len;
-                            let can_frame = if rx_info.rtr {
-                                CanFrame::remote_trans_rq(id, len)
-                            } else {
-                                CanFrame::from_slice(id, &buffer[..len as usize])
-                            };
-                            let _ = self.p_rx_frames.enqueue(can_frame);
-                        }
+        let mut buffer = [0u8; 8];
+        match self.rx.receive(&mut buffer) {
+            // silently ignore errors
+            Ok(over_run) => {
+                // Let's ignore overrun error, unwrap() is always ok here 
+                let rx_info = over_run.unwrap();
+                if let Id::Standard(standard_id) = rx_info.id {
+                    let id = standard_id.as_raw();
+                    let len = rx_info.len;
+                    if rx_info.rtr {
+                        Some(CanFrame::remote_trans_rq(id, len))
+                    } else {
+                        Some(CanFrame::from_slice(id, &buffer[..len as usize]))
                     }
-                    ReceiveOverrun::Overrun(_) => (),
-                },
-                Err(_) => return,
-            }
+                } else {
+                    None
+                }
+            },
+            Err(_) => None,   // Fifo is empty -> no more datagrams
         }
     }
 }

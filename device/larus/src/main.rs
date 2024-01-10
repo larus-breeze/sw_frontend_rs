@@ -8,11 +8,12 @@ mod idle_loop;
 mod macros;
 mod utils;
 
+#[allow(unused)]
+use defmt::trace;
 use defmt_rtt as _;
 use panic_rtt_target as _;
 
 use rtic::app;
-
 use corelib::*;
 use dev_controller::*;
 use dev_view::*;
@@ -23,12 +24,13 @@ use utils::*;
 #[app(device = stm32h7xx_hal::pac, peripherals = true, dispatchers = [SPI1, SPI2, ETH])]
 mod app {
     use super::*;
-
+    
     #[monotonic(binds = TIM2, default = true)]
     type MyMono = MonoTimer;
 
     #[shared]
     struct Shared {
+        can_dispatch: DevCanDispatch,
         core_model: CoreModel,
         frame_buffer: FrameBuffer,
         statistics: Statistics,
@@ -47,6 +49,7 @@ mod app {
     #[init]
     fn init(cx: init::Context) -> (Shared, Local, init::Monotonics) {
         let (
+            can_dispatch,
             can_rx,
             can_tx,
             core_model,
@@ -63,9 +66,11 @@ mod app {
         task_view::spawn().unwrap();
         task_controller::spawn().unwrap();
         task_keyboard::spawn().unwrap();
+        task_can_timer::spawn().unwrap();
 
         (
             Shared {
+                can_dispatch,
                 core_model,
                 frame_buffer,
                 statistics,
@@ -83,23 +88,50 @@ mod app {
     }
 
     /// Receive can frames
-    #[task(binds = FDCAN1_IT0, local = [can_rx], shared = [statistics], priority=9)]
+    #[task(binds = FDCAN1_IT0, local = [can_rx], shared = [statistics, can_dispatch], priority=5)]
     fn isr_can_rx(mut cx: isr_can_rx::Context) {
-        task_start!(cx, Task::CanRx);
-        cx.local.can_rx.on_interrupt();
-        task_end!(cx, Task::CanRx);
+        task_start!(cx, Task::Can);
+        loop {
+            let can_frame = cx.local.can_rx.on_interrupt();
+            match can_frame {
+                Option::None => break,
+                Option::Some(can_frame) => {
+                    cx.shared.can_dispatch.lock(|can_dispatch| {
+                        can_dispatch.rx_data(can_frame);
+                    });
+                },
+            }            
+        }
+        task_end!(cx, Task::Can);
     }
 
-    /// Send can frames
-    #[task(binds = FDCAN1_IT1, local = [can_tx], shared = [statistics], priority=8)]
-    fn isr_can_tx(mut cx: isr_can_tx::Context) {
-        task_start!(cx, Task::CanTx);
-        cx.local.can_tx.on_interrupt();
-        task_end!(cx, Task::CanTx);
+    /// Task to support can dispatcher with timing functions
+    #[task(local = [can_tx], shared = [statistics, can_dispatch], priority=5)]
+    fn task_can_timer(mut cx: task_can_timer::Context) {
+        task_start!(cx, Task::Can);
+
+        let ticks = app::monotonics::now().ticks();
+        let next_wakeup = cx.shared.can_dispatch.lock(|can_dispatch| {
+            let next_wakeup = can_dispatch.tick(ticks);
+            while let Some(can_frame) = can_dispatch.tx_data() {
+                cx.local.can_tx.send_frame(can_frame)
+            }
+            next_wakeup
+        });
+        match next_wakeup {
+            None => {
+                task_can_timer::spawn_after(DevDuration::millis(95)).unwrap();
+            }
+            Some(wakeup) => {
+                let instant = DevInstant::from_ticks(wakeup);
+                task_can_timer::spawn_at(instant).unwrap();
+            },
+        }
+        task_end!(cx, Task::Can);
     }
 
     /// Support of M-DMA (isr to copy the data from the frame buffer to the LCD)
-    #[task(binds = MDMA, shared = [frame_buffer, statistics], priority=8)]
+    #[task(binds = MDMA, shared = [frame_buffer, statistics], priority=4)]
     fn isr_mdma(mut cx: isr_mdma::Context) {
         task_start!(cx, Task::Mdma);
         cx.shared.frame_buffer.lock(|frame_buffer| {
@@ -109,7 +141,7 @@ mod app {
     }
 
     /// Scan the keyboard
-    #[task(local = [keyboard], shared = [statistics], priority=7)]
+    #[task(local = [keyboard], shared = [statistics], priority=4)]
     fn task_keyboard(mut cx: task_keyboard::Context) {
         task_start!(cx, Task::Keys);
 
@@ -120,7 +152,7 @@ mod app {
     }
 
     /// The controller contains the complete logic for processing the data and events
-    #[task(local = [controller], shared = [core_model, statistics], priority=5)]
+    #[task(local = [controller], shared = [core_model, statistics], priority=3)]
     fn task_controller(mut cx: task_controller::Context) {
         task_start!(cx, Task::Controller);
 
@@ -142,7 +174,7 @@ mod app {
 
     /// Prepares the display and passes the data to the appropriate output routines.
     /// This mainly concerns the LCD but also the sound output.
-    #[task(local = [dev_view], shared = [core_model, frame_buffer, statistics], priority=5)]
+    #[task(local = [dev_view], shared = [core_model, frame_buffer, statistics], priority=3)]
     fn task_view(mut cx: task_view::Context) {
         task_start!(cx, Task::LcdView);
 
@@ -152,7 +184,7 @@ mod app {
         });
         let wake_up_at = view.wake_up_at();
         task_view::spawn_at(wake_up_at).unwrap();
-        //rtic::pend(stm32f4xx_hal::interrupt::CAN1_TX);
+        //rtic::pend(stm32h7xx_hal::interrupt::FDCAN1_IT1);
         cx.shared.frame_buffer.lock(|frame_buffer| {
             frame_buffer.flush();
         });
