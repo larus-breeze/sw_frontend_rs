@@ -1,8 +1,9 @@
 use crate::{
     AirSpeed, CoreModel, FloatToAcceleration, FloatToAngularVelocity, FloatToDensity,
-    FloatToPressure, FloatToSpeed, FlyMode, CanFrame,
+    FloatToPressure, FloatToSpeed, FlyMode,
 };
 use byteorder::{ByteOrder, LittleEndian as LE};
+use can_dispatch::CanFrame;
 use embedded_graphics::prelude::AngleUnit;
 
 use crate::utils::sensor;

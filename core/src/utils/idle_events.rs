@@ -1,5 +1,5 @@
+use crate::{eeprom, PersistenceItem};
 use heapless::spsc::{Consumer, Producer, Queue};
-use crate::{PersistenceItem, eeprom};
 
 #[repr(u16)]
 #[derive(Debug, Copy, Clone)]
@@ -43,4 +43,3 @@ impl From<u16> for PersistenceId {
         }
     }
 }
-

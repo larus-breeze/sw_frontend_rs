@@ -132,47 +132,47 @@ impl CanFrame {
         LE::read_f32(&self.data[idx..idx + 4])
     }
 
-    fn push_u32(mut self, val: u32) -> Self {
+    pub fn push_u32(mut self, val: u32) -> Self {
         let idx = self.len as usize;
         self.len += 4;
         LE::write_u32(&mut self.data[idx..(self.len as usize)], val);
         self
     }
 
-    fn push_u16(mut self, val: u16) -> Self {
+    pub fn push_u16(mut self, val: u16) -> Self {
         let idx = self.len as usize;
         self.len += 2;
         LE::write_u16(&mut self.data[idx..(self.len as usize)], val);
         self
     }
 
-    fn push_u8(mut self, val: u8) -> Self {
+    pub fn push_u8(mut self, val: u8) -> Self {
         self.data[self.len as usize] = val;
         self.len += 1;
         self
     }
 
-    fn push_i32(mut self, val: i32) -> Self {
+    pub fn push_i32(mut self, val: i32) -> Self {
         let idx = self.len as usize;
         self.len += 4;
         LE::write_i32(&mut self.data[idx..(self.len as usize)], val);
         self
     }
 
-    fn push_i16(mut self, val: i16) -> Self {
+    pub fn push_i16(mut self, val: i16) -> Self {
         let idx = self.len as usize;
         self.len += 2;
         LE::write_i16(&mut self.data[idx..(self.len as usize)], val);
         self
     }
 
-    fn push_i8(mut self, val: i8) -> Self {
+    pub fn push_i8(mut self, val: i8) -> Self {
         self.data[self.len as usize] = val as u8;
         self.len += 1;
         self
     }
 
-    fn push_f32(mut self, val: f32) -> Self {
+    pub fn push_f32(mut self, val: f32) -> Self {
         let idx = self.len as usize;
         self.len += 4;
         LE::write_f32(&mut self.data[idx..(self.len as usize)], val);
