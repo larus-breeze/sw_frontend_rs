@@ -16,7 +16,7 @@ use crate::{
     utils::{read_can_frame, KeyEvent},
     CoreModel, DeviceEvent, PersistenceId, PersistenceItem, VarioMode, POLARS,
 };
-use can_dispatch::CanFrame;
+use can_dispatch::Frame;
 
 #[allow(unused_imports)]
 use micromath::F32Ext;
@@ -188,7 +188,7 @@ impl CoreController {
             continuous,
         );
         // add CAN frame to queue, ignore if the queue is full
-        let _ = core_model.p_tx_frames.enqueue(can_frame);
+        let _ = core_model.p_view_tx_frames.enqueue(can_frame);
 
         // The following actions are performed infrequently and alternately
         self.tick = (self.tick + 1) % CONTROLLER_TICK_RATE; // every second from beginning
@@ -228,7 +228,7 @@ impl CoreController {
     }
 
     /// Interprets a Can Frame and stores the results in the CoreModel
-    pub fn read_can_frame(&self, core_model: &mut CoreModel, frame: &CanFrame) {
+    pub fn read_can_frame(&self, core_model: &mut CoreModel, frame: &Frame) {
         read_can_frame(core_model, frame)
     }
 

@@ -1,6 +1,11 @@
-use crate::utils::{DeviceEvent, PIdleEvents, PTxFrames};
-use crate::{IdleEvent, Mass, PersistenceId, PersistenceItem};
+use crate::{
+    utils::{DeviceEvent, PIdleEvents},
+    {IdleEvent, Mass, PersistenceId, PersistenceItem},
+    basic_config::MAX_TX_FRAMES as MAX_TX_FRAMES,
+};
 use embedded_graphics::geometry::{Angle, AngleUnit};
+use can_dispatch::PViewTxFrames;
+
 
 use crate::{
     controller::Editable,
@@ -26,11 +31,11 @@ pub struct CoreModel {
     pub glider_data: GliderData,
     pub sensor: Sensor,
     p_idle_events: PIdleEvents,
-    pub p_tx_frames: PTxFrames,
+    pub p_view_tx_frames: PViewTxFrames<MAX_TX_FRAMES>,
 }
 
 impl CoreModel {
-    pub fn new(p_idle_events: PIdleEvents, p_tx_frames: PTxFrames) -> Self {
+    pub fn new(p_idle_events: PIdleEvents, p_view_tx_frames: PViewTxFrames<MAX_TX_FRAMES>) -> Self {
         let calculated = Calculated::default();
         let config = Config::default();
         let control = Control::default();
@@ -43,7 +48,7 @@ impl CoreModel {
             glider_data,
             sensor,
             p_idle_events,
-            p_tx_frames,
+            p_view_tx_frames,
         }
     }
 
