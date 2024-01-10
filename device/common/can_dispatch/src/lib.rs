@@ -129,11 +129,21 @@ impl<const VDA: u16, const FILTER_ELEMENTS: usize, const MAX_TX: usize, const MA
     ///
     /// This routine returns next wakeup time, when extra wakeup is needed
     pub fn tick(&mut self, ticks: u64) -> Option<u64> {
-        let sec_tick = (ticks % 1_000_000) as u8;
+        let sec_tick = (ticks / 1_000_000) as u8;
         if sec_tick != self.sec_tick {
             self.sec_tick = sec_tick;
-            for mut can_device in self.can_devices {
+
+            let mut set_obj_ids: FnvIndexSet<u16, 128> = FnvIndexSet::new();
+            for can_device in &mut self.can_devices {
                 can_device.sec_tick();
+                if can_device.is_alive() {
+                    if set_obj_ids.contains(&can_device.object_id) {
+                        can_device.set_is_first(false);
+                    } else {
+                        set_obj_ids.insert(can_device.object_id()).unwrap();
+                        can_device.set_is_first(true);
+                    }
+                }
             }
         }
         match self.op_mode {
@@ -184,7 +194,8 @@ impl<const VDA: u16, const FILTER_ELEMENTS: usize, const MAX_TX: usize, const MA
                 // Finally: test whether the application is interested in the object_id
                 let vda = can_frame.vda();
                 let object_id = self.can_devices[vda as usize].object_id;
-                if self.object_id_filter.contains(&object_id) {
+                let is_first = self.can_devices[vda as usize].is_first();
+                if self.object_id_filter.contains(&object_id) && is_first {
                     if let Some(specific_id) = can_frame.specific_id() {
                         let specific_frame = Frame::Specific(SpecificFrame {
                             specific_id,
@@ -283,6 +294,7 @@ impl<const VDA: u16, const FILTER_ELEMENTS: usize, const MAX_TX: usize, const MA
 #[derive(Clone, Copy, Default)]
 struct CanDevice {
     time_to_death: u8,
+    is_first: bool,
     object_id: u16,
 }
 
@@ -315,5 +327,13 @@ impl CanDevice {
 
     fn object_id(&self) -> u16 {
         self.object_id
+    }
+
+    fn set_is_first(&mut self, is_first: bool) {
+        self.is_first = is_first;
+    }
+
+    fn is_first(&self) -> bool {
+        self.is_first
     }
 }

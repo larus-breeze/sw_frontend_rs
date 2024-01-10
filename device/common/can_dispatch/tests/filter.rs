@@ -64,7 +64,6 @@ fn filter() {
     // Let's try some special data
     let other_frame = CanFrame::empty_from_id(0x242); // Some special data
     dis.rx_data(other_frame);
-    let nt = dis.tick(ticks);
     let result = format!("result {:?}, frame {:?}", nt, c_view_rx_frames.dequeue());
     // Special data must be booked via the object id
     assert_eq!(result, "result None, frame None");
@@ -75,11 +74,12 @@ fn filter() {
     let data = [17, 00, 00, 00, 01, 02, 03, 04]; // object_id: 1
     let heartbeat = CanFrame::from_slice(0x640, &data[0..8]);
     dis.rx_data(heartbeat);
+    ticks += 1_000_000; // Clean up can_device list with sec tick
+    let nt = dis.tick(ticks);
 
     // Again: Let's try some special data
     let other_frame = CanFrame::empty_from_id(0x242); // Some special data
     dis.rx_data(other_frame);
-    let nt = dis.tick(ticks);
     let result = format!("result {:?}, frame {:?}", nt, c_view_rx_frames.dequeue());
     // Now, special data is passed through
     assert_eq!(result, "result None, frame Some(Specific(SpecificFrame { can_frame: CanFrame { id: 578, rtr: false, len: 0, data: [0, 0, 0, 0, 0, 0, 0, 0] }, specific_id: 2, object_id: 17 }))");
