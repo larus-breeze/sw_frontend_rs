@@ -1,5 +1,6 @@
 use crate::{driver::*, utils::*, DevController, DevView, IdleLoop};
-use corelib::{CoreModel, QIdleEvents, QTxFrames};
+use corelib::{CoreModel, QIdleEvents, basic_config::{MAX_TX_FRAMES, MAX_RX_FRAMES}};
+use can_dispatch::{QViewTxFrames, QViewRxFrames, CanDispatch};
 use cortex_m::peripheral::Peripherals as CorePeripherals;
 use defmt::*;
 use heapless::{mpmc::MpMcQueue, spsc::Queue};
@@ -10,10 +11,13 @@ use stm32h7xx_hal::{
     rcc::{rec, rec::FmcClkSel},
 };
 
+pub type DevCanDispatch = CanDispatch<32, 8, 10, 30>;
+
 pub fn hw_init(
     dp: DevicePeripherals,
     mut cp: CorePeripherals,
 ) -> (
+    DevCanDispatch,
     CanRx,
     CanTx,
     CoreModel,
@@ -26,18 +30,19 @@ pub fn hw_init(
     Statistics,
 ) {
     // Setup ----------> the queues
-    // This queue transports the can bus frames from the view component to the can tx driver.
-    let (p_tx_frames, c_tx_frames) = {
-        static mut Q_TX_FRAMES: QTxFrames = Queue::new();
+
+    // This queue transports the can bus frames from the can dispatcher to the controller.
+    let (p_view_rx_frames, c_view_rx_frames) = {
+        static mut Q_VIEW_RX_FRAMES: QViewRxFrames<MAX_RX_FRAMES> = Queue::new();
         // Note: unsafe is ok here, because [heapless::spsc] queue protects against UB
-        unsafe { Q_TX_FRAMES.split() }
+        unsafe { Q_VIEW_RX_FRAMES.split() }
     };
 
-    // This queue transports the can bus frames from the can rx driver to the controller.
-    let (p_rx_frames, c_rx_frames) = {
-        static mut Q_RX_FRAMES: QRxFrames = Queue::new();
+    // This queue transports the can bus frames from the controller to the can dispatcher.
+    let (p_view_tx_frames, c_view_tx_frames) = {
+        static mut Q_VIEW_TX_FRAMES: QViewTxFrames<MAX_TX_FRAMES> = Queue::new();
         // Note: unsafe is ok here, because [heapless::spsc] queue protects against UB
-        unsafe { Q_RX_FRAMES.split() }
+        unsafe { Q_VIEW_TX_FRAMES.split() }
     };
 
     // This queue routes the StorageItems from the controller to the idle loop.
@@ -102,10 +107,12 @@ pub fn hw_init(
             fdcan_1,
             gpiob.pb8,
             gpiob.pb9,
-            c_tx_frames,
-            p_rx_frames,
         )
     };
+    fn rng() -> u32 {0}
+
+    let mut can_dispatch = CanDispatch::new(rng, p_view_rx_frames, c_view_tx_frames);
+    can_dispatch.set_legacy_filter(0x100, 0x120).unwrap();
 
     // Setup ----------> Frame buffer, Display
     let (frame_buffer, dev_view) = {
@@ -147,10 +154,10 @@ pub fn hw_init(
     };
 
     // Setup ----------> CoreModel
-    let mut core_model = CoreModel::new(p_idle_events, p_tx_frames);
+    let mut core_model = CoreModel::new(p_idle_events, p_view_tx_frames);
 
     // Setup ----------> controller
-    let dev_controller = DevController::new(&mut core_model, &Q_EVENTS, c_rx_frames);
+    let dev_controller = DevController::new(&mut core_model, &Q_EVENTS, c_view_rx_frames);
 
     // Setup ----------> Idleloop (last, because of the dog)
     let idle_loop = {
@@ -170,6 +177,7 @@ pub fn hw_init(
     info!("Larus Ad57 finished");
 
     (
+        can_dispatch,
         rx_can,
         tx_can,
         core_model,
