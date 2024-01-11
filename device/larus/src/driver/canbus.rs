@@ -59,14 +59,16 @@ pub fn init_can(
 }
 
 /// Interrupt service for sending can bus frames
+#[allow(unused)]
 pub struct CanTx {
     tx: Tx<can::Can<FDCAN1>, NormalOperationMode>,
+    pub wakeup_at: u64, // just memory for isr
 }
 
 impl CanTx {
     /// Generate the service
     fn new(tx: Tx<can::Can<FDCAN1>, NormalOperationMode>) -> Self {
-        CanTx { tx }
+        CanTx { tx, wakeup_at: 0 }
     }
 
     /// Method to call during an active interrupt
