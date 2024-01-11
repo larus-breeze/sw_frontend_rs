@@ -6,6 +6,7 @@ use corelib::{
     basic_config::{DISPLAY_HEIGHT, DISPLAY_WIDTH},
     *,
 };
+use can_dispatch::*;
 
 use display::MockDisplay;
 use eeprom::Storage;
@@ -47,12 +48,12 @@ fn main() -> Result<(), core::convert::Infallible> {
     };
     // This queue transports the can bus frames from the view component to the can tx driver.
     let (p_tx_frames, mut c_tx_frames) = {
-        static mut Q_TX_FRAMES: QTxFrames = Queue::new();
+        static mut Q_TX_FRAMES: QTxFrames<10> = Queue::new();
         // Note: unsafe is ok here, because [heapless::spsc] queue protects against UB
         unsafe { Q_TX_FRAMES.split() }
     };
 
-    let mut core_model = CoreModel::new(p_idle_events, p_tx_frames);
+    let mut core_model = CoreModel::new(p_idle_events, p_tx_frames, 0x1234_5678);
     let mut eeprom = Storage::new().unwrap();
 
     for item in eeprom.iter_over(EepromTopic::ConfigValues) {
@@ -131,13 +132,15 @@ fn main() -> Result<(), core::convert::Infallible> {
 
         while c_tx_frames.len() > 0 {
             let frame = c_tx_frames.dequeue().unwrap();
-            if frame.id() == 0 {
-                let data = frame.data();
-                let frequency = LE::read_u16(&data[..2]);
-                let duty_cycle = LE::read_u16(&data[2..4]);
-                let volume = data[4];
-                let continuous = data[5] == 1;
-                window.sound(frequency, volume, continuous, duty_cycle);
+            if let Frame::Specific(specific_frame) = frame {
+                if specific_frame.specific_id == 0 {
+                    let data = specific_frame.can_frame.data();
+                    let frequency = LE::read_u16(&data[..2]);
+                    let duty_cycle = LE::read_u16(&data[2..4]);
+                    let volume = data[4];
+                    let continuous = data[5] == 1;
+                    window.sound(frequency, volume, continuous, duty_cycle);
+                }
             }
         }
 
@@ -158,7 +161,8 @@ fn main() -> Result<(), core::convert::Infallible> {
         let mut buf = [0u8; 10];
         while let Ok((cnt, _adr)) = socket.recv_from(&mut buf) {
             let id = LE::read_u16(&buf[..2]);
-            let frame = CanFrame::from_slice(id, &buf[2..cnt]);
+            let can_frame = CanFrame::from_slice(id, &buf[2..cnt]);
+            let frame = Frame::Legacy(can_frame);
             controller.read_can_frame(&mut core_model, &frame);
         }
     }
