@@ -167,7 +167,7 @@ impl<const VDA: u16, const FILTER_ELEMENTS: usize, const MAX_TX: usize, const MA
         match self.op_mode {
             OpMode::Startup => {
                 // Save startup stages of other devices
-                if can_frame.is_rtr() && can_frame.id() < 16 {
+                if can_frame.id() < 16 {
                     self.received_adgs[can_frame.id() as usize] = true;
                 }
             }

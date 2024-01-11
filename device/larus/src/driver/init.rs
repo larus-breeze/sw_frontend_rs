@@ -11,7 +11,7 @@ use stm32h7xx_hal::{
     rcc::{rec, rec::FmcClkSel},
 };
 
-pub type DevCanDispatch = CanDispatch<32, 8, 10, 30, DevRng>;
+pub type DevCanDispatch = CanDispatch<32, 8, MAX_TX_FRAMES, MAX_RX_FRAMES, DevRng>;
 
 pub fn hw_init(
     dp: DevicePeripherals,
