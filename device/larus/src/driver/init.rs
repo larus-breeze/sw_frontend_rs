@@ -1,6 +1,9 @@
 use crate::{driver::*, utils::*, DevController, DevView, IdleLoop};
-use corelib::{CoreModel, QIdleEvents, basic_config::{MAX_TX_FRAMES, MAX_RX_FRAMES}};
-use can_dispatch::{QTxFrames, QRxFrames, CanDispatch};
+use can_dispatch::{CanDispatch, QRxFrames, QTxFrames};
+use corelib::{
+    basic_config::{MAX_RX_FRAMES, MAX_TX_FRAMES},
+    CoreModel, QIdleEvents,
+};
 use cortex_m::peripheral::Peripherals as CorePeripherals;
 use defmt::*;
 use heapless::{mpmc::MpMcQueue, spsc::Queue};
@@ -102,12 +105,7 @@ pub fn hw_init(
             .FDCAN
             .kernel_clk_mux(rec::FdcanClkSel::Pll1Q);
         let fdcan_1 = dp.FDCAN1;
-        init_can(
-            fdcan_prec,
-            fdcan_1,
-            gpiob.pb8,
-            gpiob.pb9,
-        )
+        init_can(fdcan_prec, fdcan_1, gpiob.pb8, gpiob.pb9)
     };
 
     let rng = dp.RNG.constrain(ccdr.peripheral.RNG, &ccdr.clocks);
@@ -172,7 +170,7 @@ pub fn hw_init(
         for item in eeprom.iter_over(corelib::EepromTopic::ConfigValues) {
             core_model.restore_persistent_item(item);
         }
-   
+
         IdleLoop::new(eeprom, c_idle_events, &Q_EVENTS)
     };
 

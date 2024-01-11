@@ -6,11 +6,9 @@ mod driver;
 use defmt::*;
 use defmt_rtt as _;
 
-use rtic::app;
 use fugit::Instant;
-use stm32f4xx_hal::{
-    pac, prelude::*,
-};
+use rtic::app;
+use stm32f4xx_hal::{pac, prelude::*};
 use {defmt_rtt as _, panic_probe as _};
 
 use driver::*;
@@ -45,7 +43,7 @@ mod app {
             .freeze();
 
         let mono = MonoTimer::new(dp.TIM2, &clocks);
-    
+
         info!("init");
 
         // Schedule `foo` to run 1 second in the future
@@ -55,7 +53,10 @@ mod app {
 
         (
             Shared {},
-            Local {tp_foo, tp_bar: tp_foo},
+            Local {
+                tp_foo,
+                tp_bar: tp_foo,
+            },
             init::Monotonics(mono), // Give the monotonic to RTIC
         )
     }
@@ -81,5 +82,4 @@ mod app {
 
         bar::spawn_at(*cx.local.tp_bar).unwrap();
     }
-
 }

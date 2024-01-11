@@ -41,12 +41,7 @@ fn main() -> ! {
         .kernel_clk_mux(rec::FdcanClkSel::Pll1Q);
     let fdcan_1 = dp.FDCAN1;
 
-    let (tx_can, rx_can) = init_can(
-        fdcan_prec,
-        fdcan_1,
-        gpiob.pb8,
-        gpiob.pb9,
-    );
+    let (tx_can, rx_can) = init_can(fdcan_prec, fdcan_1, gpiob.pb8, gpiob.pb9);
     cortex_m::interrupt::free(|cs| {
         TX_CAN.borrow(cs).replace(Some(tx_can));
         RX_CAN.borrow(cs).replace(Some(rx_can));

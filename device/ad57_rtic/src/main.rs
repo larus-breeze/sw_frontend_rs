@@ -50,10 +50,10 @@ mod app {
     /// with the core_model.
     #[shared]
     struct Shared {
-        can_dispatch: DevCanDispatch,   // Dispatcher for CAN frames
-        core_model: CoreModel,          // holds the application data
-        statistics: Statistics,         // track the task runtimes
-        can_tx: CanTx,             // transmit can pakets
+        can_dispatch: DevCanDispatch, // Dispatcher for CAN frames
+        core_model: CoreModel,        // holds the application data
+        statistics: Statistics,       // track the task runtimes
+        can_tx: CanTx,                // transmit can pakets
     }
 
     /// Data required by single tasks
@@ -131,8 +131,8 @@ mod app {
                     cx.shared.can_dispatch.lock(|can_dispatch| {
                         can_dispatch.rx_data(can_frame);
                     });
-                },
-            }            
+                }
+            }
         }
         task_end!(cx, Task::CanRx);
     }
@@ -141,19 +141,20 @@ mod app {
     #[task(binds = CAN1_TX, shared = [can_tx, statistics], priority=8)]
     fn isr_can_tx(mut cx: isr_can_tx::Context) {
         task_start!(cx, Task::CanTx);
-        cx.shared.can_tx.lock(|can_tx| {can_tx.on_interrupt()});
+        cx.shared.can_tx.lock(|can_tx| can_tx.on_interrupt());
         task_end!(cx, Task::CanTx);
     }
-    
+
     /// Task to support can dispatcher with timing functions
     #[task(shared = [can_tx, statistics, can_dispatch], priority=5)]
     fn task_can_timer(mut cx: task_can_timer::Context) {
         task_start!(cx, Task::CanTx);
         let ticks = app::monotonics::now().ticks();
 
-        let next_wakeup = cx.shared.can_dispatch.lock(|can_dispatch| {
-            can_dispatch.tick(ticks)
-        });
+        let next_wakeup = cx
+            .shared
+            .can_dispatch
+            .lock(|can_dispatch| can_dispatch.tick(ticks));
         let instant = cx.shared.can_tx.lock(|can_tx| {
             can_tx.wakeup_at = next_wakeup.unwrap_or(can_tx.wakeup_at + 100_000);
             DevInstant::from_ticks(can_tx.wakeup_at)
@@ -161,9 +162,10 @@ mod app {
         task_can_timer::spawn_at(instant).unwrap();
 
         loop {
-            let can_frame = cx.shared.can_dispatch.lock(|can_dispatch| {
-                can_dispatch.tx_data()
-            });
+            let can_frame = cx
+                .shared
+                .can_dispatch
+                .lock(|can_dispatch| can_dispatch.tx_data());
             if let Some(can_frame) = can_frame {
                 cx.shared.can_tx.lock(|can_tx| {
                     can_tx.send_frame(can_frame);

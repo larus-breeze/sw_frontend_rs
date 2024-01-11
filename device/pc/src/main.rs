@@ -2,11 +2,11 @@ mod display;
 mod eeprom;
 
 use byteorder::{ByteOrder, LittleEndian as LE};
+use can_dispatch::*;
 use corelib::{
     basic_config::{DISPLAY_HEIGHT, DISPLAY_WIDTH},
     *,
 };
-use can_dispatch::*;
 
 use display::MockDisplay;
 use eeprom::Storage;

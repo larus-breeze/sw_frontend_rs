@@ -1,5 +1,5 @@
-use core::num::{NonZeroU16, NonZeroU8};
 use can_dispatch::CanFrame;
+use core::num::{NonZeroU16, NonZeroU8};
 use fdcan::{
     config::NominalBitTiming,
     filter::{StandardFilter, StandardFilterSlot},
@@ -98,10 +98,7 @@ impl CanRx {
         rx: Rx<can::Can<FDCAN1>, NormalOperationMode, Fifo0>,
         ctrl: FdCanControl<can::Can<FDCAN1>, NormalOperationMode>,
     ) -> Self {
-        CanRx {
-            rx,
-            ctrl,
-        }
+        CanRx { rx, ctrl }
     }
 
     /// Call this, when irq is active
@@ -112,7 +109,7 @@ impl CanRx {
         match self.rx.receive(&mut buffer) {
             // silently ignore errors
             Ok(over_run) => {
-                // Let's ignore overrun error, unwrap() is always ok here 
+                // Let's ignore overrun error, unwrap() is always ok here
                 let rx_info = over_run.unwrap();
                 if let Id::Standard(standard_id) = rx_info.id {
                     let id = standard_id.as_raw();
@@ -125,8 +122,8 @@ impl CanRx {
                 } else {
                     None
                 }
-            },
-            Err(_) => None,   // Fifo is empty -> no more datagrams
+            }
+            Err(_) => None, // Fifo is empty -> no more datagrams
         }
     }
 }

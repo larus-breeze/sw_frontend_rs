@@ -1,5 +1,5 @@
 /// This module provides time functions for various applications
-/// 
+///
 /// 1. fn timestamp() for logs and other functions
 /// 2. timestam!() for defmt
 /// 3. delay functions as busy-wait in different variants
@@ -7,31 +7,27 @@
 ///     - fn delay_us() waits microseconds
 ///     - delay instance in any number
 /// 4. time base for RTIC with microsecond resolution
-/// 
+///
 /// Note: uses TIM2 as time base
-
 use defmt_rtt as _;
 
-use stm32f4xx_hal::{
-    pac, pac::TIM2,
-    rcc::Clocks,
-};
 use embedded_hal::blocking::delay::{DelayMs, DelayUs};
+use stm32f4xx_hal::{pac, pac::TIM2, rcc::Clocks};
 
 // Address of timer 2 counter register
-const TIM2_CNT: *const u32 = 0x4000_0024  as *const u32; 
+const TIM2_CNT: *const u32 = 0x4000_0024 as *const u32;
 
 /// Get timestamp with µs resolution from tim2
 pub fn timestamp() -> u32 {
-    // Safety: There is nothing wrong with reading a synchronized and aligned u32 number from the timer 
+    // Safety: There is nothing wrong with reading a synchronized and aligned u32 number from the timer
     unsafe { core::ptr::read_volatile(TIM2_CNT) }
 }
 
 defmt::timestamp!("{=u32:us}", timestamp());
 
-/// Busy wait based on timer, so (interrupt-) delays in between will ignored 
+/// Busy wait based on timer, so (interrupt-) delays in between will ignored
 pub fn delay_ms(ms: u32) {
-    let target = timestamp().wrapping_add(ms*1_000);
+    let target = timestamp().wrapping_add(ms * 1_000);
     loop {
         let diff = target.wrapping_sub(timestamp()) as i32;
         if diff <= 0 {
@@ -40,11 +36,11 @@ pub fn delay_ms(ms: u32) {
     }
 }
 
-/// Busy wait based on timer, so (interrupt-) delays in between will ignored 
+/// Busy wait based on timer, so (interrupt-) delays in between will ignored
 pub fn delay_us(us: u32) {
     let target = timestamp().wrapping_add(us);
     loop {
-        let diff = target.wrapping_sub(timestamp()) as i32; 
+        let diff = target.wrapping_sub(timestamp()) as i32;
         if diff <= 0 {
             break;
         }
@@ -66,8 +62,8 @@ impl DelayUs<u32> for Delay {
     }
 }
 
-const OVF_VALUE: u64 = 0x1_0000_0000;       // Overflow for u32
-const TICKS_PER_SECOND: u32 = 1_000_000;    // TIM2 runs with 1 MHz
+const OVF_VALUE: u64 = 0x1_0000_0000; // Overflow for u32
+const TICKS_PER_SECOND: u32 = 1_000_000; // TIM2 runs with 1 MHz
 
 pub struct MonoTimer {
     tim: pac::TIM2,
@@ -78,12 +74,13 @@ impl MonoTimer {
     pub fn new(tim: TIM2, clocks: &Clocks) -> Self {
         // Safety: we just enable the clock for tim2, which is necessary and ok
         let rcc = unsafe { &*pac::RCC::ptr() };
-        rcc.apb1enr.modify(|_, w| w.tim2en().set_bit());        // enable apb1 clock for tim2
+        rcc.apb1enr.modify(|_, w| w.tim2en().set_bit()); // enable apb1 clock for tim2
 
-        tim.cr1.modify(|_, w| w.cen().clear_bit());             // pause()
-        // UEV event occours on next overflow
-        tim.cr1.modify(|_, w| w.urs().counter_only());          // urs_counter_only()
-        tim.sr.modify(|_, w| {                                  // clear_irq()
+        tim.cr1.modify(|_, w| w.cen().clear_bit()); // pause()
+                                                    // UEV event occours on next overflow
+        tim.cr1.modify(|_, w| w.urs().counter_only()); // urs_counter_only()
+        tim.sr.modify(|_, w| {
+            // clear_irq()
             // Clears timeout event
             w.uif().clear_bit()
         });
@@ -91,31 +88,31 @@ impl MonoTimer {
         let _ = tim.sr.read(); // Delay 2 peripheral clocks
 
         let clk = clocks.pclk2().raw();
-        let div = clk / TICKS_PER_SECOND;                          // set_tick_freq(frequency)
+        let div = clk / TICKS_PER_SECOND; // set_tick_freq(frequency)
 
         let psc = (div - 1) as u16;
         tim.psc.write(|w| w.psc().bits(psc));
 
         let counter_max = u32::MAX;
-        tim.arr.write(|w| w.bits(counter_max) );
+        tim.arr.write(|w| w.bits(counter_max));
 
         // Generate an update event to force an update of the ARR
         // register. This ensures the first timer cycle is of the
         // specified duration.
-        tim.egr.write(|w| w.ug().set_bit());                    // apply_freq()
+        tim.egr.write(|w| w.ug().set_bit()); // apply_freq()
 
-        tim.cnt.write(|w| w.bits(0));                           // set_time(0)
+        tim.cnt.write(|w| w.bits(0)); // set_time(0)
 
         // Start counter
-        tim.cr1.modify(|_, w| w.cen().set_bit());               // resume()
+        tim.cr1.modify(|_, w| w.cen().set_bit()); // resume()
 
         MonoTimer { tim, overflow: 0 }
     }
 
     /// Enable overflow and ccr1 interrupt
     pub fn listen(&mut self) {
-        self.tim.dier.write(|w| w.uie().set_bit());             // listen(timer::Event::TimeOut)
-        self.tim.dier.write(|w| w.cc1ie().set_bit());           // listen(timer::Event::CaptureCompare1)
+        self.tim.dier.write(|w| w.uie().set_bit()); // listen(timer::Event::TimeOut)
+        self.tim.dier.write(|w| w.cc1ie().set_bit()); // listen(timer::Event::CaptureCompare1)
     }
 
     /// Set timer counter for test purposes
@@ -161,18 +158,14 @@ impl rtic_monotonic::Monotonic for MonoTimer {
         // how many ticks are left.
         let val: u32 = match instant.checked_duration_since(now) {
             None => 1, // In the past, RTIC will handle this
-            Some(x) if x.ticks() < OVF_VALUE => {
-                instant.duration_since_epoch().ticks() as u32
-            } // Will not overflow
-            Some(_x) => self.tim
-                .cnt.read().bits()
-                .wrapping_add(0xffff_fffe), // Will overflow
+            Some(x) if x.ticks() < OVF_VALUE => instant.duration_since_epoch().ticks() as u32, // Will not overflow
+            Some(_x) => self.tim.cnt.read().bits().wrapping_add(0xffff_fffe), // Will overflow
         };
-        self.tim.ccr[0].write(|w| w.bits(val) );
+        self.tim.ccr[0].write(|w| w.bits(val));
     }
 
     fn clear_compare_flag(&mut self) {
-        self.tim.sr.modify(|_, w| {w.cc1if().clear_bit()});
+        self.tim.sr.modify(|_, w| w.cc1if().clear_bit());
         let _ = self.tim.sr.read();
         let _ = self.tim.sr.read(); // Delay 2 peripheral clocks
     }
@@ -180,7 +173,7 @@ impl rtic_monotonic::Monotonic for MonoTimer {
     fn on_interrupt(&mut self) {
         // If there was an overflow, increment the overflow counter.
         if self.tim.sr.read().uif().bit_is_set() {
-            self.tim.sr.modify(|_, w| {w.uif().clear_bit()});
+            self.tim.sr.modify(|_, w| w.uif().clear_bit());
             let _ = self.tim.sr.read();
             let _ = self.tim.sr.read(); // Delay 2 peripheral clocks
             self.overflow += OVF_VALUE;

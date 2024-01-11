@@ -1,7 +1,7 @@
-use stm32f4xx_hal::rng;
 use can_dispatch::CanRng;
 use corelib::stm32_crc;
 use rand_core::RngCore;
+use stm32f4xx_hal::rng;
 
 pub struct DevRng {
     rng: rng::Rng,

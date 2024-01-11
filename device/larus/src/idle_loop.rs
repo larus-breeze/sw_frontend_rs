@@ -2,18 +2,15 @@ use defmt::trace;
 
 //use stm32f4xx_hal::{timer::monotonic::fugit::ExtU32, watchdog::IndependentWatchdog};
 
-use crate::{
-    driver::{QEvents, Storage},
-//    utils::{FileSys, FirmwarUpadate},
-};
-use corelib::{CIdleEvents, Eeprom, IdleEvent, };//Event, DeviceEvent, SdCardCmd};
+use crate::driver::{QEvents, Storage};
+use corelib::{CIdleEvents, Eeprom, IdleEvent}; //Event, DeviceEvent, SdCardCmd};
 
 pub struct IdleLoop {
     eeprom: Eeprom<Storage>,
     c_idle_events: CIdleEvents,
     _q_events: &'static QEvents,
-//    file_sys: FileSys,
-//    watchdog: IndependentWatchdog,
+    //    file_sys: FileSys,
+    //    watchdog: IndependentWatchdog,
 }
 
 impl IdleLoop {
@@ -21,15 +18,15 @@ impl IdleLoop {
         eeprom: Eeprom<Storage>,
         c_idle_events: CIdleEvents,
         q_events: &'static QEvents,
-//        file_sys: FileSys,
-//        watchdog: IndependentWatchdog,
+        //        file_sys: FileSys,
+        //        watchdog: IndependentWatchdog,
     ) -> Self {
         IdleLoop {
             eeprom,
             c_idle_events,
             _q_events: q_events,
-//            file_sys,
-//            watchdog,
+            //            file_sys,
+            //            watchdog,
         }
     }
 
@@ -41,7 +38,7 @@ impl IdleLoop {
                     IdleEvent::EepromItem(item) => {
                         trace!("Stored id {:?}", item.id as u32);
                         self.eeprom.write_item(item).unwrap();
-                    },
+                    }
                     _ => (),
                     /*IdleEvent::SdCardItem(item) => {
                         match item {

@@ -3,16 +3,16 @@
 
 mod driver;
 
-use defmt::*;
 use core::cell::RefCell;
 use cortex_m::interrupt::Mutex;
 use cortex_m_rt::entry;
+use defmt::*;
+use rtic_monotonic::Monotonic;
 use stm32f4xx_hal::{
-    pac::{CorePeripherals, Peripherals, interrupt, NVIC},
+    pac::{interrupt, CorePeripherals, Peripherals, NVIC},
     prelude::*,
 };
 use {defmt_rtt as _, panic_probe as _};
-use rtic_monotonic::Monotonic;
 
 use driver::*;
 
@@ -48,7 +48,7 @@ fn main() -> ! {
         cp.NVIC.set_priority(interrupt::TIM2, 1);
         NVIC::unmask(interrupt::TIM2);
     }
-    
+
     loop {
         let now = cortex_m::interrupt::free(|cs| {
             let mut rc = TIMER.borrow(cs).borrow_mut();
@@ -57,16 +57,15 @@ fn main() -> ! {
         });
         info!("timestamp64: {}", now.ticks());
         delay_us(999_978);
-        }
     }
-    
-    #[interrupt]
-    fn TIM2() {
-        cortex_m::interrupt::free(|cs| {
-            let mut rc = TIMER.borrow(cs).borrow_mut();
-            let timer = rc.as_mut().unwrap();
-            timer.on_interrupt();
-            timer.clear_compare_flag();
-        })
-    }
-    
+}
+
+#[interrupt]
+fn TIM2() {
+    cortex_m::interrupt::free(|cs| {
+        let mut rc = TIMER.borrow(cs).borrow_mut();
+        let timer = rc.as_mut().unwrap();
+        timer.on_interrupt();
+        timer.clear_compare_flag();
+    })
+}

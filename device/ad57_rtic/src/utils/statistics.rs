@@ -1,4 +1,4 @@
-use crate::{DevDuration, DevInstant, driver::timestamp};
+use crate::{driver::timestamp, DevDuration, DevInstant};
 use defmt::*;
 
 use crate::app;
