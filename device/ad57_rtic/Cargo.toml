@@ -32,10 +32,12 @@ fugit = "0.3"
 heapless = "0.8"
 micromath = { version = "2.0", default-features = false }
 nb = "1"
+rand_core = "0.6"
 static_cell = "1.2.0"
 
 # local
-fmc_lcd = { path="../common/fmc_lcd", features = ["stm32f407"] }
+fmc_lcd = { path = "../common/fmc_lcd", features = ["stm32f407"] }
+can_dispatch = { path = "../common/can_dispatch" }
 
 [dependencies.corelib]
 path = "../../core"

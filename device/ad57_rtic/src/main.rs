@@ -50,15 +50,16 @@ mod app {
     /// with the core_model.
     #[shared]
     struct Shared {
-        core_model: CoreModel,  // holds the application data
-        statistics: Statistics, // track the task runtimes
+        can_dispatch: DevCanDispatch,   // Dispatcher for CAN frames
+        core_model: CoreModel,          // holds the application data
+        statistics: Statistics,         // track the task runtimes
+        can_tx: CanTx,             // transmit can pakets
     }
 
     /// Data required by single tasks
     #[local]
     struct Local {
         can_rx: CanRx,             // receive can pakets
-        can_tx: CanTx,             // transmit can pakets
         controller: DevController, // control the application
         idle_loop: IdleLoop,       // Idle loop and persistence layer
         view: DevView,             // bring application data to the user
@@ -74,6 +75,7 @@ mod app {
     #[init]
     fn init(cx: init::Context) -> (Shared, Local, init::Monotonics) {
         let (
+            can_dispatch,
             can_rx,
             can_tx,
             controller,
@@ -90,16 +92,18 @@ mod app {
         task_view::spawn().unwrap();
         task_controller::spawn().unwrap();
         task_keyboard::spawn().unwrap();
+        task_can_timer::spawn().unwrap();
 
         // return the initialized components to RTIC
         (
             Shared {
+                can_dispatch,
                 core_model,
                 statistics,
+                can_tx,
             },
             Local {
                 can_rx,
-                can_tx,
                 controller,
                 idle_loop,
                 view,
@@ -116,18 +120,58 @@ mod app {
     // while a task uses an interrupt vector not needed by the circuitry.
 
     /// Receive can frames
-    #[task(binds = CAN1_RX0, local = [can_rx], shared = [statistics], priority=9)]
+    #[task(binds = CAN1_RX0, local = [can_rx], shared = [statistics, can_dispatch], priority=8)]
     fn isr_can_rx(mut cx: isr_can_rx::Context) {
         task_start!(cx, Task::CanRx);
-        cx.local.can_rx.on_interrupt();
+        loop {
+            let can_frame = cx.local.can_rx.on_interrupt();
+            match can_frame {
+                Option::None => break,
+                Option::Some(can_frame) => {
+                    cx.shared.can_dispatch.lock(|can_dispatch| {
+                        can_dispatch.rx_data(can_frame);
+                    });
+                },
+            }            
+        }
         task_end!(cx, Task::CanRx);
     }
 
     /// Send can frames
-    #[task(binds = CAN1_TX, local = [can_tx], shared = [statistics], priority=8)]
+    #[task(binds = CAN1_TX, shared = [can_tx, statistics], priority=8)]
     fn isr_can_tx(mut cx: isr_can_tx::Context) {
         task_start!(cx, Task::CanTx);
-        cx.local.can_tx.on_interrupt();
+        cx.shared.can_tx.lock(|can_tx| {can_tx.on_interrupt()});
+        task_end!(cx, Task::CanTx);
+    }
+    
+    /// Task to support can dispatcher with timing functions
+    #[task(shared = [can_tx, statistics, can_dispatch], priority=5)]
+    fn task_can_timer(mut cx: task_can_timer::Context) {
+        task_start!(cx, Task::CanTx);
+        let ticks = app::monotonics::now().ticks();
+
+        let next_wakeup = cx.shared.can_dispatch.lock(|can_dispatch| {
+            can_dispatch.tick(ticks)
+        });
+        let instant = cx.shared.can_tx.lock(|can_tx| {
+            can_tx.wakeup_at = next_wakeup.unwrap_or(can_tx.wakeup_at + 100_000);
+            DevInstant::from_ticks(can_tx.wakeup_at)
+        });
+        task_can_timer::spawn_at(instant).unwrap();
+
+        loop {
+            let can_frame = cx.shared.can_dispatch.lock(|can_dispatch| {
+                can_dispatch.tx_data()
+            });
+            if let Some(can_frame) = can_frame {
+                cx.shared.can_tx.lock(|can_tx| {
+                    can_tx.send_frame(can_frame);
+                })
+            } else {
+                break;
+            }
+        }
         task_end!(cx, Task::CanTx);
     }
 

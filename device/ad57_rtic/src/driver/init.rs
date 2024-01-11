@@ -1,5 +1,5 @@
 use crate::driver::{
-    frame_buffer::FrameBuffer, init_can, keyboard::*, CanRx, CanTx, Display, QRxFrames, Storage,
+    frame_buffer::FrameBuffer, init_can, keyboard::*, CanRx, CanTx, Display, Storage,
     MonoTimer,
 };
 use crate::{
@@ -8,8 +8,10 @@ use crate::{
     idle_loop::IdleLoop,
     utils::{FileSys, SdioPins},
     Statistics,
+    driver::*,
 };
-use corelib::{CoreModel, Event, QIdleEvents, QTxFrames};
+use corelib::{CoreModel, Event, QIdleEvents, basic_config::{MAX_TX_FRAMES, MAX_RX_FRAMES}};
+use can_dispatch::{QRxFrames, QTxFrames, CanDispatch};
 /// In the embedded rust ecosystem, hardware resources can only be used in one place. For this
 /// reason, a careful distribution of the required hardware resources to corresponding software
 /// components is necessary. This allocation is done here in the init component.
@@ -41,10 +43,13 @@ pub type QEvents = MpMcQueue<Event, 8>;
 // pub type KeyBacklight = Pin<Output<PushPull>, 'A', 3>;
 pub type DevDisplay = Display;
 
+pub type DevCanDispatch = CanDispatch<32, 8, MAX_TX_FRAMES, MAX_RX_FRAMES, DevRng>;
+
 pub fn hw_init(
     device: pac::Peripherals,
     _core: cortex_m::peripheral::Peripherals,
 ) -> (
+    DevCanDispatch,
     CanRx,
     CanTx,
     DevController,
@@ -63,6 +68,7 @@ pub fn hw_init(
         .use_hse(16.MHz())
         .sysclk(168.MHz())
         .hclk(168.MHz())
+        .require_pll48clk()
         .freeze();
     // trace!("AHB1 freq {}", clocks.hclk().0);    // 168 Mhz
     // trace!("APB1 freq {}", clocks.pclk1().0);   // 42 Mhz
@@ -82,14 +88,14 @@ pub fn hw_init(
     // Setup ----------> the queues
     // This queue transports the can bus frames from the view component to the can tx driver.
     let (p_tx_frames, c_tx_frames) = {
-        static mut Q_TX_FRAMES: QTxFrames = Queue::new();
+        static mut Q_TX_FRAMES: QTxFrames<MAX_TX_FRAMES> = Queue::new();
         // Note: unsafe is ok here, because [heapless::spsc] queue protects against UB
         unsafe { Q_TX_FRAMES.split() }
     };
 
     // This queue transports the can bus frames from the can rx driver to the controller.
     let (p_rx_frames, c_rx_frames) = {
-        static mut Q_RX_FRAMES: QRxFrames = Queue::new();
+        static mut Q_RX_FRAMES: QRxFrames<MAX_RX_FRAMES> = Queue::new();
         // Note: unsafe is ok here, because [heapless::spsc] queue protects against UB
         unsafe { Q_RX_FRAMES.split() }
     };
@@ -109,9 +115,13 @@ pub fn hw_init(
         device.CAN1,
         gpioa.pa12,
         gpioa.pa11,
-        c_tx_frames,
-        p_rx_frames,
     );
+
+    let rng = device.RNG.constrain(&clocks);
+    let rnd = DevRng::new(rng);
+
+    let mut can_dispatch: DevCanDispatch = CanDispatch::new(rnd, p_rx_frames, c_tx_frames);
+    can_dispatch.set_legacy_filter(0x100, 0x120).unwrap();
 
     // Setup ----------> statistics
     let statistics = Statistics::new();
@@ -144,7 +154,7 @@ pub fn hw_init(
     let mut eeprom = Storage::new(i2c).unwrap();
 
     // Setup ----------> CoreModel
-    let mut core_model = CoreModel::new(p_idle_events, p_tx_frames);
+    let mut core_model = CoreModel::new(p_idle_events, p_tx_frames, uuid());
     for item in eeprom.iter_over(corelib::EepromTopic::ConfigValues) {
         core_model.restore_persistent_item(item);
     }
@@ -183,6 +193,7 @@ pub fn hw_init(
     trace!("AD57 initialized");
 
     (
+        can_dispatch,
         can_rx,
         can_tx,
         dev_controller,
