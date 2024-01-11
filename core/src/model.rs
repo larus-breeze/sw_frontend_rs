@@ -4,7 +4,7 @@ use crate::{
     basic_config::MAX_TX_FRAMES as MAX_TX_FRAMES,
 };
 use embedded_graphics::geometry::{Angle, AngleUnit};
-use can_dispatch::PViewTxFrames;
+use can_dispatch::PTxFrames;
 
 
 use crate::{
@@ -31,13 +31,13 @@ pub struct CoreModel {
     pub glider_data: GliderData,
     pub sensor: Sensor,
     p_idle_events: PIdleEvents,
-    pub p_view_tx_frames: PViewTxFrames<MAX_TX_FRAMES>,
+    pub p_tx_frames: PTxFrames<MAX_TX_FRAMES>,
 }
 
 impl CoreModel {
     pub fn new(
         p_idle_events: PIdleEvents, 
-        p_view_tx_frames: PViewTxFrames<MAX_TX_FRAMES>,
+        p_tx_frames: PTxFrames<MAX_TX_FRAMES>,
         uuid: u32,
     ) -> Self {
         let calculated = Calculated::default();
@@ -53,7 +53,7 @@ impl CoreModel {
             glider_data,
             sensor,
             p_idle_events,
-            p_view_tx_frames,
+            p_tx_frames,
         }
     }
 

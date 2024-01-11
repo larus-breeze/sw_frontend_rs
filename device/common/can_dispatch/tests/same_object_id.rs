@@ -7,10 +7,10 @@ use can_dispatch::*;
 fn same_object_id() {
     let mut ticks: u64 = 0;
     #[allow(unused)]
-    let (mut p_view_tx_frames, mut c_view_tx_frames, mut p_view_rx_frames, mut c_view_rx_frames) =
+    let (mut p_tx_frames, mut c_tx_frames, mut p_rx_frames, mut c_rx_frames) =
         get_the_queues();
 
-    let mut dis = CanDispatch::<32, 8, 10, 30, Rng>::new(Rng{}, p_view_rx_frames, c_view_tx_frames);
+    let mut dis = CanDispatch::<32, 8, 10, 30, Rng>::new(Rng{}, p_rx_frames, c_tx_frames);
 
     // Startup and negotiating the basic_id
     for _ in 1..15 {
@@ -40,7 +40,7 @@ fn same_object_id() {
     let other_frame = CanFrame::empty_from_id(0x242); // Some special data
     dis.rx_data(other_frame);
     let nt = dis.tick(ticks);
-    let result = format!("result {:?}, frame {:?}", nt, c_view_rx_frames.dequeue());
+    let result = format!("result {:?}, frame {:?}", nt, c_rx_frames.dequeue());
     // Now, special data is passed through
     assert_eq!(result, "result None, frame Some(Specific(SpecificFrame { can_frame: CanFrame { id: 578, rtr: false, len: 0, data: [0, 0, 0, 0, 0, 0, 0, 0] }, specific_id: 2, object_id: 17 }))");
 
@@ -49,7 +49,7 @@ fn same_object_id() {
     let other_frame = CanFrame::empty_from_id(0x252); // Some special data
     dis.rx_data(other_frame);
     let nt = dis.tick(ticks);
-    let result = format!("result {:?}, frame {:?}", nt, c_view_rx_frames.dequeue());
+    let result = format!("result {:?}, frame {:?}", nt, c_rx_frames.dequeue());
     // No data is passed through
     assert_eq!(result, "result None, frame None");
 
