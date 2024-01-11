@@ -225,7 +225,7 @@ impl CoreController {
             },
             3 => {
                 // create CAN frame and add to queue
-                let can_frame = can_frame_heartbeat();
+                let can_frame = can_frame_heartbeat(core_model.config.uuid);
                 let _ = core_model.p_view_tx_frames.enqueue(can_frame);
             }
             _ => (),

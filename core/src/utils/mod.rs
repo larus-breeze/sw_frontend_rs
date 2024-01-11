@@ -4,6 +4,7 @@ mod can_wtr;
 mod colors16;
 mod colors8;
 mod concat;
+mod crc;
 mod error;
 mod events;
 mod idle_events;
@@ -18,6 +19,7 @@ pub use colors16::Colors;
 #[cfg(feature = "air_avionics_ad57")]
 pub use colors8::Colors;
 pub use concat::Concat;
+pub use crc::*;
 pub use error::CoreError;
 pub use events::*;
 pub use idle_events::*;

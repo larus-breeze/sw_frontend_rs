@@ -12,7 +12,7 @@ mod fmc_lcd;
 mod frame_buffer;
 mod init;
 mod keyboard;
-mod rng;
+mod rng_uuid;
 mod sys_timer;
 
 pub use canbus::*;
@@ -21,7 +21,7 @@ pub use fmc_lcd::*;
 pub use frame_buffer::*;
 pub use init::*;
 pub use keyboard::*;
-pub use rng::*;
+pub use rng_uuid::*;
 pub use sys_timer::*;
 
 pub type QEvents = MpMcQueue<Event, 8>;
