@@ -30,14 +30,14 @@ use heapless::{
 };
 
 // This queue transports the can bus frames from the view component to the can dispatcher.
-pub type QViewTxFrames<const MAX_TX_FRAMES: usize> = Queue<Frame, MAX_TX_FRAMES>;
-pub type PViewTxFrames<const MAX_TX_FRAMES: usize> = Producer<'static, Frame, MAX_TX_FRAMES>;
-pub type CViewTxFrames<const MAX_TX_FRAMES: usize> = Consumer<'static, Frame, MAX_TX_FRAMES>;
+pub type QTxFrames<const MAX_TX_FRAMES: usize> = Queue<Frame, MAX_TX_FRAMES>;
+pub type PTxFrames<const MAX_TX_FRAMES: usize> = Producer<'static, Frame, MAX_TX_FRAMES>;
+pub type CTxFrames<const MAX_TX_FRAMES: usize> = Consumer<'static, Frame, MAX_TX_FRAMES>;
 
 // This queue transprot the can bus frames from the can dispatcher to the view component
-pub type QViewRxFrames<const MAX_RX_FRAMES: usize> = Queue<Frame, MAX_RX_FRAMES>;
-pub type PViewRxFrames<const MAX_RX_FRAMES: usize> = Producer<'static, Frame, MAX_RX_FRAMES>;
-pub type CViewRxFrames<const MAX_RX_FRAMES: usize> = Consumer<'static, Frame, MAX_RX_FRAMES>;
+pub type QRxFrames<const MAX_RX_FRAMES: usize> = Queue<Frame, MAX_RX_FRAMES>;
+pub type PRxFrames<const MAX_RX_FRAMES: usize> = Producer<'static, Frame, MAX_RX_FRAMES>;
+pub type CRxFrames<const MAX_RX_FRAMES: usize> = Consumer<'static, Frame, MAX_RX_FRAMES>;
 
 pub trait CanRng {
     fn random(&mut self, min: u32, max: u32) -> u32;
@@ -73,8 +73,8 @@ pub struct CanDispatch<
     object_id_filter: FnvIndexSet<u16, FILTER_ELEMENTS>,
 
     // Queues
-    p_view_rx_frames: PViewRxFrames<MAX_RX>,
-    c_view_tx_frames: CViewTxFrames<MAX_TX>,
+    p_rx_frames: PRxFrames<MAX_RX>,
+    c_tx_frames: CTxFrames<MAX_TX>,
 }
 
 impl<const VDA: u16, const FILTER_ELEMENTS: usize, const MAX_TX: usize, const MAX_RX: usize, RNG: CanRng>
@@ -85,13 +85,13 @@ impl<const VDA: u16, const FILTER_ELEMENTS: usize, const MAX_TX: usize, const MA
     /// The rand_func() function provides 32-bit random values which are required for the
     /// startup process.
     ///
-    /// p_view_rx_frames is the input of a queue that is
-    /// used to transmit CAN bus telegrams to the application. c_view_ c_view_tx_frames is the
+    /// p_rx_frames is the input of a queue that is
+    /// used to transmit CAN bus telegrams to the application. c_view_ c_tx_frames is the
     /// output of a queue that is used to transport the CAN bus telegrams from the application.
     pub fn new(
         rng: RNG,
-        p_view_rx_frames: PViewRxFrames<MAX_RX>,
-        c_view_tx_frames: CViewTxFrames<MAX_TX>,
+        p_rx_frames: PRxFrames<MAX_RX>,
+        c_tx_frames: CTxFrames<MAX_TX>,
     ) -> Self {
         CanDispatch {
             op_mode: OpMode::Startup,
@@ -108,8 +108,8 @@ impl<const VDA: u16, const FILTER_ELEMENTS: usize, const MAX_TX: usize, const MA
             legacy_filter: Vec::new(),
             object_id_filter: FnvIndexSet::new(),
 
-            p_view_rx_frames,
-            c_view_tx_frames,
+            p_rx_frames,
+            c_tx_frames,
         }
     }
 
@@ -176,7 +176,7 @@ impl<const VDA: u16, const FILTER_ELEMENTS: usize, const MAX_TX: usize, const MA
                 for (min, max) in &self.legacy_filter {
                     if can_frame.id() >= *min && can_frame.id() <= *max {
                         let legacy_frame = Frame::Legacy(can_frame);
-                        let _ = self.p_view_rx_frames.enqueue(legacy_frame);
+                        let _ = self.p_rx_frames.enqueue(legacy_frame);
                         return;
                     }
                 }
@@ -188,7 +188,7 @@ impl<const VDA: u16, const FILTER_ELEMENTS: usize, const MAX_TX: usize, const MA
                             generic_id,
                             can_frame,
                         });
-                        let _ = self.p_view_rx_frames.enqueue(generic_frame);
+                        let _ = self.p_rx_frames.enqueue(generic_frame);
                     }
                     return;
                 }
@@ -203,7 +203,7 @@ impl<const VDA: u16, const FILTER_ELEMENTS: usize, const MAX_TX: usize, const MA
                             object_id,
                             can_frame,
                         });
-                        let _ = self.p_view_rx_frames.enqueue(specific_frame);
+                        let _ = self.p_rx_frames.enqueue(specific_frame);
                     }
                 }
                 // Ignore other can frames
@@ -216,13 +216,13 @@ impl<const VDA: u16, const FILTER_ELEMENTS: usize, const MAX_TX: usize, const MA
             Some(can_frame) => {
                 self.can_msg = None;
                 // clear the queue, we are in startup phase
-                while self.c_view_tx_frames.len() > 0 {
-                    let _ = self.c_view_tx_frames.dequeue();
+                while self.c_tx_frames.len() > 0 {
+                    let _ = self.c_tx_frames.dequeue();
                 }
                 Some(can_frame)
             }
             None => {
-                if let Some(frame) = self.c_view_tx_frames.dequeue() {
+                if let Some(frame) = self.c_tx_frames.dequeue() {
                     match frame {
                         Frame::Legacy(can_frame) => Some(can_frame),
                         Frame::Generic(generic_frame) => {
@@ -245,8 +245,8 @@ impl<const VDA: u16, const FILTER_ELEMENTS: usize, const MAX_TX: usize, const MA
 
     fn startup_tick(&mut self, ticks: u64) -> Option<u64> {
         // send no information frames during startup
-        while self.c_view_tx_frames.len() > 0 {
-            let _ = self.c_view_tx_frames.dequeue();
+        while self.c_tx_frames.len() > 0 {
+            let _ = self.c_tx_frames.dequeue();
         }
 
         let mut next = None;

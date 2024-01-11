@@ -18,10 +18,10 @@ const TEST_DATA: [&str; 8] = [
 fn wait() {
     let mut ticks: u64 = 0;
     #[allow(unused)]
-    let (mut p_view_tx_frames, mut c_view_tx_frames, mut p_view_rx_frames, mut c_view_rx_frames) =
+    let (mut p_tx_frames, mut c_tx_frames, mut p_rx_frames, mut c_rx_frames) =
         get_the_queues();
 
-    let mut dis = CanDispatch::<32, 8, 10, 30, Rng>::new(Rng{}, p_view_rx_frames, c_view_tx_frames);
+    let mut dis = CanDispatch::<32, 8, 10, 30, Rng>::new(Rng{}, p_rx_frames, c_tx_frames);
 
     // Startup and negotiating the basic_id
     for expected in TEST_DATA {

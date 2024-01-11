@@ -1,6 +1,6 @@
 use crate::{driver::*, utils::*, DevController, DevView, IdleLoop};
 use corelib::{CoreModel, QIdleEvents, basic_config::{MAX_TX_FRAMES, MAX_RX_FRAMES}};
-use can_dispatch::{QViewTxFrames, QViewRxFrames, CanDispatch};
+use can_dispatch::{QTxFrames, QRxFrames, CanDispatch};
 use cortex_m::peripheral::Peripherals as CorePeripherals;
 use defmt::*;
 use heapless::{mpmc::MpMcQueue, spsc::Queue};
@@ -32,17 +32,17 @@ pub fn hw_init(
     // Setup ----------> the queues
 
     // This queue transports the can bus frames from the can dispatcher to the controller.
-    let (p_view_rx_frames, c_view_rx_frames) = {
-        static mut Q_VIEW_RX_FRAMES: QViewRxFrames<MAX_RX_FRAMES> = Queue::new();
+    let (p_rx_frames, c_rx_frames) = {
+        static mut Q_RX_FRAMES: QRxFrames<MAX_RX_FRAMES> = Queue::new();
         // Note: unsafe is ok here, because [heapless::spsc] queue protects against UB
-        unsafe { Q_VIEW_RX_FRAMES.split() }
+        unsafe { Q_RX_FRAMES.split() }
     };
 
     // This queue transports the can bus frames from the controller to the can dispatcher.
-    let (p_view_tx_frames, c_view_tx_frames) = {
-        static mut Q_VIEW_TX_FRAMES: QViewTxFrames<MAX_TX_FRAMES> = Queue::new();
+    let (p_tx_frames, c_tx_frames) = {
+        static mut Q_TX_FRAMES: QTxFrames<MAX_TX_FRAMES> = Queue::new();
         // Note: unsafe is ok here, because [heapless::spsc] queue protects against UB
-        unsafe { Q_VIEW_TX_FRAMES.split() }
+        unsafe { Q_TX_FRAMES.split() }
     };
 
     // This queue routes the StorageItems from the controller to the idle loop.
@@ -113,7 +113,7 @@ pub fn hw_init(
     let rng = dp.RNG.constrain(ccdr.peripheral.RNG, &ccdr.clocks);
     let rnd = DevRng::new(rng);
 
-    let mut can_dispatch = CanDispatch::new(rnd, p_view_rx_frames, c_view_tx_frames);
+    let mut can_dispatch = CanDispatch::new(rnd, p_rx_frames, c_tx_frames);
     can_dispatch.set_legacy_filter(0x100, 0x120).unwrap();
 
     // Setup ----------> Frame buffer, Display
@@ -156,10 +156,10 @@ pub fn hw_init(
     };
 
     // Setup ----------> CoreModel
-    let mut core_model = CoreModel::new(p_idle_events, p_view_tx_frames, uuid());
+    let mut core_model = CoreModel::new(p_idle_events, p_tx_frames, uuid());
 
     // Setup ----------> controller
-    let dev_controller = DevController::new(&mut core_model, &Q_EVENTS, c_view_rx_frames);
+    let dev_controller = DevController::new(&mut core_model, &Q_EVENTS, c_rx_frames);
 
     // Setup ----------> Idleloop (last, because of the dog)
     let idle_loop = {
