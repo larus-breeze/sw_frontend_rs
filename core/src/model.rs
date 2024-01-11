@@ -35,9 +35,14 @@ pub struct CoreModel {
 }
 
 impl CoreModel {
-    pub fn new(p_idle_events: PIdleEvents, p_view_tx_frames: PViewTxFrames<MAX_TX_FRAMES>) -> Self {
+    pub fn new(
+        p_idle_events: PIdleEvents, 
+        p_view_tx_frames: PViewTxFrames<MAX_TX_FRAMES>,
+        uuid: u32,
+    ) -> Self {
         let calculated = Calculated::default();
-        let config = Config::default();
+        let mut config = Config::default();
+        config.uuid = uuid;
         let control = Control::default();
         let glider_data = GliderData::default();
         let sensor = Sensor::default();
@@ -164,6 +169,7 @@ pub struct Config {
     pub snd_max_freq: f32,
     pub snd_exp_mul: f32,
     pub snd_duty_cycle: u16, // Oscillations, symetric on/off
+    pub uuid: u32,
 }
 
 impl Default for Config {
@@ -179,6 +185,7 @@ impl Default for Config {
             snd_max_freq: 1864.0,   // +7,5
             snd_exp_mul: 0.138629,  // -5 .. 5 two octaves
             snd_duty_cycle: 200,
+            uuid: 0,
         }
     }
 }
