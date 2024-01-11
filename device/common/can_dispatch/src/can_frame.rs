@@ -16,6 +16,13 @@ impl Frame {
         };
         Frame::Specific(specific_frame)
     }
+    pub fn generic(can_frame: CanFrame, generic_id: u16) -> Self {
+        let generic_frame = GenericFrame {
+            can_frame,
+            generic_id,
+        };
+        Frame::Generic(generic_frame)
+    }
 }
 
 #[derive(Copy, Clone, PartialEq, Eq, Debug)]
