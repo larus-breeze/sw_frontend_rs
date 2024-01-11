@@ -118,15 +118,9 @@ mod app {
             }
             next_wakeup
         });
-        match next_wakeup {
-            None => {
-                task_can_timer::spawn_after(DevDuration::millis(95)).unwrap();
-            }
-            Some(wakeup) => {
-                let instant = DevInstant::from_ticks(wakeup);
-                task_can_timer::spawn_at(instant).unwrap();
-            },
-        }
+        cx.local.can_tx.wakeup_at = next_wakeup.unwrap_or(cx.local.can_tx.wakeup_at + 100_000);
+        let instant = DevInstant::from_ticks(cx.local.can_tx.wakeup_at);
+        task_can_timer::spawn_at(instant).unwrap();
         task_end!(cx, Task::Can);
     }
 
