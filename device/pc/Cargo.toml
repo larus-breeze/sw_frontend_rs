@@ -20,6 +20,9 @@ micromath = { version = "1.1.0", default-features = false }
 eeprom24x = "0.6.0"
 embedded-hal = "0.2"
 
+#local
+can_dispatch = { path = "../common/can_dispatch" }
+
 # local
 [dependencies.corelib]
 path = "../../core"
