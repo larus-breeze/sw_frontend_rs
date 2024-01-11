@@ -184,7 +184,6 @@ mod app {
         });
         let wake_up_at = view.wake_up_at();
         task_view::spawn_at(wake_up_at).unwrap();
-        //rtic::pend(stm32h7xx_hal::interrupt::FDCAN1_IT1);
         cx.shared.frame_buffer.lock(|frame_buffer| {
             frame_buffer.flush();
         });

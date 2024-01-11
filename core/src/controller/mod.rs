@@ -14,7 +14,7 @@ use crate::{
     model::{DisplayActive, EditMode, VarioModeControl},
     system_of_units::FloatToSpeed,
     utils::{read_can_frame, KeyEvent},
-    CoreModel, DeviceEvent, PersistenceId, PersistenceItem, VarioMode, POLARS,
+    CoreModel, DeviceEvent, PersistenceId, PersistenceItem, VarioMode, POLARS, can_frame_heartbeat,
 };
 use can_dispatch::Frame;
 
@@ -222,6 +222,11 @@ impl CoreController {
 
                 // Set 1-second-speed-to-fly value
                 core_model.calculated.speed_to_fly_1s = core_model.calculated.speed_to_fly.ias();
+            },
+            3 => {
+                // create CAN frame and add to queue
+                let can_frame = can_frame_heartbeat();
+                let _ = core_model.p_view_tx_frames.enqueue(can_frame);
             }
             _ => (),
         }
