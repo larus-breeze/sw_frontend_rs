@@ -2,8 +2,8 @@
 #![no_std]
 mod driver;
 
-use defmt::*;
 use defmt::assert_eq;
+use defmt::*;
 use defmt_rtt as _;
 use panic_rtt_target as _;
 
@@ -14,7 +14,6 @@ use {
     stm32h7xx_hal::sdmmc::{SdCard, Sdmmc},
     stm32h7xx_hal::{pac, prelude::*, rcc},
 };
-
 
 // This is just a placeholder TimeSource. In a real world application
 // one would probably use the RTC to provide time.
@@ -35,7 +34,6 @@ impl embedded_sdmmc::TimeSource for TimeSource {
 
 #[cortex_m_rt::entry]
 unsafe fn main() -> ! {
-
     // Get peripherals
     let cp = cortex_m::Peripherals::take().unwrap();
     let dp = pac::Peripherals::take().unwrap();
@@ -63,9 +61,7 @@ unsafe fn main() -> ! {
     let gpioe = dp.GPIOE.split(ccdr.peripheral.GPIOE);
 
     // Card detect.  Activate Pull Down.    Level is high in case of an inserted uSD card
-    let detect = gpioe
-    .pe3
-    .into_pull_down_input();
+    let detect = gpioe.pe3.into_pull_down_input();
 
     // SDMMC pins
     let clk = gpioc
@@ -101,9 +97,9 @@ unsafe fn main() -> ! {
 
     // Create SDMMC
     let mut sd: Sdmmc<_, SdCard> = dp.SDMMC1.sdmmc(
-    (clk, cmd, d0, d1, d2, d3),
-    ccdr.peripheral.SDMMC1,
-    &ccdr.clocks,
+        (clk, cmd, d0, d1, d2, d3),
+        ccdr.peripheral.SDMMC1,
+        &ccdr.clocks,
     );
 
     while detect.is_low() {
@@ -138,16 +134,14 @@ unsafe fn main() -> ! {
 
     trace!("List all the directories and their info");
     sd_fatfs
-        .iterate_dir(&sd_fatfs_volume, &sd_fatfs_root_dir, | _entry| {
+        .iterate_dir(&sd_fatfs_volume, &sd_fatfs_root_dir, |_entry| {
             trace!("Listing received");
         })
         .unwrap();
 
     const WRITE_BUFFER: [u8; 8 * 1024] = [b'B'; 8 * 1024];
 
-    for (filename, length) in
-        &[("small.txt", 8), ("big.txt", WRITE_BUFFER.len())]
-    {
+    for (filename, length) in &[("small.txt", 8), ("big.txt", WRITE_BUFFER.len())] {
         trace!("Open file {:?}", filename);
         let mut file = sd_fatfs
             .open_file_in_dir(

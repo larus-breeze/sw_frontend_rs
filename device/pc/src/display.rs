@@ -33,7 +33,8 @@ impl DrawImage for MockDisplay {
         assert!((img_vers == 1) || img_vers == 2);
 
         if img_vers == 1 {
-            let img16 = unsafe { core::slice::from_raw_parts(img.as_ptr() as *const u16, img.len() / 2) };
+            let img16 =
+                unsafe { core::slice::from_raw_parts(img.as_ptr() as *const u16, img.len() / 2) };
 
             // The image is really built for our display?
             assert!(img16[1] == DISPLAY_WIDTH as u16);
@@ -55,13 +56,14 @@ impl DrawImage for MockDisplay {
                 }
                 idx += px_cnt;
             }
-        } 
+        }
         if img_vers == 2 {
-            let img32 = unsafe { core::slice::from_raw_parts(img.as_ptr() as *const u32, img.len() / 2) };
+            let img32 =
+                unsafe { core::slice::from_raw_parts(img.as_ptr() as *const u32, img.len() / 2) };
 
             // The image is really built for our display?
             assert!(img32[1] == DISPLAY_WIDTH);
-            assert!(img32[2] + offset.y as u32 <= DISPLAY_HEIGHT as u32);
+            assert!(img32[2] + offset.y as u32 <= DISPLAY_HEIGHT);
 
             // Let's write the pixels
             let color_cnt = img32[3];
@@ -79,7 +81,7 @@ impl DrawImage for MockDisplay {
                 }
                 idx += px_cnt;
             }
-        } 
+        }
 
         Ok(())
     }

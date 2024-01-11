@@ -1,6 +1,6 @@
-use stm32h7xx_hal::rng::{self, RngCore};
 use can_dispatch::CanRng;
 use corelib::stm32_crc;
+use stm32h7xx_hal::rng::{self, RngCore};
 
 pub struct DevRng {
     rng: rng::Rng,

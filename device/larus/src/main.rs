@@ -13,18 +13,18 @@ use defmt::trace;
 use defmt_rtt as _;
 use panic_rtt_target as _;
 
-use rtic::app;
 use corelib::*;
 use dev_controller::*;
 use dev_view::*;
 use driver::*;
 use idle_loop::*;
+use rtic::app;
 use utils::*;
 
 #[app(device = stm32h7xx_hal::pac, peripherals = true, dispatchers = [SPI1, SPI2, ETH])]
 mod app {
     use super::*;
-    
+
     #[monotonic(binds = TIM2, default = true)]
     type MyMono = MonoTimer;
 
@@ -56,7 +56,7 @@ mod app {
             controller,
             mut dev_view,
             frame_buffer,
-            idle_loop, 
+            idle_loop,
             keyboard,
             mono,
             statistics,
@@ -99,8 +99,8 @@ mod app {
                     cx.shared.can_dispatch.lock(|can_dispatch| {
                         can_dispatch.rx_data(can_frame);
                     });
-                },
-            }            
+                }
+            }
         }
         task_end!(cx, Task::Can);
     }

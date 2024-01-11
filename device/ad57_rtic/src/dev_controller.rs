@@ -1,14 +1,11 @@
-use corelib::{CoreModel, Event, basic_config::MAX_RX_FRAMES}; // sensor
+use corelib::{basic_config::MAX_RX_FRAMES, CoreModel, Event}; // sensor
 
-use crate::{
-    driver::QEvents,
-    CoreController,
-};
+use crate::{driver::QEvents, CoreController};
 use can_dispatch::CRxFrames;
 
 pub struct DevController {
     core_controller: CoreController,
-    q_events: &'static QEvents, // key event queue
+    q_events: &'static QEvents,            // key event queue
     c_rx_frames: CRxFrames<MAX_RX_FRAMES>, // can bus rx queue
 }
 

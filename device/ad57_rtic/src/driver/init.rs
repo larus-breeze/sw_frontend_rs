@@ -1,17 +1,19 @@
 use crate::driver::{
-    frame_buffer::FrameBuffer, init_can, keyboard::*, CanRx, CanTx, Display, Storage,
-    MonoTimer,
+    frame_buffer::FrameBuffer, init_can, keyboard::*, CanRx, CanTx, Display, MonoTimer, Storage,
 };
 use crate::{
     dev_controller::DevController,
     dev_view::DevView,
+    driver::*,
     idle_loop::IdleLoop,
     utils::{FileSys, SdioPins},
     Statistics,
-    driver::*,
 };
-use corelib::{CoreModel, Event, QIdleEvents, basic_config::{MAX_TX_FRAMES, MAX_RX_FRAMES}};
-use can_dispatch::{QRxFrames, QTxFrames, CanDispatch};
+use can_dispatch::{CanDispatch, QRxFrames, QTxFrames};
+use corelib::{
+    basic_config::{MAX_RX_FRAMES, MAX_TX_FRAMES},
+    CoreModel, Event, QIdleEvents,
+};
 /// In the embedded rust ecosystem, hardware resources can only be used in one place. For this
 /// reason, a careful distribution of the required hardware resources to corresponding software
 /// components is necessary. This allocation is done here in the init component.
@@ -28,9 +30,7 @@ use defmt::*;
 use defmt_rtt as _;
 use fmc_lcd::{DataPins16, LcdPins};
 use heapless::{mpmc::MpMcQueue, spsc::Queue};
-use stm32f4xx_hal::{
-    pac, prelude::*, watchdog::IndependentWatchdog,
-};
+use stm32f4xx_hal::{pac, prelude::*, watchdog::IndependentWatchdog};
 
 pub const TICKS_PER_SECOND: u32 = 1_000_000;
 pub type DevDuration = fugit::Duration<u64, 1, TICKS_PER_SECOND>;
@@ -111,11 +111,7 @@ pub fn hw_init(
     static Q_EVENTS: QEvents = MpMcQueue::new();
 
     // Setup ----------> can bus interface
-    let (can_tx, can_rx) = init_can(
-        device.CAN1,
-        gpioa.pa12,
-        gpioa.pa11,
-    );
+    let (can_tx, can_rx) = init_can(device.CAN1, gpioa.pa12, gpioa.pa11);
 
     let rng = device.RNG.constrain(&clocks);
     let rnd = DevRng::new(rng);

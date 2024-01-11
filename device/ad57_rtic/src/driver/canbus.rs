@@ -1,19 +1,15 @@
 use bxcan::{filter::Mask32, Data, Fifo, Frame, Id, Interrupt, StandardId};
 use can_dispatch::CanFrame;
+use corelib::basic_config::MAX_TX_FRAMES;
+use heapless::Vec;
 use stm32f4xx_hal::{
     can::{Can, CanExt},
     gpio::Pin,
     pac::CAN1,
 };
-use heapless::Vec;
-use corelib::basic_config::MAX_TX_FRAMES;
 
 /// Initialize peripheral bxcan and generate instances to send and receive can bus frames
-pub fn init_can(
-    can_1: CAN1,
-    tx: Pin<'A', 12>,
-    rx: Pin<'A', 11>,
-) -> (CanTx, CanRx) {
+pub fn init_can(can_1: CAN1, tx: Pin<'A', 12>, rx: Pin<'A', 11>) -> (CanTx, CanRx) {
     let mut can = {
         let rx = rx.into_alternate::<9>();
         let tx = tx.into_alternate::<9>();
@@ -51,7 +47,11 @@ pub struct CanTx {
 impl CanTx {
     /// Generate the service
     fn new(tx: bxcan::Tx<Can<CAN1>>) -> Self {
-        CanTx { tx, wakeup_at: 0, buf: Vec::new() }
+        CanTx {
+            tx,
+            wakeup_at: 0,
+            buf: Vec::new(),
+        }
     }
 
     /// Method to call during an active interrupt
@@ -94,7 +94,7 @@ impl CanRx {
                 let id = if let Id::Standard(standard_id) = bx_frame.id() {
                     standard_id.as_raw()
                 } else {
-                    return None
+                    return None;
                 };
                 let can_frame = if bx_frame.is_remote_frame() {
                     CanFrame::remote_trans_rq(id, bx_frame.dlc())
@@ -102,7 +102,7 @@ impl CanRx {
                     CanFrame::from_slice(id, bx_frame.data().unwrap())
                 };
                 Some(can_frame)
-            },
+            }
             Err(_) => None,
         }
     }
