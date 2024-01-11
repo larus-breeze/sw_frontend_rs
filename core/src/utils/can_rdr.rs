@@ -1,6 +1,6 @@
 use crate::{
-    AirSpeed, CoreModel, FloatToAcceleration, FloatToAngularVelocity, FloatToDensity,
-    FloatToPressure, FloatToSpeed, FlyMode,
+    AirSpeed, CoreModel, FloatToAcceleration, FloatToAngularVelocity, FloatToDensity, FloatToMass,
+    FloatToPressure, FloatToSpeed, FlyMode, SysConfig,
 };
 use byteorder::{ByteOrder, LittleEndian as LE};
 use can_dispatch::*;
@@ -10,9 +10,31 @@ use crate::utils::sensor;
 
 pub fn read_can_frame(cm: &mut CoreModel, frame: &Frame) {
     match frame {
-        Frame::Generic(_generic_frame) => (),
+        Frame::Generic(generic_frame) => read_generic_frame(cm, generic_frame),
         Frame::Specific(_specific_frame) => (),
-        Frame::Legacy(can_frame) => read_legacy_frame(cm, can_frame), 
+        Frame::Legacy(can_frame) => read_legacy_frame(cm, can_frame),
+    }
+}
+
+fn read_generic_frame(cm: &mut CoreModel, frame: &GenericFrame) {
+    let mut rdr: Reader<'_> = Reader::new(frame.can_frame.data());
+    #[allow(clippy::single_match)]
+    match frame.generic_id {
+        1 => {
+            let config_id = SysConfig::from(rdr.pop_u16());
+            read_sys_config_value(cm, config_id, &frame.can_frame)
+        }
+        _ => (),
+    }
+}
+
+fn read_sys_config_value(cm: &mut CoreModel, config_id: SysConfig, frame: &CanFrame) {
+    match config_id {
+        SysConfig::MacCready => cm.config.mc_cready = frame.read_f32(4).m_s(),
+        SysConfig::PilotWeight => cm.glider_data.pilot_weight = frame.read_f32(4).kg(),
+        SysConfig::VolumeVario => cm.config.volume = frame.read_u8(2) as i8,
+        SysConfig::WaterBallast => cm.glider_data.water_ballast = frame.read_f32(4).kg(),
+        _ => (),
     }
 }
 

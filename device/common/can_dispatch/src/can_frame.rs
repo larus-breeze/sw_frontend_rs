@@ -196,6 +196,14 @@ impl CanFrame {
         LE::write_f32(&mut self.data[idx..(self.len as usize)], val);
         self
     }
+
+    pub fn push_slice(mut self, src: &[u8]) -> Self {
+        let idx = self.len as usize;
+        let len = src.len();
+        self.len += len as u8;
+        self.data[idx..idx+len].copy_from_slice(&src);
+        self
+    }
 }
 
 #[cfg(test)]

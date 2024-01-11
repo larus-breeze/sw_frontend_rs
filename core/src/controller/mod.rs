@@ -9,12 +9,12 @@ use sw_update::SwUpdateController;
 
 use crate::{
     basic_config::CONTROLLER_TICK_RATE,
-    can_frame_sound,
+    can_frame_heartbeat, can_frame_sound,
     flight_physics::Polar,
     model::{DisplayActive, EditMode, VarioModeControl},
     system_of_units::FloatToSpeed,
     utils::{read_can_frame, KeyEvent},
-    CoreModel, DeviceEvent, PersistenceId, PersistenceItem, VarioMode, POLARS, can_frame_heartbeat,
+    CoreModel, DeviceEvent, PersistenceId, PersistenceItem, VarioMode, POLARS,
 };
 use can_dispatch::Frame;
 
@@ -222,7 +222,7 @@ impl CoreController {
 
                 // Set 1-second-speed-to-fly value
                 core_model.calculated.speed_to_fly_1s = core_model.calculated.speed_to_fly.ias();
-            },
+            }
             3 => {
                 // create CAN frame and add to queue
                 let can_frame = can_frame_heartbeat(core_model.config.uuid);
