@@ -1,6 +1,6 @@
 use crate::{
     AirSpeed, CoreModel, FloatToAcceleration, FloatToAngularVelocity, FloatToDensity, FloatToMass,
-    FloatToPressure, FloatToSpeed, FlyMode, SysConfig,
+    FloatToPressure, FloatToSpeed, FlyMode, SysConfigId, GenericId,
 };
 use byteorder::{ByteOrder, LittleEndian as LE};
 use can_dispatch::*;
@@ -19,21 +19,21 @@ pub fn read_can_frame(cm: &mut CoreModel, frame: &Frame) {
 fn read_generic_frame(cm: &mut CoreModel, frame: &GenericFrame) {
     let mut rdr: Reader<'_> = Reader::new(frame.can_frame.data());
     #[allow(clippy::single_match)]
-    match frame.generic_id {
-        1 => {
-            let config_id = SysConfig::from(rdr.pop_u16());
+    match GenericId::from(frame.generic_id) {
+        GenericId::SetSysSetting => {
+            let config_id = SysConfigId::from(rdr.pop_u16());
             read_sys_config_value(cm, config_id, &frame.can_frame)
         }
         _ => (),
     }
 }
 
-fn read_sys_config_value(cm: &mut CoreModel, config_id: SysConfig, frame: &CanFrame) {
+fn read_sys_config_value(cm: &mut CoreModel, config_id: SysConfigId, frame: &CanFrame) {
     match config_id {
-        SysConfig::MacCready => cm.config.mc_cready = frame.read_f32(4).m_s(),
-        SysConfig::PilotWeight => cm.glider_data.pilot_weight = frame.read_f32(4).kg(),
-        SysConfig::VolumeVario => cm.config.volume = frame.read_u8(2) as i8,
-        SysConfig::WaterBallast => cm.glider_data.water_ballast = frame.read_f32(4).kg(),
+        SysConfigId::MacCready => cm.config.mc_cready = frame.read_f32(4).m_s(),
+        SysConfigId::PilotWeight => cm.glider_data.pilot_weight = frame.read_f32(4).kg(),
+        SysConfigId::VolumeVario => cm.config.volume = frame.read_u8(2) as i8,
+        SysConfigId::WaterBallast => cm.glider_data.water_ballast = frame.read_f32(4).kg(),
         _ => (),
     }
 }

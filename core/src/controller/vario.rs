@@ -5,7 +5,7 @@ use crate::{
     model::{CoreModel, EditMode, VarioModeControl},
     system_of_units::{FloatToMass, FloatToSpeed},
     utils::{val_manip, KeyEvent},
-    SysConfig, SysValue,
+    SysConfigId, SysValueId,
 };
 use num::clamp;
 
@@ -40,8 +40,8 @@ impl VarioController {
                 cm.config.mc_cready =
                     val_manip(cm.config.mc_cready.to_m_s(), key_event, 0.1, 0.5, 0.0, 5.0).m_s();
                 let frame = can_frame_sys_config(
-                    SysConfig::MacCready,
-                    SysValue::F32(cm.config.mc_cready.to_m_s()),
+                    SysConfigId::MacCready,
+                    SysValueId::F32(cm.config.mc_cready.to_m_s()),
                 );
                 let _ = cm.p_tx_frames.enqueue(frame);
             }
@@ -54,8 +54,8 @@ impl VarioController {
                     _ => return Result::Nothing,
                 };
                 let frame = can_frame_sys_config(
-                    SysConfig::VolumeVario,
-                    SysValue::U8(cm.config.volume as u8),
+                    SysConfigId::VolumeVario,
+                    SysValueId::U8(cm.config.volume as u8),
                 );
                 let _ = cm.p_tx_frames.enqueue(frame);
             }
@@ -70,8 +70,8 @@ impl VarioController {
                 )
                 .kg();
                 let frame = can_frame_sys_config(
-                    SysConfig::WaterBallast,
-                    SysValue::F32(cm.glider_data.water_ballast.to_kg()),
+                    SysConfigId::WaterBallast,
+                    SysValueId::F32(cm.glider_data.water_ballast.to_kg()),
                 );
                 let _ = cm.p_tx_frames.enqueue(frame);
             }
@@ -96,8 +96,8 @@ impl VarioController {
                 )
                 .kg();
                 let frame = can_frame_sys_config(
-                    SysConfig::PilotWeight,
-                    SysValue::F32(cm.glider_data.water_ballast.to_kg()),
+                    SysConfigId::PilotWeight,
+                    SysValueId::F32(cm.glider_data.water_ballast.to_kg()),
                 );
                 let _ = cm.p_tx_frames.enqueue(frame);
             }
