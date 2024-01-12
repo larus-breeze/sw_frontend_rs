@@ -1,3 +1,49 @@
+use core::mem::transmute;
+
+pub enum GenericId {
+    Heartbeat = 0,
+    HwFwVersion = 1,
+    SetSysSetting = 2,
+    BinaryTransfer = 3,
+    Ignore = 4,
+}
+
+impl From<u16> for GenericId {
+    fn from(value: u16) -> Self {
+        if value > GenericId::Ignore as u16 {
+            GenericId::Ignore
+        } else {
+            unsafe { transmute::<u8, GenericId>(value as u8) }
+        }
+    }
+}
+
+#[repr(u16)]
+pub enum SysConfigId {
+    VolumeVario = 0,
+    MacCready = 1,
+    WaterBallast = 2,
+    Bugs = 3,
+    Qnh = 4,
+    PilotWeight = 5,
+    Ignore = 6,
+}
+
+impl From<u16> for SysConfigId {
+    fn from(value: u16) -> Self {
+        if value > SysConfigId::Ignore as u16 {
+            SysConfigId::Ignore
+        } else {
+            // unsafe: values lower than ::Ignore are ok
+            unsafe { transmute::<u16, SysConfigId>(value) }
+        }
+    }
+}
+pub enum SysValueId {
+    U8(u8),
+    F32(f32),
+}
+
 #[rustfmt::skip]
 #[allow(unused)]
 pub mod sensor {

@@ -1,6 +1,7 @@
 use byteorder::{ByteOrder, LittleEndian as LE};
 use can_dispatch::*;
-use core::mem::transmute;
+use crate::{GenericId, SysConfigId, SysValueId};
+
 
 const OBJECT_ID: u16 = 4;
 const OBJECT_ID_GEN: u16 = 0;
@@ -23,48 +24,21 @@ pub fn can_frame_heartbeat(uuid: u32) -> Frame {
             .push_u16(OBJECT_ID)
             .push_u16(OBJECT_ID_GEN)
             .push_u32(uuid),
-        0,
+        GenericId::Heartbeat as u16,
     )
 }
 
-#[repr(u16)]
-pub enum SysConfig {
-    VolumeVario = 0,
-    MacCready = 1,
-    WaterBallast = 2,
-    Bugs = 3,
-    Qnh = 4,
-    PilotWeight = 5,
-    Ignore = 6,
-}
-
-impl From<u16> for SysConfig {
-    fn from(value: u16) -> Self {
-        if value > SysConfig::Ignore as u16 {
-            SysConfig::Ignore
-        } else {
-            // unsafe: values lower than ::Ignore are ok
-            unsafe { transmute::<u16, SysConfig>(value) }
-        }
-    }
-}
-
-pub enum SysValue {
-    U8(u8),
-    F32(f32),
-}
-
-pub fn can_frame_sys_config(config_id: SysConfig, sys_value: SysValue) -> Frame {
+pub fn can_frame_sys_config(config_id: SysConfigId, sys_value: SysValueId) -> Frame {
     let mut data = [0u8; 6];
     match sys_value {
-        SysValue::U8(b) => data[0] = b,
-        SysValue::F32(f) => LE::write_f32(&mut data[2..6], f),
+        SysValueId::U8(b) => data[0] = b,
+        SysValueId::F32(f) => LE::write_f32(&mut data[2..6], f),
     }
 
     Frame::generic(
         CanFrame::empty_from_id(0)
             .push_u16(config_id as u16)
             .push_slice(&data),
-        1,
+        GenericId::SetSysSetting as u16,
     )
 }
