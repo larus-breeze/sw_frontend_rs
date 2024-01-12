@@ -120,7 +120,7 @@ mod app {
     // while a task uses an interrupt vector not needed by the circuitry.
 
     /// Receive can frames
-    #[task(binds = CAN1_RX0, local = [can_rx], shared = [statistics, can_dispatch], priority=8)]
+    #[task(binds = CAN1_RX0, local = [can_rx], shared = [statistics, can_dispatch], priority=6)]
     fn isr_can_rx(mut cx: isr_can_rx::Context) {
         task_start!(cx, Task::CanRx);
         loop {
@@ -138,7 +138,7 @@ mod app {
     }
 
     /// Send can frames
-    #[task(binds = CAN1_TX, shared = [can_tx, statistics], priority=8)]
+    #[task(binds = CAN1_TX, shared = [can_tx, statistics], priority=6)]
     fn isr_can_tx(mut cx: isr_can_tx::Context) {
         task_start!(cx, Task::CanTx);
         cx.shared.can_tx.lock(|can_tx| can_tx.on_interrupt());
@@ -146,7 +146,7 @@ mod app {
     }
 
     /// Task to support can dispatcher with timing functions
-    #[task(shared = [can_tx, statistics, can_dispatch], priority=5)]
+    #[task(shared = [can_tx, statistics, can_dispatch], priority=6)]
     fn task_can_timer(mut cx: task_can_timer::Context) {
         task_start!(cx, Task::CanTx);
         let ticks = app::monotonics::now().ticks();
@@ -178,7 +178,7 @@ mod app {
     }
 
     /// Scan the keyboard
-    #[task(local = [keyboard], shared = [statistics], priority=7)]
+    #[task(local = [keyboard], shared = [statistics], priority=5)]
     fn task_keyboard(mut cx: task_keyboard::Context) {
         task_start!(cx, Task::Keys);
 
@@ -189,7 +189,7 @@ mod app {
     }
 
     /// The controller contains the complete logic for processing the data and events
-    #[task(local = [controller], shared = [core_model, statistics], priority=5)]
+    #[task(local = [controller], shared = [core_model, statistics], priority=3)]
     fn task_controller(mut cx: task_controller::Context) {
         task_start!(cx, Task::Controller);
 
@@ -211,7 +211,7 @@ mod app {
 
     /// Prepares the display and passes the data to the appropriate output routines.
     /// This mainly concerns the LCD but also the sound output.
-    #[task(local = [view], shared = [core_model, statistics], priority=5)]
+    #[task(local = [view], shared = [core_model, statistics], priority=3)]
     fn task_view(mut cx: task_view::Context) {
         task_start!(cx, Task::LcdView);
 
@@ -228,7 +228,7 @@ mod app {
     }
 
     /// Copies the data from the frame buffer to the LCD
-    #[task(local = [frame_buffer], shared = [statistics], priority=4)]
+    #[task(local = [frame_buffer], shared = [statistics], priority=2)]
     fn task_lcd_copy(mut cx: task_lcd_copy::Context) {
         task_start!(cx, Task::LcdCopy);
         cx.local.frame_buffer.flush();
