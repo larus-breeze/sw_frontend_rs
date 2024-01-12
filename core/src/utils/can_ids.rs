@@ -1,5 +1,24 @@
 use core::mem::transmute;
 
+/// Definition of special ids (Object Id 4 Vario Display)
+pub enum SpecialId {
+    Sound = 0,
+    SpeedToFly = 1,
+    Ignore = 2,
+}
+
+impl From<u16> for SpecialId {
+    fn from(value: u16) -> Self {
+        if value > SpecialId::Ignore as u16 {
+            SpecialId::Ignore
+        } else {
+            // Saftey: only valid values are transmuted
+            unsafe { transmute::<u8, SpecialId>(value as u8) }
+        }
+    }
+}
+
+/// Definition of generic ids
 pub enum GenericId {
     Heartbeat = 0,
     HwFwVersion = 1,
@@ -13,11 +32,13 @@ impl From<u16> for GenericId {
         if value > GenericId::Ignore as u16 {
             GenericId::Ignore
         } else {
+            // Saftey: only valid values are transmuted
             unsafe { transmute::<u8, GenericId>(value as u8) }
         }
     }
 }
 
+/// Definition of changeable values in SetSysSetting
 #[repr(u16)]
 pub enum SysConfigId {
     VolumeVario = 0,

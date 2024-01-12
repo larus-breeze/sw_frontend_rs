@@ -1,7 +1,6 @@
+use crate::{GenericId, SpecialId, SysConfigId, SysValueId};
 use byteorder::{ByteOrder, LittleEndian as LE};
 use can_dispatch::*;
-use crate::{GenericId, SysConfigId, SysValueId};
-
 
 const OBJECT_ID: u16 = 4;
 const OBJECT_ID_GEN: u16 = 0;
@@ -13,7 +12,7 @@ pub fn can_frame_sound(frequency: u16, volume: u8, duty_cycle: u16, continuous: 
             .push_u16(duty_cycle)
             .push_u8(volume)
             .push_u8(if continuous { 1 } else { 0 }),
-        0,
+        SpecialId::Sound as u16,
         OBJECT_ID,
     )
 }

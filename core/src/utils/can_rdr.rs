@@ -1,6 +1,6 @@
 use crate::{
     AirSpeed, CoreModel, FloatToAcceleration, FloatToAngularVelocity, FloatToDensity, FloatToMass,
-    FloatToPressure, FloatToSpeed, FlyMode, SysConfigId, GenericId,
+    FloatToPressure, FloatToSpeed, FlyMode, GenericId, SysConfigId,
 };
 use byteorder::{ByteOrder, LittleEndian as LE};
 use can_dispatch::*;
