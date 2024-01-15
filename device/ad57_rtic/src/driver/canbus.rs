@@ -1,7 +1,5 @@
 use bxcan::{filter::Mask32, Data, Fifo, Frame, Id, Interrupt, StandardId};
-use can_dispatch::CanFrame;
-use corelib::basic_config::MAX_TX_FRAMES;
-use heapless::Vec;
+use can_dispatch::{CanFrame, CTxIrqFrames};
 use stm32f4xx_hal::{
     can::{Can, CanExt},
     gpio::Pin,
@@ -9,7 +7,12 @@ use stm32f4xx_hal::{
 };
 
 /// Initialize peripheral bxcan and generate instances to send and receive can bus frames
-pub fn init_can(can_1: CAN1, tx: Pin<'A', 12>, rx: Pin<'A', 11>) -> (CanTx, CanRx) {
+pub fn init_can <const MAX_TX_FRAMES: usize> (
+    can_1: CAN1, 
+    tx: Pin<'A', 12>, 
+    rx: Pin<'A', 11>,
+    c_tx_irq_frames: CTxIrqFrames<MAX_TX_FRAMES>,
+) -> (CanTx<MAX_TX_FRAMES>, CanRx) {
     let mut can = {
         let rx = rx.into_alternate::<9>();
         let tx = tx.into_alternate::<9>();
@@ -32,33 +35,34 @@ pub fn init_can(can_1: CAN1, tx: Pin<'A', 12>, rx: Pin<'A', 11>) -> (CanTx, CanR
     can.enable_interrupt(Interrupt::TransmitMailboxEmpty);
 
     let (tx, rx0, _rx1) = can.split();
-    let tx_can = CanTx::new(tx);
+    let tx_can = CanTx::new(tx, c_tx_irq_frames);
     let rx_can = CanRx::new(rx0);
     (tx_can, rx_can)
 }
 
 /// Interrupt service for sending can bus frames
 #[allow(unused)]
-pub struct CanTx {
+pub struct CanTx <const MAX_TX_FRAMES: usize> {
     tx: bxcan::Tx<Can<CAN1>>,
     pub wakeup_at: u64, // just memory for isr
-    buf: Vec<CanFrame, MAX_TX_FRAMES>,
+    c_tx_irq_frames: CTxIrqFrames<MAX_TX_FRAMES>,
 }
 
-impl CanTx {
+impl <const MAX_TX_FRAMES: usize> CanTx <MAX_TX_FRAMES> {
     /// Generate the service
-    fn new(tx: bxcan::Tx<Can<CAN1>>) -> Self {
+    fn new(tx: bxcan::Tx<Can<CAN1>>, c_tx_irq_frames: CTxIrqFrames<MAX_TX_FRAMES>) -> Self {
         CanTx {
             tx,
             wakeup_at: 0,
-            buf: Vec::new(),
+            c_tx_irq_frames,
         }
     }
 
     /// Method to call during an active interrupt
     pub fn on_interrupt(&mut self) {
         self.tx.clear_interrupt_flags(); // we want receive next irqs
-        if let Some(can_frame) = self.buf.pop() {
+        if self.c_tx_irq_frames.len() > 0 {
+            let can_frame = self.c_tx_irq_frames.dequeue().unwrap();
             let id = StandardId::new(can_frame.id()).unwrap();
             let bx_frame = if can_frame.is_rtr() {
                 Frame::new_remote(id, can_frame.dlc())
@@ -68,10 +72,6 @@ impl CanTx {
             };
             let _ = self.tx.transmit(&bx_frame); // Silently ignore errors
         }
-    }
-
-    pub fn send_frame(&mut self, can_frame: CanFrame) {
-        let _ = self.buf.push(can_frame);
     }
 }
 

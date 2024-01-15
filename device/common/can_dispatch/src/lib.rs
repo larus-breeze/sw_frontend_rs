@@ -30,6 +30,11 @@ use heapless::{
 };
 
 // This queue transports the can bus frames from the view component to the can dispatcher.
+pub type QTxIrqFrames<const MAX_TX_FRAMES: usize> = Queue<CanFrame, MAX_TX_FRAMES>;
+pub type PTxIrqFrames<const MAX_TX_FRAMES: usize> = Producer<'static, CanFrame, MAX_TX_FRAMES>;
+pub type CTxIrqFrames<const MAX_TX_FRAMES: usize> = Consumer<'static, CanFrame, MAX_TX_FRAMES>;
+
+// This queue transports the can bus frames from the view component to the can dispatcher.
 pub type QTxFrames<const MAX_TX_FRAMES: usize> = Queue<Frame, MAX_TX_FRAMES>;
 pub type PTxFrames<const MAX_TX_FRAMES: usize> = Producer<'static, Frame, MAX_TX_FRAMES>;
 pub type CTxFrames<const MAX_TX_FRAMES: usize> = Consumer<'static, Frame, MAX_TX_FRAMES>;
@@ -63,7 +68,6 @@ pub struct CanDispatch<
     startup_stage: u8,
     next_startup_instant: Option<u64>,
     received_adgs: [bool; 16],
-    can_msg: Option<CanFrame>,
 
     // During normal operation
     vda: u16,
@@ -73,12 +77,18 @@ pub struct CanDispatch<
     object_id_filter: FnvIndexSet<u16, FILTER_ELEMENTS>,
 
     // Queues
+    p_tx_irq_frames: PTxIrqFrames<MAX_TX>,
     p_rx_frames: PRxFrames<MAX_RX>,
     c_tx_frames: CTxFrames<MAX_TX>,
 }
 
-impl<const VDA: u16, const FILTER_ELEMENTS: usize, const MAX_TX: usize, const MAX_RX: usize, RNG: CanRng>
-    CanDispatch<VDA, FILTER_ELEMENTS, MAX_TX, MAX_RX, RNG>
+impl<
+        const VDA: u16,
+        const FILTER_ELEMENTS: usize,
+        const MAX_TX: usize,
+        const MAX_RX: usize,
+        RNG: CanRng,
+    > CanDispatch<VDA, FILTER_ELEMENTS, MAX_TX, MAX_RX, RNG>
 {
     /// Initialization of the CAN dispatcher
     ///
@@ -90,6 +100,7 @@ impl<const VDA: u16, const FILTER_ELEMENTS: usize, const MAX_TX: usize, const MA
     /// output of a queue that is used to transport the CAN bus telegrams from the application.
     pub fn new(
         rng: RNG,
+        p_tx_irq_frames: PTxIrqFrames<MAX_TX>,
         p_rx_frames: PRxFrames<MAX_RX>,
         c_tx_frames: CTxFrames<MAX_TX>,
     ) -> Self {
@@ -100,7 +111,6 @@ impl<const VDA: u16, const FILTER_ELEMENTS: usize, const MAX_TX: usize, const MA
             startup_stage: 15,
             next_startup_instant: None,
             received_adgs: [false; 16],
-            can_msg: None,
 
             vda: 0,
             can_devices: [CanDevice::default(); 64],
@@ -108,6 +118,7 @@ impl<const VDA: u16, const FILTER_ELEMENTS: usize, const MAX_TX: usize, const MA
             legacy_filter: Vec::new(),
             object_id_filter: FnvIndexSet::new(),
 
+            p_tx_irq_frames,
             p_rx_frames,
             c_tx_frames,
         }
@@ -149,7 +160,7 @@ impl<const VDA: u16, const FILTER_ELEMENTS: usize, const MAX_TX: usize, const MA
         }
         match self.op_mode {
             OpMode::Startup => self.startup_tick(ticks),
-            OpMode::Normal => None,
+            OpMode::Normal => self.norm_tick(ticks),
         }
     }
 
@@ -211,38 +222,6 @@ impl<const VDA: u16, const FILTER_ELEMENTS: usize, const MAX_TX: usize, const MA
         }
     }
 
-    pub fn tx_data(&mut self) -> Option<CanFrame> {
-        match self.can_msg {
-            Some(can_frame) => {
-                self.can_msg = None;
-                // clear the queue, we are in startup phase
-                while self.c_tx_frames.len() > 0 {
-                    let _ = self.c_tx_frames.dequeue();
-                }
-                Some(can_frame)
-            }
-            None => {
-                if let Some(frame) = self.c_tx_frames.dequeue() {
-                    match frame {
-                        Frame::Legacy(can_frame) => Some(can_frame),
-                        Frame::Generic(generic_frame) => {
-                            let mut can_frame = generic_frame.can_frame;
-                            can_frame.set_id(self.heartbeat_id() + generic_frame.generic_id);
-                            Some(can_frame)
-                        }
-                        Frame::Specific(specific_frame) => {
-                            let mut can_frame = specific_frame.can_frame;
-                            can_frame.set_id(self.base_id() + specific_frame.specific_id);
-                            Some(can_frame)
-                        }
-                    }
-                } else {
-                    None
-                }
-            }
-        }
-    }
-
     fn startup_tick(&mut self, ticks: u64) -> Option<u64> {
         // send no information frames during startup
         while self.c_tx_frames.len() > 0 {
@@ -255,7 +234,7 @@ impl<const VDA: u16, const FILTER_ELEMENTS: usize, const MAX_TX: usize, const MA
                 next = Some(ticks + self.rng.random(500_000, 600_000) as u64);
                 self.startup_stage = 15;
                 let can_frame = CanFrame::remote_trans_rq(self.startup_stage as u16, 0);
-                self.can_msg = Some(can_frame);
+                let _ = self.p_tx_irq_frames.enqueue(can_frame);
                 self.received_adgs = [false; 16];
             }
             Some(current) => {
@@ -284,13 +263,34 @@ impl<const VDA: u16, const FILTER_ELEMENTS: usize, const MAX_TX: usize, const MA
                         next = Some(current + self.rng.random(34_000, 67_000) as u64);
                         CanFrame::remote_trans_rq(self.startup_stage as u16, 0)
                     };
-                    self.can_msg = Some(can_frame);
+                    let _ = self.p_tx_irq_frames.enqueue(can_frame);
                     self.received_adgs = [false; 16];
                 }
             }
         };
         self.next_startup_instant = next;
         next
+    }
+
+    pub fn norm_tick(&mut self, _ticks: u64) -> Option<u64> {
+        while self.c_tx_frames.len() > 0 {
+            let frame = self.c_tx_frames.dequeue().unwrap();
+            let can_frame = match frame {
+                Frame::Legacy(can_frame) => can_frame,
+                Frame::Generic(generic_frame) => {
+                    let mut can_frame = generic_frame.can_frame;
+                    can_frame.set_id(self.heartbeat_id() + generic_frame.generic_id);
+                    can_frame
+                }
+                Frame::Specific(specific_frame) => {
+                    let mut can_frame = specific_frame.can_frame;
+                    can_frame.set_id(self.base_id() + specific_frame.specific_id);
+                    can_frame
+                }
+            };
+            let _ = self.p_tx_irq_frames.enqueue(can_frame);
+        }
+        None
     }
 
     fn heartbeat_id(&self) -> u16 {

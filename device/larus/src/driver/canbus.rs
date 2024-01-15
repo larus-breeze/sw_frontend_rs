@@ -1,4 +1,4 @@
-use can_dispatch::CanFrame;
+use can_dispatch::{CanFrame, CTxIrqFrames};
 use core::num::{NonZeroU16, NonZeroU8};
 use fdcan::{
     config::NominalBitTiming,
@@ -12,12 +12,13 @@ use fdcan::{
 use stm32h7xx_hal::{can, gpio::Pin, gpio::Speed, pac::FDCAN1, prelude::*, rcc::rec::Fdcan};
 
 /// Initialize peripheral bxcan and generate instances to send and receive can bus frames
-pub fn init_can(
+pub fn init_can<const MAX_TX: usize>(
     fdcan_prec: Fdcan,
     fdcan_1: FDCAN1,
     rx: Pin<'B', 8>,
     tx: Pin<'B', 9>,
-) -> (CanTx, CanRx) {
+    c_tx_irq_frames: CTxIrqFrames<MAX_TX>,
+) -> (CanTx<MAX_TX>, CanRx) {
     let mut can = {
         let rx = rx.into_alternate::<9>().speed(Speed::VeryHigh);
         let tx = tx.into_alternate::<9>().speed(Speed::VeryHigh);
@@ -40,6 +41,7 @@ pub fn init_can(
         StandardFilter::accept_all_into_fifo0(),
     );
     can.set_protocol_exception_handling(false);
+    can.select_interrupt_line_1(Interrupts::TX_COMPLETE);
 
     // Unsafe during init of peripheral is ok
     unsafe {
@@ -47,43 +49,53 @@ pub fn init_can(
         core::ptr::write_volatile(0x4000a0e0 as *mut u32, 0xffff_ffff);
     }
     let mut can = can.into_normal();
-    //let mut can = can.into_normal();
 
     // can.enable_interrupt(Interrupt::RxFifo0NewMsg);
     can.enable_interrupt_line(InterruptLine::_0, true);
-    can.enable_interrupts(Interrupts::RX_FIFO0_NEW_MSG);
+    can.enable_interrupt_line(InterruptLine::_1, true);
+    can.enable_interrupts(Interrupts::RX_FIFO0_NEW_MSG | Interrupts::TX_COMPLETE);
 
     let (ctrl, tx, rx, _) = can.split();
-    let tx_can = CanTx::new(tx);
+    let tx_can = CanTx::new(tx, c_tx_irq_frames);
     let rx_can = CanRx::new(rx, ctrl);
     (tx_can, rx_can)
 }
 
 /// Interrupt service for sending can bus frames
 #[allow(unused)]
-pub struct CanTx {
+pub struct CanTx<const MAX_TX: usize> {
     tx: Tx<can::Can<FDCAN1>, NormalOperationMode>,
+    c_tx_irq_frames: CTxIrqFrames<MAX_TX>,
     pub wakeup_at: u64, // just memory for isr
 }
 
-impl CanTx {
+impl <const MAX_TX: usize> CanTx <MAX_TX> {
     /// Generate the service
-    fn new(tx: Tx<can::Can<FDCAN1>, NormalOperationMode>) -> Self {
-        CanTx { tx, wakeup_at: 0 }
+    fn new(
+        tx: Tx<can::Can<FDCAN1>, NormalOperationMode>,
+        c_tx_irq_frames: CTxIrqFrames<MAX_TX>,
+    ) -> Self {
+        CanTx { tx, wakeup_at: 0, c_tx_irq_frames }
     }
 
     /// Method to call during an active interrupt
-    pub fn send_frame(&mut self, can_frame: CanFrame) {
-        let header = TxFrameHeader {
-            len: can_frame.dlc(),
-            id: StandardId::new(can_frame.id()).unwrap().into(),
-            frame_format: FrameFormat::Standard,
-            bit_rate_switching: false,
-            marker: None,
-        };
-        let buffer = can_frame.data();
-        // so the result of transmit is ignored
-        let _r = self.tx.transmit(header, buffer);
+    pub fn on_interrupt(&mut self) {
+        self.tx.clear_transmission_completed_flag(); // we want receive next irqs
+
+        if self.c_tx_irq_frames.len() > 0 {
+            let can_frame = self.c_tx_irq_frames.dequeue().unwrap();
+            let header = TxFrameHeader {
+                len: can_frame.dlc(),
+                id: StandardId::new(can_frame.id()).unwrap().into(),
+                frame_format: FrameFormat::Standard,
+                bit_rate_switching: false,
+                marker: None,
+            };
+            let buffer = can_frame.data();
+            // so the result of transmit is ignored
+            let _r = self.tx.transmit(header, buffer);
+    
+        }
     }
 }
 
