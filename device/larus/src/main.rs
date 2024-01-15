@@ -11,7 +11,6 @@ mod utils;
 #[allow(unused)]
 use defmt::trace;
 use defmt_rtt as _;
-use panic_rtt_target as _;
 use stm32h7xx_hal::interrupt;
 use corelib::basic_config::MAX_TX_FRAMES;
 

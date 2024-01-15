@@ -12,6 +12,7 @@ mod fmc_lcd;
 mod frame_buffer;
 mod init;
 mod keyboard;
+mod panic;
 mod rng_uuid;
 mod sys_timer;
 
@@ -21,6 +22,7 @@ pub use fmc_lcd::*;
 pub use frame_buffer::*;
 pub use init::*;
 pub use keyboard::*;
+pub use panic::*;
 pub use rng_uuid::*;
 pub use sys_timer::*;
 

@@ -8,7 +8,6 @@ use cortex_m_rt::entry;
 use defmt::*;
 use defmt_rtt as _;
 use driver::*;
-use panic_rtt_target as _;
 use stm32h7xx_hal::{
     pac::{CorePeripherals, Peripherals as DevicePeripherals},
     prelude::*,
@@ -29,6 +28,7 @@ fn main() -> ! {
 
     // Initialize clock system
     let rcc = dp.RCC.constrain();
+
     let ccdr = rcc
         .use_hse(25.MHz())
         .sys_ck(200.MHz())

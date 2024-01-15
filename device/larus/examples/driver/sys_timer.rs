@@ -11,7 +11,6 @@
 /// Note: uses TIM2 as time base
 use defmt::*;
 use defmt_rtt as _;
-use panic_rtt_target as _;
 
 use core::{
     cell::RefCell,
