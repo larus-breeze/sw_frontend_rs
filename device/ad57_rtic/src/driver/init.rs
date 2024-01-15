@@ -11,7 +11,7 @@ use crate::{
 };
 use can_dispatch::{CanDispatch, QRxFrames, QTxFrames, QTxIrqFrames};
 use corelib::{
-    basic_config::{MAX_RX_FRAMES, MAX_TX_FRAMES},
+    basic_config::{MAX_RX_FRAMES, MAX_TX_FRAMES, VDA},
     CoreModel, Event, QIdleEvents,
 };
 /// In the embedded rust ecosystem, hardware resources can only be used in one place. For this
@@ -43,7 +43,7 @@ pub type QEvents = MpMcQueue<Event, 8>;
 // pub type KeyBacklight = Pin<Output<PushPull>, 'A', 3>;
 pub type DevDisplay = Display;
 
-pub type DevCanDispatch = CanDispatch<32, 8, MAX_TX_FRAMES, MAX_RX_FRAMES, DevRng>;
+pub type DevCanDispatch = CanDispatch<VDA, 8, MAX_TX_FRAMES, MAX_RX_FRAMES, DevRng>;
 
 pub fn hw_init(
     device: pac::Peripherals,
