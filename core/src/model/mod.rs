@@ -1,10 +1,12 @@
+mod persistence;
+
 use crate::{
     basic_config::MAX_TX_FRAMES,
     utils::{DeviceEvent, PIdleEvents},
-    {IdleEvent, Mass, PersistenceId, PersistenceItem},
 };
 use can_dispatch::PTxFrames;
 use embedded_graphics::geometry::{Angle, AngleUnit};
+use heapless::FnvIndexSet;
 
 use crate::{
     controller::Editable,
@@ -13,8 +15,10 @@ use crate::{
         Acceleration, AngularVelocity, FloatToAcceleration, FloatToAngularVelocity, FloatToSpeed,
         Pressure, Speed,
     },
-    AirSpeed, Density,
+    AirSpeed, Density, PersistenceId,
 };
+
+pub const MAX_PERS_IDS: usize = 8;
 
 /// Data model for the entire device
 ///
@@ -57,32 +61,6 @@ impl CoreModel {
             p_tx_frames,
         }
     }
-
-    pub fn send_idle_event(&mut self, idle_event: IdleEvent) {
-        let _ = self.p_idle_events.enqueue(idle_event);
-    }
-
-    pub fn restore_persistent_item(&mut self, item: PersistenceItem) {
-        match item.id {
-            PersistenceId::Volume => self.config.volume = item.to_i8(),
-            PersistenceId::McCready => self.config.mc_cready = Speed::from_m_s(item.to_f32()),
-            PersistenceId::WaterBallast => {
-                self.glider_data.water_ballast = Mass::from_kg(item.to_f32())
-            }
-            PersistenceId::PilotWeight => {
-                self.glider_data.pilot_weight = Mass::from_kg(item.to_f32())
-            }
-            PersistenceId::Glider => self.config.glider_idx = item.to_i32(),
-            _ => (),
-        }
-    }
-
-    /*fn send_frame(&mut self) {
-        let frame = Frame::new_data(StandardId::new(self.frame_count).unwrap(), []);
-        let _ = self.p_tx_frames.enqueue(frame);
-        self.frame_count += 1;
-        trace!("Can paket enqueued")
-    }*/
 }
 
 /// Flymode display variants
@@ -202,6 +180,8 @@ pub struct Control {
     pub edit_mode: EditMode,
     pub edit_var: Editable,
     pub edit_ticks: u32,   // Used by the editor for the timeout
+    pub pers_ticks: u32,
+    pub pers_vals: FnvIndexSet<PersistenceId, MAX_PERS_IDS>,
     pub demo_acitve: bool, // Activates the demo mode
     pub firmware_update_state: DeviceEvent,
 }
@@ -217,6 +197,8 @@ impl Default for Control {
             edit_mode: EditMode::Section,
             edit_var: Editable::ClimbRate,
             edit_ticks: 0,
+            pers_ticks: 0,
+            pers_vals: FnvIndexSet::new(),
             demo_acitve: false,
             firmware_update_state: DeviceEvent::UploadFinished,
         }
