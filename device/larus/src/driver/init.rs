@@ -12,6 +12,7 @@ use stm32h7xx_hal::{
     pac::Peripherals as DevicePeripherals,
     prelude::*,
     rcc::{rec, rec::FmcClkSel},
+    independent_watchdog::IndependentWatchdog,
 };
 
 pub type DevCanDispatch = CanDispatch<VDA, 8, MAX_TX_FRAMES, MAX_RX_FRAMES, DevRng>;
@@ -177,8 +178,9 @@ pub fn hw_init(
         for item in eeprom.iter_over(corelib::EepromTopic::ConfigValues) {
             core_model.restore_persistent_item(item);
         }
+        let watchdog = IndependentWatchdog::new(dp.IWDG);
 
-        IdleLoop::new(eeprom, c_idle_events, &Q_EVENTS)
+        IdleLoop::new(eeprom, c_idle_events, &Q_EVENTS, watchdog)
     };
 
     info!("Larus Ad57 finished");
