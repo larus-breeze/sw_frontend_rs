@@ -1,7 +1,7 @@
 use crate::{driver::*, utils::*, DevController, DevView, IdleLoop};
 use can_dispatch::{CanDispatch, QRxFrames, QTxFrames, QTxIrqFrames};
 use corelib::{
-    basic_config::{MAX_RX_FRAMES, MAX_TX_FRAMES},
+    basic_config::{MAX_RX_FRAMES, MAX_TX_FRAMES, VDA},
     CoreModel, QIdleEvents,
 };
 use cortex_m::peripheral::Peripherals as CorePeripherals;
@@ -14,7 +14,7 @@ use stm32h7xx_hal::{
     rcc::{rec, rec::FmcClkSel},
 };
 
-pub type DevCanDispatch = CanDispatch<32, 8, MAX_TX_FRAMES, MAX_RX_FRAMES, DevRng>;
+pub type DevCanDispatch = CanDispatch<VDA, 8, MAX_TX_FRAMES, MAX_RX_FRAMES, DevRng>;
 
 pub fn hw_init(
     dp: DevicePeripherals,

@@ -43,6 +43,7 @@ use micromath::F32Ext;
 pub mod basic_config {
     pub const MAX_TX_FRAMES: usize = 10;
     pub const MAX_RX_FRAMES: usize = 30;
+    pub const VDA: u16 = 38; // heartbeat at 0x680
 
     pub const DISPLAY_WIDTH: u32 = 227;
     pub const DISPLAY_HEIGHT: u32 = 285;
@@ -73,6 +74,7 @@ pub mod basic_config {
 pub mod basic_config {
     pub const MAX_TX_FRAMES: usize = 10;
     pub const MAX_RX_FRAMES: usize = 30;
+    pub const VDA: u16 = 38; // heartbeat at 0x680
 
     pub const DISPLAY_WIDTH: u32 = 240;
     pub const DISPLAY_HEIGHT: u32 = 320;
