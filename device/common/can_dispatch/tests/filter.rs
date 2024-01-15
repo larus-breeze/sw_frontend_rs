@@ -7,15 +7,22 @@ use can_dispatch::*;
 fn filter() {
     let mut ticks: u64 = 0;
     #[allow(unused)]
-    let (mut p_tx_frames, mut c_tx_frames, mut p_rx_frames, mut c_rx_frames) =
-        get_the_queues();
+    let (
+        mut p_tx_irq_frames,
+        mut c_tx_irq_frames,
+        mut p_tx_frames,
+        mut c_tx_frames,
+        mut p_rx_frames,
+        mut c_rx_frames,
+    ) = get_the_queues();
 
-    let mut dis = CanDispatch::<32, 8, 10, 30, Rng>::new(Rng{}, p_rx_frames, c_tx_frames);
+    let mut dis =
+        CanDispatch::<32, 8, 10, 30, Rng>::new(Rng {}, p_tx_irq_frames, p_rx_frames, c_tx_frames);
 
     // Startup and negotiating the basic_id
     for _ in 1..15 {
         let nt = dis.tick(ticks);
-        let _ = dis.tx_data(); // clear the queue
+        let _ = c_tx_irq_frames.dequeue(); // clear the queue
         if nt.is_none() {
             break;
         }

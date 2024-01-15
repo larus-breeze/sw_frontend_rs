@@ -32,8 +32,10 @@ mod macros;
 mod utils;
 
 use defmt_rtt as _;
+use stm32f4xx_hal::interrupt;
 
 use corelib::*;
+use corelib::basic_config::MAX_TX_FRAMES;
 use dev_controller::*;
 use dev_view::*;
 use driver::*;
@@ -53,7 +55,7 @@ mod app {
         can_dispatch: DevCanDispatch, // Dispatcher for CAN frames
         core_model: CoreModel,        // holds the application data
         statistics: Statistics,       // track the task runtimes
-        can_tx: CanTx,                // transmit can pakets
+        can_tx: CanTx<MAX_TX_FRAMES>, // transmit can pakets
     }
 
     /// Data required by single tasks
@@ -151,29 +153,15 @@ mod app {
         task_start!(cx, Task::CanTx);
         let ticks = app::monotonics::now().ticks();
 
-        let next_wakeup = cx
-            .shared
-            .can_dispatch
-            .lock(|can_dispatch| can_dispatch.tick(ticks));
+        let next_wakeup = cx.shared.can_dispatch.lock(|can_dispatch| {
+            can_dispatch.tick(ticks)}
+        );
         let instant = cx.shared.can_tx.lock(|can_tx| {
             can_tx.wakeup_at = next_wakeup.unwrap_or(can_tx.wakeup_at + 100_000);
             DevInstant::from_ticks(can_tx.wakeup_at)
         });
         task_can_timer::spawn_at(instant).unwrap();
-
-        loop {
-            let can_frame = cx
-                .shared
-                .can_dispatch
-                .lock(|can_dispatch| can_dispatch.tx_data());
-            if let Some(can_frame) = can_frame {
-                cx.shared.can_tx.lock(|can_tx| {
-                    can_tx.send_frame(can_frame);
-                })
-            } else {
-                break;
-            }
-        }
+        rtic::pend(interrupt::CAN1_TX);
         task_end!(cx, Task::CanTx);
     }
 

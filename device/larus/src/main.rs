@@ -12,6 +12,8 @@ mod utils;
 use defmt::trace;
 use defmt_rtt as _;
 use panic_rtt_target as _;
+use stm32h7xx_hal::interrupt;
+use corelib::basic_config::MAX_TX_FRAMES;
 
 use corelib::*;
 use dev_controller::*;
@@ -31,6 +33,7 @@ mod app {
     #[shared]
     struct Shared {
         can_dispatch: DevCanDispatch,
+        can_tx: CanTx<MAX_TX_FRAMES>,
         core_model: CoreModel,
         frame_buffer: FrameBuffer,
         statistics: Statistics,
@@ -39,7 +42,6 @@ mod app {
     #[local]
     struct Local {
         can_rx: CanRx,
-        can_tx: CanTx,
         controller: DevController,
         dev_view: DevView,
         idle_loop: IdleLoop,
@@ -71,13 +73,13 @@ mod app {
         (
             Shared {
                 can_dispatch,
+                can_tx,
                 core_model,
                 frame_buffer,
                 statistics,
             },
             Local {
                 can_rx,
-                can_tx,
                 controller,
                 dev_view,
                 idle_loop,
@@ -105,22 +107,31 @@ mod app {
         task_end!(cx, Task::Can);
     }
 
+    /// Transmit can frames
+    #[task(binds = FDCAN1_IT1, shared = [can_tx, statistics], priority=5)]
+    fn isr_can_tx(mut cx: isr_can_tx::Context) {
+        task_start!(cx, Task::Can);
+        cx.shared.can_tx.lock(|can_tx| { can_tx.on_interrupt() });
+        task_end!(cx, Task::Can);
+    }
+
     /// Task to support can dispatcher with timing functions
-    #[task(local = [can_tx], shared = [statistics, can_dispatch], priority=5)]
+    #[task(shared = [statistics, can_dispatch, can_tx], priority=5)]
     fn task_can_timer(mut cx: task_can_timer::Context) {
         task_start!(cx, Task::Can);
 
         let ticks = app::monotonics::now().ticks();
         let next_wakeup = cx.shared.can_dispatch.lock(|can_dispatch| {
-            let next_wakeup = can_dispatch.tick(ticks);
-            while let Some(can_frame) = can_dispatch.tx_data() {
-                cx.local.can_tx.send_frame(can_frame)
-            }
-            next_wakeup
+            can_dispatch.tick(ticks)
         });
-        cx.local.can_tx.wakeup_at = next_wakeup.unwrap_or(cx.local.can_tx.wakeup_at + 100_000);
-        let instant = DevInstant::from_ticks(cx.local.can_tx.wakeup_at);
+        let wakeup_at = cx.shared.can_tx.lock(|can_tx| {
+            let wakeup_at = next_wakeup.unwrap_or(can_tx.wakeup_at + 100_000);
+            can_tx.wakeup_at = wakeup_at;
+            wakeup_at
+        });
+        let instant = DevInstant::from_ticks(wakeup_at);
         task_can_timer::spawn_at(instant).unwrap();
+        rtic::pend(interrupt::FDCAN1_IT1);
         task_end!(cx, Task::Can);
     }
 

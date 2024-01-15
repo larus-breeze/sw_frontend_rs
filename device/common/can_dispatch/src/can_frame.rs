@@ -201,7 +201,7 @@ impl CanFrame {
         let idx = self.len as usize;
         let len = src.len();
         self.len += len as u8;
-        self.data[idx..idx+len].copy_from_slice(&src);
+        self.data[idx..idx + len].copy_from_slice(src);
         self
     }
 }

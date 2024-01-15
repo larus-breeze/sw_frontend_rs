@@ -9,7 +9,7 @@ use crate::{
     utils::{FileSys, SdioPins},
     Statistics,
 };
-use can_dispatch::{CanDispatch, QRxFrames, QTxFrames};
+use can_dispatch::{CanDispatch, QRxFrames, QTxFrames, QTxIrqFrames};
 use corelib::{
     basic_config::{MAX_RX_FRAMES, MAX_TX_FRAMES},
     CoreModel, Event, QIdleEvents,
@@ -51,7 +51,7 @@ pub fn hw_init(
 ) -> (
     DevCanDispatch,
     CanRx,
-    CanTx,
+    CanTx<MAX_TX_FRAMES>,
     DevController,
     CoreModel,
     DevMonoTimer,
@@ -87,6 +87,13 @@ pub fn hw_init(
 
     // Setup ----------> the queues
     // This queue transports the can bus frames from the view component to the can tx driver.
+    let (p_tx_irq_frames, c_tx_irq_frames) = {
+        static mut Q_TX_IRQ_FRAMES: QTxIrqFrames<MAX_TX_FRAMES> = Queue::new();
+        // Note: unsafe is ok here, because [heapless::spsc] queue protects against UB
+        unsafe { Q_TX_IRQ_FRAMES.split() }
+    };
+
+    // This queue transports the can bus frames from the view component to the can tx driver.
     let (p_tx_frames, c_tx_frames) = {
         static mut Q_TX_FRAMES: QTxFrames<MAX_TX_FRAMES> = Queue::new();
         // Note: unsafe is ok here, because [heapless::spsc] queue protects against UB
@@ -111,12 +118,12 @@ pub fn hw_init(
     static Q_EVENTS: QEvents = MpMcQueue::new();
 
     // Setup ----------> can bus interface
-    let (can_tx, can_rx) = init_can(device.CAN1, gpioa.pa12, gpioa.pa11);
+    let (can_tx, can_rx) = init_can(device.CAN1, gpioa.pa12, gpioa.pa11, c_tx_irq_frames);
 
     let rng = device.RNG.constrain(&clocks);
     let rnd = DevRng::new(rng);
 
-    let mut can_dispatch: DevCanDispatch = CanDispatch::new(rnd, p_rx_frames, c_tx_frames);
+    let mut can_dispatch: DevCanDispatch = CanDispatch::new(rnd, p_tx_irq_frames, p_rx_frames, c_tx_frames);
     can_dispatch.set_legacy_filter(0x100, 0x120).unwrap();
 
     // Setup ----------> statistics

@@ -1,5 +1,5 @@
 use crate::{driver::*, utils::*, DevController, DevView, IdleLoop};
-use can_dispatch::{CanDispatch, QRxFrames, QTxFrames};
+use can_dispatch::{CanDispatch, QRxFrames, QTxFrames, QTxIrqFrames};
 use corelib::{
     basic_config::{MAX_RX_FRAMES, MAX_TX_FRAMES},
     CoreModel, QIdleEvents,
@@ -22,7 +22,7 @@ pub fn hw_init(
 ) -> (
     DevCanDispatch,
     CanRx,
-    CanTx,
+    CanTx<MAX_TX_FRAMES>,
     CoreModel,
     DevController,
     DevView,
@@ -33,6 +33,13 @@ pub fn hw_init(
     Statistics,
 ) {
     // Setup ----------> the queues
+
+    // This queue transports the can bus frames from the can dispatcher to the irq routine.
+    let (p_tx_irq_frames, c_tx_irq_frames) = {
+        static mut Q_TX_IRQ_FRAMES: QTxIrqFrames<MAX_TX_FRAMES> = Queue::new();
+        // Note: unsafe is ok here, because [heapless::spsc] queue protects against UB
+        unsafe { Q_TX_IRQ_FRAMES.split() }
+    };
 
     // This queue transports the can bus frames from the can dispatcher to the controller.
     let (p_rx_frames, c_rx_frames) = {
@@ -105,13 +112,13 @@ pub fn hw_init(
             .FDCAN
             .kernel_clk_mux(rec::FdcanClkSel::Pll1Q);
         let fdcan_1 = dp.FDCAN1;
-        init_can(fdcan_prec, fdcan_1, gpiob.pb8, gpiob.pb9)
+        init_can(fdcan_prec, fdcan_1, gpiob.pb8, gpiob.pb9, c_tx_irq_frames)
     };
 
     let rng = dp.RNG.constrain(ccdr.peripheral.RNG, &ccdr.clocks);
     let rnd = DevRng::new(rng);
 
-    let mut can_dispatch = CanDispatch::new(rnd, p_rx_frames, c_tx_frames);
+    let mut can_dispatch = CanDispatch::new(rnd, p_tx_irq_frames, p_rx_frames, c_tx_frames);
     can_dispatch.set_legacy_filter(0x100, 0x120).unwrap();
 
     // Setup ----------> Frame buffer, Display
