@@ -5,7 +5,6 @@ mod driver;
 
 use defmt::*;
 use defmt_rtt as _;
-use panic_rtt_target as _;
 
 use cortex_m_rt::entry;
 use stm32h7xx_hal::{pac, prelude::*};

@@ -17,6 +17,8 @@ mod frame_buffer;
 #[allow(unused)]
 mod keyboard;
 #[allow(unused)]
+mod panic;
+#[allow(unused)]
 mod sys_timer;
 
 pub use canbus::*;
@@ -24,6 +26,7 @@ pub use eeprom::*;
 pub use fmc_lcd::*;
 pub use frame_buffer::*;
 pub use keyboard::*;
+pub use panic::*;
 pub use sys_timer::*;
 
 pub type QEvents = MpMcQueue<Event, 8>;

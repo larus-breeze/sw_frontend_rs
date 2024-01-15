@@ -476,16 +476,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "panic-rtt-target"
-version = "0.1.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0d6ab67bc881453e4c90f958c657c1303670ea87bc1a16e87fd71a40f656dce9"
-dependencies = [
- "cortex-m",
- "rtt-target",
-]
-
-[[package]]
 name = "paste"
 version = "1.0.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -555,15 +545,6 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 1.0.109",
-]
-
-[[package]]
-name = "rtt-target"
-version = "0.3.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "065d6058bb1204f51a562a67209e1817cf714759d5cf845aa45c75fa7b0b9d9b"
-dependencies = [
- "ufmt-write",
 ]
 
 [[package]]
@@ -747,12 +728,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "ufmt-write"
-version = "0.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e87a2ed6b42ec5e28cc3b94c09982969e9227600b2e3dcbc1db927a84c06bd69"
-
-[[package]]
 name = "unicode-ident"
 version = "1.0.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -774,11 +749,11 @@ dependencies = [
  "embedded-graphics",
  "embedded-hal",
  "embedded-sdmmc",
+ "embedded-storage",
  "fdcan",
  "fugit",
  "heapless 0.8.0",
  "nb 1.1.0",
- "panic-rtt-target",
  "rtic-monotonic",
  "sdio-host",
  "st7789",

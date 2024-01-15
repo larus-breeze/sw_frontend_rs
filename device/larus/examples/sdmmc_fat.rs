@@ -5,7 +5,6 @@ mod driver;
 use defmt::assert_eq;
 use defmt::*;
 use defmt_rtt as _;
-use panic_rtt_target as _;
 
 use stm32h7xx_hal::gpio::Speed;
 
