@@ -124,7 +124,7 @@ mod app {
     /// Receive can frames
     #[task(binds = CAN1_RX0, local = [can_rx], shared = [statistics, can_dispatch], priority=6)]
     fn isr_can_rx(mut cx: isr_can_rx::Context) {
-        task_start!(cx, Task::CanRx);
+        task_start!(cx, Task::Can);
         loop {
             let can_frame = cx.local.can_rx.on_interrupt();
             match can_frame {
@@ -136,21 +136,21 @@ mod app {
                 }
             }
         }
-        task_end!(cx, Task::CanRx);
+        task_end!(cx, Task::Can);
     }
 
     /// Send can frames
     #[task(binds = CAN1_TX, shared = [can_tx, statistics], priority=6)]
     fn isr_can_tx(mut cx: isr_can_tx::Context) {
-        task_start!(cx, Task::CanTx);
+        task_start!(cx, Task::Can);
         cx.shared.can_tx.lock(|can_tx| can_tx.on_interrupt());
-        task_end!(cx, Task::CanTx);
+        task_end!(cx, Task::Can);
     }
 
     /// Task to support can dispatcher with timing functions
     #[task(shared = [can_tx, statistics, can_dispatch], priority=6)]
     fn task_can_timer(mut cx: task_can_timer::Context) {
-        task_start!(cx, Task::CanTx);
+        task_start!(cx, Task::Can);
         let ticks = app::monotonics::now().ticks();
 
         let next_wakeup = cx.shared.can_dispatch.lock(|can_dispatch| {
@@ -162,7 +162,7 @@ mod app {
         });
         task_can_timer::spawn_at(instant).unwrap();
         rtic::pend(interrupt::CAN1_TX);
-        task_end!(cx, Task::CanTx);
+        task_end!(cx, Task::Can);
     }
 
     /// Scan the keyboard

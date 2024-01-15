@@ -6,17 +6,16 @@ use crate::app;
 #[repr(u8)]
 #[derive(Clone, Copy, Debug)]
 pub enum Task {
-    CanRx = 0,
-    CanTx = 1,
-    LcdView = 2,
-    LcdCopy = 3,
-    Keys = 4,
+    Can = 0,
+    LcdView = 1,
+    LcdCopy = 2,
+    Keys = 3,
     Controller = MAX,
 }
 
-const MAX: u8 = 5;
+const MAX: u8 = 4;
 // Pattern defines, which taks must be active to feed the watchdog
-const ALL_ALIVE_PATTERN: u32 = 0b0001_1100;
+const ALL_ALIVE_PATTERN: u32 = 0b0001_1111;
 
 impl Task {
     pub fn from_usize(u: usize) -> Self {
@@ -31,8 +30,7 @@ impl Task {
 
 // define the task names
 const TASK_NAMES: [&str; TASK_CNT] = [
-    "can_rx",
-    "can_tx",
+    "can",
     "lcd_view",
     "lcd_copy",
     "keys",
