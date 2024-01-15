@@ -17,7 +17,7 @@ pub enum SdCardCmd {
 }
 
 #[repr(u16)]
-#[derive(Debug, Copy, Clone, PartialEq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum PersistenceId {
     DoNotStore = 65535,
     Volume = 0,

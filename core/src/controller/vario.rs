@@ -5,7 +5,7 @@ use crate::{
     model::{CoreModel, EditMode, VarioModeControl},
     system_of_units::{FloatToMass, FloatToSpeed},
     utils::{val_manip, KeyEvent},
-    SysConfigId, SysValueId,
+    SysConfigId, SysValueId, basic_config::SECTION_EDITOR_TIMEOUT,
 };
 use num::clamp;
 
@@ -110,6 +110,6 @@ impl VarioController {
             }
             _ => (),
         }
-        Result::Edit(EditMode::Section, self.edit_var, 2)
+        Result::Edit(EditMode::Section, self.edit_var, SECTION_EDITOR_TIMEOUT)
     }
 }

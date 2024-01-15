@@ -14,7 +14,7 @@ use crate::{
     model::{DisplayActive, EditMode, VarioModeControl},
     system_of_units::FloatToSpeed,
     utils::{read_can_frame, KeyEvent},
-    CoreModel, DeviceEvent, PersistenceId, PersistenceItem, VarioMode, POLARS,
+    CoreModel, DeviceEvent, PersistenceId, VarioMode, POLARS,
 };
 use can_dispatch::Frame;
 
@@ -118,33 +118,21 @@ impl CoreController {
     }
 
     pub fn time_action(&mut self, core_model: &mut CoreModel) {
+        core_model.pers_tick();
+
         // Count edit_ticks down, to close editor if necessary
         if core_model.control.edit_ticks > 0 {
             core_model.control.edit_ticks -= 1;
             if core_model.control.edit_ticks == 0 {
-                let p_item = match core_model.control.edit_var {
-                    Editable::McCready => PersistenceItem::from_f32(
-                        PersistenceId::McCready,
-                        core_model.config.mc_cready.to_m_s(),
-                    ),
-                    Editable::Volume => {
-                        PersistenceItem::from_i8(PersistenceId::Volume, core_model.config.volume)
-                    }
-                    Editable::WaterBallast => PersistenceItem::from_f32(
-                        PersistenceId::WaterBallast,
-                        core_model.glider_data.water_ballast.to_kg(),
-                    ),
-                    Editable::Glider => PersistenceItem::from_i32(
-                        PersistenceId::Glider,
-                        core_model.config.glider_idx,
-                    ),
-                    Editable::PilotWeight => PersistenceItem::from_f32(
-                        PersistenceId::PilotWeight,
-                        core_model.glider_data.pilot_weight.to_kg(),
-                    ),
-                    _ => PersistenceItem::do_not_store(),
+                let pers_id = match core_model.control.edit_var {
+                    Editable::McCready => PersistenceId::McCready,
+                    Editable::Volume => PersistenceId::Volume,
+                    Editable::WaterBallast => PersistenceId::WaterBallast,
+                    Editable::Glider => PersistenceId::Glider,
+                    Editable::PilotWeight => PersistenceId::PilotWeight,
+                    _ => PersistenceId::DoNotStore,
                 };
-                core_model.send_idle_event(crate::IdleEvent::EepromItem(p_item));
+                core_model.store_persistence_id(pers_id);
             }
         }
 
