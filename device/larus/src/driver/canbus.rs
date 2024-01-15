@@ -33,6 +33,7 @@ pub fn init_can(
         sync_jump_width: NonZeroU8::new(1).unwrap(),
     };
     can.set_nominal_bit_timing(data_bit_timing);
+    can.set_automatic_retransmit(false);
 
     can.set_standard_filter(
         StandardFilterSlot::_0,
