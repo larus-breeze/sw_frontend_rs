@@ -55,13 +55,13 @@
       {
         "type": "cortex-debug",
         "request": "launch",
-        "name": "Deb blinky",
+        "name": "Deb lcd_dma",
         "servertype": "openocd",
         "gdbPath": "/usr/bin/gdb-multiarch",
         "cwd": "${workspaceRoot}",
         "preLaunchTask": "Cargo Build Examples (debug)",
         "runToEntryPoint": "main",
-        "executable": "./target/thumbv7em-none-eabihf/debug/examples/blinky",
+        "executable": "./target/thumbv7em-none-eabihf/debug/examples/lcd_dma",
         "device": "STM32F407ZGT6",
         "configFiles": [
           "interface/stlink.cfg",
