@@ -18,6 +18,7 @@ pub fn init_can(can_1: CAN1, tx: Pin<'A', 12>, rx: Pin<'A', 11>) -> (CanTx, CanR
             // APB1 (PCLK1): 42MHz, Bit rate: 1 MBit/s, Sample Point 87.5%
             // Value was calculated with http://www.bittiming.can-wiki.info/
             .set_bit_timing(0x001a0002)
+            .set_automatic_retransmit(false)
             .enable()
     };
 
