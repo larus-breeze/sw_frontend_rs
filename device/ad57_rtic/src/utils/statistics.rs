@@ -133,7 +133,7 @@ impl Statistics {
             low_prio_stats.last_start = now;
         } else if app::monotonics::now() > self.next_show {
             let mut workload: u32 = 0;
-            info!("Task Calls Sum[ms/sec]");
+            info!("TaskCalls[/sec] Sum[ms/sec] Max[µs/loop]");
             for (idx, task_name) in TASK_NAMES.iter().enumerate().take(TASK_CNT) {
                 let stats = &mut self.stats[idx];
                 workload = workload.saturating_add(stats.sum_time);
@@ -143,8 +143,8 @@ impl Statistics {
                     0
                 };
                 info!(
-                    "{} {} {}",
-                    task_name, stats.count, sum
+                    "{} {} {} {}",
+                    task_name, stats.count/INTERVAL as u32, sum, stats.max_time
                 );
                 stats.min_time = u32::MAX;
                 stats.max_time = 0;
