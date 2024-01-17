@@ -1,6 +1,4 @@
-use crate::driver::{
-    frame_buffer::*, init_can, keyboard::*, CanRx, CanTx, MonoTimer, Storage,
-};
+use crate::driver::{frame_buffer::*, init_can, keyboard::*, CanRx, CanTx, MonoTimer, Storage};
 use crate::{
     dev_controller::DevController,
     dev_view::DevView,
@@ -30,7 +28,7 @@ use defmt::*;
 use defmt_rtt as _;
 use fmc_lcd::{DataPins16, LcdPins};
 use heapless::{mpmc::MpMcQueue, spsc::Queue};
-use stm32f4xx_hal::{pac, prelude::*, watchdog::IndependentWatchdog, pac::interrupt, pac::NVIC};
+use stm32f4xx_hal::{pac, pac::interrupt, pac::NVIC, prelude::*, watchdog::IndependentWatchdog};
 
 pub const TICKS_PER_SECOND: u32 = 1_000_000;
 pub type DevDuration = fugit::Duration<u64, 1, TICKS_PER_SECOND>;
@@ -123,7 +121,8 @@ pub fn hw_init(
     let rng = device.RNG.constrain(&clocks);
     let rnd = DevRng::new(rng);
 
-    let mut can_dispatch: DevCanDispatch = CanDispatch::new(rnd, p_tx_irq_frames, p_rx_frames, c_tx_frames);
+    let mut can_dispatch: DevCanDispatch =
+        CanDispatch::new(rnd, p_tx_irq_frames, p_rx_frames, c_tx_frames);
     can_dispatch.set_legacy_filter(0x100, 0x120).unwrap();
 
     // Setup ----------> statistics
@@ -187,7 +186,7 @@ pub fn hw_init(
             core.NVIC.set_priority(interrupt::DMA2_STREAM0, 3);
             NVIC::unmask(interrupt::DMA2_STREAM0);
         }
-        
+
         // Initialize the display and clear the screen
         (DevView::new(display), frame_buffer)
     };

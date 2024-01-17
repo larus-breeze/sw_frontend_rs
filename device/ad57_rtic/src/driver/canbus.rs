@@ -1,5 +1,5 @@
 use bxcan::{filter::Mask32, Data, Fifo, Frame, Id, Interrupt, StandardId};
-use can_dispatch::{CanFrame, CTxIrqFrames};
+use can_dispatch::{CTxIrqFrames, CanFrame};
 use stm32f4xx_hal::{
     can::{Can, CanExt},
     gpio::Pin,
@@ -7,9 +7,9 @@ use stm32f4xx_hal::{
 };
 
 /// Initialize peripheral bxcan and generate instances to send and receive can bus frames
-pub fn init_can <const MAX_TX_FRAMES: usize> (
-    can_1: CAN1, 
-    tx: Pin<'A', 12>, 
+pub fn init_can<const MAX_TX_FRAMES: usize>(
+    can_1: CAN1,
+    tx: Pin<'A', 12>,
     rx: Pin<'A', 11>,
     c_tx_irq_frames: CTxIrqFrames<MAX_TX_FRAMES>,
 ) -> (CanTx<MAX_TX_FRAMES>, CanRx) {
@@ -42,13 +42,13 @@ pub fn init_can <const MAX_TX_FRAMES: usize> (
 
 /// Interrupt service for sending can bus frames
 #[allow(unused)]
-pub struct CanTx <const MAX_TX_FRAMES: usize> {
+pub struct CanTx<const MAX_TX_FRAMES: usize> {
     tx: bxcan::Tx<Can<CAN1>>,
     pub wakeup_at: u64, // just memory for isr
     c_tx_irq_frames: CTxIrqFrames<MAX_TX_FRAMES>,
 }
 
-impl <const MAX_TX_FRAMES: usize> CanTx <MAX_TX_FRAMES> {
+impl<const MAX_TX_FRAMES: usize> CanTx<MAX_TX_FRAMES> {
     /// Generate the service
     fn new(tx: bxcan::Tx<Can<CAN1>>, c_tx_irq_frames: CTxIrqFrames<MAX_TX_FRAMES>) -> Self {
         CanTx {

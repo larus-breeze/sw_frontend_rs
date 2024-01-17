@@ -34,8 +34,8 @@ mod utils;
 use defmt_rtt as _;
 use stm32f4xx_hal::interrupt;
 
-use corelib::*;
 use corelib::basic_config::MAX_TX_FRAMES;
+use corelib::*;
 use dev_controller::*;
 use dev_view::*;
 use driver::*;
@@ -55,7 +55,7 @@ mod app {
         can_dispatch: DevCanDispatch, // Dispatcher for CAN frames
         can_tx: CanTx<MAX_TX_FRAMES>, // transmit can pakets
         core_model: CoreModel,        // holds the application data
-        frame_buffer: FrameBuffer,    // between view component and the LCD  
+        frame_buffer: FrameBuffer,    // between view component and the LCD
         statistics: Statistics,       // track the task runtimes
     }
 
@@ -153,9 +153,10 @@ mod app {
         task_start!(cx, Task::CanTimer);
         let ticks = app::monotonics::now().ticks();
 
-        let next_wakeup = cx.shared.can_dispatch.lock(|can_dispatch| {
-            can_dispatch.tick(ticks)}
-        );
+        let next_wakeup = cx
+            .shared
+            .can_dispatch
+            .lock(|can_dispatch| can_dispatch.tick(ticks));
         let instant = cx.shared.can_tx.lock(|can_tx| {
             can_tx.wakeup_at = next_wakeup.unwrap_or(can_tx.wakeup_at + 100_000);
             DevInstant::from_ticks(can_tx.wakeup_at)
@@ -209,8 +210,9 @@ mod app {
         });
         let wake_up_at = view.wake_up_at();
         task_view::spawn_at(wake_up_at).unwrap();
-        cx.shared.frame_buffer.lock(|frame_buffer| frame_buffer.flush());
-        rtic::pend(stm32f4xx_hal::interrupt::CAN1_TX);
+        cx.shared
+            .frame_buffer
+            .lock(|frame_buffer| frame_buffer.flush());
 
         task_end!(cx, Task::View);
     }
@@ -219,7 +221,9 @@ mod app {
     #[task(binds = DMA2_STREAM0, shared = [frame_buffer, statistics], priority=3)]
     fn isr_lcd_copy(mut cx: isr_lcd_copy::Context) {
         task_start!(cx, Task::LcdCopy);
-        cx.shared.frame_buffer.lock(|frame_buffer| frame_buffer.on_interrupt());
+        cx.shared
+            .frame_buffer
+            .lock(|frame_buffer| frame_buffer.on_interrupt());
         task_end!(cx, Task::LcdCopy);
     }
 
