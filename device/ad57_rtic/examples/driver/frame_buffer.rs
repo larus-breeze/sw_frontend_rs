@@ -9,7 +9,8 @@ use stm32f4xx_hal::{
     gpio::{Output, Pin},
     rcc::{Enable, Reset},
     dma::{DmaDirection, Channel0, Transfer, StreamX, StreamsTuple, config::DmaConfig, MemoryToMemory, Stream0, traits::{Direction, DMASet, }},
-    pac::{DMA2, Peripherals as DevicePeripherals},
+    pac::{DMA2, Peripherals as DevicePeripherals, NVIC, interrupt},
+    pac,
 };
 use embedded_graphics::{prelude::*, draw_target::DrawTarget, Pixel, primitives::Rectangle, geometry::{OriginDimensions, Point}};
 
@@ -36,17 +37,19 @@ pub struct FrameBuffer {
     // the DMA process. After the complete copying of the data the DMA interrupt service routine sets the flag to true.
     // Before the next buffer write, this flag can be used to assess whether the copy process was completed successfully.
     pub buf: &'static mut [u8; AVAIL_PIXELS],
+    line_buf: &'static mut [u16; PORTRAIT_AVAIL_WIDTH as usize],
     di: LcdInterface,
-    idx_x: usize,
-    idx_y: usize,
+    line_y: u16,
 }
 impl FrameBuffer {
     pub fn new(fsmc: FSMC, lcd_pins: LcdPins, lcd_reset: LcdReset) -> (Self, Display) {
         #[link_section = ".ccmram.BUFFERS"]
         static mut FRAME_BUFFER: [u8; AVAIL_PIXELS] = [0; AVAIL_PIXELS];
-
         let buf = unsafe { &mut FRAME_BUFFER };
         let buf2 = unsafe { &mut FRAME_BUFFER };
+
+        static mut LINE_BUFFER: [u16; 227] = [0xaaaa; 227];
+        let line_buf = unsafe { &mut LINE_BUFFER };
 
         let timing = Timing::default()
             .data(3)
@@ -61,6 +64,18 @@ impl FrameBuffer {
             FSMC::reset_unchecked();
         }
 
+        let rcc = unsafe { &*pac::RCC::ptr() };
+        rcc.ahb1enr.modify(|_, w| w.dma2en().set_bit());        // enable ahb1 clock for dma2
+
+        unsafe {
+            let dma2 = &*pac::DMA2::ptr() ;
+            let src = LINE_BUFFER.as_ptr() as u32;
+            dma2.st[0].cr.write(|w| w.bits(0x2_2a90));
+            dma2.st[0].fcr.write(|w| w.bits(0x27));
+            dma2.st[0].par.write(|w| w.bits(src));          // source address
+            dma2.st[0].m0ar.write(|w| w.bits(0x6002_0000)); // dest address
+        }
+
         let mut lcd_interface = LcdInterface::new(fsmc, lcd_pins, &timing, &timing);
 
         // Initialize RG61580 LCD driver
@@ -70,9 +85,9 @@ impl FrameBuffer {
         (
             FrameBuffer {
                 buf,
+                line_buf,
                 di: lcd_interface,
-                idx_x: 0,
-                idx_y: 0,
+                line_y: 0,
             },
             Display {
                 buf: buf2,
@@ -81,15 +96,6 @@ impl FrameBuffer {
     }
 }
 
-const DMA2_S0CR: usize = 0x4002_6410;
-const DMA2_S0NDTR: usize = 0x4002_6414;
-const DMA2_S0PAR: usize = 0x4002_6418;
-const DMA2_S0MOAR: usize = 0x4002_641c;
-const DMA2_S0FCR: usize = 0x4002_6424;
-const LCD_RAM: usize = 0x6002_0000;
-
-
-
 /// Framebuffer for buffering the LCD content
 ///
 /// The framebuffer is used by two instances. One instance writes the contents, another reads them
@@ -97,54 +103,34 @@ const LCD_RAM: usize = 0x6002_0000;
 #[allow(clippy::transmute_ptr_to_ref)]
 impl FrameBuffer {
     pub fn flush(&mut self) {
-        static mut buf: [u8; 227] = [0_u8; 227];
-        for y in 0..PORTRAIT_AVAIL_HEIGHT {
-            let mut b: &mut u8 = unsafe { core::mem::transmute::<usize, &mut u8>(LCD_RAM) };
-            let mut b2: &mut [u8; 227]= unsafe { core::mem::transmute::<&u8, &mut [u8;227]>(b) };
-                // This implementation is dirty and fast. At this point, we own the display interface, so
-            // we can go this way without fear.
-            /*unsafe {
-                core::ptr::write_volatile(DMA2_S0CR as *mut u32, 0x0002_2a90);
-                core::ptr::write_volatile(DMA2_S0NDTR as *mut u32, 0x0000_8000);
-                core::ptr::write_volatile(DMA2_S0PAR as *mut u32, buf.as_ptr() as u32);
-                core::ptr::write_volatile(DMA2_S0MOAR as *mut u32, 0x6002_0000);
-                core::ptr::write_volatile(DMA2_S0FCR as *mut u32, 0x0000_0027);
-            }*/
-            let idx_y = (y * PORTRAIT_AVAIL_WIDTH) as usize;
+        self.line_y = 0;
+        NVIC::pend(interrupt::DMA2_STREAM0);
+    }
+
+    pub fn on_interrupt(&mut self) {
+        unsafe {
+            let dma2 = &*pac::DMA2::ptr() ;
+            dma2.st[0].cr.modify(|_, w| w.en().clear_bit());    // disable stream0
+            dma2.lifcr.write(|w| w.ctcif0().set_bit());         // reset dma complete ir
+        }
+    
+        if self.line_y < PORTRAIT_AVAIL_HEIGHT {
+            let idx_y = (self.line_y * PORTRAIT_AVAIL_WIDTH) as usize;
             for x in 0..PORTRAIT_AVAIL_WIDTH as usize {
                 let color = self.buf[x + idx_y] as usize;
-                unsafe { buf[x] = RGB565_COLORS[color] as u8 };
-                //write_data(RGB565_COLORS[color]);
+                unsafe { self.line_buf[x] = RGB565_COLORS[color] };
             }
-            type LcdDma = Transfer<
-                Stream0<DMA2>,
-                0,
-                MemoryToMemory<u8>,
-                MemoryToMemory<u8>,
-                &'static mut [u8; 227],
-            >;
-            let dp = unsafe { DevicePeripherals::steal() };
-            let streams = StreamsTuple::new(dp.DMA2);
-            let config = DmaConfig::default()
-                .memory_increment(true)
-                .peripheral_increment(false);
-
-            type Mem2Mem = DMASet<StreamX<DMA2, 0>, 0, MemoryToMemory<u16>>;
-
-            let mem2mem: MemoryToMemory<u8> = MemoryToMemory::new();
-            //let mem2mem = stm32f4xx_hal::dma::MemoryToMemory::<u8>::new();
-            unsafe {
-                let lcd_transfer: LcdDma = Transfer::init_memory_to_memory(streams.0, mem2mem, &mut buf, b2, config);
-            }
-
             write_command_and_data(Instruction::PosX as u8, PORTRAIT_ORIGIN_X);
-            write_command_and_data(Instruction::PosY as u8, y + PORTRAIT_ORIGIN_Y);
+            write_command_and_data(Instruction::PosY as u8, self.line_y + PORTRAIT_ORIGIN_Y);
             write_command(Instruction::Gram as u8);
-            /*unsafe {
-                core::ptr::write_volatile(DMA2_S0CR as *mut u32, 0x0002_2a91);
+            self.line_y += 1;
+
+            unsafe {
+                let dma2 = &*pac::DMA2::ptr();
+                dma2.st[0].ndtr.write(|w| w.bits(227));         // count DMA moves
+                dma2.st[0].cr.modify(|_, w| w.en().set_bit());  // enable stream0
             }
-            delay_ms(1);*/
-        }
+        } 
     }
 }
 

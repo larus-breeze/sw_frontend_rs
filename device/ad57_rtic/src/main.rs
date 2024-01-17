@@ -42,7 +42,7 @@ use driver::*;
 use idle_loop::*;
 use utils::*;
 
-#[app(device = stm32f4xx_hal::pac, peripherals = true, dispatchers = [SPI1, SPI2, DMA2_STREAM0, DMA2_STREAM1])]
+#[app(device = stm32f4xx_hal::pac, peripherals = true, dispatchers = [SPI1, SPI2, DMA2_STREAM2, DMA2_STREAM1])]
 mod app {
     use super::*;
 
@@ -53,9 +53,10 @@ mod app {
     #[shared]
     struct Shared {
         can_dispatch: DevCanDispatch, // Dispatcher for CAN frames
-        core_model: CoreModel,        // holds the application data
-        statistics: Statistics,       // track the task runtimes
         can_tx: CanTx<MAX_TX_FRAMES>, // transmit can pakets
+        core_model: CoreModel,        // holds the application data
+        frame_buffer: FrameBuffer,    // between view component and the LCD  
+        statistics: Statistics,       // track the task runtimes
     }
 
     /// Data required by single tasks
@@ -65,7 +66,6 @@ mod app {
         controller: DevController, // control the application
         idle_loop: IdleLoop,       // Idle loop and persistence layer
         view: DevView,             // bring application data to the user
-        frame_buffer: FrameBuffer, // between view component and the LCD
         keyboard: Keyboard,        // capture the user input
     }
 
@@ -100,16 +100,16 @@ mod app {
         (
             Shared {
                 can_dispatch,
-                core_model,
-                statistics,
                 can_tx,
+                core_model,
+                frame_buffer,
+                statistics,
             },
             Local {
                 can_rx,
                 controller,
                 idle_loop,
                 view,
-                frame_buffer,
                 keyboard,
             },
             init::Monotonics(mono_timer),
@@ -124,7 +124,7 @@ mod app {
     /// Receive can frames
     #[task(binds = CAN1_RX0, local = [can_rx], shared = [statistics, can_dispatch], priority=6)]
     fn isr_can_rx(mut cx: isr_can_rx::Context) {
-        task_start!(cx, Task::Can);
+        task_start!(cx, Task::CanRx);
         loop {
             let can_frame = cx.local.can_rx.on_interrupt();
             match can_frame {
@@ -136,21 +136,21 @@ mod app {
                 }
             }
         }
-        task_end!(cx, Task::Can);
+        task_end!(cx, Task::CanRx);
     }
 
     /// Send can frames
     #[task(binds = CAN1_TX, shared = [can_tx, statistics], priority=6)]
     fn isr_can_tx(mut cx: isr_can_tx::Context) {
-        task_start!(cx, Task::Can);
+        task_start!(cx, Task::CanTx);
         cx.shared.can_tx.lock(|can_tx| can_tx.on_interrupt());
-        task_end!(cx, Task::Can);
+        task_end!(cx, Task::CanTx);
     }
 
     /// Task to support can dispatcher with timing functions
     #[task(shared = [can_tx, statistics, can_dispatch], priority=6)]
     fn task_can_timer(mut cx: task_can_timer::Context) {
-        task_start!(cx, Task::Can);
+        task_start!(cx, Task::CanTimer);
         let ticks = app::monotonics::now().ticks();
 
         let next_wakeup = cx.shared.can_dispatch.lock(|can_dispatch| {
@@ -162,18 +162,18 @@ mod app {
         });
         task_can_timer::spawn_at(instant).unwrap();
         rtic::pend(interrupt::CAN1_TX);
-        task_end!(cx, Task::Can);
+        task_end!(cx, Task::CanTimer);
     }
 
     /// Scan the keyboard
     #[task(local = [keyboard], shared = [statistics], priority=5)]
     fn task_keyboard(mut cx: task_keyboard::Context) {
-        task_start!(cx, Task::Keys);
+        task_start!(cx, Task::Keyboard);
 
         task_keyboard::spawn_after(DevDuration::millis(20)).unwrap();
         cx.local.keyboard.tick();
 
-        task_end!(cx, Task::Keys);
+        task_end!(cx, Task::Keyboard);
     }
 
     /// The controller contains the complete logic for processing the data and events
@@ -199,9 +199,9 @@ mod app {
 
     /// Prepares the display and passes the data to the appropriate output routines.
     /// This mainly concerns the LCD but also the sound output.
-    #[task(local = [view], shared = [core_model, statistics], priority=3)]
+    #[task(local = [view], shared = [core_model, frame_buffer, statistics], priority=3)]
     fn task_view(mut cx: task_view::Context) {
-        task_start!(cx, Task::LcdView);
+        task_start!(cx, Task::View);
 
         let view = cx.local.view;
         cx.shared.core_model.lock(|core_model| {
@@ -209,17 +209,17 @@ mod app {
         });
         let wake_up_at = view.wake_up_at();
         task_view::spawn_at(wake_up_at).unwrap();
-        task_lcd_copy::spawn().unwrap();
+        cx.shared.frame_buffer.lock(|frame_buffer| frame_buffer.flush());
         rtic::pend(stm32f4xx_hal::interrupt::CAN1_TX);
 
-        task_end!(cx, Task::LcdView);
+        task_end!(cx, Task::View);
     }
 
     /// Copies the data from the frame buffer to the LCD
-    #[task(local = [frame_buffer], shared = [statistics], priority=2)]
-    fn task_lcd_copy(mut cx: task_lcd_copy::Context) {
+    #[task(binds = DMA2_STREAM0, shared = [frame_buffer, statistics], priority=3)]
+    fn isr_lcd_copy(mut cx: isr_lcd_copy::Context) {
         task_start!(cx, Task::LcdCopy);
-        cx.local.frame_buffer.flush();
+        cx.shared.frame_buffer.lock(|frame_buffer| frame_buffer.on_interrupt());
         task_end!(cx, Task::LcdCopy);
     }
 
