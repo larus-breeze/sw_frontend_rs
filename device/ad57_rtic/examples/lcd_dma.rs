@@ -13,13 +13,13 @@ use cortex_m::interrupt::Mutex;
 use cortex_m_rt::entry;
 use embedded_graphics::prelude::*;
 use stm32f4xx_hal::{
-    pac::{CorePeripherals, Peripherals, interrupt, NVIC},
+    pac::{interrupt, CorePeripherals, Peripherals, NVIC},
     prelude::*,
 };
 
+use driver::*;
 use embedded_graphics::primitives::{Circle, PrimitiveStyle};
 use fmc_lcd::{DataPins16, LcdPins};
-use driver::*;
 
 pub fn delay_ms(millis: u32) {
     let cycles = millis * 168_000;
@@ -103,7 +103,6 @@ fn main() -> ! {
     ];
     let mut drawer = ColoredCircleDrawer::new(&center_points, &test_colors);
 
-
     loop {
         drawer.draw(&mut display).unwrap();
         trace!("tick()");
@@ -111,7 +110,7 @@ fn main() -> ! {
             let mut fb = DMA2_S0.borrow(cs).borrow_mut();
             let frame_buffer = fb.as_mut().unwrap();
             frame_buffer.flush();
-        });   
+        });
         delay_ms(1000);
     }
 }

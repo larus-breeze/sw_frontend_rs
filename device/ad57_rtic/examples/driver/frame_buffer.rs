@@ -1,21 +1,33 @@
-use core::convert::TryInto;
 use crate::driver::r61580::{
-    Orientation, Instruction, AVAIL_PIXELS, PORTRAIT_AVAIL_HEIGHT, PORTRAIT_AVAIL_WIDTH, PORTRAIT_ORIGIN_X,
-    PORTRAIT_ORIGIN_Y, R61580
+    Instruction, Orientation, AVAIL_PIXELS, PORTRAIT_AVAIL_HEIGHT, PORTRAIT_AVAIL_WIDTH,
+    PORTRAIT_ORIGIN_X, PORTRAIT_ORIGIN_Y, R61580,
 };
-use corelib::{RGB565_COLORS, Colors, CoreError, basic_config::{DISPLAY_WIDTH, DISPLAY_HEIGHT}, DrawImage};
+use core::convert::TryInto;
+use corelib::{
+    basic_config::{DISPLAY_HEIGHT, DISPLAY_WIDTH},
+    Colors, CoreError, DrawImage, RGB565_COLORS,
+};
+use embedded_graphics::{
+    draw_target::DrawTarget,
+    geometry::{OriginDimensions, Point},
+    prelude::*,
+    primitives::Rectangle,
+    Pixel,
+};
 use fmc_lcd::{AccessMode, LcdInterface, LcdPins, Timing, FSMC};
 use stm32f4xx_hal::{
+    dma::{
+        config::DmaConfig,
+        traits::{DMASet, Direction},
+        Channel0, DmaDirection, MemoryToMemory, Stream0, StreamX, StreamsTuple, Transfer,
+    },
     gpio::{Output, Pin},
-    rcc::{Enable, Reset},
-    dma::{DmaDirection, Channel0, Transfer, StreamX, StreamsTuple, config::DmaConfig, MemoryToMemory, Stream0, traits::{Direction, DMASet, }},
-    pac::{DMA2, Peripherals as DevicePeripherals, NVIC, interrupt},
     pac,
+    pac::{interrupt, Peripherals as DevicePeripherals, DMA2, NVIC},
+    rcc::{Enable, Reset},
 };
-use embedded_graphics::{prelude::*, draw_target::DrawTarget, Pixel, primitives::Rectangle, geometry::{OriginDimensions, Point}};
 
 use super::delay_ms;
-
 
 pub type LcdReset = Pin<'D', 3, Output>;
 
@@ -65,14 +77,14 @@ impl FrameBuffer {
         }
 
         let rcc = unsafe { &*pac::RCC::ptr() };
-        rcc.ahb1enr.modify(|_, w| w.dma2en().set_bit());        // enable ahb1 clock for dma2
+        rcc.ahb1enr.modify(|_, w| w.dma2en().set_bit()); // enable ahb1 clock for dma2
 
         unsafe {
-            let dma2 = &*pac::DMA2::ptr() ;
+            let dma2 = &*pac::DMA2::ptr();
             let src = LINE_BUFFER.as_ptr() as u32;
             dma2.st[0].cr.write(|w| w.bits(0x2_2a90));
             dma2.st[0].fcr.write(|w| w.bits(0x27));
-            dma2.st[0].par.write(|w| w.bits(src));          // source address
+            dma2.st[0].par.write(|w| w.bits(src)); // source address
             dma2.st[0].m0ar.write(|w| w.bits(0x6002_0000)); // dest address
         }
 
@@ -89,9 +101,7 @@ impl FrameBuffer {
                 di: lcd_interface,
                 line_y: 0,
             },
-            Display {
-                buf: buf2,
-            }
+            Display { buf: buf2 },
         )
     }
 }
@@ -109,11 +119,11 @@ impl FrameBuffer {
 
     pub fn on_interrupt(&mut self) {
         unsafe {
-            let dma2 = &*pac::DMA2::ptr() ;
-            dma2.st[0].cr.modify(|_, w| w.en().clear_bit());    // disable stream0
-            dma2.lifcr.write(|w| w.ctcif0().set_bit());         // reset dma complete ir
+            let dma2 = &*pac::DMA2::ptr();
+            dma2.st[0].cr.modify(|_, w| w.en().clear_bit()); // disable stream0
+            dma2.lifcr.write(|w| w.ctcif0().set_bit()); // reset dma complete ir
         }
-    
+
         if self.line_y < PORTRAIT_AVAIL_HEIGHT {
             let idx_y = (self.line_y * PORTRAIT_AVAIL_WIDTH) as usize;
             for x in 0..PORTRAIT_AVAIL_WIDTH as usize {
@@ -127,10 +137,10 @@ impl FrameBuffer {
 
             unsafe {
                 let dma2 = &*pac::DMA2::ptr();
-                dma2.st[0].ndtr.write(|w| w.bits(227));         // count DMA moves
-                dma2.st[0].cr.modify(|_, w| w.en().set_bit());  // enable stream0
+                dma2.st[0].ndtr.write(|w| w.bits(227)); // count DMA moves
+                dma2.st[0].cr.modify(|_, w| w.en().set_bit()); // enable stream0
             }
-        } 
+        }
     }
 }
 

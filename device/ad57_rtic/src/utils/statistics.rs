@@ -144,7 +144,10 @@ impl Statistics {
                 };
                 info!(
                     "{} {} {} {}",
-                    task_name, stats.count/INTERVAL as u32, sum, stats.max_time
+                    task_name,
+                    stats.count / INTERVAL as u32,
+                    sum,
+                    stats.max_time
                 );
                 stats.min_time = u32::MAX;
                 stats.max_time = 0;
