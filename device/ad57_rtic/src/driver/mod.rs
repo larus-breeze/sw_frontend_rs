@@ -1,5 +1,4 @@
 mod canbus;
-mod display;
 mod eeprom;
 mod file_io;
 mod frame_buffer;
@@ -11,7 +10,6 @@ mod rng_uuid;
 mod sys_timer;
 
 pub use canbus::*;
-pub use display::Display;
 pub use eeprom::*;
 pub use file_io::*;
 pub use frame_buffer::FrameBuffer;

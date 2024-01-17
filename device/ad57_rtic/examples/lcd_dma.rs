@@ -2,18 +2,19 @@
 #![no_std]
 mod driver;
 
+use core::cell::RefCell;
 use core::iter::{Cloned, Cycle};
 use core::slice::Iter;
 use corelib::Colors;
 use defmt::*;
 use {defmt_rtt as _, panic_probe as _};
 
+use cortex_m::interrupt::Mutex;
 use cortex_m_rt::entry;
 use embedded_graphics::prelude::*;
 use stm32f4xx_hal::{
-    pac::{CorePeripherals, Peripherals},
+    pac::{CorePeripherals, Peripherals, interrupt, NVIC},
     prelude::*,
-    dma::StreamsTuple,
 };
 
 use embedded_graphics::primitives::{Circle, PrimitiveStyle};
@@ -35,7 +36,7 @@ enum Error {
 #[entry]
 fn main() -> ! {
     // Setup clocks
-    let _cp = CorePeripherals::take().unwrap();
+    let mut cp = CorePeripherals::take().unwrap();
     let dp = Peripherals::take().unwrap();
     let rcc = dp.RCC.constrain();
 
@@ -50,12 +51,16 @@ fn main() -> ! {
         .pclk2(84.MHz())
         .freeze();
 
-    let _dma2 = StreamsTuple::new(dp.DMA2);
     let mut _timer = MonoTimer::new(dp.TIM2, &clocks);
 
     let gpiob = dp.GPIOB.split();
     let gpiod = dp.GPIOD.split();
     let gpioe = dp.GPIOE.split();
+
+    unsafe {
+        cp.NVIC.set_priority(interrupt::DMA2_STREAM0, 3);
+        NVIC::unmask(interrupt::DMA2_STREAM0);
+    }
 
     let mut backlight = gpiob.pb4.into_push_pull_output();
     backlight.set_high(); // Switch on the light
@@ -73,9 +78,12 @@ fn main() -> ! {
     );
     let lcd_reset = gpiod.pd3.into_push_pull_output();
 
-    let (mut frame_buffer, mut display) = FrameBuffer::new(dp.FSMC, lcd_pins, lcd_reset);
+    let (frame_buffer, mut display) = FrameBuffer::new(dp.FSMC, lcd_pins, lcd_reset);
+    cortex_m::interrupt::free(|cs| {
+        DMA2_S0.borrow(cs).replace(Some(frame_buffer));
+    });
 
-    display.clear(Colors::Red).unwrap();
+    display.clear(Colors::Black).unwrap();
 
     // Draw some circles
     let test_colors = [
@@ -98,8 +106,12 @@ fn main() -> ! {
 
     loop {
         drawer.draw(&mut display).unwrap();
-        frame_buffer.flush();
         trace!("tick()");
+        cortex_m::interrupt::free(|cs| {
+            let mut fb = DMA2_S0.borrow(cs).borrow_mut();
+            let frame_buffer = fb.as_mut().unwrap();
+            frame_buffer.flush();
+        });   
         delay_ms(1000);
     }
 }
@@ -132,4 +144,15 @@ impl<'a> ColoredCircleDrawer<'a> {
             .into_styled(PrimitiveStyle::with_fill(color))
             .draw(target)
     }
+}
+
+static DMA2_S0: Mutex<RefCell<Option<FrameBuffer>>> = Mutex::new(RefCell::new(None));
+
+#[interrupt]
+fn DMA2_STREAM0() {
+    cortex_m::interrupt::free(|cs| {
+        let mut fb = DMA2_S0.borrow(cs).borrow_mut();
+        let frame_buffer = fb.as_mut().unwrap();
+        frame_buffer.on_interrupt();
+    })
 }

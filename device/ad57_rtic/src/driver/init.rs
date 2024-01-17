@@ -1,5 +1,5 @@
 use crate::driver::{
-    frame_buffer::FrameBuffer, init_can, keyboard::*, CanRx, CanTx, Display, MonoTimer, Storage,
+    frame_buffer::*, init_can, keyboard::*, CanRx, CanTx, MonoTimer, Storage,
 };
 use crate::{
     dev_controller::DevController,
@@ -30,7 +30,7 @@ use defmt::*;
 use defmt_rtt as _;
 use fmc_lcd::{DataPins16, LcdPins};
 use heapless::{mpmc::MpMcQueue, spsc::Queue};
-use stm32f4xx_hal::{pac, prelude::*, watchdog::IndependentWatchdog};
+use stm32f4xx_hal::{pac, prelude::*, watchdog::IndependentWatchdog, pac::interrupt, pac::NVIC};
 
 pub const TICKS_PER_SECOND: u32 = 1_000_000;
 pub type DevDuration = fugit::Duration<u64, 1, TICKS_PER_SECOND>;
@@ -47,7 +47,7 @@ pub type DevCanDispatch = CanDispatch<VDA, 8, MAX_TX_FRAMES, MAX_RX_FRAMES, DevR
 
 pub fn hw_init(
     device: pac::Peripherals,
-    _core: cortex_m::peripheral::Peripherals,
+    mut core: cortex_m::peripheral::Peripherals,
 ) -> (
     DevCanDispatch,
     CanRx,
@@ -181,8 +181,14 @@ pub fn hw_init(
         );
         let lcd_reset = gpiod.pd3.into_push_pull_output();
 
+        let (frame_buffer, display) = FrameBuffer::new(device.FSMC, lcd_pins, lcd_reset);
+
+        unsafe {
+            core.NVIC.set_priority(interrupt::DMA2_STREAM0, 3);
+            NVIC::unmask(interrupt::DMA2_STREAM0);
+        }
+        
         // Initialize the display and clear the screen
-        let (display, frame_buffer) = Display::new(device.FSMC, lcd_pins, lcd_reset);
         (DevView::new(display), frame_buffer)
     };
 
