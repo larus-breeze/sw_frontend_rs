@@ -104,6 +104,18 @@ impl FrameBuffer {
     }
 
     pub fn on_interrupt(&mut self) {
+        /*while self.line_y < PORTRAIT_AVAIL_HEIGHT {
+            write_command_and_data(Instruction::PosX as u8, PORTRAIT_ORIGIN_X);
+            write_command_and_data(Instruction::PosY as u8, self.line_y + PORTRAIT_ORIGIN_Y);
+            write_command(Instruction::Gram as u8);
+            let idx_y = (self.line_y * PORTRAIT_AVAIL_WIDTH) as usize;
+            for x in 0..PORTRAIT_AVAIL_WIDTH as usize {
+                let color_idx = self.buf[x + idx_y] as usize;
+                let color = RGB565_COLORS[color_idx];
+                write_data(color);
+            }
+            self.line_y += 1;
+        }*/
         unsafe {
             let dma2 = &*pac::DMA2::ptr() ;
             dma2.st[0].cr.modify(|_, w| w.en().clear_bit());    // disable stream0
