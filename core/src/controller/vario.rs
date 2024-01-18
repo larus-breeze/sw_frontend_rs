@@ -122,10 +122,18 @@ impl VarioController {
                 let _ = cm.p_tx_frames.enqueue(frame);
             }
             Editable::VarioModeControl => {
-                cm.control.vario_mode_control = match cm.control.vario_mode_control {
-                    VarioModeControl::Auto => VarioModeControl::Vario,
-                    VarioModeControl::Vario => VarioModeControl::SpeedToFly,
-                    VarioModeControl::SpeedToFly => VarioModeControl::Auto,
+                cm.control.vario_mode_control = match key_event {
+                    KeyEvent::Rotary1Left => match cm.control.vario_mode_control {
+                        VarioModeControl::Auto => VarioModeControl::SpeedToFly,
+                        VarioModeControl::SpeedToFly => VarioModeControl::Vario,
+                        VarioModeControl::Vario => VarioModeControl::Auto,
+                    },
+                    KeyEvent::Rotary1Right => match cm.control.vario_mode_control {
+                        VarioModeControl::Auto => VarioModeControl::Vario,
+                        VarioModeControl::SpeedToFly => VarioModeControl::Auto,
+                        VarioModeControl::Vario => VarioModeControl::SpeedToFly,
+                    },
+                    _ => cm.control.vario_mode_control,
                 };
                 let frame = can_frame_sys_config(
                     SysConfigId::VarioModeControl,
