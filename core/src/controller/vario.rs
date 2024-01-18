@@ -123,12 +123,12 @@ impl VarioController {
             }
             Editable::VarioModeControl => {
                 cm.control.vario_mode_control = match key_event {
-                    KeyEvent::Rotary1Left => match cm.control.vario_mode_control {
+                    KeyEvent::Rotary2Left => match cm.control.vario_mode_control {
                         VarioModeControl::Auto => VarioModeControl::SpeedToFly,
                         VarioModeControl::SpeedToFly => VarioModeControl::Vario,
                         VarioModeControl::Vario => VarioModeControl::Auto,
                     },
-                    KeyEvent::Rotary1Right => match cm.control.vario_mode_control {
+                    KeyEvent::Rotary2Right => match cm.control.vario_mode_control {
                         VarioModeControl::Auto => VarioModeControl::Vario,
                         VarioModeControl::SpeedToFly => VarioModeControl::Auto,
                         VarioModeControl::Vario => VarioModeControl::SpeedToFly,
