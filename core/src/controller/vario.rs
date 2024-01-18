@@ -26,13 +26,33 @@ impl VarioController {
         }
 
         let act_edit = self.edit_var;
-        self.edit_var = match key_event {
-            KeyEvent::Btn1 => Editable::McCready,
-            KeyEvent::Btn2 => Editable::WaterBallast,
-            KeyEvent::Btn3 => Editable::PilotWeight,
-            KeyEvent::BtnEsc => Editable::VarioModeControl,
-            KeyEvent::Btn1S3 => Editable::Glider,
-            _ => act_edit,
+        self.edit_var = if cm.control.edit_ticks == 0 { // Activate Edit Mode
+            match key_event {
+                KeyEvent::Btn1 => Editable::McCready,
+                KeyEvent::Btn2 => Editable::WaterBallast,
+                KeyEvent::Btn3 => Editable::PilotWeight,
+                KeyEvent::BtnEsc => Editable::VarioModeControl,
+                KeyEvent::Btn1S3 => Editable::Glider,
+                _ => act_edit,
+            }
+        } else {
+            match key_event {
+                KeyEvent::Btn1 => match act_edit {
+                    Editable::McCready => Editable::VarioModeControl,
+                    Editable::WaterBallast => Editable::McCready,
+                    Editable::PilotWeight => Editable::WaterBallast,
+                    Editable::VarioModeControl => Editable::PilotWeight,
+                    _ => act_edit
+                }
+                KeyEvent::Btn2 => match act_edit {
+                    Editable::McCready => Editable::WaterBallast,
+                    Editable::WaterBallast => Editable::PilotWeight,
+                    Editable::PilotWeight => Editable::VarioModeControl,
+                    Editable::VarioModeControl => Editable::McCready,
+                    _ => act_edit
+                }
+                _ => act_edit,
+            }
         };
 
         match self.edit_var {
@@ -106,7 +126,12 @@ impl VarioController {
                     VarioModeControl::Auto => VarioModeControl::Vario,
                     VarioModeControl::Vario => VarioModeControl::SpeedToFly,
                     VarioModeControl::SpeedToFly => VarioModeControl::Auto,
-                }
+                };
+                let frame = can_frame_sys_config(
+                    SysConfigId::VarioModeControl,
+                    SysValueId::U8(cm.control.vario_mode_control as u8),
+                );
+                let _ = cm.p_tx_frames.enqueue(frame);
             }
             _ => (),
         }

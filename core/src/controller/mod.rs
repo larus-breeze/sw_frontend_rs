@@ -130,6 +130,7 @@ impl CoreController {
                     Editable::WaterBallast => PersistenceId::WaterBallast,
                     Editable::Glider => PersistenceId::Glider,
                     Editable::PilotWeight => PersistenceId::PilotWeight,
+                    Editable::VarioModeControl => PersistenceId::VarioModeControl,
                     _ => PersistenceId::DoNotStore,
                 };
                 core_model.store_persistence_id(pers_id);

@@ -1,6 +1,6 @@
 use crate::{
     AirSpeed, CoreModel, FloatToAcceleration, FloatToAngularVelocity, FloatToDensity, FloatToMass,
-    FloatToPressure, FloatToSpeed, FlyMode, GenericId, SysConfigId,
+    FloatToPressure, FloatToSpeed, FlyMode, GenericId, SysConfigId, model::VarioModeControl,
 };
 use byteorder::{ByteOrder, LittleEndian as LE};
 use can_dispatch::*;
@@ -45,6 +45,10 @@ fn read_sys_config_value(cm: &mut CoreModel, config_id: SysConfigId, frame: &Can
         SysConfigId::WaterBallast => {
             cm.glider_data.water_ballast = frame.read_f32(4).kg();
             cm.push_persistence_id(crate::PersistenceId::WaterBallast);
+        },
+        SysConfigId::VarioModeControl => {
+            cm.control.vario_mode_control = VarioModeControl::from(frame.read_u8(2));
+            cm.push_persistence_id(crate::PersistenceId::VarioModeControl);
         },
         _ => (),
     }
