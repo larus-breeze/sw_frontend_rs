@@ -117,7 +117,7 @@ impl VarioController {
                 .kg();
                 let frame = can_frame_sys_config(
                     SysConfigId::PilotWeight,
-                    SysValueId::F32(cm.glider_data.water_ballast.to_kg()),
+                    SysValueId::F32(cm.glider_data.pilot_weight.to_kg()),
                 );
                 let _ = cm.p_tx_frames.enqueue(frame);
             }
