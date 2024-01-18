@@ -40,6 +40,7 @@ impl From<u16> for GenericId {
 
 /// Definition of changeable values in SetSysSetting
 #[repr(u16)]
+#[derive(Clone, Copy)]
 pub enum SysConfigId {
     VolumeVario = 0,
     MacCready = 1,
@@ -47,7 +48,8 @@ pub enum SysConfigId {
     Bugs = 3,
     Qnh = 4,
     PilotWeight = 5,
-    Ignore = 6,
+    VarioModeControl = 6,
+    Ignore = 7,
 }
 
 impl From<u16> for SysConfigId {

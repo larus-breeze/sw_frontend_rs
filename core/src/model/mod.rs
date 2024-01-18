@@ -89,11 +89,21 @@ pub enum VarioMode {
 /// This determines how to switch between the two modes of VarioMode Vario and SpeedToFly:
 /// automatic, manual Vario or manual SpeedToFly.
 #[repr(u8)]
-#[derive(PartialEq, Eq)]
+#[derive(PartialEq, Eq, Clone, Copy)]
 pub enum VarioModeControl {
     Vario,
     SpeedToFly,
     Auto,
+}
+
+impl From<u8> for VarioModeControl {
+    fn from (value: u8) -> Self {
+        match value {
+            0 => VarioModeControl::Vario,
+            1 => VarioModeControl::SpeedToFly,
+            _ => VarioModeControl::Auto,
+        }
+    }
 }
 
 /// Enum mode controls whether the background should be visible or not when editing a data

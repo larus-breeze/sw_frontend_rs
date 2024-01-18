@@ -4,7 +4,7 @@ use crate::{
     IdleEvent, Mass, PersistenceItem, CoreModel, PersistenceId, 
     system_of_units::Speed, basic_config::{CONTROLLER_TICK_RATE, PERSISTENCE_TIMEOUT},
 };
-use super::MAX_PERS_IDS;
+use super::{MAX_PERS_IDS, VarioModeControl};
 
 impl CoreModel {
     pub fn send_idle_event(&mut self, idle_event: IdleEvent) {
@@ -22,6 +22,7 @@ impl CoreModel {
                 self.glider_data.pilot_weight = Mass::from_kg(item.to_f32())
             }
             PersistenceId::Glider => self.config.glider_idx = item.to_i32(),
+            PersistenceId::VarioModeControl => self.control.vario_mode_control = VarioModeControl::from(item.to_u8()),
             _ => (),
         }
     }
@@ -54,6 +55,7 @@ impl CoreModel {
             PersistenceId::WaterBallast => PersistenceItem::from_f32(id, self.glider_data.water_ballast.to_kg()),
             PersistenceId::PilotWeight => PersistenceItem::from_f32(id,self.glider_data.pilot_weight.to_kg()),
             PersistenceId::Glider => PersistenceItem::from_i32(id, self.config.glider_idx),
+            PersistenceId::VarioModeControl => PersistenceItem::from_u8(id, self.control.vario_mode_control as u8),
             _ => PersistenceItem::do_not_store(),
         };
         self.send_idle_event(crate::IdleEvent::EepromItem(p_item));

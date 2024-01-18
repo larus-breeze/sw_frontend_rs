@@ -25,6 +25,7 @@ pub enum PersistenceId {
     WaterBallast = 2,
     PilotWeight = 3,
     Glider = 4,
+    VarioModeControl = 5,
 }
 
 // This queue transports the configuration PersItems from controller to the idle loop.
