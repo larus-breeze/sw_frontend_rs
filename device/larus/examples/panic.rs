@@ -5,15 +5,11 @@ mod driver;
 use defmt::trace;
 use defmt_rtt as _;
 
-
 use corelib::Event::KeyItem;
 use corelib::*;
 use cortex_m_rt::entry;
 use heapless::mpmc::MpMcQueue;
-use stm32h7xx_hal::{
-    pac, prelude::*, 
-    independent_watchdog::IndependentWatchdog,
-};
+use stm32h7xx_hal::{independent_watchdog::IndependentWatchdog, pac, prelude::*};
 
 use driver::*;
 
@@ -61,12 +57,12 @@ fn main() -> ! {
                 match key_event {
                     KeyEvent::Btn1 => {
                         trace!("Do not feed the watchdog!");
-                        loop {};
-                    },
+                        loop {}
+                    }
                     KeyEvent::Btn2 => {
                         trace!("Panic!");
                         panic!();
-                    },
+                    }
                     KeyEvent::BtnEnc => trace!("BtnEnc"),
                     KeyEvent::Rotary1Left => trace!("Rotary1Left"),
                     KeyEvent::Rotary1Right => trace!("Rotary1Right"),

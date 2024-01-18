@@ -9,10 +9,10 @@ use defmt::*;
 use heapless::{mpmc::MpMcQueue, spsc::Queue};
 use st7789::ST7789;
 use stm32h7xx_hal::{
+    independent_watchdog::IndependentWatchdog,
     pac::Peripherals as DevicePeripherals,
     prelude::*,
     rcc::{rec, rec::FmcClkSel},
-    independent_watchdog::IndependentWatchdog,
 };
 
 pub type DevCanDispatch = CanDispatch<VDA, 8, MAX_TX_FRAMES, MAX_RX_FRAMES, DevRng>;

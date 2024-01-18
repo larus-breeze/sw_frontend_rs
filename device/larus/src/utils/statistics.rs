@@ -6,21 +6,22 @@ use crate::app;
 #[repr(u8)]
 #[derive(Clone, Copy, Debug)]
 pub enum Task {
-    Can = 0,
-    LcdView = 1,
-    Mdma = 2,
-    Keys = 3,
-    Controller = MAX,
+    CanRx,
+    CanTx,
+    CanTimer,
+    Mdma,
+    Keyboard,
+    Controller,
+    View,
+    NoTask,
 }
 
-const MAX: u8 = 4;
-
 // Pattern defines, which taks must be active to feed the watchdog
-const ALL_ALIVE_PATTERN: u32 = 0b0001_1111;
+const ALL_ALIVE_PATTERN: u32 = 0b0111_1110;
 
 impl Task {
     pub fn from_usize(u: usize) -> Self {
-        if u <= MAX as usize {
+        if u <= Task::NoTask as usize {
             // We checked the range, so transmute is ok
             unsafe { core::mem::transmute::<u8, Task>(u as u8) }
         } else {
@@ -30,8 +31,16 @@ impl Task {
 }
 
 // define the task names
-const TASK_NAMES: [&str; TASK_CNT] = ["can", "lcd_view", "mdma", "keys", "controller"];
-const TASK_CNT: usize = (MAX + 1) as usize;
+const TASK_NAMES: [&str; TASK_CNT] = [
+    "CanRx",
+    "CanTx",
+    "CanTimer",
+    "Mdma",
+    "Keyboard",
+    "Controller",
+    "View",
+];
+const TASK_CNT: usize = Task::NoTask as usize;
 
 // storage for the task times
 #[derive(Clone, Copy)]
@@ -124,22 +133,21 @@ impl Statistics {
             low_prio_stats.last_start = now;
         } else if app::monotonics::now() > self.next_show {
             let mut workload: u32 = 0;
-            info!("Task      Calls Min Max Mean");
+            info!("TaskCalls[/sec] Sum[ms/sec] Max[µs/loop]");
             for (idx, task_name) in TASK_NAMES.iter().enumerate().take(TASK_CNT) {
                 let stats = &mut self.stats[idx];
                 workload = workload.saturating_add(stats.sum_time);
-                let mean = if stats.count > 0 {
-                    stats.sum_time / stats.count
+                let sum = if stats.count > 0 {
+                    stats.sum_time / INTERVAL as u32 / 1000
                 } else {
                     0
                 };
                 info!(
-                    "{} {} {} {} {}",
+                    "{} {} {} {}",
                     task_name,
                     stats.count / INTERVAL as u32,
-                    stats.min_time,
-                    stats.max_time,
-                    mean
+                    sum,
+                    stats.max_time
                 );
                 stats.min_time = u32::MAX;
                 stats.max_time = 0;

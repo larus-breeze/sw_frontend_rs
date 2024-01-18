@@ -1,4 +1,4 @@
-use can_dispatch::{CanFrame, CTxIrqFrames};
+use can_dispatch::{CTxIrqFrames, CanFrame};
 use core::num::{NonZeroU16, NonZeroU8};
 use fdcan::{
     config::NominalBitTiming,
@@ -69,13 +69,17 @@ pub struct CanTx<const MAX_TX: usize> {
     pub wakeup_at: u64, // just memory for isr
 }
 
-impl <const MAX_TX: usize> CanTx <MAX_TX> {
+impl<const MAX_TX: usize> CanTx<MAX_TX> {
     /// Generate the service
     fn new(
         tx: Tx<can::Can<FDCAN1>, NormalOperationMode>,
         c_tx_irq_frames: CTxIrqFrames<MAX_TX>,
     ) -> Self {
-        CanTx { tx, wakeup_at: 0, c_tx_irq_frames }
+        CanTx {
+            tx,
+            wakeup_at: 0,
+            c_tx_irq_frames,
+        }
     }
 
     /// Method to call during an active interrupt
@@ -94,7 +98,6 @@ impl <const MAX_TX: usize> CanTx <MAX_TX> {
             let buffer = can_frame.data();
             // so the result of transmit is ignored
             let _r = self.tx.transmit(header, buffer);
-    
         }
     }
 }
