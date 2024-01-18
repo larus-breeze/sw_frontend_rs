@@ -1,9 +1,6 @@
 use defmt::trace;
 
-use stm32h7xx_hal::{
-    independent_watchdog::IndependentWatchdog,
-    prelude::*,
-};
+use stm32h7xx_hal::{independent_watchdog::IndependentWatchdog, prelude::*};
 
 use crate::driver::{QEvents, Storage};
 use corelib::{CIdleEvents, Eeprom, IdleEvent}; //Event, DeviceEvent, SdCardCmd};
@@ -13,7 +10,7 @@ pub struct IdleLoop {
     c_idle_events: CIdleEvents,
     _q_events: &'static QEvents,
     //    file_sys: FileSys,
-        watchdog: IndependentWatchdog,
+    watchdog: IndependentWatchdog,
 }
 
 impl IdleLoop {

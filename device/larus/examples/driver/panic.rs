@@ -2,11 +2,7 @@ use corelib::Concat;
 use defmt::trace;
 use defmt_rtt as _;
 use embedded_storage::nor_flash::NorFlash;
-use stm32h7xx_hal::{
-    pac, prelude::*, 
-    independent_watchdog::IndependentWatchdog,
-    flash::FlashExt,
-};
+use stm32h7xx_hal::{flash::FlashExt, independent_watchdog::IndependentWatchdog, pac, prelude::*};
 
 const FLASH_START: usize = 0x0800_0000;
 const PANIC_BUF: usize = 0x0807_c000;
