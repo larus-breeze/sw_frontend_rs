@@ -97,7 +97,7 @@ pub enum VarioModeControl {
 }
 
 impl From<u8> for VarioModeControl {
-    fn from (value: u8) -> Self {
+    fn from(value: u8) -> Self {
         match value {
             0 => VarioModeControl::Vario,
             1 => VarioModeControl::SpeedToFly,
@@ -189,7 +189,7 @@ pub struct Control {
     pub speed_to_fly_limit: Speed, // Speed limit above which SpeedToFly is activated
     pub edit_mode: EditMode,
     pub edit_var: Editable,
-    pub edit_ticks: u32,   // Used by the editor for the timeout
+    pub edit_ticks: u32, // Used by the editor for the timeout
     pub pers_ticks: u32,
     pub pers_vals: FnvIndexSet<PersistenceId, MAX_PERS_IDS>,
     pub demo_acitve: bool, // Activates the demo mode
