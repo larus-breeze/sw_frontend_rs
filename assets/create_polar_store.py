@@ -1,5 +1,26 @@
 from urllib.request import urlopen
 
+TRANSLATE_GLIDER_NAMES = {
+    "401 Kestrel (17m)": "401 Kestrel 17m",
+    "G 102 Club Astir IIIb": "G102 Club Astir",
+    "G 102 Standard Astir III": "G102 Std Astir",
+    "G 104 Speed Astir": "G104 Speed Astir",
+    "H-201 Std Libelle": "H201 Std Libelle",
+    "H-205 Club Libelle": "H205 Club Libelle",
+    "Ka 4 Rhoenlerche": "Ka 4",
+    "SZD-48-2 Jantar Std 2": "SZD-48-2 Jantar",
+    "SZD-48-3 Jantar Std 3": "SZD-48-3 Jantar",
+    "SZD-54-2 Perkoz (FT 17m)) /* flat tip */": "SZD-54-2 17m",
+    "SZD-54-2 Perkoz (WL 17m)) /* winglet */": "SZD-54-2 17m WL",
+    "SZD-54-2 Perkoz (WL 20m)) /* long winglet */": "SZD-54-2 20m WL",
+    "SZD-9 bis 1E Bocian": "SZD-9-1E Bocian",
+    "Ventus 2c (18m)": "Ventus 2c 18m",
+    "Ventus 2cT (18m)": "Ventus 2c 18m",
+    "Ventus 2cx (18m)": "Ventus 2cx 18m",
+    "Ventus 2cxT (18m)": "Ventus 2cxT 18m",
+    "Ventus a/b (16.6m)": "Ventus a/b 16.6m",
+}
+
 class Glider():
     def load_from_line(self, cpp_line, comment):
         line = cpp_line.replace(b'  { _T(', b'').replace(b'),', b',').replace(b' },', b'').replace(b'"', b'')
@@ -12,6 +33,8 @@ class Glider():
 
     def load_from_list(self, vars, comment):
         self.name = vars[0].decode("utf-8")
+        if self.name in TRANSLATE_GLIDER_NAMES:
+            self.name = TRANSLATE_GLIDER_NAMES[self.name]
         self.reference_mass = float(vars[1])
         self.max_ballast = float(vars[2])
         self.v1 = float(vars[3])
