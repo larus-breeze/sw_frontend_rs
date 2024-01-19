@@ -50,7 +50,7 @@ pub mod basic_config {
     pub const CONTROLLER_TICK_RATE: u32 = 10;
     pub const SECTION_EDITOR_TIMEOUT: u32 = 3;
     pub const PERSISTENCE_TIMEOUT: u32 = 3;
-    
+
     pub const GLIDER_IMG: &[u8] = include_bytes!("../assets/size_227x285/glider.lif");
     pub const NORTH_IMG: &[u8] = include_bytes!("../assets/size_227x285/north.lif");
     pub const WALLPAPER_IMG: &[u8] = include_bytes!("../assets/size_227x285/vario_wallpaper.lif");
@@ -77,7 +77,7 @@ pub mod basic_config {
 pub mod basic_config {
     pub const MAX_TX_FRAMES: usize = 10;
     pub const MAX_RX_FRAMES: usize = 30;
-    pub const VDA: u16 =40 ; // heartbeat at 0x680
+    pub const VDA: u16 = 40; // heartbeat at 0x680
 
     pub const DISPLAY_WIDTH: u32 = 240;
     pub const DISPLAY_HEIGHT: u32 = 320;

@@ -1,6 +1,6 @@
 use crate::{
-    AirSpeed, CoreModel, FloatToAcceleration, FloatToAngularVelocity, FloatToDensity, FloatToMass,
-    FloatToPressure, FloatToSpeed, FlyMode, GenericId, SysConfigId, model::VarioModeControl,
+    model::VarioModeControl, AirSpeed, CoreModel, FloatToAcceleration, FloatToAngularVelocity,
+    FloatToDensity, FloatToMass, FloatToPressure, FloatToSpeed, FlyMode, GenericId, SysConfigId,
 };
 use byteorder::{ByteOrder, LittleEndian as LE};
 use can_dispatch::*;
@@ -33,23 +33,23 @@ fn read_sys_config_value(cm: &mut CoreModel, config_id: SysConfigId, frame: &Can
         SysConfigId::MacCready => {
             cm.config.mc_cready = frame.read_f32(4).m_s();
             cm.push_persistence_id(crate::PersistenceId::McCready);
-        },
+        }
         SysConfigId::PilotWeight => {
             cm.glider_data.pilot_weight = frame.read_f32(4).kg();
             cm.push_persistence_id(crate::PersistenceId::PilotWeight);
-        },
+        }
         SysConfigId::VolumeVario => {
             cm.config.volume = frame.read_u8(2) as i8;
             cm.push_persistence_id(crate::PersistenceId::Volume);
-        },
+        }
         SysConfigId::WaterBallast => {
             cm.glider_data.water_ballast = frame.read_f32(4).kg();
             cm.push_persistence_id(crate::PersistenceId::WaterBallast);
-        },
+        }
         SysConfigId::VarioModeControl => {
             cm.control.vario_mode_control = VarioModeControl::from(frame.read_u8(2));
             cm.push_persistence_id(crate::PersistenceId::VarioModeControl);
-        },
+        }
         _ => (),
     }
 }
