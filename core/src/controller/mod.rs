@@ -22,7 +22,7 @@ use can_dispatch::Frame;
 use micromath::F32Ext;
 
 #[repr(u8)]
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq)]
 pub enum Editable {
     ClimbRate,
     Glider,

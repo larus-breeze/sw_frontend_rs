@@ -1,11 +1,12 @@
 use crate::{
+    basic_config::SECTION_EDITOR_TIMEOUT,
     can_frame_sys_config,
     controller::{Direction, Editable, Result},
     flight_physics::POLAR_COUNT,
     model::{CoreModel, EditMode, VarioModeControl},
     system_of_units::{FloatToMass, FloatToSpeed},
     utils::{val_manip, KeyEvent},
-    SysConfigId, SysValueId, basic_config::SECTION_EDITOR_TIMEOUT,
+    SysConfigId, SysValueId,
 };
 use num::clamp;
 
@@ -26,7 +27,8 @@ impl VarioController {
         }
 
         let act_edit = self.edit_var;
-        self.edit_var = if cm.control.edit_ticks == 0 { // Activate Edit Mode
+        self.edit_var = if cm.control.edit_ticks == 0 || act_edit == Editable::Volume {
+            // Activate Edit Mode
             match key_event {
                 KeyEvent::Btn1 => Editable::McCready,
                 KeyEvent::Btn2 => Editable::WaterBallast,
@@ -42,15 +44,15 @@ impl VarioController {
                     Editable::WaterBallast => Editable::McCready,
                     Editable::PilotWeight => Editable::WaterBallast,
                     Editable::VarioModeControl => Editable::PilotWeight,
-                    _ => act_edit
-                }
+                    _ => act_edit,
+                },
                 KeyEvent::Btn2 => match act_edit {
                     Editable::McCready => Editable::WaterBallast,
                     Editable::WaterBallast => Editable::PilotWeight,
                     Editable::PilotWeight => Editable::VarioModeControl,
                     Editable::VarioModeControl => Editable::McCready,
-                    _ => act_edit
-                }
+                    _ => act_edit,
+                },
                 _ => act_edit,
             }
         };
