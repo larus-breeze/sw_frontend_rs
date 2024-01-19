@@ -17,7 +17,7 @@ const DESCRIPTION_COLOR: Colors = Colors::Yellow;
 const BACKGROUND_COLOR: Colors = Colors::MidnightBlue;
 const BORDER_COLOR: Colors = Colors::LightSteelBlue;
 
-const WIDTH: u32 = DISPLAY_WIDTH * 80 / 100;
+const WIDTH: u32 = DISPLAY_WIDTH * 90 / 100;
 const HEIGHT: u32 = DISPLAY_HEIGHT * 32 / 100;
 
 pub fn draw<D>(display: &mut D, cm: &CoreModel) -> Result<(), CoreError>
