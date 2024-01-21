@@ -76,5 +76,50 @@
       ],
         "svdFile": "${workspaceRoot}/STM32H743.svd",
       },
+      {
+        "type": "probe-rs-debug",
+        "request": "launch",
+        "name": "probe_rs Executable launch example",
+        "cwd": "${workspaceRoot}",
+        "runtimeExecutable": "probe-rs",
+        "runtimeArgs": ["dap-server"],
+        "chip": "STM32H743VGTx",
+        "flashingConfig": {
+          "flashingEnabled": true,
+          "haltAfterReset": false,
+          "formatOptions": {
+            "format": "elf"
+          }
+        },
+        "coreConfigs": [
+          {
+            "coreIndex": 0,
+            "programBinary": "./target/thumbv7em-none-eabihf/debug/examples/analog",
+            "svdFile": "${workspaceRoot}/STM32H743.svd",
+            "rttEnabled": true,
+            "rttChannelFormats": [
+              {
+                "channelNumber": 0,
+                // Format RTT data as String data
+                "dataFormat": "String",
+                // Include host-side timestamps for every line of data transferred from the target RTT output
+                "showTimestamps": true
+              },
+              {
+                "channelNumber": 1,
+                // Treat data as raw binary data, and do not format in any way
+                "dataFormat": "BinaryLE"
+              }
+          }
+        ],
+        "env": {
+          //!MODIFY (or remove)
+          // If you set this variable, check the VSCode console log window for the location of the log file.
+          "RUST_LOG": "info"
+        },
+         // Info, Debug
+        //"consoleLogLevel": "Console"
+        "consoleLogLevel": "Debug"
+      }
     ]
   }
