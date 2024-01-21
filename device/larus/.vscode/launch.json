@@ -109,7 +109,8 @@
                 "channelNumber": 1,
                 // Treat data as raw binary data, and do not format in any way
                 "dataFormat": "BinaryLE"
-              }
+              },
+            ]
           }
         ],
         "env": {
@@ -123,3 +124,4 @@
       }
     ]
   }
+
