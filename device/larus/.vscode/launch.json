@@ -79,7 +79,7 @@
       {
         "type": "probe-rs-debug",
         "request": "launch",
-        "name": "probe_rs Executable launch example",
+        "name": "probe_rs example",
         "cwd": "${workspaceRoot}",
         "runtimeExecutable": "probe-rs",
         "runtimeArgs": ["dap-server"],
@@ -94,7 +94,7 @@
         "coreConfigs": [
           {
             "coreIndex": 0,
-            "programBinary": "./target/thumbv7em-none-eabihf/debug/examples/analog",
+            "programBinary": "./target/thumbv7em-none-eabihf/debug/examples/keys",
             "svdFile": "${workspaceRoot}/STM32H743.svd",
             "rttEnabled": true,
             "rttChannelFormats": [
@@ -120,7 +120,7 @@
         },
          // Info, Debug
         //"consoleLogLevel": "Console"
-        "consoleLogLevel": "Debug"
+        "consoleLogLevel": "Console"
       }
     ]
   }
