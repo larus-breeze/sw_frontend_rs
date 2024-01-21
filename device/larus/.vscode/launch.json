@@ -17,7 +17,7 @@
         "device": "STM32H743VGTx",
         "configFiles": [
           "interface/stlink.cfg",
-          "target/stm32h7x.cfg"
+          "target/stm32h7x_dual_bank.cfg"
         ],
         "postLaunchCommands": [
           "monitor rtt server start 8765 0",
@@ -41,7 +41,7 @@
         "device": "STM32H743VGTx",
         "configFiles": [
           "interface/stlink.cfg",
-          "target/stm32h7x.cfg"
+          "target/stm32h7x_dual_bank.cfg"
         ],
         "postLaunchCommands": [
           "monitor rtt server start 8765 0",
@@ -65,7 +65,7 @@
         "device": "STM32H743VGTx",
         "configFiles": [
           "interface/stlink.cfg",
-          "target/stm32h7x.cfg"
+          "target/stm32h7x_dual_bank.cfg"
         ],
         "postLaunchCommands": [
           "monitor rtt server start 8765 0",
