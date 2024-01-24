@@ -2,12 +2,10 @@ use crate::utils::Concat;
 use core::cmp::Ordering;
 use heapless::String;
 
-pub const SW_VERSION: SwVersion = SwVersion {
-    version: [0, 1, 3, 0],
-};
-pub const HW_VERSION: HwVersion = HwVersion {
-    version: [3, 0, 0, 0],
-};
+#[rustfmt::skip]
+pub const SW_VERSION: SwVersion = SwVersion { version: [0, 1, 1, 9]};
+#[rustfmt::skip]
+pub const HW_VERSION: HwVersion = HwVersion { version: [3, 0, 0, 0], };
 
 #[repr(C)]
 #[derive(PartialEq, Clone, Copy)]
