@@ -2,10 +2,7 @@
 #![allow(unused_macros)]
 
 #[allow(unused)]
-use corelib::Event;
-#[allow(unused)]
-use heapless::mpmc::MpMcQueue;
-
+mod amplifier;
 #[allow(unused)]
 mod canbus;
 #[allow(unused)]
@@ -21,8 +18,16 @@ mod keyboard;
 #[allow(unused)]
 mod panic;
 #[allow(unused)]
+mod sound;
+#[allow(unused)]
 mod sys_timer;
 
+#[allow(unused)]
+use heapless::mpmc::MpMcQueue;
+#[allow(unused)]
+use corelib::Event;
+
+pub use amplifier::*;
 pub use canbus::*;
 pub use eeprom::*;
 pub use fmc_lcd::*;
@@ -30,6 +35,7 @@ pub use frame_buffer::*;
 pub use i2c_mgr::*;
 pub use keyboard::*;
 pub use panic::*;
+pub use sound::*;
 pub use sys_timer::*;
 
 pub type QEvents = MpMcQueue<Event, 8>;
