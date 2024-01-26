@@ -15,6 +15,8 @@ mod fmc_lcd;
 #[allow(unused)]
 mod frame_buffer;
 #[allow(unused)]
+mod i2c_mgr;
+#[allow(unused)]
 mod keyboard;
 #[allow(unused)]
 mod panic;
@@ -25,6 +27,7 @@ pub use canbus::*;
 pub use eeprom::*;
 pub use fmc_lcd::*;
 pub use frame_buffer::*;
+pub use i2c_mgr::*;
 pub use keyboard::*;
 pub use panic::*;
 pub use sys_timer::*;
