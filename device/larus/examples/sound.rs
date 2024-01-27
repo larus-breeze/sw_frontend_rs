@@ -8,9 +8,9 @@ use defmt::*;
 use defmt_rtt as _;
 
 use stm32h7xx_hal::{
-    {pac, prelude::*, pac::interrupt},
-    rcc::ResetEnable,
     dma::dma::StreamsTuple,
+    rcc::ResetEnable,
+    {pac, pac::interrupt, prelude::*},
 };
 
 use core::cell::RefCell;
@@ -46,7 +46,7 @@ fn main() -> ! {
 
     // hopefully, this is included let _ = ccdr.peripheral.DAC12.enable();
     let dac = dp.DAC.dac(gpioa.pa4, ccdr.peripheral.DAC12);
-    
+
     // Calibrate output buffer
     let dac = dac.calibrate_buffer(&mut delay);
     let scl = gpiob.pb6.into_alternate_open_drain();
@@ -55,7 +55,9 @@ fn main() -> ! {
         .I2C1
         .i2c((scl, sda), 400.kHz(), ccdr.peripheral.I2C1, &ccdr.clocks);
 
-    let mut amplifier = Amplifier::new(i2c);
+    let i2c_ref_cell = RefCell::new(i2c);
+
+    let mut amplifier = Amplifier::new(I2cManager::new(&i2c_ref_cell));
     amplifier.set_gain(0);
 
     // hopefully, this is included let _ = ccdr.peripheral.DMA1.enable();
@@ -68,11 +70,7 @@ fn main() -> ! {
         pac::NVIC::unmask(interrupt::DMA1_STR0);
     }
 
-    let sound = Sound::new(
-        dac,
-        dp.TIM6,
-        streams.0,
-    );
+    let sound = Sound::new(dac, dp.TIM6, streams.0);
 
     cortex_m::interrupt::free(|cs| {
         SOUND.borrow(cs).replace(Some(sound));
@@ -91,7 +89,7 @@ fn main() -> ! {
             3 => {
                 fq_idx = -1;
                 1047
-            },
+            }
             _ => 523,
         };
         fq_idx += 1;
@@ -109,13 +107,18 @@ fn main() -> ! {
                     let next_wf = sound.waveform().next();
                     sound.set_waveform(next_wf);
                     -1
-                },
+                }
                 _ => delta,
             };
 
             sound.set_frequency(fq);
-            sound.set_continous(delta>0);
-            trace!("Waveform {:?}, Freqeuncy {} Hz, Gain {} dB", sound.waveform(), fq, gain);
+            sound.set_continous(delta > 0);
+            trace!(
+                "Waveform {:?}, Freqeuncy {} Hz, Gain {} dB",
+                sound.waveform(),
+                fq,
+                gain
+            );
         });
 
         delay_ms(1000);

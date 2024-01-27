@@ -3,6 +3,7 @@
 
 mod driver;
 
+use core::cell::RefCell;
 use corelib::{EepromTopic, PersistenceId, PersistenceItem};
 use cortex_m_rt::entry;
 use defmt::*;
@@ -52,7 +53,9 @@ fn main() -> ! {
     let i2c = dp
         .I2C1
         .i2c((scl, sda), 400.kHz(), ccdr.peripheral.I2C1, &ccdr.clocks);
-    let r_eeprom = Storage::new(i2c);
+
+    let i2c_ref_cell = RefCell::new(i2c);
+    let r_eeprom = Storage::new(I2cManager::new(&i2c_ref_cell));
     let mut eeprom = r_eeprom.unwrap();
 
     for item in eeprom.iter_over(EepromTopic::ConfigValues) {

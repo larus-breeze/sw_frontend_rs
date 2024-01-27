@@ -23,9 +23,9 @@ mod sound;
 mod sys_timer;
 
 #[allow(unused)]
-use heapless::mpmc::MpMcQueue;
-#[allow(unused)]
 use corelib::Event;
+#[allow(unused)]
+use heapless::mpmc::MpMcQueue;
 
 pub use amplifier::*;
 pub use canbus::*;
