@@ -46,29 +46,24 @@ fn main() -> ! {
 
     let mut supply = gpioa.pa6.into_analog();
     let mut illumination = gpioc.pc4.into_analog();
-    let mut temp= gpiob.pb1.into_analog();
+    let mut temp = gpiob.pb1.into_analog();
 
     loop {
-            delay.delay_ms(20_u16);
+        delay.delay_ms(20_u16);
 
-            let voltage_adc: u32 = adc1.read(&mut supply).unwrap();
-            info!(
-               "Supply Voltage {}",
-               voltage_adc as f32 * 0.000503540039
-            );
+        let voltage_adc: u32 = adc1.read(&mut supply).unwrap();
+        info!("Supply Voltage {}", voltage_adc as f32 * 0.000503540039);
 
-            let illumination_adc: u32 = adc1.read(&mut illumination).unwrap();
-            info!(
-                "Illumination Voltage {}",
-                illumination_adc as f32 * 0.000045776
-             );
+        let illumination_adc: u32 = adc1.read(&mut illumination).unwrap();
+        info!(
+            "Illumination Voltage {}",
+            illumination_adc as f32 * 0.000045776
+        );
 
-            let temperature_adc: u32 = adc1.read(&mut temp).unwrap();
-            info!(
-                "PCB Temperature {}",
-                100.0 * ((temperature_adc as f32) * 0.000045776367 - 0.5)
-             );
-
-        }
-    
+        let temperature_adc: u32 = adc1.read(&mut temp).unwrap();
+        info!(
+            "PCB Temperature {}",
+            100.0 * ((temperature_adc as f32) * 0.000045776367 - 0.5)
+        );
+    }
 }
