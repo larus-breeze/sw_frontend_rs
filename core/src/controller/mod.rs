@@ -149,30 +149,33 @@ impl CoreController {
         // calculate sound parameters and push can frame to queue
         let cms = &core_model.sensor;
         let cmc = &core_model.config;
-        let (frequency, continuous, volume) = match core_model.control.vario_mode {
+        let (frequency, continuous, gain) = match core_model.control.vario_mode {
             VarioMode::Vario => (
-                cmc.snd_center_freq * (cmc.snd_exp_mul * cms.climb_rate.to_m_s()).exp(),
+                (cmc.snd_center_freq * (cmc.snd_exp_mul * cms.climb_rate.to_m_s()).exp()) as u16,
                 cms.climb_rate.to_m_s() < 0.0,
                 cmc.volume,
             ),
             VarioMode::SpeedToFly => {
                 let sped_to_fly_val = core_model.calculated.speed_to_fly_dif.to_km_h() / -10.0;
-                if sped_to_fly_val.abs() < 1.0 {
-                    (500.0, true, 0) // speed to fly is ok, so be quiet
+                if sped_to_fly_val < 1.0 && sped_to_fly_val > -1.0 {
+                    (500, true, 0) // speed to fly is ok, so be quiet
                 } else {
                     (
-                        cmc.snd_center_freq * (cmc.snd_exp_mul * sped_to_fly_val).exp(),
+                        (cmc.snd_center_freq * (cmc.snd_exp_mul * sped_to_fly_val).exp()) as u16,
                         sped_to_fly_val < 0.0,
                         cmc.volume,
                     )
                 }
             }
         };
+        core_model.calculated.frequency = frequency;
+        core_model.calculated.continuous = continuous;
+        core_model.calculated.gain = gain;
 
         // create CAN frame
         let can_frame = can_frame_sound(
-            frequency as u16,
-            volume as u8,
+            frequency,
+            gain as u8,
             cmc.snd_duty_cycle,
             continuous,
         );

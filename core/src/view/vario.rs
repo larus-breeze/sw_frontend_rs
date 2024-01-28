@@ -169,8 +169,8 @@ where
         VarioMode::SpeedToFly => {
             display.draw_img(STRAIGHT_IMG, SZS.pic_left_under_pos)?;
             display.draw_img(KM_H_IMG, SZS.left_under_pos)?;
-            let stf = num::clamp(cm.calculated.speed_to_fly_dif.to_km_h(), -50.0, 50.0);
-            let angle_sweep = (-2.5 * stf).deg();
+            let stf = num::clamp(-cm.calculated.speed_to_fly_dif.to_km_h() / 10.0, -5.0, 5.0);
+            let angle_sweep = (VARIO_SIZES.angle_m_s * stf).deg();
             Arc::with_center(CENTER, SZS.diameter_stf, 180.0.deg(), angle_sweep)
                 .into_styled(PrimitiveStyle::with_stroke(COLS.speed_to_fly, 6))
                 .draw(display)?;

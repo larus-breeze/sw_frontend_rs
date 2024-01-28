@@ -130,6 +130,7 @@ pub struct Calculated {
     pub thermal_climb_rate: Speed,
     pub frequency: u16,
     pub continuous: bool,
+    pub gain: i8,
 }
 
 impl Default for Calculated {
@@ -142,6 +143,7 @@ impl Default for Calculated {
             thermal_climb_rate: 1.3.m_s(),
             frequency: 500,
             continuous: false,
+            gain: 2,
         }
     }
 }

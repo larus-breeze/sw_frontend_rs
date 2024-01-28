@@ -19,15 +19,13 @@
 ///
 /// In this module, unsafe is used several times to access the controller peripherals. This is
 /// unavoidable, necessary and tests did not reveal any problems.
-use defmt::Format;
+use defmt::*;
 use stm32h7xx_hal::{
     dac::{Disabled, C1},
-    dma::dma::{Stream0, StreamsTuple},
+    dma::dma::Stream0,
     pac,
     pac::{DAC, DMA1},
-    rcc::ResetEnable,
 };
-
 const SAMPLES_CNT: usize = 20;
 #[allow(unused)]
 const SILENT_WAVE: [u16; SAMPLES_CNT] = [
@@ -36,25 +34,23 @@ const SILENT_WAVE: [u16; SAMPLES_CNT] = [
 ];
 #[allow(unused)]
 const TRIANGULAR_WAVE: [u16; SAMPLES_CNT] = [
-    2251, 2456, 2661, 2865, 3070, 2865, 2661, 2456, 2251, 2046, 1842, 1637, 1432, 1228, 1023, 1228,
-    1432, 1637, 1842, 2046,
+    2456, 2866, 3275, 3685, 4094, 3685, 3275, 2866, 2456, 2047, 1637, 1228, 818, 409, 0, 409, 818,
+    1228, 1637, 2047,
 ];
 #[allow(unused)]
 const SAWTOOTH_WAVE: [u16; SAMPLES_CNT] = [
-    2149, 2251, 2354, 2456, 2558, 2661, 2763, 2865, 2968, 3070, 1126, 1228, 1331, 1433, 1535, 1638,
-    1740, 1842, 1945, 2047,
+    2251, 2456, 2661, 2866, 3070, 3275, 3480, 3685, 3889, 4094, 204, 409, 614, 819, 1023, 1228,
+    1433, 1638, 1842, 2047,
 ];
 #[allow(unused)]
 const RECTANGULAR_WAVE: [u16; SAMPLES_CNT] = [
-    3070, 3070, 3070, 3070, 3070, 3070, 3070, 3070, 3070, 3070, 1024, 1024, 1024, 1024, 1024, 1024,
-    1024, 1024, 1024, 1024,
+    4094, 4094, 4094, 4094, 4094, 4094, 4094, 4094, 4094, 4094, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
 ];
 #[allow(unused)]
 const SINE_WAVE: [u16; SAMPLES_CNT] = [
-    2363, 2648, 2875, 3020, 3070, 3020, 2875, 2648, 2363, 2047, 1730, 1445, 1218, 1073, 1023, 1073,
-    1218, 1445, 1730, 2046,
+    2680, 3251, 3704, 3995, 4095, 3995, 3704, 3251, 2680, 2048, 1415, 844, 391, 100, 0, 100, 391,
+    844, 1415, 2047,
 ];
-
 #[derive(Clone, Copy, Format)]
 pub enum Waveform {
     Triangular,
@@ -90,7 +86,9 @@ pub struct Sound {
     dma1_stream0: Stream0<DMA1>,
     cycle_counter: u16,
     duty_cycle: u16,
-    frequency: f32,
+    wave_ctr: u32,
+    next_f: f32,
+    curr_f: f32,
     delta_f: f32,
     on: bool,
     continous: bool,
@@ -149,7 +147,9 @@ impl Sound {
             dma1_stream0,
             cycle_counter: 0,
             duty_cycle: 120,
-            frequency: 1000.0,
+            wave_ctr: 0,
+            next_f: 1000.0,
+            curr_f: 1000.0,
             delta_f: 0.0,
             on: true,
             continous: false,
@@ -164,9 +164,11 @@ impl Sound {
 
     pub fn set_params(&mut self, fq: u16, continous: bool, mute: bool) {
         let devider = self.tim.arr.read().bits();
-        let f_now = 100_000_000.0 / SAMPLES_CNT as f32 / devider as f32;
+        self.wave_ctr = 0;
+        self.curr_f = 100_000_000.0 / SAMPLES_CNT as f32 / devider as f32;
         // Calculate delta frequency asume 10 Hz tick rate
-        self.delta_f = (fq as f32 - f_now) / 10.0;
+        self.next_f = fq as f32;
+        self.delta_f = (self.next_f - self.curr_f) / self.curr_f * 10.0;
         // let devider = (100_000_000 / SAMPLES_CNT as u32 / fq as u32) as u16;
         // self.tim.arr.write(|w| w.arr().bits(devider)); // preload register
         self.continous = continous;
@@ -187,42 +189,48 @@ impl Sound {
         dma1.lifcr.write(|w| w.ctcif0().set_bit());
 
         // calc next frequency
-        self.frequency += self.delta_f;
-        let devider = (100_000_000 / SAMPLES_CNT as u32 / self.frequency as u32) as u16;
-        self.tim.arr.write(|w| w.arr().bits(devider)); // preload register
+        self.curr_f += self.delta_f;
+        self.wave_ctr += 1;
+        if self.curr_f > 200.0 && self.curr_f < 2000.0 {
+            let devider = (100_000_000 / SAMPLES_CNT as u32 / self.curr_f as u32) as u16;
+            self.tim.arr.write(|w| w.arr().bits(devider)); // preload register
+        }
 
         self.cycle_counter += 1;
-        if self.cycle_counter >= self.duty_cycle {
-            self.cycle_counter = 0;
-            match self.continous {
-                true => {
-                    if !self.on {
-                        self.set_wave(true);
+
+        if self.mute {
+            if self.on {
+                self.set_wave(false);
+            }
+        } else {
+            if self.cycle_counter >= self.duty_cycle {
+                self.cycle_counter = 0;
+                match self.continous {
+                    true => {
+                        if !self.on {
+                            self.set_wave(true);
+                        }
                     }
+                    false => match self.on {
+                        true => self.set_wave(false),
+                        false => self.set_wave(true),
+                    },
                 }
-                false => match self.on {
-                    true => self.set_wave(false),
-                    false => self.set_wave(true),
-                },
             }
         }
     }
 
     fn set_wave(&mut self, sound_on: bool) {
         self.on = sound_on;
-        let wave_ptr = if self.mute {
-            SILENT_WAVE.as_ptr()
-        } else {
-            if sound_on {
-                match self.waveform {
-                    Waveform::Triangular => TRIANGULAR_WAVE.as_ptr(),
-                    Waveform::Sawtooth => SAWTOOTH_WAVE.as_ptr(),
-                    Waveform::Rectangular => RECTANGULAR_WAVE.as_ptr(),
-                    Waveform::SineWave => SINE_WAVE.as_ptr(),
-                }
-            } else {
-                SILENT_WAVE.as_ptr()
+        let wave_ptr = if sound_on {
+            match self.waveform {
+                Waveform::Triangular => TRIANGULAR_WAVE.as_ptr(),
+                Waveform::Sawtooth => SAWTOOTH_WAVE.as_ptr(),
+                Waveform::Rectangular => RECTANGULAR_WAVE.as_ptr(),
+                Waveform::SineWave => SINE_WAVE.as_ptr(),
             }
+        } else {
+            SILENT_WAVE.as_ptr()
         };
         let dma1 = unsafe { &(*pac::DMA1::ptr()) };
         dma1.st[0].cr.modify(|_, w| w.en().clear_bit()); // stop dma transfer

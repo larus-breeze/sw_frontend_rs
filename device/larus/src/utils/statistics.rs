@@ -6,6 +6,7 @@ use crate::app;
 #[repr(u8)]
 #[derive(Clone, Copy, Debug)]
 pub enum Task {
+    Sound,
     CanRx,
     CanTx,
     CanTimer,
@@ -32,6 +33,7 @@ impl Task {
 
 // define the task names
 const TASK_NAMES: [&str; TASK_CNT] = [
+    "Sound",
     "CanRx",
     "CanTx",
     "CanTimer",

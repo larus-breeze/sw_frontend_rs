@@ -2,7 +2,7 @@ clock = 100_000_000
 lowest_fq = 200
 highest_fq = 2000
 samples = 20
-amplitude = 2047
+amplitude = 4095
 neutral = 2047
 
 d1 = clock / samples / lowest_fq
@@ -71,7 +71,7 @@ print_vals("RECTANGULAR", vals)
 
 import math
 def sin_val(x):
-    return int(math.sin(x) * amplitude // 2 + neutral)
+    return int(math.sin(x) * amplitude // 2 + neutral) + 1
 
 vals = []
 delta = 2*math.pi/samples

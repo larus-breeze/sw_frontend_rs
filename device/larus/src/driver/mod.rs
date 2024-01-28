@@ -6,24 +6,30 @@ use corelib::Event;
 #[allow(unused)]
 use heapless::mpmc::MpMcQueue;
 
+mod amplifier;
 mod canbus;
 mod eeprom;
 mod fmc_lcd;
 mod frame_buffer;
+mod i2c_mgr;
 mod init;
 mod keyboard;
 mod panic;
 mod rng_uuid;
+mod sound;
 mod sys_timer;
 
+pub use amplifier::*;
 pub use canbus::*;
 pub use eeprom::*;
 pub use fmc_lcd::*;
 pub use frame_buffer::*;
+pub use i2c_mgr::*;
 pub use init::*;
 pub use keyboard::*;
 pub use panic::*;
 pub use rng_uuid::*;
+pub use sound::*;
 pub use sys_timer::*;
 
 pub type QEvents = MpMcQueue<Event, 8>;

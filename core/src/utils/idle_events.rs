@@ -7,6 +7,7 @@ pub enum IdleEvent {
     EepromItem(PersistenceItem),
     SdCardItem(SdCardCmd),
     FeedTheDog,
+    SetGain(u8),
 }
 
 #[repr(u16)]

@@ -111,8 +111,7 @@ fn main() -> ! {
                 _ => delta,
             };
 
-            sound.set_frequency(fq);
-            sound.set_continous(delta > 0);
+            sound.set_params(fq, false, false);
             trace!(
                 "Waveform {:?}, Freqeuncy {} Hz, Gain {} dB",
                 sound.waveform(),

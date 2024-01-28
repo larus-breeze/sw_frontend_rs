@@ -1,12 +1,20 @@
+use core::cell::RefCell;
+
 use defmt::trace;
 
-use stm32h7xx_hal::{independent_watchdog::IndependentWatchdog, prelude::*};
+use crate::driver::*;
+use corelib::{CIdleEvents, CoreModel, Eeprom, IdleEvent};
+use stm32h7xx_hal::{
+    device::I2C1,
+    i2c::{Error as I2cError, I2c},
+    independent_watchdog::IndependentWatchdog,
+    prelude::*,
+}; //Event, DeviceEvent, SdCardCmd};
 
-use crate::driver::{QEvents, Storage};
-use corelib::{CIdleEvents, Eeprom, IdleEvent}; //Event, DeviceEvent, SdCardCmd};
-
+static mut I2C_REF: Option<RefCell<I2c<I2C1>>> = None;
 pub struct IdleLoop {
-    eeprom: Eeprom<Storage>,
+    amplifier: Amplifier<I2cManager<'static>>,
+    eeprom: Eeprom<Storage<I2cManager<'static>, I2cError>>,
     c_idle_events: CIdleEvents,
     _q_events: &'static QEvents,
     //    file_sys: FileSys,
@@ -15,15 +23,30 @@ pub struct IdleLoop {
 
 impl IdleLoop {
     pub fn new(
-        eeprom: Eeprom<Storage>,
+        i2c: I2c<I2C1>,
         c_idle_events: CIdleEvents,
         q_events: &'static QEvents,
         //        file_sys: FileSys,
         mut watchdog: IndependentWatchdog,
+        core_model: &mut CoreModel,
     ) -> Self {
+        // I found no other solution
+        let (mut eeprom, amplifier) = unsafe {
+            I2C_REF.replace(RefCell::new(i2c));
+            (
+                Storage::new(I2cManager::new(&I2C_REF.as_ref().unwrap())).unwrap(),
+                Amplifier::new(I2cManager::new(&I2C_REF.as_ref().unwrap())),
+            )
+        };
+        for item in eeprom.iter_over(corelib::EepromTopic::ConfigValues) {
+            core_model.restore_persistent_item(item);
+        }
+
         watchdog.start(1000.millis());
         trace!("Start watchdog");
+
         IdleLoop {
+            amplifier,
             eeprom,
             c_idle_events,
             _q_events: q_events,
@@ -42,6 +65,10 @@ impl IdleLoop {
                         self.eeprom.write_item(item).unwrap();
                     }
                     IdleEvent::FeedTheDog => self.watchdog.feed(),
+                    IdleEvent::SetGain(gain) => {
+                        self.amplifier.set_gain(gain);
+                        trace!("set_gain() {}", gain);
+                    }
                     _ => (),
                     /*IdleEvent::SdCardItem(item) => {
                         match item {

@@ -9,15 +9,16 @@ use defmt::*;
 use heapless::{mpmc::MpMcQueue, spsc::Queue};
 use st7789::ST7789;
 use stm32h7xx_hal::{
+    dma::dma::StreamsTuple,
     independent_watchdog::IndependentWatchdog,
     pac::Peripherals as DevicePeripherals,
     prelude::*,
-    rcc::{rec, rec::FmcClkSel},
+    rcc::{rec, rec::FmcClkSel, ResetEnable},
 };
 
 pub type DevCanDispatch = CanDispatch<VDA, 8, MAX_TX_FRAMES, MAX_RX_FRAMES, DevRng>;
 
-pub fn hw_init(
+pub fn hw_init<'a>(
     dp: DevicePeripherals,
     mut cp: CorePeripherals,
 ) -> (
@@ -31,6 +32,7 @@ pub fn hw_init(
     IdleLoop,
     Keyboard,
     MonoTimer,
+    Sound,
     Statistics,
 ) {
     // Setup ----------> the queues
@@ -174,16 +176,23 @@ pub fn hw_init(
         let i2c = dp
             .I2C1
             .i2c((scl, sda), 400.kHz(), ccdr.peripheral.I2C1, &ccdr.clocks);
-        let mut eeprom = Storage::new(i2c).unwrap();
+        /*let mut eeprom = Storage::new(i2c).unwrap();
         for item in eeprom.iter_over(corelib::EepromTopic::ConfigValues) {
             core_model.restore_persistent_item(item);
-        }
+        }*/
         let watchdog = IndependentWatchdog::new(dp.IWDG);
 
-        IdleLoop::new(eeprom, c_idle_events, &Q_EVENTS, watchdog)
+        IdleLoop::new(i2c, c_idle_events, &Q_EVENTS, watchdog, &mut core_model)
     };
 
-    info!("Larus Ad57 finished");
+    let sound = {
+        let dac = dp.DAC.dac(gpioa.pa4, ccdr.peripheral.DAC12);
+        let dac = dac.calibrate_buffer(&mut delay);
+        let streams = StreamsTuple::new(dp.DMA1, ccdr.peripheral.DMA1);
+        let _ = ccdr.peripheral.TIM6.enable();
+        Sound::new(dac, dp.TIM6, streams.0)
+    };
+    info!("Larus init finished");
 
     (
         can_dispatch,
@@ -196,6 +205,7 @@ pub fn hw_init(
         idle_loop,
         keyboard,
         mono,
+        sound,
         statistics,
     )
 }
