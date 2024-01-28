@@ -35,6 +35,7 @@ mod app {
         can_tx: CanTx<MAX_TX_FRAMES>,
         core_model: CoreModel,
         frame_buffer: FrameBuffer,
+        sound: Sound,
         statistics: Statistics,
     }
 
@@ -60,6 +61,7 @@ mod app {
             idle_loop,
             keyboard,
             mono,
+            sound,
             statistics,
         ) = hw_init(cx.device, cx.core);
 
@@ -75,6 +77,7 @@ mod app {
                 can_tx,
                 core_model,
                 frame_buffer,
+                sound,
                 statistics,
             },
             Local {
@@ -86,6 +89,13 @@ mod app {
             },
             init::Monotonics(mono), // Give the monotonic to RTIC
         )
+    }
+
+    #[task(binds = DMA1_STR0, shared = [statistics, sound], priority=6)]
+    fn isr_sound(mut cx: isr_sound::Context) {
+        task_start!(cx, Task::Sound);
+        cx.shared.sound.lock(|sound| sound.on_interrupt());
+        task_end!(cx, Task::Sound);
     }
 
     /// Receive can frames
@@ -157,7 +167,7 @@ mod app {
     }
 
     /// The controller contains the complete logic for processing the data and events
-    #[task(local = [controller], shared = [core_model, statistics], priority=3)]
+    #[task(local = [controller], shared = [core_model, sound, statistics], priority=3)]
     fn task_controller(mut cx: task_controller::Context) {
         task_start!(cx, Task::Controller);
 
@@ -167,11 +177,24 @@ mod app {
             .shared
             .statistics
             .lock(|statistics| statistics.all_alive());
-        cx.shared.core_model.lock(|core_model| {
+
+        let (frequecy, continuous, gain) = cx.shared.core_model.lock(|core_model| {
             if all_alive {
+                // feed the watchdog, if all tasks are alive
                 core_model.send_idle_event(IdleEvent::FeedTheDog);
             }
-            controller.tick(core_model)
+            // do controller calculations
+            controller.tick(core_model);
+            (
+                core_model.calculated.frequency,
+                core_model.calculated.continuous,
+                core_model.calculated.gain,
+            )
+        });
+
+        // set sound params
+        cx.shared.sound.lock(|sound| {
+            sound.set_params(frequecy, continuous, gain == 0);
         });
 
         task_end!(cx, Task::Controller);

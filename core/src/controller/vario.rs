@@ -1,12 +1,5 @@
 use crate::{
-    basic_config::SECTION_EDITOR_TIMEOUT,
-    can_frame_sys_config,
-    controller::{Direction, Editable, Result},
-    flight_physics::POLAR_COUNT,
-    model::{CoreModel, EditMode, VarioModeControl},
-    system_of_units::{FloatToMass, FloatToSpeed},
-    utils::{val_manip, KeyEvent},
-    SysConfigId, SysValueId,
+    basic_config::SECTION_EDITOR_TIMEOUT, can_frame_sys_config, controller::{Direction, Editable, Result}, flight_physics::POLAR_COUNT, model::{CoreModel, EditMode, VarioModeControl}, system_of_units::{FloatToMass, FloatToSpeed}, utils::{val_manip, KeyEvent}, IdleEvent, SysConfigId, SysValueId
 };
 use num::clamp;
 
@@ -71,8 +64,8 @@ impl VarioController {
                 cm.config.volume = match key_event {
                     KeyEvent::Rotary1Left => return Result::NextDisplay(Direction::Backward),
                     KeyEvent::Rotary1Right => return Result::NextDisplay(Direction::Forward),
-                    KeyEvent::Rotary2Left => clamp(cm.config.volume - 1, 0, 20),
-                    KeyEvent::Rotary2Right => clamp(cm.config.volume + 1, 0, 20),
+                    KeyEvent::Rotary2Left => clamp(cm.config.volume - 1, 0, 30),
+                    KeyEvent::Rotary2Right => clamp(cm.config.volume + 1, 0, 30),
                     _ => return Result::Nothing,
                 };
                 let frame = can_frame_sys_config(
@@ -80,6 +73,8 @@ impl VarioController {
                     SysValueId::U8(cm.config.volume as u8),
                 );
                 let _ = cm.p_tx_frames.enqueue(frame);
+                let event = IdleEvent::SetGain(cm.config.volume as u8);
+                cm.send_idle_event(event);
             }
             Editable::WaterBallast => {
                 cm.glider_data.water_ballast = val_manip(
