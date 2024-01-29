@@ -114,8 +114,16 @@ where
 
     // draw wind arrow
     let wind_speed = cm.sensor.wind_vector.speed().to_km_h();
-    let angle = cm.sensor.wind_vector.angle();
-    let av_angle = cm.sensor.average_wind.angle();
+    let (angle, av_angle) = match cm.control.fly_mode {
+        FlyMode::Circling => (
+            cm.sensor.wind_vector.angle(),
+            cm.sensor.average_wind.angle(),
+        ),
+        FlyMode::StraightFlight | FlyMode::Transition => (
+            cm.sensor.wind_vector.angle() - cm.sensor.gps_track,
+            cm.sensor.average_wind.angle() - cm.sensor.gps_track,
+        ),
+    };
     let len = match wind_speed {
         x if x < WIND_MIN => SZS.wind_len_min, // Light wind is set to a minimum size
         x if x > WIND_MAX => SZS.wind_len,     // Strong wind is set to a maximum size

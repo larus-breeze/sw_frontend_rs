@@ -154,7 +154,8 @@ fn main() -> Result<(), core::convert::Infallible> {
                         sw_update_status = 0
                     }
                 }
-                IdleEvent::FeedTheDog => (), // Now Watchdog in this demo app
+                IdleEvent::FeedTheDog => (), // No Watchdog in this demo app
+                IdleEvent::SetGain(_) => (), // Sound is done via can datagram
             }
         }
 

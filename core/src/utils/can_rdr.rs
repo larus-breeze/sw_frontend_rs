@@ -59,18 +59,43 @@ fn read_legacy_frame(cm: &mut CoreModel, frame: &CanFrame) {
     let mut rdr = Reader::new(frame.data());
 
     match id {
+        sensor::ACCELERATION => {
+            cm.sensor.g_force = ((rdr.pop_i16() as f32) * 0.001).m_s2();
+            cm.sensor.vertical_g_force = ((rdr.pop_i16() as f32) * 0.001).m_s2();
+            cm.sensor.gps_climb_rate = ((rdr.pop_i16() as f32) * 0.001).m_s();
+            match rdr.pop_u8() {
+                2 => cm.control.fly_mode = FlyMode::Circling,
+                1 => cm.control.fly_mode = FlyMode::Transition,
+                _ => cm.control.fly_mode = FlyMode::StraightFlight,
+            }
+        }
         sensor::AIRSPEED => {
             let tas = (rdr.pop_i16() as f32).km_h();
             let ias = (rdr.pop_i16() as f32).km_h();
             cm.sensor.airspeed = AirSpeed::from_speeds(ias, tas);
         }
-        sensor::VARIO => {
-            cm.sensor.climb_rate = ((rdr.pop_i16() as f32) * 0.001).m_s();
-            cm.sensor.average_climb_rate = ((rdr.pop_i16() as f32) * 0.001).m_s();
-        }
         sensor::ATHMOSPHERE => {
             cm.sensor.pressure = (rdr.pop_u32() as f32).n_m2();
             cm.sensor.density = (rdr.pop_u32() as f32).g_m3();
+        }
+        sensor::GPS_TRK_SPD => {
+            cm.sensor.gps_track = (rdr.pop_i16() as f32 * 0.001).rad();
+            cm.sensor.gps_ground_speed = (rdr.pop_u16() as f32).km_h();
+            if cm.sensor.gps_ground_speed < 1.0.km_h() {
+                cm.sensor.gps_track = 0.0.rad();
+            }
+            if cm.sensor.gps_track < 0.0.rad() {
+                cm.sensor.gps_track += 360.0.deg();
+            }
+        }
+        sensor::TURN_COORD => {
+            cm.sensor.slip_angle = ((rdr.pop_i16() as f32) * 0.001).rad();
+            cm.sensor.turn_rate = ((rdr.pop_i16() as f32) * 0.001).rad_s();
+            cm.sensor.nick_angle = ((rdr.pop_i16() as f32) * 0.001).rad();
+        }
+        sensor::VARIO => {
+            cm.sensor.climb_rate = ((rdr.pop_i16() as f32) * 0.001).m_s();
+            cm.sensor.average_climb_rate = ((rdr.pop_i16() as f32) * 0.001).m_s();
         }
         sensor::WIND => {
             cm.sensor
@@ -85,21 +110,6 @@ fn read_legacy_frame(cm: &mut CoreModel, frame: &CanFrame) {
             cm.sensor
                 .average_wind
                 .set_speed((rdr.pop_i16() as f32).km_h());
-        }
-        sensor::ACCELERATION => {
-            cm.sensor.g_force = ((rdr.pop_i16() as f32) * 0.001).m_s2();
-            cm.sensor.vertical_g_force = ((rdr.pop_i16() as f32) * 0.001).m_s2();
-            cm.sensor.gps_climb_rate = ((rdr.pop_i16() as f32) * 0.001).m_s();
-            match rdr.pop_u8() {
-                2 => cm.control.fly_mode = FlyMode::Circling,
-                1 => cm.control.fly_mode = FlyMode::Transition,
-                _ => cm.control.fly_mode = FlyMode::StraightFlight,
-            }
-        }
-        sensor::TURN_COORD => {
-            cm.sensor.slip_angle = ((rdr.pop_i16() as f32) * 0.001).rad();
-            cm.sensor.turn_rate = ((rdr.pop_i16() as f32) * 0.001).rad_s();
-            cm.sensor.nick_angle = ((rdr.pop_i16() as f32) * 0.001).rad();
         }
         _ => (), // all other frames are ignored
     }
