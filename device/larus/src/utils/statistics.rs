@@ -18,7 +18,7 @@ pub enum Task {
 }
 
 // Pattern defines, which taks must be active to feed the watchdog
-const ALL_ALIVE_PATTERN: u32 = 0b0111_1110;
+const ALL_ALIVE_PATTERN: u32 = 0b0111_1101;
 
 impl Task {
     pub fn from_usize(u: usize) -> Self {
