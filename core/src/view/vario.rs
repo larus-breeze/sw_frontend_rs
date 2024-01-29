@@ -72,8 +72,8 @@ where
 
     // dependend on fly_mode draw glider or north symbol
     match cm.control.fly_mode {
-        FlyMode::Circling => display.draw_img(NORTH_IMG, Point::new(0, 0))?,
-        FlyMode::StraightFlight | FlyMode::Transition => {
+        FlyMode::Circling | FlyMode::Transition => display.draw_img(NORTH_IMG, Point::new(0, 0))?,
+        FlyMode::StraightFlight=> {
             display.draw_img(GLIDER_IMG, Point::new(0, 0))?
         }
     }
@@ -115,11 +115,11 @@ where
     // draw wind arrow
     let wind_speed = cm.sensor.wind_vector.speed().to_km_h();
     let (angle, av_angle) = match cm.control.fly_mode {
-        FlyMode::Circling => (
+        FlyMode::Circling | FlyMode::Transition => (
             cm.sensor.wind_vector.angle(),
             cm.sensor.average_wind.angle(),
         ),
-        FlyMode::StraightFlight | FlyMode::Transition => (
+        FlyMode::StraightFlight => (
             cm.sensor.wind_vector.angle() - cm.sensor.gps_track,
             cm.sensor.average_wind.angle() - cm.sensor.gps_track,
         ),
