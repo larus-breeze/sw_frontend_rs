@@ -12,8 +12,8 @@ use crate::{
     can_frame_heartbeat, can_frame_sound,
     flight_physics::Polar,
     model::{DisplayActive, EditMode, VarioModeControl},
-    system_of_units::FloatToSpeed,
-    utils::{read_can_frame, KeyEvent},
+    system_of_units::{FloatToSpeed, Speed},
+    utils::{read_can_frame, KeyEvent, Pt1},
     CoreModel, DeviceEvent, PersistenceId, VarioMode, POLARS,
 };
 use can_dispatch::Frame;
@@ -53,18 +53,23 @@ pub struct CoreController {
     vario: VarioController,
     sw_update: SwUpdateController,
     tick: u32,
+    last_vario_mode: VarioMode,
+    av2_climb_rate: Pt1<Speed>,
 }
 
 impl CoreController {
     pub fn new(core_model: &mut CoreModel) -> Self {
         let polar_idx = core_model.config.glider_idx as usize;
         let polar = Polar::new(&POLARS[polar_idx], &mut core_model.glider_data);
+        let av2_climb_rate = Pt1::new(0.0.m_s(), 10, core_model.config.av2_time_const);
         Self {
             demo: DemoController::new(),
             polar,
             vario: VarioController::new(),
             tick: 0,
+            last_vario_mode: VarioMode::Vario,
             sw_update: SwUpdateController::new(),
+            av2_climb_rate,
         }
     }
 
@@ -119,6 +124,10 @@ impl CoreController {
 
     pub fn time_action(&mut self, core_model: &mut CoreModel) {
         core_model.pers_tick();
+        if core_model.control.vario_mode == VarioMode::Vario {
+            self.av2_climb_rate.tick(core_model.sensor.climb_rate);
+            core_model.calculated.av2_climb_rate = self.av2_climb_rate.value();
+        }
 
         // Count edit_ticks down, to close editor if necessary
         if core_model.control.edit_ticks > 0 {
@@ -173,12 +182,7 @@ impl CoreController {
         core_model.calculated.gain = gain;
 
         // create CAN frame
-        let can_frame = can_frame_sound(
-            frequency,
-            gain as u8,
-            cmc.snd_duty_cycle,
-            continuous,
-        );
+        let can_frame = can_frame_sound(frequency, gain as u8, cmc.snd_duty_cycle, continuous);
         // add CAN frame to queue, ignore if the queue is full
         let _ = core_model.p_tx_frames.enqueue(can_frame);
 
@@ -197,23 +201,28 @@ impl CoreController {
                     stf.ias() * core_model.control.vario_mode_switch_ratio;
 
                 // In auto mode switch between Vario and SpeedToFly
-                match core_model.control.vario_mode_control {
+                core_model.control.vario_mode = match core_model.control.vario_mode_control {
                     VarioModeControl::Auto => {
                         if core_model.sensor.airspeed.ias() > core_model.control.speed_to_fly_limit
                         {
-                            core_model.control.vario_mode = VarioMode::SpeedToFly;
+                            VarioMode::SpeedToFly
                         } else {
-                            core_model.control.vario_mode = VarioMode::Vario;
+                            VarioMode::Vario
                         }
                     }
-                    VarioModeControl::SpeedToFly => {
-                        core_model.control.vario_mode = VarioMode::SpeedToFly
-                    }
-                    VarioModeControl::Vario => core_model.control.vario_mode = VarioMode::Vario,
-                }
+                    VarioModeControl::SpeedToFly => VarioMode::SpeedToFly,
+                    VarioModeControl::Vario => VarioMode::Vario,
+                };
 
                 // Set 1-second-speed-to-fly value
                 core_model.calculated.speed_to_fly_1s = core_model.calculated.speed_to_fly.ias();
+
+                if self.last_vario_mode != core_model.control.vario_mode {
+                    self.last_vario_mode = core_model.control.vario_mode;
+                    if core_model.control.vario_mode == VarioMode::Vario {
+                        self.av2_climb_rate.set_value(core_model.sensor.climb_rate);
+                    }
+                }
             }
             3 => {
                 // create CAN frame and add to queue

@@ -1,5 +1,12 @@
 use crate::{
-    basic_config::SECTION_EDITOR_TIMEOUT, can_frame_sys_config, controller::{Direction, Editable, Result}, flight_physics::POLAR_COUNT, model::{CoreModel, EditMode, VarioModeControl}, system_of_units::{FloatToMass, FloatToSpeed}, utils::{val_manip, KeyEvent}, IdleEvent, SysConfigId, SysValueId
+    basic_config::SECTION_EDITOR_TIMEOUT,
+    can_frame_sys_config,
+    controller::{Direction, Editable, Result},
+    flight_physics::POLAR_COUNT,
+    model::{CoreModel, EditMode, VarioModeControl},
+    system_of_units::{FloatToMass, FloatToSpeed},
+    utils::{val_manip, KeyEvent},
+    IdleEvent, SysConfigId, SysValueId,
 };
 use num::clamp;
 

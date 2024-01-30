@@ -81,6 +81,7 @@ pub enum FlyMode {
 /// optimize climbing in thermals is displayed. SppedToFly, on the other hand, is intended
 /// for optimal pre-flight.
 #[repr(u8)]
+#[derive(PartialEq, Clone, Copy)]
 pub enum VarioMode {
     Vario,
     SpeedToFly,
@@ -128,6 +129,7 @@ pub struct Calculated {
     pub speed_to_fly_dif: Speed,
     pub speed_to_fly_1s: Speed, // ref. IAS
     pub thermal_climb_rate: Speed,
+    pub av2_climb_rate: Speed, // calculated by frontend
     pub frequency: u16,
     pub continuous: bool,
     pub gain: i8,
@@ -141,6 +143,7 @@ impl Default for Calculated {
             speed_to_fly_dif: 3.0.km_h(),
             speed_to_fly_1s: 0.0.km_h(),
             thermal_climb_rate: 1.3.m_s(),
+            av2_climb_rate: 0.0.m_s(),
             frequency: 500,
             continuous: false,
             gain: 2,
@@ -161,6 +164,7 @@ pub struct Config {
     pub snd_exp_mul: f32,
     pub snd_duty_cycle: u16, // Oscillations, symetric on/off
     pub uuid: u32,
+    pub av2_time_const: f32,
 }
 
 impl Default for Config {
@@ -177,6 +181,7 @@ impl Default for Config {
             snd_exp_mul: 0.138629,  // -5 .. 5 two octaves
             snd_duty_cycle: 200,
             uuid: 0,
+            av2_time_const: 30.0,
         }
     }
 }
