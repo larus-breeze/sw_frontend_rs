@@ -58,6 +58,7 @@ impl IdleLoop {
                         }
                     }
                     IdleEvent::FeedTheDog => self.watchdog.feed(),
+                    IdleEvent::SetGain(_) => (), // vario sound on this device not suported
                 }
             }
 
