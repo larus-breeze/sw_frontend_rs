@@ -1,5 +1,5 @@
 use super::{
-    elements::{classic_indicator, scale_marker, wind_arrow}, // inverted_scale_marker,
+    elements::*, // inverted_scale_marker,
     CENTER,
     RADIUS,
     VARIO_SIZES,
@@ -32,13 +32,13 @@ struct VarioColors {
 }
 
 const VARIO_COLORS: VarioColors = VarioColors {
-    average_climb_rate: Colors::Yellow,
+    average_climb_rate: Colors::LimeGreen,
     background: Colors::Black,
     mc_cready: Colors::Red,
     needle: Colors::White,
     scale: Colors::DarkGray,
     speed_to_fly: Colors::Coral,
-    thermal_climb_rate: Colors::LimeGreen,
+    thermal_climb_rate: Colors::Yellow,
     wind_fill: Colors::Blue,
     wind_stroke: Colors::LightSkyBlue,
 };
@@ -71,11 +71,11 @@ where
     }
 
     // dependend on fly_mode draw glider or north symbol
-    match cm.control.fly_mode {
-        FlyMode::Circling | FlyMode::Transition => display.draw_img(NORTH_IMG, Point::new(0, 0))?,
-        FlyMode::StraightFlight=> {
-            display.draw_img(GLIDER_IMG, Point::new(0, 0))?
+    match cm.control.vario_mode {
+        VarioMode::Vario => {
+            display.draw_img(NORTH_IMG, Point::new(0, 0))?;
         }
+        VarioMode::SpeedToFly => display.draw_img(GLIDER_IMG, Point::new(0, 0))?,
     }
 
     // draw mc_ready marker
@@ -89,16 +89,16 @@ where
         COLS.mc_cready,
     )?;
 
-    // draw thermal climb rate marker
-    /*inverted_scale_marker(
+    // draw average climb rate marker
+    inverted_scale_marker(
         display,
         CENTER,
-        cm.calculated.thermal_climb_rate.to_m_s(),
+        cm.calculated.av2_climb_rate.to_m_s(),
         (RADIUS - SZS.indicator_len) as i32,
         SZS.tcr_len as i32,
         SZS.tcr_width,
-        COLS.thermal_climb_rate,
-    )?;*/
+        COLS.average_climb_rate,
+    )?;
 
     // draw climb rate indicator
     let angle = (SZS.angle_m_s * num::clamp(cm.sensor.climb_rate.to_m_s(), -5.1, 5.1)).deg();
@@ -163,14 +163,14 @@ where
         VarioMode::Vario => {
             display.draw_img(SPIRAL_IMG, SZS.pic_left_under_pos)?;
             display.draw_img(M_S_IMG, SZS.left_under_pos)?;
-            let acr = num::clamp(cm.sensor.average_climb_rate.to_m_s(), -9.9, 99.9);
+            let acr = num::clamp(cm.calculated.av2_climb_rate.to_m_s(), -9.9, 99.9);
             let txt = Concat::<10>::from_f32(acr, 1);
             FONT_HELV_18.render_aligned(
                 txt.as_str(),
                 SZS.left_under_pos,
                 VerticalPosition::Top,
                 HorizontalAlignment::Right,
-                FontColor::Transparent(COLS.average_climb_rate),
+                FontColor::Transparent(COLS.thermal_climb_rate),
                 display,
             )?;
         }

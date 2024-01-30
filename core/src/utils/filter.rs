@@ -1,16 +1,16 @@
-use core::ops::{Mul, Add, Sub};
+use core::ops::{Add, Mul, Sub};
 
-struct Pt1 <T>
+pub struct Pt1<T>
 where
-    T: Mul<f32, Output = T> + Add<T, Output = T> + Sub<T, Output = T> + Copy
+    T: Mul<f32, Output = T> + Add<T, Output = T> + Sub<T, Output = T> + Copy,
 {
     value: T,
     factor: f32,
 }
 
-impl<T> Pt1<T> 
+impl<T> Pt1<T>
 where
-    T: Mul<f32, Output = T> + Add<T, Output = T> + Sub<T, Output = T> + Copy
+    T: Mul<f32, Output = T> + Add<T, Output = T> + Sub<T, Output = T> + Copy,
 {
     pub fn new(value: T, tick_rate: u32, time_const: f32) -> Self {
         let factor = Pt1::<T>::calc_factor(tick_rate, time_const);
@@ -35,7 +35,7 @@ where
 
     #[inline]
     fn calc_factor(tick_rate: u32, time_const: f32) -> f32 {
-         1.0 / (time_const*tick_rate as f32)
+        1.0 / (time_const * tick_rate as f32)
     }
 }
 
@@ -63,5 +63,4 @@ mod tests {
         }
         assert_float_eq!(pt1.value(), 0.641);
     }
-
 }
