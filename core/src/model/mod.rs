@@ -12,8 +12,8 @@ use crate::{
     controller::Editable,
     flight_physics::{GliderData, WindVector},
     system_of_units::{
-        Acceleration, AngularVelocity, FloatToAcceleration, FloatToAngularVelocity, FloatToSpeed,
-        Pressure, Speed,
+        Acceleration, AngularVelocity, FloatToAcceleration, FloatToAngularVelocity, FloatToLength,
+        FloatToSpeed, Length, Pressure, Speed,
     },
     AirSpeed, Density, PersistenceId,
 };
@@ -123,6 +123,14 @@ pub enum DisplayActive {
     FirmwareUpdate,
 }
 
+/// Enum for calculation of thermal climb rate
+#[derive(Clone, Copy, PartialEq)]
+pub enum TcrMode {
+    StraightFlight,
+    Transition,
+    Climbing,
+}
+
 /// Metastructure for calculated or set values
 pub struct Calculated {
     pub speed_to_fly: AirSpeed,
@@ -201,6 +209,10 @@ pub struct Control {
     pub pers_vals: FnvIndexSet<PersistenceId, MAX_PERS_IDS>,
     pub demo_acitve: bool, // Activates the demo mode
     pub firmware_update_state: DeviceEvent,
+    pub tcr_mode: TcrMode,
+    pub tcr_1s_climb_ticks: u32,
+    pub tcr_1s_transient_ticks: u32,
+    pub tcr_start: Length,
 }
 
 impl Default for Control {
@@ -218,6 +230,10 @@ impl Default for Control {
             pers_vals: FnvIndexSet::new(),
             demo_acitve: false,
             firmware_update_state: DeviceEvent::UploadFinished,
+            tcr_mode: TcrMode::StraightFlight,
+            tcr_1s_climb_ticks: 0,
+            tcr_1s_transient_ticks: 0,
+            tcr_start: 0.0.m(),
         }
     }
 }
@@ -232,7 +248,9 @@ pub struct Sensor {
     pub climb_rate: Speed,
     pub density: Density,
     pub g_force: Acceleration,
+    pub gps_altitude: Length,
     pub gps_climb_rate: Speed,
+    pub gps_geo_seperation: Length,
     pub gps_track: Angle,
     pub gps_ground_speed: Speed,
     pub nick_angle: Angle,
@@ -253,7 +271,9 @@ impl Default for Sensor {
             climb_rate: 1.7.m_s(),
             density: Density::AT_NN(),
             g_force: 9.81.m_s2(),
+            gps_altitude: 0.0.m(),
             gps_climb_rate: 0.0.m_s(),
+            gps_geo_seperation: 0.0.m(),
             gps_track: 0.0.deg(),
             gps_ground_speed: 0.0.m_s(),
             nick_angle: 0.0.deg(),

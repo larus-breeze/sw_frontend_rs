@@ -44,7 +44,6 @@ impl DrawImage for MockDisplay {
             let color_cnt = img16[3];
             let mut idx = 4;
             for _ in 0..color_cnt {
-
                 #[cfg(feature = "larus_ad57")]
                 let u16_col = RGB565_COLORS[img16[idx] as usize];
                 #[cfg(feature = "larus_ad57")]
@@ -76,7 +75,6 @@ impl DrawImage for MockDisplay {
             let color_cnt = img32[3];
             let mut idx = 4;
             for _ in 0..color_cnt {
-
                 #[cfg(feature = "larus_ad57")]
                 let u16_col = RGB565_COLORS[img32[idx] as usize];
                 #[cfg(feature = "larus_ad57")]

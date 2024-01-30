@@ -11,10 +11,10 @@ use crate::{
     basic_config::CONTROLLER_TICK_RATE,
     can_frame_heartbeat, can_frame_sound,
     flight_physics::Polar,
-    model::{DisplayActive, EditMode, VarioModeControl},
+    model::{DisplayActive, EditMode, TcrMode, VarioModeControl},
     system_of_units::{FloatToSpeed, Speed},
     utils::{read_can_frame, KeyEvent, Pt1},
-    CoreModel, DeviceEvent, PersistenceId, VarioMode, POLARS,
+    CoreModel, DeviceEvent, FlyMode, PersistenceId, VarioMode, POLARS,
 };
 use can_dispatch::Frame;
 
@@ -220,7 +220,53 @@ impl CoreController {
                 if self.last_vario_mode != core_model.control.vario_mode {
                     self.last_vario_mode = core_model.control.vario_mode;
                     if core_model.control.vario_mode == VarioMode::Vario {
+                        // Set average climbrate to current climbrate
                         self.av2_climb_rate.set_value(core_model.sensor.climb_rate);
+                    }
+                }
+                match core_model.control.fly_mode {
+                    FlyMode::Circling => {
+                        // Start measuring thermal climb rate
+                        match core_model.control.tcr_mode {
+                            TcrMode::StraightFlight => {
+                                core_model.control.tcr_start = core_model.sensor.gps_altitude;
+                                core_model.control.tcr_1s_climb_ticks = 1;
+                            }
+                            TcrMode::Transition => {
+                                core_model.control.tcr_1s_transient_ticks = 0;
+                                core_model.control.tcr_1s_climb_ticks += 1;
+                            }
+                            TcrMode::Climbing => {
+                                core_model.control.tcr_1s_climb_ticks += 1;
+                            }
+                        }
+                        core_model.control.tcr_mode = TcrMode::Climbing;
+                        // Calculate thermal climb rate
+                        let tcr = {
+                            let diff_h = (core_model.sensor.gps_altitude
+                                - core_model.control.tcr_start)
+                                .to_m();
+                            (diff_h / core_model.control.tcr_1s_climb_ticks as f32).m_s()
+                        };
+                        core_model.calculated.thermal_climb_rate = tcr;
+                    }
+                    FlyMode::StraightFlight | FlyMode::Transition => {
+                        match core_model.control.tcr_mode {
+                            TcrMode::Climbing => {
+                                core_model.control.tcr_mode = TcrMode::Transition;
+                                core_model.control.tcr_1s_transient_ticks = 0;
+                            }
+                            TcrMode::Transition => {
+                                core_model.control.tcr_1s_transient_ticks += 1;
+                                if core_model.control.tcr_1s_transient_ticks > 30 {
+                                    core_model.control.tcr_mode = TcrMode::StraightFlight;
+                                    core_model.calculated.thermal_climb_rate = 0.0.m_s();
+                                }
+                            }
+                            TcrMode::StraightFlight => {
+                                core_model.control.tcr_start = core_model.sensor.gps_altitude
+                            }
+                        }
                     }
                 }
             }

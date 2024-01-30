@@ -70,14 +70,6 @@ where
         )?;
     }
 
-    // dependend on fly_mode draw glider or north symbol
-    match cm.control.vario_mode {
-        VarioMode::Vario => {
-            display.draw_img(NORTH_IMG, Point::new(0, 0))?;
-        }
-        VarioMode::SpeedToFly => display.draw_img(GLIDER_IMG, Point::new(0, 0))?,
-    }
-
     // draw mc_ready marker
     scale_marker(
         display,
@@ -115,14 +107,24 @@ where
     // draw wind arrow
     let wind_speed = cm.sensor.wind_vector.speed().to_km_h();
     let (angle, av_angle) = match cm.control.fly_mode {
-        FlyMode::Circling | FlyMode::Transition => (
-            cm.sensor.wind_vector.angle(),
-            cm.sensor.average_wind.angle(),
-        ),
-        FlyMode::StraightFlight => (
-            cm.sensor.wind_vector.angle() - cm.sensor.gps_track,
-            cm.sensor.average_wind.angle() - cm.sensor.gps_track,
-        ),
+        FlyMode::Circling => {
+            // draw noth symbol
+            display.draw_img(NORTH_IMG, Point::new(0, 0))?;
+            // return absolut wind vector
+            (
+                cm.sensor.wind_vector.angle(),
+                cm.sensor.average_wind.angle(),
+            )
+        }
+        FlyMode::StraightFlight | FlyMode::Transition => {
+            // draw glider symbol
+            display.draw_img(GLIDER_IMG, Point::new(0, 0))?;
+            (
+                // return relativ wind vector
+                cm.sensor.wind_vector.angle() - cm.sensor.gps_track,
+                cm.sensor.average_wind.angle() - cm.sensor.gps_track,
+            )
+        }
     };
     let len = match wind_speed {
         x if x < WIND_MIN => SZS.wind_len_min, // Light wind is set to a minimum size
@@ -163,7 +165,7 @@ where
         VarioMode::Vario => {
             display.draw_img(SPIRAL_IMG, SZS.pic_left_under_pos)?;
             display.draw_img(M_S_IMG, SZS.left_under_pos)?;
-            let acr = num::clamp(cm.calculated.av2_climb_rate.to_m_s(), -9.9, 99.9);
+            let acr = num::clamp(cm.calculated.thermal_climb_rate.to_m_s(), -9.9, 99.9);
             let txt = Concat::<10>::from_f32(acr, 1);
             FONT_HELV_18.render_aligned(
                 txt.as_str(),

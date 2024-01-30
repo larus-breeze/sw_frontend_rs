@@ -75,7 +75,7 @@ pub mod sensor {
     pub const VARIO: u16 = 0x103;           // i16, i16 vario, integrator / mm/s
     pub const GPS_DATE_TIME: u16 = 0x104;   // 6 x u8 year-2000, month, day, hour, mins, secs
     pub const GPS_LAT_LON: u16 = 0x105;     // i32 lat, lon / 10^-7 degrees
-    pub const GPS_ALT: u16 = 0x106;         // i32 MSL altitude / mm, i32 geo separation in 1/10 m
+    pub const GPS_ALT: u16 = 0x106;         // u32 MSL altitude / mm, u32 geo separation in 1/10 m
     pub const GPS_TRK_SPD: u16 = 0x107;     // i16 ground vector / 1/1000 rad, u16 groundspeed / km/h
     pub const WIND: u16 = 0x108;            // Current Wind i16 1/1000 rad, i16 km/h
                                             // Average Wind i16 1/1000 rad, i16 km/h

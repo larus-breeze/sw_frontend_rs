@@ -2,6 +2,7 @@ mod acceleration;
 mod angular_velocity;
 mod area;
 mod density;
+mod length;
 mod mass;
 mod pressure;
 mod speed;
@@ -13,6 +14,7 @@ pub use angular_velocity::{AngularVelocity, FloatToAngularVelocity};
 pub use area::{Area, FloatToArea};
 pub use density::{Density, FloatToDensity};
 pub use embedded_graphics::geometry::{Angle, AngleUnit};
+pub use length::{FloatToLength, Length};
 pub use mass::{FloatToMass, Mass};
 pub use pressure::{FloatToPressure, Pressure};
 pub use speed::{FloatToSpeed, Speed};
@@ -25,6 +27,7 @@ pub type Float = f32;
 pub(crate) const NAUTICAL_MILE: Float = 1852.0; // NM -> m
 pub(crate) const FOOT: Float = 0.3048; // ft -> m
 pub(crate) const MILE: Float = 1609.344; // mi -> m
+pub(crate) const INCH: Float = 0.0254; // inch -> m
 
 // mass
 pub(crate) const POUND: Float = 0.45359237; // lb -> kg
