@@ -28,3 +28,10 @@ can_dispatch = { path = "../common/can_dispatch" }
 path = "../../core"
 default-features = false
 features = ["larus_ad57", "eeprom_size_8192"]
+# features = ["air_avionics_ad57", "eeprom_size_8192"]
+
+[features]
+default = ["larus_ad57", "eeprom_size_8192"]
+air_avionics_ad57 = []
+larus_ad57 = []
+eeprom_size_8192 = []

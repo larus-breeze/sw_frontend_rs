@@ -44,8 +44,15 @@ impl DrawImage for MockDisplay {
             let color_cnt = img16[3];
             let mut idx = 4;
             for _ in 0..color_cnt {
+
+                #[cfg(feature = "larus_ad57")]
                 let u16_col = RGB565_COLORS[img16[idx] as usize];
+                #[cfg(feature = "larus_ad57")]
                 let color = Colors::from(u16_col);
+
+                #[cfg(feature = "air_avionics_ad57")]
+                let color = Colors::from(img16[idx] as u8);
+
                 let px_cnt = img16[idx + 1] as usize;
                 idx += 2;
                 for i_idx in img16.iter().skip(idx).take(px_cnt) {
@@ -69,8 +76,15 @@ impl DrawImage for MockDisplay {
             let color_cnt = img32[3];
             let mut idx = 4;
             for _ in 0..color_cnt {
+
+                #[cfg(feature = "larus_ad57")]
                 let u16_col = RGB565_COLORS[img32[idx] as usize];
+                #[cfg(feature = "larus_ad57")]
                 let color = Colors::from(u16_col);
+
+                #[cfg(feature = "air_avionics_ad57")]
+                let color = Colors::from(img32[idx] as u8);
+
                 let px_cnt = img32[idx + 1] as usize;
                 idx += 2;
                 for i_idx in img32.iter().skip(idx).take(px_cnt) {
