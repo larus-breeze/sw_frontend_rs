@@ -1,6 +1,7 @@
 use crate::{
     model::VarioModeControl, AirSpeed, CoreModel, FloatToAcceleration, FloatToAngularVelocity,
-    FloatToDensity, FloatToMass, FloatToPressure, FloatToSpeed, FlyMode, GenericId, SysConfigId,
+    FloatToDensity, FloatToLength, FloatToMass, FloatToPressure, FloatToSpeed, FlyMode, GenericId,
+    SysConfigId,
 };
 use byteorder::{ByteOrder, LittleEndian as LE};
 use can_dispatch::*;
@@ -77,6 +78,10 @@ fn read_legacy_frame(cm: &mut CoreModel, frame: &CanFrame) {
         sensor::ATHMOSPHERE => {
             cm.sensor.pressure = (rdr.pop_u32() as f32).n_m2();
             cm.sensor.density = (rdr.pop_u32() as f32).g_m3();
+        }
+        sensor::GPS_ALT => {
+            cm.sensor.gps_altitude = (rdr.pop_u32() as f32).mm();
+            cm.sensor.gps_geo_seperation = (rdr.pop_u32() as f32 * 0.1).m();
         }
         sensor::GPS_TRK_SPD => {
             cm.sensor.gps_track = (rdr.pop_i16() as f32 * 0.001).rad();
