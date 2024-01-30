@@ -26,6 +26,9 @@ where
 
         amp.write(7, 0b1100_0000); // disable compression, max gain 30 dB
         amp.write(6, 0b1011_1010); // disable output limiter
+        amp.write(2, 0b0000_0001); // minimize time between gain decrease
+        amp.write(3, 0b0000_0001); // minimize time between gain increase
+        amp.write(4, 0b0000_0000); // minimize hold between gain change
         amp
     }
 
