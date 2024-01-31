@@ -8,6 +8,8 @@ mod canbus;
 #[allow(unused)]
 mod eeprom;
 #[allow(unused)]
+mod file_sys;
+#[allow(unused)]
 mod fmc_lcd;
 #[allow(unused)]
 mod frame_buffer;
@@ -30,6 +32,7 @@ use heapless::mpmc::MpMcQueue;
 pub use amplifier::*;
 pub use canbus::*;
 pub use eeprom::*;
+pub use file_sys::*;
 pub use fmc_lcd::*;
 pub use frame_buffer::*;
 pub use i2c_mgr::*;
