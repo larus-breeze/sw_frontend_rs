@@ -29,19 +29,13 @@ where
         amp.write(2, 0b0000_0001); // minimize time between gain decrease
         amp.write(3, 0b0000_0001); // minimize time between gain increase
         amp.write(4, 0b0000_0000); // minimize hold between gain change
+        amp.write(1, 0xc3); // activate amplifier
         amp
     }
 
     pub fn set_gain(&mut self, gain: u8) {
-        let gain = match gain {
-            0 => {
-                self.write(1, 0x83);
-                return;
-            }
-            1..=30 => gain,
-            _ => 30,
-        };
-        self.write(1, 0xc3);
+        // Note: gain 0 is not mute for the amplifier, you always hear something. Volume 0
+        // is handled by the sound modul, which mutes the sound in this case.
         self.write(5, gain);
     }
 
