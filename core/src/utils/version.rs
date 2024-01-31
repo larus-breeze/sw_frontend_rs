@@ -5,7 +5,7 @@ use heapless::String;
 #[rustfmt::skip]
 pub const SW_VERSION: SwVersion = SwVersion { version: [0, 1, 1, 9]};
 #[rustfmt::skip]
-pub const HW_VERSION: HwVersion = HwVersion { version: [3, 0, 0, 0], };
+pub const HW_VERSION: HwVersion = HwVersion { version: [3, 0, 0, 0]};
 
 #[repr(C)]
 #[derive(PartialEq, Clone, Copy)]
@@ -14,18 +14,38 @@ pub struct HwVersion {
 }
 
 impl HwVersion {
-    pub fn major(&self) -> u8 {
+    pub fn manufacturer(&self) -> u8 {
         self.version[0]
     }
-    pub fn minor(&self) -> u8 {
+
+    pub fn major(&self) -> u8 {
         self.version[1]
     }
-    pub fn patch(&self) -> u8 {
+
+    pub fn minor(&self) -> u8 {
         self.version[2]
     }
 
+    pub fn patch(&self) -> u8 {
+        self.version[3]
+    }
+
     pub fn is_compatible(&self, other: &HwVersion) -> bool {
-        (self.major() == other.major()) & (self.minor() == other.minor())
+        (self.manufacturer() == other.manufacturer())
+            & (self.major() == other.major())
+            & (self.minor() == other.minor())
+    }
+
+    pub fn from_bytes(bytes: [u8; 4]) -> Self {
+        HwVersion { version: bytes }
+    }
+}
+
+impl Default for HwVersion {
+    fn default() -> Self {
+        HwVersion {
+            version: [0, 0, 0, 0],
+        }
     }
 }
 
@@ -71,8 +91,8 @@ impl PartialOrd for SwVersion {
     }
 }
 
-impl Default for SwVersion {
-    fn default() -> Self {
+impl SwVersion {
+    pub const fn current() -> Self {
         SW_VERSION
     }
 }
@@ -88,5 +108,11 @@ impl defmt::Format for SwVersion {
             self.version[2],
             self.version[3],
         )
+    }
+}
+
+impl SwVersion {
+    pub fn from_bytes(bytes: [u8; 4]) -> Self {
+        SwVersion { version: bytes }
     }
 }
