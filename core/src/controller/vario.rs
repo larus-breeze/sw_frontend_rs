@@ -6,7 +6,7 @@ use crate::{
     model::{CoreModel, EditMode, VarioModeControl},
     system_of_units::{FloatToMass, FloatToSpeed},
     utils::{val_manip, KeyEvent},
-    IdleEvent, SysConfigId, SysValueId,
+    SysConfigId, SysValueId,
 };
 use num::clamp;
 
@@ -80,8 +80,6 @@ impl VarioController {
                     SysValueId::U8(cm.config.volume as u8),
                 );
                 let _ = cm.p_tx_frames.enqueue(frame);
-                let event = IdleEvent::SetGain(cm.config.volume as u8);
-                cm.send_idle_event(event);
             }
             Editable::WaterBallast => {
                 cm.glider_data.water_ballast = val_manip(
