@@ -1,5 +1,10 @@
 #![no_std]
 
+#[allow(unused_imports)]
+#[cfg(test)]
+#[macro_use]
+extern crate std;
+
 /// The Core Crate is a software component that prepares all displays, processes all inputs and
 /// measured values, and allows uniform access to all data. The component is not executable on
 /// its own. It always requires an adaptation layer for the target hardware, which contains the

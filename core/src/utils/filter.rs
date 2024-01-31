@@ -55,7 +55,7 @@ mod tests {
         assert_float_eq!(pt1.value(), 0.651);
 
         pt1.set_value(0.0);
-        assert_float_eq!(pt1.value(), 0.0);
+        assert_eq!(pt1.value(), 0.0);
 
         pt1.set_time_const(10, 2.0);
         for _ in 0..20 {

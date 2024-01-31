@@ -14,8 +14,7 @@ use crate::{
     model::{DisplayActive, EditMode, TcrMode, VarioModeControl},
     system_of_units::{FloatToSpeed, Speed},
     utils::{read_can_frame, KeyEvent, Pt1},
-    CoreModel, DeviceEvent, FlyMode, PersistenceId, VarioMode, POLARS,
-    IdleEvent, 
+    CoreModel, DeviceEvent, FlyMode, IdleEvent, PersistenceId, VarioMode, POLARS,
 };
 use can_dispatch::Frame;
 
@@ -184,12 +183,17 @@ impl CoreController {
             core_model.calculated.gain = gain;
             let event = IdleEvent::SetGain(gain as u8);
 
-            // send event to the idle loop, which handles the amplifier via i2c 
+            // send event to the idle loop, which handles the amplifier via i2c
             core_model.send_idle_event(event);
         }
 
         // create CAN frame
-        let can_frame = can_frame_sound(frequency, gain as u8, core_model.config.snd_duty_cycle, continuous);
+        let can_frame = can_frame_sound(
+            frequency,
+            gain as u8,
+            core_model.config.snd_duty_cycle,
+            continuous,
+        );
         // add CAN frame to queue, ignore if the queue is full
         let _ = core_model.p_tx_frames.enqueue(can_frame);
 
