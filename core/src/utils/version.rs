@@ -4,13 +4,11 @@ use heapless::String;
 
 #[rustfmt::skip]
 pub const SW_VERSION: SwVersion = SwVersion { version: [0, 1, 1, 9]};
-#[rustfmt::skip]
-pub const HW_VERSION: HwVersion = HwVersion { version: [3, 0, 0, 0]};
 
 #[repr(C)]
 #[derive(PartialEq, Clone, Copy)]
 pub struct HwVersion {
-    version: [u8; 4],
+    pub version: [u8; 4],
 }
 
 impl HwVersion {
@@ -52,7 +50,7 @@ impl Default for HwVersion {
 #[repr(C)]
 #[derive(PartialEq, Clone, Copy)]
 pub struct SwVersion {
-    version: [u8; 4],
+    pub version: [u8; 4],
 }
 
 impl SwVersion {
@@ -80,6 +78,14 @@ impl SwVersion {
             .push_str("_")
             .push_u8(self.version[3])
             .as_string()
+    }
+}
+
+impl Default for SwVersion {
+    fn default() -> Self {
+        SwVersion {
+            version: [0, 0, 0, 0],
+        }
     }
 }
 

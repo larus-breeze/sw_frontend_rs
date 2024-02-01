@@ -164,7 +164,13 @@ pub fn hw_init<'a>(
     };
 
     // Setup ----------> CoreModel
-    let mut core_model = CoreModel::new(p_idle_events, p_tx_frames, uuid());
+    let mut core_model = CoreModel::new(
+        p_idle_events, 
+        p_tx_frames, 
+        uuid(), 
+        HW_VERSION,
+        SW_VERSION,
+    );
 
     // Setup ----------> controller
     let dev_controller = DevController::new(&mut core_model, &Q_EVENTS, c_rx_frames);

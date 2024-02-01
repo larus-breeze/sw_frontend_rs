@@ -1,8 +1,7 @@
 mod persistence;
 
 use crate::{
-    basic_config::MAX_TX_FRAMES,
-    utils::{DeviceEvent, PIdleEvents},
+    basic_config::MAX_TX_FRAMES, utils::{DeviceEvent, PIdleEvents}, HwVersion, SwVersion
 };
 use can_dispatch::PTxFrames;
 use embedded_graphics::geometry::{Angle, AngleUnit};
@@ -42,10 +41,12 @@ impl CoreModel {
         p_idle_events: PIdleEvents,
         p_tx_frames: PTxFrames<MAX_TX_FRAMES>,
         uuid: u32,
+        hw_version: HwVersion,
+        sw_version: SwVersion,
     ) -> Self {
         let calculated = Calculated::default();
         let config = Config {
-            uuid,
+            uuid, hw_version, sw_version,
             ..Default::default()
         };
         let control = Control::default();
@@ -172,6 +173,8 @@ pub struct Config {
     pub snd_exp_mul: f32,
     pub snd_duty_cycle: u16, // Oscillations, symetric on/off
     pub uuid: u32,
+    pub hw_version: HwVersion,
+    pub sw_version: SwVersion,
     pub av2_time_const: f32,
 }
 
@@ -189,6 +192,8 @@ impl Default for Config {
             snd_exp_mul: 0.138629,  // -5 .. 5 two octaves
             snd_duty_cycle: 200,
             uuid: 0,
+            hw_version: HwVersion::default(),
+            sw_version: SwVersion::default(),
             av2_time_const: 30.0,
         }
     }
