@@ -17,7 +17,7 @@ build = 0xff
 
 try:
     # Try to match tag and build number
-    match = re.match('(?P<first>[0-9]*).(?P<second>[0-9]*).(?P<third>[0-9]*)-(?P<build>[0-9]*)-.*', version_string)
+    match = re.match('v(?P<first>[0-9]*).(?P<second>[0-9]*).(?P<third>[0-9]*)-(?P<build>[0-9]*)-.*', version_string)
     first = int(match.group('first'))
     second = int(match.group('second'))
     third = int(match.group('third'))
