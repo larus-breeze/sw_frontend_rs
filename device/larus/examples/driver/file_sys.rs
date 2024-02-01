@@ -1,15 +1,16 @@
 use cortex_m::peripheral;
+use embedded_sdmmc::{
+    Controller, DirEntry, Directory, Error as SdmmcError, File, Mode, Volume, VolumeIdx,
+};
 use stm32h7xx_hal::{
-    pac, prelude::*,
-    device::SDMMC1, gpio::{Alternate, Input, Pin, Speed}, rcc::CoreClocks, 
-    sdmmc::{Error as DeviceError, SdCard, Sdmmc, SdmmcBlockDevice, SdmmcExt},
+    device::SDMMC1,
+    gpio::{Alternate, Input, Pin, Speed},
+    pac,
+    prelude::*,
     rcc::rec::PeripheralREC,
     rcc::rec::Sdmmc1,
-};
-use embedded_sdmmc::{
-    Controller, Directory, File, Mode, Volume, VolumeIdx, 
-    Error as SdmmcError,
-    DirEntry,
+    rcc::CoreClocks,
+    sdmmc::{Error as DeviceError, SdCard, Sdmmc, SdmmcBlockDevice, SdmmcExt},
 };
 type FileSysError = SdmmcError<DeviceError>;
 
@@ -33,14 +34,40 @@ impl SdcardPins {
         d3: Pin<'C', 11>,
         detect: Pin<'E', 3>,
     ) -> Self {
-        let clk = clk.into_alternate::<12>().internal_pull_up(false).speed(Speed::VeryHigh);
-        let cmd = cmd.into_alternate::<12>().internal_pull_up(true).speed(Speed::VeryHigh);
-        let d0 = d0.into_alternate::<12>().internal_pull_up(true).speed(Speed::VeryHigh);
-        let d1 = d1.into_alternate::<12>().internal_pull_up(true).speed(Speed::VeryHigh);
-        let d2 = d2.into_alternate::<12>().internal_pull_up(true).speed(Speed::VeryHigh);
-        let d3 = d3.into_alternate::<12>().internal_pull_up(true).speed(Speed::VeryHigh);
+        let clk = clk
+            .into_alternate::<12>()
+            .internal_pull_up(false)
+            .speed(Speed::VeryHigh);
+        let cmd = cmd
+            .into_alternate::<12>()
+            .internal_pull_up(true)
+            .speed(Speed::VeryHigh);
+        let d0 = d0
+            .into_alternate::<12>()
+            .internal_pull_up(true)
+            .speed(Speed::VeryHigh);
+        let d1 = d1
+            .into_alternate::<12>()
+            .internal_pull_up(true)
+            .speed(Speed::VeryHigh);
+        let d2 = d2
+            .into_alternate::<12>()
+            .internal_pull_up(true)
+            .speed(Speed::VeryHigh);
+        let d3 = d3
+            .into_alternate::<12>()
+            .internal_pull_up(true)
+            .speed(Speed::VeryHigh);
         let detect = detect.into_pull_down_input();
-        SdcardPins { clk, cmd, d0, d1, d2, d3, detect }
+        SdcardPins {
+            clk,
+            cmd,
+            d0,
+            d1,
+            d2,
+            d3,
+            detect,
+        }
     }
 }
 
@@ -68,24 +95,27 @@ pub struct FileSys {
 
 impl FileSys {
     pub fn new(
-        pins: SdcardPins, 
-//        time_source: TimeSource,
+        pins: SdcardPins,
+        //        time_source: TimeSource,
         sdmmc1: SDMMC1,
         prec: Sdmmc1,
         clocks: &CoreClocks,
-    ) -> Result <FileSys, FileSysError> {
+    ) -> Result<FileSys, FileSysError> {
         if pins.detect.is_low() {
             return Err(SdmmcError::DeviceError(DeviceError::NoCard));
         }
         let mut sdmmc: Sdmmc<_, SdCard> = sdmmc1.sdmmc(
-            (pins.clk, pins.cmd, pins.d0, pins.d1, pins.d2, pins.d3), 
-            prec, 
-            clocks
+            (pins.clk, pins.cmd, pins.d0, pins.d1, pins.d2, pins.d3),
+            prec,
+            clocks,
         );
         sdmmc.init(10.MHz())?;
         let mut fat_fs = Controller::new(sdmmc.sdmmc_block_device(), TimeSource);
         let volume = fat_fs.get_volume(VolumeIdx(0))?;
-        Ok(Self { fat_fs, detect: pins.detect })
+        Ok(Self {
+            fat_fs,
+            detect: pins.detect,
+        })
     }
 
     pub fn fat(&mut self) -> &mut FatFs {

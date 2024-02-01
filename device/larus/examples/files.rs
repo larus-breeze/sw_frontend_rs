@@ -5,7 +5,6 @@ mod driver;
 use defmt::*;
 use defmt_rtt as _;
 
-
 use embedded_sdmmc::VolumeIdx;
 use stm32h7xx_hal::{pac, prelude::*, rcc};
 
@@ -39,18 +38,21 @@ unsafe fn main() -> ! {
     let gpiod = dp.GPIOD.split(ccdr.peripheral.GPIOD);
     let gpioe = dp.GPIOE.split(ccdr.peripheral.GPIOE);
 
-    let pins = SdcardPins::new(gpioc.pc12, gpiod.pd2, gpioc.pc8, gpioc.pc9, gpioc.pc10, gpioc.pc11, gpioe.pe3);
+    let pins = SdcardPins::new(
+        gpioc.pc12, gpiod.pd2, gpioc.pc8, gpioc.pc9, gpioc.pc10, gpioc.pc11, gpioe.pe3,
+    );
 
-    let mut fs = 
-        FileSys::new(pins, dp.SDMMC1, ccdr.peripheral.SDMMC1, &ccdr.clocks).unwrap();
+    let mut fs = FileSys::new(pins, dp.SDMMC1, ccdr.peripheral.SDMMC1, &ccdr.clocks).unwrap();
 
     let volume = fs.fat().get_volume(VolumeIdx(0)).unwrap();
 
     let root_dir = fs.fat().open_root_dir(&volume).unwrap();
 
-    fs.fat().iterate_dir(&volume, &root_dir, |entry| {
-        trace!("{}",  defmt::Display2Format(&entry.name));
-    }).unwrap();
+    fs.fat()
+        .iterate_dir(&volume, &root_dir, |entry| {
+            trace!("{}", defmt::Display2Format(&entry.name));
+        })
+        .unwrap();
 
     fs.fat().close_dir(&volume, root_dir);
 

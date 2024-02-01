@@ -1,4 +1,5 @@
 use crate::driver::{frame_buffer::*, init_can, keyboard::*, CanRx, CanTx, MonoTimer, Storage};
+use crate::utils::{HW_VERSION, SW_VERSION};
 use crate::{
     dev_controller::DevController,
     dev_view::DevView,
@@ -156,7 +157,13 @@ pub fn hw_init(
     let mut eeprom = Storage::new(i2c).unwrap();
 
     // Setup ----------> CoreModel
-    let mut core_model = CoreModel::new(p_idle_events, p_tx_frames, uuid());
+    let mut core_model = CoreModel::new(
+        p_idle_events, 
+        p_tx_frames, 
+        uuid(),
+        HW_VERSION,
+        SW_VERSION,
+    );
     for item in eeprom.iter_over(corelib::EepromTopic::ConfigValues) {
         core_model.restore_persistent_item(item);
     }
