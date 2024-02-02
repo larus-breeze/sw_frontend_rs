@@ -78,7 +78,6 @@ impl CoreModel {
 #[repr(u8)]
 pub enum FlyMode {
     Circling,
-    Transition,
     StraightFlight,
 }
 
