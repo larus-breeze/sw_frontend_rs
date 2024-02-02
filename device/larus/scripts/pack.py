@@ -57,8 +57,8 @@ class ReadApp():
             binary[ofs:ofs + len(data)] = data
 
         # Be shure, that binary is word aligned
-        while len(binary) % 4 != 0: # Go safe to get 4 byte alignment 
-            binary += b'\x00'
+        while len(binary) % 32 != 0: # Go safe to get 32 byte alignment (stm32h7)
+            binary += b'\xff'
 
         self.binary = binary
         return binary

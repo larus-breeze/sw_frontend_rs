@@ -2,9 +2,6 @@ use crate::utils::Concat;
 use core::cmp::Ordering;
 use heapless::String;
 
-#[rustfmt::skip]
-pub const SW_VERSION: SwVersion = SwVersion { version: [0, 0, 0, 9]};
-
 #[repr(C)]
 #[derive(PartialEq, Clone, Copy)]
 pub struct HwVersion {
@@ -94,12 +91,6 @@ impl PartialOrd for SwVersion {
         let self_u32 = u32::from_be_bytes(self.version);
         let other_u32 = u32::from_be_bytes(other.version);
         Some(self_u32.cmp(&other_u32))
-    }
-}
-
-impl SwVersion {
-    pub const fn current() -> Self {
-        SW_VERSION
     }
 }
 
