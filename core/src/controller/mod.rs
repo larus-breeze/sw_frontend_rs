@@ -261,7 +261,7 @@ impl CoreController {
                         };
                         core_model.calculated.thermal_climb_rate = tcr;
                     }
-                    FlyMode::StraightFlight | FlyMode::Transition => {
+                    FlyMode::StraightFlight => {
                         match core_model.control.tcr_mode {
                             TcrMode::Climbing => {
                                 core_model.control.tcr_mode = TcrMode::Transition;

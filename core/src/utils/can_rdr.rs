@@ -65,9 +65,9 @@ fn read_legacy_frame(cm: &mut CoreModel, frame: &CanFrame) {
             cm.sensor.vertical_g_force = ((rdr.pop_i16() as f32) * 0.001).m_s2();
             cm.sensor.gps_climb_rate = ((rdr.pop_i16() as f32) * 0.001).m_s();
             match rdr.pop_u8() {
+                0 => cm.control.fly_mode = FlyMode::StraightFlight,
                 2 => cm.control.fly_mode = FlyMode::Circling,
-                1 => cm.control.fly_mode = FlyMode::Transition,
-                _ => cm.control.fly_mode = FlyMode::StraightFlight,
+                _ => (),
             }
         }
         sensor::AIRSPEED => {

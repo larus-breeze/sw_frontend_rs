@@ -116,7 +116,7 @@ where
                 cm.sensor.average_wind.angle(),
             )
         }
-        FlyMode::StraightFlight | FlyMode::Transition => {
+        FlyMode::StraightFlight => {
             // draw glider symbol
             display.draw_img(GLIDER_IMG, Point::new(0, 0))?;
             (
