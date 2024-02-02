@@ -3,7 +3,7 @@ use core::cmp::Ordering;
 use heapless::String;
 
 #[rustfmt::skip]
-pub const SW_VERSION: SwVersion = SwVersion { version: [0, 1, 1, 9]};
+pub const SW_VERSION: SwVersion = SwVersion { version: [0, 0, 0, 9]};
 
 #[repr(C)]
 #[derive(PartialEq, Clone, Copy)]
@@ -34,7 +34,7 @@ impl HwVersion {
             & (self.minor() == other.minor())
     }
 
-    pub fn from_bytes(bytes: [u8; 4]) -> Self {
+    pub const fn from_bytes(bytes: [u8; 4]) -> Self {
         HwVersion { version: bytes }
     }
 }

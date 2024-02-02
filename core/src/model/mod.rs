@@ -1,7 +1,9 @@
 mod persistence;
 
 use crate::{
-    basic_config::MAX_TX_FRAMES, utils::{DeviceEvent, PIdleEvents}, HwVersion, SwVersion
+    basic_config::MAX_TX_FRAMES,
+    utils::{DeviceEvent, PIdleEvents},
+    HwVersion, SwVersion,
 };
 use can_dispatch::PTxFrames;
 use embedded_graphics::geometry::{Angle, AngleUnit};
@@ -46,7 +48,9 @@ impl CoreModel {
     ) -> Self {
         let calculated = Calculated::default();
         let config = Config {
-            uuid, hw_version, sw_version,
+            uuid,
+            hw_version,
+            sw_version,
             ..Default::default()
         };
         let control = Control::default();

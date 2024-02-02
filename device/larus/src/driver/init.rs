@@ -164,13 +164,7 @@ pub fn hw_init<'a>(
     };
 
     // Setup ----------> CoreModel
-    let mut core_model = CoreModel::new(
-        p_idle_events, 
-        p_tx_frames, 
-        uuid(), 
-        HW_VERSION,
-        SW_VERSION,
-    );
+    let mut core_model = CoreModel::new(p_idle_events, p_tx_frames, uuid(), HW_VERSION, SW_VERSION);
 
     // Setup ----------> controller
     let dev_controller = DevController::new(&mut core_model, &Q_EVENTS, c_rx_frames);
@@ -182,13 +176,15 @@ pub fn hw_init<'a>(
         let i2c = dp
             .I2C1
             .i2c((scl, sda), 400.kHz(), ccdr.peripheral.I2C1, &ccdr.clocks);
-        /*let mut eeprom = Storage::new(i2c).unwrap();
-        for item in eeprom.iter_over(corelib::EepromTopic::ConfigValues) {
-            core_model.restore_persistent_item(item);
-        }*/
+
+        let pins = SdcardPins::new(
+            gpioc.pc12, gpiod.pd2, gpioc.pc8, gpioc.pc9, gpioc.pc10, gpioc.pc11, gpioe.pe3,
+        );
+        let file_sys =  FileSys::new(pins, dp.SDMMC1, ccdr.peripheral.SDMMC1, &ccdr.clocks).ok();
+
         let watchdog = IndependentWatchdog::new(dp.IWDG);
 
-        IdleLoop::new(i2c, c_idle_events, &Q_EVENTS, watchdog, &mut core_model)
+        IdleLoop::new(i2c, file_sys, watchdog, c_idle_events, &Q_EVENTS, &mut core_model)
     };
 
     let sound = {

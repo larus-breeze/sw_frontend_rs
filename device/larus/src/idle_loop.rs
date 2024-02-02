@@ -2,32 +2,32 @@ use core::cell::RefCell;
 
 use defmt::trace;
 
-use crate::driver::*;
-use corelib::{CIdleEvents, CoreModel, Eeprom, IdleEvent};
+use crate::{driver::*, install_and_restart, update_available};
+use corelib::{CIdleEvents, CoreModel, Eeprom, IdleEvent, Event, DeviceEvent, SdCardCmd};
 use stm32h7xx_hal::{
     device::I2C1,
     i2c::{Error as I2cError, I2c},
     independent_watchdog::IndependentWatchdog,
-    prelude::*,
-}; //Event, DeviceEvent, SdCardCmd};
+}; 
+use fugit::ExtU32;
 
 static mut I2C_REF: Option<RefCell<I2c<I2C1>>> = None;
 pub struct IdleLoop {
     amplifier: Amplifier<I2cManager<'static>>,
     eeprom: Eeprom<Storage<I2cManager<'static>, I2cError>>,
     c_idle_events: CIdleEvents,
-    _q_events: &'static QEvents,
-    //    file_sys: FileSys,
+    q_events: &'static QEvents,
+    _file_sys: Option<FileSys>,
     watchdog: IndependentWatchdog,
 }
 
 impl IdleLoop {
     pub fn new(
         i2c: I2c<I2C1>,
+        mut file_sys: Option<FileSys>,
+        mut watchdog: IndependentWatchdog,
         c_idle_events: CIdleEvents,
         q_events: &'static QEvents,
-        //        file_sys: FileSys,
-        mut watchdog: IndependentWatchdog,
         core_model: &mut CoreModel,
     ) -> Self {
         // I found no other solution
@@ -42,15 +42,23 @@ impl IdleLoop {
             core_model.restore_persistent_item(item);
         }
 
-        watchdog.start(1000.millis());
-        trace!("Start watchdog");
+        if let Some(version) = update_available(&mut file_sys) {
+            // When software update is on the way, no watchdog is used
+            let event = Event::DeviceItem(DeviceEvent::FwAvailable(version));
+            let _ = q_events.enqueue(event);
+            trace!("Update available: {}", version);
+        } else {
+            // Normal mode without update, activate watchdog
+            watchdog.start(1000.millis());
+            trace!("Start watchdog");
+        }
 
         IdleLoop {
             amplifier,
             eeprom,
             c_idle_events,
-            _q_events: q_events,
-            //            file_sys,
+            q_events,
+            _file_sys: file_sys,
             watchdog,
         }
     }
@@ -69,25 +77,25 @@ impl IdleLoop {
                         self.amplifier.set_gain(gain);
                         trace!("set_gain() {}", gain);
                     }
-                    _ => (),
-                    /*IdleEvent::SdCardItem(item) => {
+                    IdleEvent::SdCardItem(item) => {
                         match item {
                             SdCardCmd::SwUpdateAccepted => {
                                 let event = Event::DeviceItem(DeviceEvent::UploadInProgress);
                                 if self.q_events.enqueue(event).is_ok() {
                                     delay_ms(200); // Give the display a chance to update
-                                    self.file_sys.install_and_restart();
+                                    trace!("Sw update is accepted");
+                                    install_and_restart();
                                 }
                             }
+                            // Should never happen, Updates are always accepted
                             SdCardCmd::SwUpdateCanceled => {
                                 self.watchdog.start(ExtU32::millis(1000));
                                 trace!("Start watchdog");
                             }
                         }
-                    }*/
+                    }
                 }
             }
-
             /*match self.file_sys.update_available() {
                 FirmwarUpadate::Available(version) => {
                     let event = Event::DeviceItem(DeviceEvent::FwAvailable(version));
