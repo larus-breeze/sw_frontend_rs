@@ -1,4 +1,4 @@
-pub use super::{HwVersion, SwVersion, MetaDataV1, SIZE_METADATA_V1, SW_VERSION};
+pub use super::{HwVersion, SwVersion, MetaDataV1, SIZE_METADATA_V1};
 
 use core::mem::transmute;
 use heapless::String;
@@ -13,7 +13,7 @@ impl ImageInfo {
     pub const fn new() -> Self {
         ImageInfo {
             file_name: String::new(),
-            sw_version: SwVersion::current(),
+            sw_version: SwVersion { version: [0, 0, 0, 0] },
         }
     }
 
@@ -42,9 +42,11 @@ pub struct VersionCheck {
 }
 
 impl VersionCheck {
-    pub fn new(hw_version: HwVersion) -> Self {
+    pub fn new(hw_version: HwVersion, sw_version: SwVersion) -> Self {
+        let mut image_info = ImageInfo::new();
+        image_info.set_sw_version(sw_version);
         VersionCheck {
-            image_info: ImageInfo::new(),
+            image_info,
             hw_version,
         }
     }
@@ -84,6 +86,7 @@ impl VersionCheck {
 mod tests {
     use super::{HwVersion, MetaDataV1, SwVersion, VersionCheck};
     const HW_VERSION: HwVersion = HwVersion::from_bytes([1, 3, 1, 0]);
+    const SW_VERSION: SwVersion = SwVersion { version: [0, 0, 0, 0] };
 
     #[test]
     fn check_magic() {
@@ -92,7 +95,7 @@ mod tests {
         meta_data.hw_version = HW_VERSION;
         meta_data.sw_version = SwVersion::from_bytes([1, 0, 0, 1]);
 
-        let mut ulc = VersionCheck::new(HW_VERSION);
+        let mut ulc = VersionCheck::new(HW_VERSION, SW_VERSION);
         ulc.analyse("test.bin", meta_data.to_bytes());
         assert_eq!(ulc.new_image_name(), None);
     }
@@ -104,7 +107,7 @@ mod tests {
         meta_data.hw_version = HW_VERSION;
         meta_data.sw_version = SwVersion::from_bytes([1, 0, 0, 1]);
 
-        let mut ulc = VersionCheck::new(HW_VERSION);
+        let mut ulc = VersionCheck::new(HW_VERSION, SW_VERSION);
         ulc.analyse("test.bin", meta_data.to_bytes());
         assert_eq!(ulc.new_image_name(), None);
     }
@@ -115,19 +118,19 @@ mod tests {
 
         meta_data.hw_version = HwVersion::from_bytes([1, 3, 2, 0]);
         meta_data.sw_version = SwVersion::from_bytes([1, 0, 0, 1]);
-        let mut ulc = VersionCheck::new(HW_VERSION);
+        let mut ulc = VersionCheck::new(HW_VERSION, SW_VERSION);
         ulc.analyse("test.bin", meta_data.to_bytes());
         assert_eq!(ulc.new_image_name(), None);
 
         meta_data.hw_version = HwVersion::from_bytes([1, 3, 1, 1]);
         meta_data.sw_version = SwVersion::from_bytes([1, 0, 0, 1]);
-        let mut ulc = VersionCheck::new(HW_VERSION);
+        let mut ulc = VersionCheck::new(HW_VERSION, SW_VERSION);
         ulc.analyse("test1.bin", meta_data.to_bytes());
         assert_eq!(ulc.new_image_name().unwrap(), "test1.bin");
 
         meta_data.hw_version = HW_VERSION;
         meta_data.sw_version = SwVersion::from_bytes([1, 0, 0, 2]);
-        let mut ulc = VersionCheck::new(HW_VERSION);
+        let mut ulc = VersionCheck::new(HW_VERSION, SW_VERSION);
         ulc.analyse("test2.bin", meta_data.to_bytes());
         assert_eq!(ulc.new_image_name().unwrap(), "test2.bin");
     }
@@ -137,13 +140,13 @@ mod tests {
         let mut meta_data = MetaDataV1::default();
 
         meta_data.hw_version = HW_VERSION;
-        let mut ulc = VersionCheck::new(HW_VERSION);
+        let mut ulc = VersionCheck::new(HW_VERSION, SW_VERSION);
         ulc.analyse("test.bin", meta_data.to_bytes());
         assert_eq!(ulc.new_image_name(), None);
 
         meta_data.hw_version = HW_VERSION;
         meta_data.sw_version = SwVersion::from_bytes([1, 0, 0, 1]);
-        let mut ulc = VersionCheck::new(HW_VERSION);
+        let mut ulc = VersionCheck::new(HW_VERSION, SW_VERSION);
         ulc.analyse("test1.bin", meta_data.to_bytes());
         assert_eq!(ulc.new_image_name().unwrap(), "test1.bin");
     }

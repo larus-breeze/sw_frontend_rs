@@ -1,5 +1,4 @@
 use embedded_sdmmc::{VolumeIdx, ShortFileName, Mode};
-use defmt::trace;
 use corelib::{MetaDataV1, SwVersion, VersionCheck, SIZE_METADATA_V1};
 use heapless::{String, Vec};
 use core::str;
@@ -7,6 +6,8 @@ use embedded_storage::nor_flash::NorFlash;
 use stm32h7xx_hal::flash::FlashExt;
 
 use crate::{driver::*, HW_VERSION};
+
+use super::SW_VERSION;
 
 pub fn stm32_crc(data: &[u32]) -> u32 {
     let mut crc: u32 = 0xffffffff;
@@ -46,7 +47,7 @@ pub fn update_available(file_sys: &mut Option<FileSys>) -> Option<SwVersion> {
         .ok()?;
 
     // check the *.bin files if there is something interesting there
-    let mut check = VersionCheck::new(HW_VERSION);
+    let mut check = VersionCheck::new(HW_VERSION, SW_VERSION);
     let mut buffer = [0_u8; SIZE_METADATA_V1];
     for name in files {
         let mut fname = String::<12>::new();
@@ -107,8 +108,8 @@ pub fn update_available(file_sys: &mut Option<FileSys>) -> Option<SwVersion> {
                 break;
             }
         }
-        let _ = fatfs.close_file(&volume, image_file);
         drop(unlocked_flash);
+        let _ = fatfs.close_file(&volume, image_file);
 
         // Check crc
         let meta_data = meta_data();
@@ -137,7 +138,6 @@ pub fn update_available(file_sys: &mut Option<FileSys>) -> Option<SwVersion> {
         if crc != meta_data.crc {
             return None; // We should never come here;
         }
-        trace!("CRC ok, copy image to flash finished");
         Some(check.new_sw_version())
     } else {
         None
