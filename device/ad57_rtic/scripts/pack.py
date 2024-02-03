@@ -34,6 +34,9 @@ class ReadApp():
         in_stream =  open(file_name, "rb")
         self.elf_file = ELFFile(in_stream, sys.stdout)
         self.file_name = file_name
+        with open(file_name, 'rb') as f:
+            self.elf_original = f.read()
+    
     def get_binary(self, flash_start, flash_end):
         """Return the binary data that lies within the defined range"""
         last_adr = 0
@@ -57,11 +60,15 @@ class ReadApp():
             binary[ofs:ofs + len(data)] = data
 
         # Be shure, that binary is word aligned
-        while len(binary) % 4 != 0: # Go safe to get 4 byte alignment 
-            binary += b'\x00'
+        while len(binary) % 32 != 0: # Go safe to get 32 byte alignment (stm32h7)
+            binary += b'\xff'
 
         self.binary = binary
         return binary
+    
+    def write_elf_file(self, file_name):
+        with open(file_name, 'wb') as f:
+            f.write(self.elf_original)
 
     def get_symbol_address(self, symbol_name):
         """Return the address of the symbol"""
@@ -77,13 +84,14 @@ class Binary():
         self.addr_storage = image["addr_storage"]
         self.hw_version = get_version(image["hw_version"])
         self.sw_version = get_version(image["sw_version"])
+        self.elf_file_name = image["elf"]
 
     def read_new_app(self, app):
         """Load the app that is to be executed later"""
-        new_app = ReadApp(app["elf"])
+        self.new_app = ReadApp(app["elf"])
         self.app_addr_start = app["addr_start"]
         app_addr_max = app["addr_max"]
-        self.app_bin = new_app.get_binary(self.app_addr_start, app_addr_max)
+        self.app_bin = self.new_app.get_binary(self.app_addr_start, app_addr_max)
 
     def read_copy_app(self, copy):
         """Load the copy routine that loads the future app in the right place."""
@@ -116,7 +124,7 @@ class Binary():
         while len(self.meta_data) < (self.copy_app_addr_start - self.addr_storage): # Fill til copy 
             self.meta_data += b'\x00'
 
-    def write_file(self):
+    def write_files(self):
         """Save binary to disk"""
         self.create_meta_data()
         binary = bytearray(self.meta_data + self.copy_bin + self.app_bin)
@@ -126,10 +134,13 @@ class Binary():
         binary[8:12] = struct.pack("<L", crc_data)
         print(f"  CRC inserted         0x{crc_data:08X}")
 
-        print(f"\nTotal size of binary: {round(len(binary) / 1024)}k")
+        print(f"\nTotal size of image file: {round(len(binary) / 1024)}k")
         print(f"Writing binary to file '{self.name}'")
         with open(self.name, "wb") as bin_file:
             bin_file.write(binary)
+
+        print(f"Write elf file to '{self.elf_file_name}'")
+        self.new_app.write_elf_file(self.elf_file_name)
 
 print("Larus App Image Packer")
 with open("pack.toml", "r") as f:
@@ -137,4 +148,4 @@ with open("pack.toml", "r") as f:
     image = Binary(spec["image"])
     image.read_new_app(spec["app"])
     image.read_copy_app(spec["copy"])
-    image.write_file()
+    image.write_files()

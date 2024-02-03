@@ -1,8 +1,8 @@
 use crate::{
     driver::{get_error_log, FileIo},
-    utils::{stm32_crc, DevError},
+    utils::{stm32_crc, DevError, SW_VERSION},
 };
-use corelib::{SwVersion, SW_VERSION};
+use corelib::SwVersion;
 use defmt::*;
 use embedded_storage::nor_flash::NorFlash;
 use fatfs::{FileSystem, FsOptions, LossyOemCpConverter, NullTimeProvider, Read, Write};
