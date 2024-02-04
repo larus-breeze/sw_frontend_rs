@@ -16,5 +16,5 @@ pub const GIT_COMMIT_TIME: &str = "@git_time@";
 pub const GIT_TAG_INFO: &str = "@git_tag@";
 
 pub const HW_VERSION: HwVersion = HwVersion { 
-    version: [1, 3, 1, 0] 
+    version: [2, 1, 1, 0] 
 };
