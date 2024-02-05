@@ -3,15 +3,14 @@ use defmt::trace;
 use stm32f4xx_hal::{timer::monotonic::fugit::ExtU32, watchdog::IndependentWatchdog};
 
 use crate::{
-    driver::{delay_ms, QEvents, Storage},
-    utils::{FileSys, FirmwarUpadate},
+    driver::{delay_ms, QEvents, Storage, FileSys}, update_available, install_and_restart,
 };
 use corelib::{CIdleEvents, DeviceEvent, Eeprom, Event, IdleEvent, SdCardCmd};
 
 pub struct IdleLoop {
     eeprom: Eeprom<Storage>,
     c_idle_events: CIdleEvents,
-    file_sys: FileSys,
+    _file_sys: Option<FileSys>,
     q_events: &'static QEvents,
     watchdog: IndependentWatchdog,
 }
@@ -20,14 +19,25 @@ impl IdleLoop {
     pub fn new(
         eeprom: Eeprom<Storage>,
         c_idle_events: CIdleEvents,
-        file_sys: FileSys,
+        mut file_sys: Option<FileSys>,
         q_events: &'static QEvents,
-        watchdog: IndependentWatchdog,
+        mut watchdog: IndependentWatchdog,
     ) -> Self {
+        if let Some(version) = update_available(&mut file_sys) {
+            // When software update is on the way, no watchdog is used
+            let event = Event::DeviceItem(DeviceEvent::FwAvailable(version));
+            let _ = q_events.enqueue(event);
+            trace!("Update available: {}", version);
+        } else {
+            // Normal mode without update, activate watchdog
+            watchdog.start(1000.millis());
+            trace!("Start watchdog");
+        }
+
         IdleLoop {
             eeprom,
             c_idle_events,
-            file_sys,
+            _file_sys: file_sys,
             q_events,
             watchdog,
         }
@@ -42,13 +52,16 @@ impl IdleLoop {
                         trace!("Stored id {:?}", item.id as u32);
                         self.eeprom.write_item(item).unwrap();
                     }
+                    IdleEvent::FeedTheDog => self.watchdog.feed(),
+                    IdleEvent::SetGain(_) => (), // vario sound on this device not suported
                     IdleEvent::SdCardItem(item) => {
                         match item {
                             SdCardCmd::SwUpdateAccepted => {
                                 let event = Event::DeviceItem(DeviceEvent::UploadInProgress);
                                 if self.q_events.enqueue(event).is_ok() {
                                     delay_ms(200); // Give the display a chance to update
-                                    self.file_sys.install_and_restart();
+                                    trace!("Sw update is accepted");
+                                    install_and_restart();
                                 }
                             }
                             SdCardCmd::SwUpdateCanceled => {
@@ -57,21 +70,7 @@ impl IdleLoop {
                             }
                         }
                     }
-                    IdleEvent::FeedTheDog => self.watchdog.feed(),
-                    IdleEvent::SetGain(_) => (), // vario sound on this device not suported
                 }
-            }
-
-            match self.file_sys.update_available() {
-                FirmwarUpadate::Available(version) => {
-                    let event = Event::DeviceItem(DeviceEvent::FwAvailable(version));
-                    let _ = self.q_events.enqueue(event);
-                }
-                FirmwarUpadate::NotAvailable => {
-                    self.watchdog.start(ExtU32::millis(1000));
-                    trace!("Start watchdog");
-                }
-                FirmwarUpadate::ToMuchRequests => (),
             }
 
             // Sleep and save power at the end

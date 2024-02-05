@@ -5,7 +5,6 @@ use crate::{
     dev_view::DevView,
     driver::*,
     idle_loop::IdleLoop,
-    utils::{FileSys, SdioPins},
     Statistics,
 };
 use can_dispatch::{CanDispatch, QRxFrames, QTxFrames, QTxIrqFrames};
@@ -148,7 +147,7 @@ pub fn hw_init(
         gpioc.pc11.internal_pull_up(true),
     );
     //let sd_detect = gpioc.pc0.internal_pull_up(true).into_input();
-    let file_sys = FileSys::new(device.SDIO, &clocks, sdio_pins);
+    let file_sys = FileSys::new(device.SDIO, &clocks, sdio_pins).ok();
 
     // Setup ----------> Eeprom driver for idle loop
     let scl = gpiob.pb6.internal_pull_up(true);

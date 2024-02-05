@@ -49,6 +49,7 @@ fn panic(info: &PanicInfo) -> ! {
     loop {}
 }
 
+#[allow(unused)]
 pub fn get_error_log() -> &'static [u8] {
     let ptr = get_ptr_end();
     let upper_flash_u8 =
