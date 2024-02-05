@@ -96,17 +96,6 @@ impl IdleLoop {
                     }
                 }
             }
-            /*match self.file_sys.update_available() {
-                FirmwarUpadate::Available(version) => {
-                    let event = Event::DeviceItem(DeviceEvent::FwAvailable(version));
-                    let _ = self.q_events.enqueue(event);
-                }
-                FirmwarUpadate::NotAvailable => {
-                    self.watchdog.start(ExtU32::millis(1000));
-                    trace!("Start watchdog");
-                }
-                FirmwarUpadate::ToMuchRequests => (),
-            }*/
 
             // Sleep and save power at the end
             rtic::export::wfi()

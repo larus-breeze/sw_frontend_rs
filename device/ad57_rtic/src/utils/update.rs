@@ -3,7 +3,7 @@ use corelib::{MetaDataV1, SwVersion, VersionCheck, SIZE_METADATA_V1, stm32_crc};
 use heapless::{String, Vec};
 use core::str;
 use embedded_storage::nor_flash::NorFlash;
-use stm32h7xx_hal::flash::FlashExt;
+use stm32f4xx_hal::flash::{FlashExt, LockedFlash};
 
 use crate::{driver::*, HW_VERSION};
 
@@ -14,14 +14,14 @@ pub fn update_available(file_sys: &mut Option<FileSys>) -> Option<SwVersion> {
         return None
     };
     // open filesystem
-    let mut volume = file_sys.as_mut()?.fat().get_volume(VolumeIdx(0)).ok()?;
-    let root_dir = file_sys.as_mut()?.fat().open_root_dir(&volume).ok()?;
+    let volume = file_sys.as_mut()?.fat().open_volume(VolumeIdx(0)).ok()?;
+    let root_dir = file_sys.as_mut()?.fat().open_root_dir(volume).ok()?;
     let fatfs = file_sys.as_mut()?.fat();
 
     // read root directory, look after *.bin files
     let mut files = Vec::<ShortFileName, 20>::new();
     fatfs
-        .iterate_dir(&volume, &root_dir, |entry| {
+        .iterate_dir(root_dir, |entry| {
             if entry.name.extension() == [66, 73, 78] && // BIN
                 entry.size > SIZE_METADATA_V1 as u32 {
                     let _ = files.push(entry.name.clone());
@@ -40,35 +40,31 @@ pub fn update_available(file_sys: &mut Option<FileSys>) -> Option<SwVersion> {
         let ext = unsafe { str::from_utf8_unchecked(name.extension()) };
         let _ = fname.push_str(ext);
 
-        let mut file = fatfs.open_file_in_dir(
-            &mut volume, 
-            &root_dir, 
+        let file = fatfs.open_file_in_dir(
+            root_dir, 
             fname.as_str(), 
             Mode::ReadOnly).ok()?;
         let num_read = fatfs.read(
-            &volume, 
-            &mut file, 
+            file, 
             &mut buffer).ok()?;
         if num_read == SIZE_METADATA_V1 {
             check.analyse(fname.as_str(), &buffer)
         }
-        let _ = fatfs.close_file(&volume, file);
+        let _ = fatfs.close_file(file);
     }
 
     let result = if let Some(image_name) = check.new_image_name()  {
         // a new image file was found
-        let mut image_file = fatfs.open_file_in_dir(
-            &mut volume, 
-            &root_dir, 
+        let image_file = fatfs.open_file_in_dir(
+            root_dir, 
             image_name.as_str(), 
             Mode::ReadOnly).ok()?;
     
-        let dp = unsafe { stm32h7xx_hal::pac::Peripherals::steal() };
-        let (_, opt_flash) = dp.FLASH.split();
-        let mut flash = opt_flash?;
+        let dp = unsafe { stm32f4xx_hal::pac::Peripherals::steal() };
+        let mut flash = LockedFlash::new(dp.FLASH);
         let mut unlocked_flash = flash.unlocked();
 
-        let image_size = image_file.length();
+        let image_size = fatfs.file_length(image_file).ok()?;
 
         // erase the flash region
         NorFlash::erase(
@@ -81,7 +77,7 @@ pub fn update_available(file_sys: &mut Option<FileSys>) -> Option<SwVersion> {
         let mut buffer = [0_u8; 512];
         let mut bytes_read = 0_u32;
         loop {
-            let b_read = fatfs.read(&volume, &mut image_file, &mut buffer).ok()?;
+            let b_read = fatfs.read(image_file, &mut buffer).ok()?;
             NorFlash::write(
                 &mut unlocked_flash, 
                 bytes_read, 
@@ -92,7 +88,7 @@ pub fn update_available(file_sys: &mut Option<FileSys>) -> Option<SwVersion> {
             }
         }
         drop(unlocked_flash);
-        let _ = fatfs.close_file(&volume, image_file);
+        let _ = fatfs.close_file(image_file);
 
         // Check crc
         let meta_data = meta_data();
@@ -114,7 +110,7 @@ pub fn update_available(file_sys: &mut Option<FileSys>) -> Option<SwVersion> {
     } else {
         None
     };
-    fatfs.close_dir(&volume, root_dir);
+    fatfs.close_dir(root_dir).ok()?;
     result
 }
 
@@ -126,7 +122,7 @@ pub fn install_and_restart() {
     loop {}; // We should never come here;
 }
 
-const STORAGE: usize = 0x0810_0000;
+const STORAGE: usize = 0x0808_0000;
 
 fn meta_data() -> &'static MetaDataV1 {
     unsafe { core::mem::transmute::<usize, &'static MetaDataV1>(STORAGE) }

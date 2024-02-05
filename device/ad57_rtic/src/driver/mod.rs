@@ -1,6 +1,6 @@
 mod canbus;
 mod eeprom;
-mod file_io;
+mod file_sys;
 mod frame_buffer;
 mod init;
 mod keyboard;
@@ -11,7 +11,7 @@ mod sys_timer;
 
 pub use canbus::*;
 pub use eeprom::*;
-pub use file_io::*;
+pub use file_sys::*;
 pub use frame_buffer::FrameBuffer;
 pub use init::*;
 pub use keyboard::*;
