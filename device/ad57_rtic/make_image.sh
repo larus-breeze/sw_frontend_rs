@@ -6,4 +6,5 @@ set -e
 scripts/adj_version.py
 cargo clean
 DEFMT_LOG=off cargo build --release
+cargo strip --bin vario --release
 scripts/pack.py
