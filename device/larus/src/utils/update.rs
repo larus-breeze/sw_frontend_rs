@@ -102,7 +102,7 @@ pub fn update_available(file_sys: &mut Option<FileSys>) -> Option<SwVersion> {
     
         // Check magic number
         if meta_data.magic != 0x1c80_73ab_2085_3579 {
-            loop {}; // We should never come here
+            return None; // We should never come here
         }
 
         // Check CRC of uploaded data

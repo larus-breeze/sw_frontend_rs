@@ -16,11 +16,10 @@ pub fn update_available(file_sys: &mut Option<FileSys>) -> Option<SwVersion> {
     // open filesystem
     let volume = file_sys.as_mut()?.fat().open_volume(VolumeIdx(0)).ok()?;
     let root_dir = file_sys.as_mut()?.fat().open_root_dir(volume).ok()?;
-    let fatfs = file_sys.as_mut()?.fat();
 
     // read root directory, look after *.bin files
     let mut files = Vec::<ShortFileName, 20>::new();
-    fatfs
+    file_sys.as_mut()?.fat()
         .iterate_dir(root_dir, |entry| {
             if entry.name.extension() == [66, 73, 78] && // BIN
                 entry.size > SIZE_METADATA_V1 as u32 {
@@ -40,22 +39,22 @@ pub fn update_available(file_sys: &mut Option<FileSys>) -> Option<SwVersion> {
         let ext = unsafe { str::from_utf8_unchecked(name.extension()) };
         let _ = fname.push_str(ext);
 
-        let file = fatfs.open_file_in_dir(
+        let file = file_sys.as_mut()?.fat().open_file_in_dir(
             root_dir, 
             fname.as_str(), 
             Mode::ReadOnly).ok()?;
-        let num_read = fatfs.read(
+        let num_read = file_sys.as_mut()?.fat().read(
             file, 
             &mut buffer).ok()?;
         if num_read == SIZE_METADATA_V1 {
             check.analyse(fname.as_str(), &buffer)
         }
-        let _ = fatfs.close_file(file);
+        let _ = file_sys.as_mut()?.fat().close_file(file);
     }
 
     let result = if let Some(image_name) = check.new_image_name()  {
         // a new image file was found
-        let image_file = fatfs.open_file_in_dir(
+        let image_file = file_sys.as_mut()?.fat().open_file_in_dir(
             root_dir, 
             image_name.as_str(), 
             Mode::ReadOnly).ok()?;
@@ -64,23 +63,25 @@ pub fn update_available(file_sys: &mut Option<FileSys>) -> Option<SwVersion> {
         let mut flash = LockedFlash::new(dp.FLASH);
         let mut unlocked_flash = flash.unlocked();
 
-        let image_size = fatfs.file_length(image_file).ok()?;
+        let image_size = file_sys.as_mut()?.fat().file_length(image_file).ok()?;
 
-        // erase the flash region
+        let flash_offset = (STORAGE - BEGIN_FLASH) as u32;
+
         NorFlash::erase(
             &mut unlocked_flash,
-            0,
-            image_size,
-        ).ok()?;
+            flash_offset,
+            flash_offset + image_size,
+        )
+        .unwrap();
 
         // write image file to flash memory
         let mut buffer = [0_u8; 512];
         let mut bytes_read = 0_u32;
         loop {
-            let b_read = fatfs.read(image_file, &mut buffer).ok()?;
+            let b_read = file_sys.as_mut()?.fat().read(image_file, &mut buffer).ok()?;
             NorFlash::write(
                 &mut unlocked_flash, 
-                bytes_read, 
+                flash_offset + bytes_read, 
                 &buffer).ok()?;
             bytes_read += b_read as u32;
             if b_read == 0 {
@@ -88,7 +89,7 @@ pub fn update_available(file_sys: &mut Option<FileSys>) -> Option<SwVersion> {
             }
         }
         drop(unlocked_flash);
-        let _ = fatfs.close_file(image_file);
+        let _ = file_sys.as_mut()?.fat().close_file(image_file);
 
         // Check crc
         let meta_data = meta_data();
@@ -98,7 +99,7 @@ pub fn update_available(file_sys: &mut Option<FileSys>) -> Option<SwVersion> {
     
         // Check magic number
         if meta_data.magic != 0x1c80_73ab_2085_3579 {
-            loop {}; // We should never come here
+            return None; // We should never come here
         }
 
         // Check CRC of uploaded data
@@ -110,7 +111,7 @@ pub fn update_available(file_sys: &mut Option<FileSys>) -> Option<SwVersion> {
     } else {
         None
     };
-    fatfs.close_dir(root_dir).ok()?;
+    file_sys.as_mut()?.fat().close_dir(root_dir).ok()?;
     result
 }
 
@@ -123,6 +124,7 @@ pub fn install_and_restart() {
 }
 
 const STORAGE: usize = 0x0808_0000;
+const BEGIN_FLASH: usize = 0x0800_0000;
 
 fn meta_data() -> &'static MetaDataV1 {
     unsafe { core::mem::transmute::<usize, &'static MetaDataV1>(STORAGE) }
