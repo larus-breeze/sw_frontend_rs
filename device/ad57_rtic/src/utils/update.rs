@@ -1,8 +1,8 @@
-use embedded_sdmmc::{VolumeIdx, ShortFileName, Mode};
-use corelib::{MetaDataV1, SwVersion, VersionCheck, SIZE_METADATA_V1, stm32_crc};
-use heapless::{String, Vec};
 use core::str;
+use corelib::{stm32_crc, MetaDataV1, SwVersion, VersionCheck, SIZE_METADATA_V1};
+use embedded_sdmmc::{Mode, ShortFileName, VolumeIdx};
 use embedded_storage::nor_flash::NorFlash;
+use heapless::{String, Vec};
 use stm32f4xx_hal::flash::{FlashExt, LockedFlash};
 
 use crate::{driver::*, HW_VERSION};
@@ -11,7 +11,7 @@ use super::SW_VERSION;
 
 pub fn update_available(file_sys: &mut Option<FileSys>) -> Option<SwVersion> {
     if file_sys.is_none() {
-        return None
+        return None;
     };
     // open filesystem
     let volume = file_sys.as_mut()?.fat().open_volume(VolumeIdx(0)).ok()?;
@@ -19,12 +19,15 @@ pub fn update_available(file_sys: &mut Option<FileSys>) -> Option<SwVersion> {
 
     // read root directory, look after *.bin files
     let mut files = Vec::<ShortFileName, 20>::new();
-    file_sys.as_mut()?.fat()
+    file_sys
+        .as_mut()?
+        .fat()
         .iterate_dir(root_dir, |entry| {
             if entry.name.extension() == [66, 73, 78] && // BIN
-                entry.size > SIZE_METADATA_V1 as u32 {
-                    let _ = files.push(entry.name.clone());
-                }
+                entry.size > SIZE_METADATA_V1 as u32
+            {
+                let _ = files.push(entry.name.clone());
+            }
         })
         .ok()?;
 
@@ -39,26 +42,26 @@ pub fn update_available(file_sys: &mut Option<FileSys>) -> Option<SwVersion> {
         let ext = unsafe { str::from_utf8_unchecked(name.extension()) };
         let _ = fname.push_str(ext);
 
-        let file = file_sys.as_mut()?.fat().open_file_in_dir(
-            root_dir, 
-            fname.as_str(), 
-            Mode::ReadOnly).ok()?;
-        let num_read = file_sys.as_mut()?.fat().read(
-            file, 
-            &mut buffer).ok()?;
+        let file = file_sys
+            .as_mut()?
+            .fat()
+            .open_file_in_dir(root_dir, fname.as_str(), Mode::ReadOnly)
+            .ok()?;
+        let num_read = file_sys.as_mut()?.fat().read(file, &mut buffer).ok()?;
         if num_read == SIZE_METADATA_V1 {
             check.analyse(fname.as_str(), &buffer)
         }
         let _ = file_sys.as_mut()?.fat().close_file(file);
     }
 
-    let result = if let Some(image_name) = check.new_image_name()  {
+    let result = if let Some(image_name) = check.new_image_name() {
         // a new image file was found
-        let image_file = file_sys.as_mut()?.fat().open_file_in_dir(
-            root_dir, 
-            image_name.as_str(), 
-            Mode::ReadOnly).ok()?;
-    
+        let image_file = file_sys
+            .as_mut()?
+            .fat()
+            .open_file_in_dir(root_dir, image_name.as_str(), Mode::ReadOnly)
+            .ok()?;
+
         let dp = unsafe { stm32f4xx_hal::pac::Peripherals::steal() };
         let mut flash = LockedFlash::new(dp.FLASH);
         let mut unlocked_flash = flash.unlocked();
@@ -67,22 +70,18 @@ pub fn update_available(file_sys: &mut Option<FileSys>) -> Option<SwVersion> {
 
         let flash_offset = (STORAGE - BEGIN_FLASH) as u32;
 
-        NorFlash::erase(
-            &mut unlocked_flash,
-            flash_offset,
-            flash_offset + image_size,
-        )
-        .unwrap();
+        NorFlash::erase(&mut unlocked_flash, flash_offset, flash_offset + image_size).unwrap();
 
         // write image file to flash memory
         let mut buffer = [0_u8; 512];
         let mut bytes_read = 0_u32;
         loop {
-            let b_read = file_sys.as_mut()?.fat().read(image_file, &mut buffer).ok()?;
-            NorFlash::write(
-                &mut unlocked_flash, 
-                flash_offset + bytes_read, 
-                &buffer).ok()?;
+            let b_read = file_sys
+                .as_mut()?
+                .fat()
+                .read(image_file, &mut buffer)
+                .ok()?;
+            NorFlash::write(&mut unlocked_flash, flash_offset + bytes_read, &buffer).ok()?;
             bytes_read += b_read as u32;
             if b_read == 0 {
                 break;
@@ -93,17 +92,17 @@ pub fn update_available(file_sys: &mut Option<FileSys>) -> Option<SwVersion> {
 
         // Check crc
         let meta_data = meta_data();
-        let upper_flash_u32 =  unsafe { core::mem::transmute::<usize, &[u32; 0x2_0000]>(STORAGE) };
+        let upper_flash_u32 = unsafe { core::mem::transmute::<usize, &[u32; 0x2_0000]>(STORAGE) };
         let new_app_start_idx = meta_data.new_app as usize - STORAGE;
         let new_app_end_idx = new_app_start_idx + meta_data.new_app_len as usize;
-    
+
         // Check magic number
         if meta_data.magic != 0x1c80_73ab_2085_3579 {
             return None; // We should never come here
         }
 
         // Check CRC of uploaded data
-        let crc = stm32_crc(&upper_flash_u32[3..new_app_end_idx/4]);
+        let crc = stm32_crc(&upper_flash_u32[3..new_app_end_idx / 4]);
         if crc != meta_data.crc {
             return None; // We should never come here;
         }
@@ -120,7 +119,8 @@ pub fn install_and_restart() {
     let func = unsafe { core::mem::transmute::<u32, fn()>(meta_data.copy_func) };
     func();
 
-    loop {}; // We should never come here;
+    #[allow(clippy::empty_loop)]
+    loop {} // We should never come here;
 }
 
 const STORAGE: usize = 0x0808_0000;

@@ -3,7 +3,8 @@ use defmt::trace;
 use stm32f4xx_hal::{timer::monotonic::fugit::ExtU32, watchdog::IndependentWatchdog};
 
 use crate::{
-    driver::{delay_ms, QEvents, Storage, FileSys}, update_available, install_and_restart,
+    driver::{delay_ms, FileSys, QEvents, Storage},
+    install_and_restart, update_available,
 };
 use corelib::{CIdleEvents, DeviceEvent, Eeprom, Event, IdleEvent, SdCardCmd};
 

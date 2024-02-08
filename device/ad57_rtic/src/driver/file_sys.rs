@@ -1,13 +1,11 @@
 use core::cell::RefCell;
+use embedded_sdmmc::{Block, BlockCount, BlockDevice as SdmmcBlockDevice, BlockIdx, VolumeManager};
 use stm32f4xx_hal::{
     gpio::Pin,
     pac::SDIO,
     rcc::Clocks,
-    sdio::{SdCard, Sdio},
     sdio::ClockFreq,
-};
-use embedded_sdmmc::{
-    Block, BlockCount, BlockDevice as SdmmcBlockDevice, BlockIdx, VolumeManager
+    sdio::{SdCard, Sdio},
 };
 
 #[derive(Debug)]
@@ -63,9 +61,10 @@ impl SdmmcBlockDevice for FileIo {
     type Error = Error;
 
     fn read(
-        &self, blocks: &mut [Block], 
-        start_block_idx: BlockIdx, 
-        _reason: &str
+        &self,
+        blocks: &mut [Block],
+        start_block_idx: BlockIdx,
+        _reason: &str,
     ) -> Result<(), Self::Error> {
         let start = start_block_idx.0;
         // unsafe is ok, becaus we are the only one knowing and using SDIO
@@ -75,25 +74,20 @@ impl SdmmcBlockDevice for FileIo {
             sdio.read_block(
                 block_idx,
                 &mut blocks[(block_idx - start) as usize].contents,
-            ).map_err(|_| Error::SdCard)?;
+            )
+            .map_err(|_| Error::SdCard)?;
         }
         Ok(())
     }
 
-    fn write(
-        &self,
-        blocks: &[Block],
-        start_block_idx: BlockIdx,
-    ) -> Result<(), Self::Error> {
+    fn write(&self, blocks: &[Block], start_block_idx: BlockIdx) -> Result<(), Self::Error> {
         // unsafe is ok, becaus we are the only one knowing and using SDIO
         let mut rc = unsafe { SDIO.borrow_mut() };
         let sdio = rc.as_mut().ok_or(Error::SdCard)?;
         let start = start_block_idx.0;
         for block_idx in start..(start + blocks.len() as u32) {
-            sdio.write_block(
-                block_idx,
-                &blocks[(block_idx - start) as usize].contents,
-            ).map_err(|_| Error::SdCard)?;
+            sdio.write_block(block_idx, &blocks[(block_idx - start) as usize].contents)
+                .map_err(|_| Error::SdCard)?;
         }
         Ok(())
     }
@@ -111,7 +105,7 @@ pub struct FileSys {
 
 impl FileSys {
     pub fn new(dp_sdio: SDIO, clocks: &Clocks, pins: SdioPins) -> Result<Self, Error> {
-        let file_io = FileIo::new(dp_sdio, &clocks, pins).ok_or(Error::SdCard)?;
+        let file_io = FileIo::new(dp_sdio, clocks, pins).ok_or(Error::SdCard)?;
         let fat_fs = VolumeManager::new(file_io, TimeSource);
         Ok(FileSys { fat_fs })
     }

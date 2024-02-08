@@ -315,14 +315,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "fmc_lcd"
-version = "0.1.0"
-dependencies = [
- "display-interface",
- "stm32f4xx-hal",
-]
-
-[[package]]
 name = "fugit"
 version = "0.3.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -796,7 +788,6 @@ dependencies = [
  "embedded-hal 0.2.7",
  "embedded-sdmmc",
  "embedded-storage 0.2.0",
- "fmc_lcd",
  "fugit",
  "heapless 0.8.0",
  "micromath",
