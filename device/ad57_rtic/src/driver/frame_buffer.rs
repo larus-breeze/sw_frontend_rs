@@ -14,15 +14,16 @@ use embedded_graphics::{
     primitives::Rectangle,
     Pixel,
 };
-use fmc_lcd::{AccessMode, LcdInterface, LcdPins, Timing, FSMC};
 use stm32f4xx_hal::{
-    gpio::{Output, Pin},
-    pac,
-    pac::{interrupt, NVIC},
+    fsmc_lcd::{AccessMode, DataPins16, FsmcLcd, LcdPins, Timing},
+    fsmc_lcd::{Lcd, SubBank1},
+    gpio::{alt::fsmc, Output, Pin},
+    pac::{self, interrupt, FSMC, NVIC},
     rcc::{Enable, Reset},
 };
 
 pub type LcdReset = Pin<'D', 3, Output>;
+pub type DevLcdPins = LcdPins<DataPins16, fsmc::Address, fsmc::ChipSelect1>;
 
 #[allow(dead_code)]
 pub struct FrameBuffer {
@@ -43,11 +44,11 @@ pub struct FrameBuffer {
     // Before the next buffer write, this flag can be used to assess whether the copy process was completed successfully.
     pub buf: &'static mut [u8; AVAIL_PIXELS],
     line_buf: &'static mut [u16; PORTRAIT_AVAIL_WIDTH as usize],
-    di: LcdInterface,
+    di: Lcd<SubBank1>,
     line_y: u16,
 }
 impl FrameBuffer {
-    pub fn new(fsmc: FSMC, lcd_pins: LcdPins, lcd_reset: LcdReset) -> (Self, Display) {
+    pub fn new(fsmc: FSMC, lcd_pins: DevLcdPins, lcd_reset: LcdReset) -> (Self, Display) {
         #[link_section = ".ccmram.BUFFERS"]
         static mut FRAME_BUFFER: [u8; AVAIL_PIXELS] = [0; AVAIL_PIXELS];
         let buf = unsafe { &mut FRAME_BUFFER };
@@ -81,7 +82,7 @@ impl FrameBuffer {
             dma2.st[0].m0ar.write(|w| w.bits(0x6002_0000)); // dest address
         }
 
-        let mut lcd_interface = LcdInterface::new(fsmc, lcd_pins, &timing, &timing);
+        let (_fsmc, mut lcd_interface) = FsmcLcd::new(fsmc, lcd_pins, &timing, &timing);
 
         // Initialize RG61580 LCD driver
         let mut lcd = R61580::new(&mut lcd_interface, lcd_reset);

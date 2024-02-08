@@ -1,4 +1,4 @@
-use corelib::{basic_config::MAX_RX_FRAMES, CoreModel, Event, CRxFrames}; // sensor
+use corelib::{basic_config::MAX_RX_FRAMES, CRxFrames, CoreModel, Event}; // sensor
 
 use crate::{driver::QEvents, CoreController};
 

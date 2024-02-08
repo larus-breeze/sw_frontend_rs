@@ -3,12 +3,12 @@
 
 mod driver;
 
-use defmt::trace;
 use cortex_m_rt::entry;
+use defmt::trace;
+use embedded_sdmmc::{Mode, VolumeIdx};
 use stm32f4xx_hal::pac::{CorePeripherals, Peripherals};
 use stm32f4xx_hal::prelude::*;
 use {defmt_rtt as _, panic_probe as _};
-use embedded_sdmmc::{VolumeIdx, Mode};
 
 use driver::*;
 
@@ -45,16 +45,23 @@ fn main() -> ! {
 
     let root_dir = file_sys.fat().open_root_dir(volume).unwrap();
     trace!("List all the directories and their info");
-    file_sys.fat()
+    file_sys
+        .fat()
         .iterate_dir(root_dir, |entry| {
             trace!("{}", defmt::Display2Format(&entry.name));
         })
         .unwrap();
 
-    let file = file_sys.fat().open_file_in_dir(root_dir, "TEST.TXT", Mode::ReadWriteAppend).unwrap();
+    let file = file_sys
+        .fat()
+        .open_file_in_dir(root_dir, "TEST.TXT", Mode::ReadWriteAppend)
+        .unwrap();
     for _idx in [0..1000] {
-        file_sys.fat().write(file, "Dies ist ein Test, der zeigen soll... ".as_bytes()).unwrap();
-    };
+        file_sys
+            .fat()
+            .write(file, "Dies ist ein Test, der zeigen soll... ".as_bytes())
+            .unwrap();
+    }
     file_sys.fat().close_file(file).unwrap();
 
     // Create a delay abstraction based on SysTick

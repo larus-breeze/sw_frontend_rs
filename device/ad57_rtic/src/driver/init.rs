@@ -1,16 +1,11 @@
 use crate::driver::{frame_buffer::*, init_can, keyboard::*, CanRx, CanTx, MonoTimer, Storage};
 use crate::utils::{HW_VERSION, SW_VERSION};
 use crate::{
-    dev_controller::DevController,
-    dev_view::DevView,
-    driver::*,
-    idle_loop::IdleLoop,
-    Statistics,
+    dev_controller::DevController, dev_view::DevView, driver::*, idle_loop::IdleLoop, Statistics,
 };
 use corelib::{
     basic_config::{MAX_RX_FRAMES, MAX_TX_FRAMES, VDA},
-    CoreModel, Event, QIdleEvents,
-    CanDispatch, QRxFrames, QTxFrames, QTxIrqFrames,
+    CanDispatch, CoreModel, Event, QIdleEvents, QRxFrames, QTxFrames, QTxIrqFrames,
 };
 /// In the embedded rust ecosystem, hardware resources can only be used in one place. For this
 /// reason, a careful distribution of the required hardware resources to corresponding software
@@ -26,9 +21,17 @@ use corelib::{
 /// which forwards the frames from the interrupt service routine CanRx to the task DevController.
 use defmt::*;
 use defmt_rtt as _;
-use fmc_lcd::{DataPins16, LcdPins};
+//use fmc_lcd::{DataPins16, LcdPins};
 use heapless::{mpmc::MpMcQueue, spsc::Queue};
-use stm32f4xx_hal::{pac, pac::interrupt, pac::NVIC, prelude::*, watchdog::IndependentWatchdog};
+use stm32f4xx_hal::{
+    fsmc_lcd::{DataPins16, LcdPins},
+    gpio::alt::fsmc,
+    pac,
+    pac::interrupt,
+    pac::NVIC,
+    prelude::*,
+    watchdog::IndependentWatchdog,
+};
 
 pub const TICKS_PER_SECOND: u32 = 1_000_000;
 pub type DevDuration = fugit::Duration<u64, 1, TICKS_PER_SECOND>;
@@ -156,13 +159,7 @@ pub fn hw_init(
     let mut eeprom = Storage::new(i2c).unwrap();
 
     // Setup ----------> CoreModel
-    let mut core_model = CoreModel::new(
-        p_idle_events, 
-        p_tx_frames, 
-        uuid(),
-        HW_VERSION,
-        SW_VERSION,
-    );
+    let mut core_model = CoreModel::new(p_idle_events, p_tx_frames, uuid(), HW_VERSION, SW_VERSION);
     for item in eeprom.iter_over(corelib::EepromTopic::ConfigValues) {
         core_model.restore_persistent_item(item);
     }
@@ -179,10 +176,10 @@ pub fn hw_init(
                 gpioe.pe10, gpioe.pe11, gpioe.pe12, gpioe.pe13, gpioe.pe14, gpioe.pe15, gpiod.pd8,
                 gpiod.pd9, gpiod.pd10,
             ),
-            gpiod.pd11,
+            fsmc::Address::from(gpiod.pd11),
             gpiod.pd4,
             gpiod.pd5,
-            gpiod.pd7,
+            fsmc::ChipSelect1::from(gpiod.pd7),
         );
         let lcd_reset = gpiod.pd3.into_push_pull_output();
 
