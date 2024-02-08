@@ -18,7 +18,7 @@ use stm32f4xx_hal::{
     fsmc_lcd::{AccessMode, DataPins16, FsmcLcd, LcdPins, Timing},
     fsmc_lcd::{Lcd, SubBank1},
     gpio::{alt::fsmc, Output, Pin},
-    pac::{self, interrupt, FSMC, NVIC},
+    pac::{interrupt, FSMC, NVIC},
     rcc::{Enable, Reset},
 };
 
@@ -70,7 +70,7 @@ impl FrameBuffer {
             FSMC::reset_unchecked();
         }
 
-        let rcc = unsafe { &*pac::RCC::ptr() };
+        /*let rcc = unsafe { &*pac::RCC::ptr() };
         rcc.ahb1enr.modify(|_, w| w.dma2en().set_bit()); // enable ahb1 clock for dma2
 
         unsafe {
@@ -80,7 +80,7 @@ impl FrameBuffer {
             dma2.st[0].fcr.write(|w| w.bits(0x27));
             dma2.st[0].par.write(|w| w.bits(src)); // source address
             dma2.st[0].m0ar.write(|w| w.bits(0x6002_0000)); // dest address
-        }
+        }*/
 
         let (_fsmc, mut lcd_interface) = FsmcLcd::new(fsmc, lcd_pins, &timing, &timing);
 
@@ -112,7 +112,7 @@ impl FrameBuffer {
     }
 
     pub fn on_interrupt(&mut self) {
-        /*while self.line_y < PORTRAIT_AVAIL_HEIGHT {
+        while self.line_y < PORTRAIT_AVAIL_HEIGHT {
             write_command_and_data(Instruction::PosX as u8, PORTRAIT_ORIGIN_X);
             write_command_and_data(Instruction::PosY as u8, self.line_y + PORTRAIT_ORIGIN_Y);
             write_command(Instruction::Gram as u8);
@@ -123,8 +123,8 @@ impl FrameBuffer {
                 write_data(color);
             }
             self.line_y += 1;
-        }*/
-        unsafe {
+        }
+        /*unsafe {
             let dma2 = &*pac::DMA2::ptr();
             dma2.st[0].cr.modify(|_, w| w.en().clear_bit()); // disable stream0
             dma2.lifcr.write(|w| w.ctcif0().set_bit()); // reset dma complete ir
@@ -146,7 +146,7 @@ impl FrameBuffer {
                 dma2.st[0].ndtr.write(|w| w.bits(227)); // count DMA moves
                 dma2.st[0].cr.modify(|_, w| w.en().set_bit()); // enable stream0
             }
-        }
+        }*/
     }
 }
 
