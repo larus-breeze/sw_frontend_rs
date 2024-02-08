@@ -1,4 +1,4 @@
-use can_dispatch::CanRng;
+use corelib::CanRng;
 use corelib::stm32_crc;
 use stm32h7xx_hal::rng::{self, RngCore};
 

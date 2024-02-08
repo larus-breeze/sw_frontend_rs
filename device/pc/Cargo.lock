@@ -63,14 +63,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "14c189c53d098945499cdfa7ecc63567cf3886b3332b312a5b4585d8d3a6a610"
 
 [[package]]
-name = "can_dispatch"
-version = "0.1.0"
-dependencies = [
- "byteorder",
- "heapless",
-]
-
-[[package]]
 name = "cfg-if"
 version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -96,7 +88,6 @@ name = "corelib"
 version = "0.1.0"
 dependencies = [
  "byteorder",
- "can_dispatch",
  "defmt",
  "embedded-graphics",
  "embedded-hal",
@@ -216,7 +207,6 @@ name = "eg-examples"
 version = "0.1.0"
 dependencies = [
  "byteorder",
- "can_dispatch",
  "corelib",
  "eeprom24x",
  "embedded-graphics",

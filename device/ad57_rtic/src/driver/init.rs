@@ -7,10 +7,10 @@ use crate::{
     idle_loop::IdleLoop,
     Statistics,
 };
-use can_dispatch::{CanDispatch, QRxFrames, QTxFrames, QTxIrqFrames};
 use corelib::{
     basic_config::{MAX_RX_FRAMES, MAX_TX_FRAMES, VDA},
     CoreModel, Event, QIdleEvents,
+    CanDispatch, QRxFrames, QTxFrames, QTxIrqFrames,
 };
 /// In the embedded rust ecosystem, hardware resources can only be used in one place. For this
 /// reason, a careful distribution of the required hardware resources to corresponding software

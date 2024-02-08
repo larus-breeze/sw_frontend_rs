@@ -2,10 +2,16 @@ mod display;
 mod eeprom;
 
 use byteorder::{ByteOrder, LittleEndian as LE};
-use can_dispatch::*;
 use corelib::{
     basic_config::{DISPLAY_HEIGHT, DISPLAY_WIDTH},
     *,
+};
+
+const SW_VERSION: SwVersion = SwVersion {
+    version: [0, 1, 1, 0],
+};
+const HW_VERSION: HwVersion = HwVersion { 
+    version: [1, 3, 1, 0] 
 };
 
 use display::MockDisplay;
@@ -53,7 +59,7 @@ fn main() -> Result<(), core::convert::Infallible> {
         unsafe { Q_TX_FRAMES.split() }
     };
 
-    let mut core_model = CoreModel::new(p_idle_events, p_tx_frames, 0x1234_5678);
+    let mut core_model = CoreModel::new(p_idle_events, p_tx_frames, 0x1234_5678, HW_VERSION, SW_VERSION);
     let mut eeprom = Storage::new().unwrap();
 
     for item in eeprom.iter_over(EepromTopic::ConfigValues) {

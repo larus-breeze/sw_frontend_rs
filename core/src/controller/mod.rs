@@ -15,8 +15,8 @@ use crate::{
     system_of_units::{FloatToSpeed, Speed},
     utils::{read_can_frame, KeyEvent, Pt1},
     CoreModel, DeviceEvent, FlyMode, IdleEvent, PersistenceId, VarioMode, POLARS,
+    Frame,
 };
-use can_dispatch::Frame;
 
 #[allow(unused_imports)]
 use micromath::F32Ext;

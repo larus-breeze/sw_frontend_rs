@@ -1,8 +1,8 @@
 use crate::{driver::*, utils::*, DevController, DevView, IdleLoop};
-use can_dispatch::{CanDispatch, QRxFrames, QTxFrames, QTxIrqFrames};
 use corelib::{
     basic_config::{MAX_RX_FRAMES, MAX_TX_FRAMES, VDA},
     CoreModel, QIdleEvents,
+    CanDispatch, QRxFrames, QTxFrames, QTxIrqFrames,
 };
 use cortex_m::peripheral::Peripherals as CorePeripherals;
 use defmt::*;

@@ -11,7 +11,7 @@ This section contains the sources for the hardware adaptation to the Larus Front
 Install Software using USB
 ---
 - Find the [*.elf binarys files from the releases](https://github.com/larus-breeze/sw_frontend_rs/releases).
-- Flash it via [DFU with the Tool STM32CUBEPROG](https://www.st.com/en/development-tools/stm32cubeprog.html).
-- Keep the Button on the Backside of the Frontend pressed and insert the USB-C Cable connected to a PC. The Frontend with boot STs Build in DFU Bootloader.
+- Flash it using [the tool STM32CUBEPROG](https://www.st.com/en/development-tools/stm32cubeprog.html).
+- Keep the button on the backside of the frontend pressed and insert the USB-C cable connected to a PC. The frontend with boot to STs build-in DFU bootloader.
 - Press the USB connect button in the STM32CUBEPROG.
-- Load and Download the *.elf file.
+- Load and download the *.elf file.

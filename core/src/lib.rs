@@ -18,6 +18,7 @@ extern crate std;
 /// display and control. The controller processes measured values and inputs and indirectly
 /// controls the display via the model. The display brings the information to the user (LCD and
 /// speaker). An overview of the structure can be found in the doc directory.
+mod common;
 mod controller;
 mod flight_physics;
 pub mod macros;
@@ -35,6 +36,7 @@ pub use view::{CoreView, FRAME_RATE};
 pub use flight_physics::*;
 pub use system_of_units::*;
 pub use utils::*;
+pub use common::*;
 
 // Re-exports to be used by the hal
 use embedded_graphics::prelude::*;

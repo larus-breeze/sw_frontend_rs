@@ -1,7 +1,7 @@
 mod queues;
 use queues::*;
 
-use can_dispatch::*;
+use corelib::*;
 
 const TEST_DATA: [&str; 15] = [
     "result Some(550000), frame Some(CanFrame { id: 15, rtr: true, len: 0, data: [0, 0, 0, 0, 0, 0, 0, 0] })",

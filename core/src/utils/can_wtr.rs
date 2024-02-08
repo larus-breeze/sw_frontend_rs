@@ -1,6 +1,8 @@
-use crate::{GenericId, SpecialId, SysConfigId, SysValueId};
+use crate::{
+    GenericId, SpecialId, SysConfigId, SysValueId,
+    Frame, CanFrame, 
+};
 use byteorder::{ByteOrder, LittleEndian as LE};
-use can_dispatch::*;
 
 const OBJECT_ID: u16 = 4;
 const OBJECT_ID_GEN: u16 = 0;

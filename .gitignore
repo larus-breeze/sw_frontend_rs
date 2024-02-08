@@ -11,5 +11,3 @@
 /device/pc/simulator-0.5.0/Cargo.lock
 /device/common/fmc_lcd/target
 /device/common/fmc_lcd/Cargo.lock
-/device/common/can_dispatch/target
-/device/common/can_dispatch/Cargo.lock
