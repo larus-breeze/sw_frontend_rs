@@ -1,3 +1,4 @@
+mod can_frame;
 mod can_ids;
 mod can_rdr;
 mod can_wtr;
@@ -15,6 +16,7 @@ mod rgb565_colors;
 mod version;
 mod version_check;
 
+pub use can_frame::*;
 pub use can_ids::*;
 pub use can_wtr::*;
 #[cfg(feature = "larus_ad57")]

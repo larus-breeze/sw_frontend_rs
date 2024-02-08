@@ -16,7 +16,6 @@ embedded-hal = "0.2.7"
 defmt = "0.3"
 
 # local
-can_dispatch = { path="../device/common/can_dispatch" }
 
 [features]
 default = ["air_avionics_ad57", "eeprom_size_8192"]

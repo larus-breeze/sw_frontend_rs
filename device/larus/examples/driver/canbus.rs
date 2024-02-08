@@ -1,4 +1,4 @@
-use can_dispatch::CanFrame;
+use corelib::CanFrame;
 use core::num::{NonZeroU16, NonZeroU8};
 use corelib::basic_config::MAX_TX_FRAMES;
 use fdcan::{

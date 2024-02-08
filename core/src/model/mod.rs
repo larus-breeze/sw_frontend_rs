@@ -4,8 +4,8 @@ use crate::{
     basic_config::MAX_TX_FRAMES,
     utils::{DeviceEvent, PIdleEvents},
     HwVersion, SwVersion,
+    common::PTxFrames,
 };
-use can_dispatch::PTxFrames;
 use embedded_graphics::geometry::{Angle, AngleUnit};
 use heapless::FnvIndexSet;
 

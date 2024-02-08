@@ -1,5 +1,3 @@
-#![no_std]
-
 /// The can_dispatch module guides you through the startup process and filters CAN bus datagrams
 ///
 /// The startup process checks whether the desired virtual device address is available and assigns
@@ -20,9 +18,7 @@
 /// This component runs in the context of the device driver.
 ///
 /// [CAN Bus Specification](https://github.com/larus-breeze/doc_larus/tree/master/documentation)
-mod can_frame;
-
-pub use can_frame::*;
+use crate::{CanFrame, Frame, GenericFrame, SpecificFrame};
 
 use heapless::{
     spsc::{Consumer, Producer, Queue},
@@ -348,4 +344,8 @@ impl CanDevice {
     fn is_first(&self) -> bool {
         self.is_first
     }
+}
+
+#[cfg(test)]
+mod tests {
 }

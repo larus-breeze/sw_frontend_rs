@@ -1,4 +1,4 @@
-use can_dispatch::*;
+use corelib::*;
 use heapless::spsc::Queue;
 
 #[allow(unused)]

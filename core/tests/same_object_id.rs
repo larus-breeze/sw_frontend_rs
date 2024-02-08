@@ -1,7 +1,7 @@
 mod queues;
 use queues::*;
 
-use can_dispatch::*;
+use corelib::*;
 
 #[test]
 fn same_object_id() {

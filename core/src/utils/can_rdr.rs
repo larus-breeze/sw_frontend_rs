@@ -2,9 +2,9 @@ use crate::{
     model::VarioModeControl, AirSpeed, CoreModel, FloatToAcceleration, FloatToAngularVelocity,
     FloatToDensity, FloatToLength, FloatToMass, FloatToPressure, FloatToSpeed, FlyMode, GenericId,
     SysConfigId,
+    Frame, CanFrame, GenericFrame,
 };
 use byteorder::{ByteOrder, LittleEndian as LE};
-use can_dispatch::*;
 use embedded_graphics::prelude::AngleUnit;
 
 use crate::utils::sensor;

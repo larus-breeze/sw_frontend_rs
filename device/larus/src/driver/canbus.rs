@@ -1,4 +1,4 @@
-use can_dispatch::{CTxIrqFrames, CanFrame};
+use corelib::{CTxIrqFrames, CanFrame};
 use core::num::{NonZeroU16, NonZeroU8};
 use fdcan::{
     config::NominalBitTiming,

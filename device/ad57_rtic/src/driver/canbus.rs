@@ -1,5 +1,5 @@
 use bxcan::{filter::Mask32, Data, Fifo, Frame, Id, Interrupt, StandardId};
-use can_dispatch::{CTxIrqFrames, CanFrame};
+use corelib::{CTxIrqFrames, CanFrame};
 use stm32f4xx_hal::{
     can::{Can, CanExt},
     gpio::Pin,

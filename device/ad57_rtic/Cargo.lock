@@ -84,19 +84,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "14c189c53d098945499cdfa7ecc63567cf3886b3332b312a5b4585d8d3a6a610"
 
 [[package]]
-name = "can_dispatch"
-version = "0.1.0"
-dependencies = [
- "byteorder",
- "heapless 0.8.0",
-]
-
-[[package]]
 name = "corelib"
 version = "0.1.0"
 dependencies = [
  "byteorder",
- "can_dispatch",
  "defmt",
  "embedded-graphics",
  "embedded-hal 0.2.7",
@@ -793,7 +784,6 @@ name = "vario"
 version = "0.1.1"
 dependencies = [
  "bxcan",
- "can_dispatch",
  "corelib",
  "cortex-m",
  "cortex-m-rt",
