@@ -55,13 +55,15 @@ pub struct CoreController {
     tick: u32,
     last_vario_mode: VarioMode,
     av2_climb_rate: Pt1<Speed>,
+    av_speed_to_fly: Pt1<Speed>,
 }
 
 impl CoreController {
     pub fn new(core_model: &mut CoreModel) -> Self {
         let polar_idx = core_model.config.glider_idx as usize;
         let polar = Polar::new(&POLARS[polar_idx], &mut core_model.glider_data);
-        let av2_climb_rate = Pt1::new(0.0.m_s(), 10, core_model.config.av2_time_const);
+        let av2_climb_rate = Pt1::new(0.0.m_s(), CONTROLLER_TICK_RATE, core_model.config.av2_climb_rate_tc);
+        let av_speed_to_fly = Pt1::new(0.0.m_s(), CONTROLLER_TICK_RATE, core_model.config.av_speed_to_fly_tc);
         Self {
             demo: DemoController::new(),
             polar,
@@ -70,6 +72,7 @@ impl CoreController {
             last_vario_mode: VarioMode::Vario,
             sw_update: SwUpdateController::new(),
             av2_climb_rate,
+            av_speed_to_fly,
         }
     }
 
@@ -152,8 +155,11 @@ impl CoreController {
         let sink_rate = self.polar.sink_rate(core_model.sensor.airspeed);
         core_model.calculated.speed_to_fly =
             self.polar.speed_to_fly(climb_rate - sink_rate, mc_cready);
+        self.av_speed_to_fly.tick(core_model.calculated.speed_to_fly.ias());
+        core_model.calculated.av_speed_to_fly = self.av_speed_to_fly.value();
         core_model.calculated.speed_to_fly_dif =
-            core_model.calculated.speed_to_fly.ias() - core_model.sensor.airspeed.ias();
+            core_model.calculated.av_speed_to_fly - core_model.sensor.airspeed.ias();
+
 
         // calculate sound parameters and push can frame to queue
         let cms = &core_model.sensor;
@@ -226,7 +232,7 @@ impl CoreController {
                 };
 
                 // Set 1-second-speed-to-fly value
-                core_model.calculated.speed_to_fly_1s = core_model.calculated.speed_to_fly.ias();
+                core_model.calculated.speed_to_fly_1s = core_model.calculated.av_speed_to_fly;
 
                 if self.last_vario_mode != core_model.control.vario_mode {
                     self.last_vario_mode = core_model.control.vario_mode;
