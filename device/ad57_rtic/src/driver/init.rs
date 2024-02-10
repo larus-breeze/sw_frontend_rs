@@ -21,7 +21,6 @@ use corelib::{
 /// which forwards the frames from the interrupt service routine CanRx to the task DevController.
 use defmt::*;
 use defmt_rtt as _;
-//use fmc_lcd::{DataPins16, LcdPins};
 use heapless::{mpmc::MpMcQueue, spsc::Queue};
 use stm32f4xx_hal::{
     fsmc_lcd::{DataPins16, LcdPins},
@@ -194,15 +193,16 @@ pub fn hw_init(
         (DevView::new(display), frame_buffer)
     };
 
-    // Setup ----------> Backlight Port an switch on the lcd
-    let mut backlight = gpiob.pb4.into_push_pull_output();
-    backlight.set_high(); // Is fixed at the moment, perhaps PWM in the future
-
     // Setup ----------> Idleloop (last, because of the dog)
     let watchdog = IndependentWatchdog::new(device.IWDG);
     let idle_loop = IdleLoop::new(eeprom, c_idle_events, file_sys, &Q_EVENTS, watchdog);
     trace!("AD57 initialized");
 
+    // Setup ----------> Backlight Port an switch on the lcd as a last action
+    // Should be activated at the very end, otherwise the LCD will show a strange display during 
+    // the firmware update.
+    let mut backlight = gpiob.pb4.into_push_pull_output();
+    backlight.set_high(); // Is fixed at the moment, perhaps PWM in the future
     (
         can_dispatch,
         can_rx,
