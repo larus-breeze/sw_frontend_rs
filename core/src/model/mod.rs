@@ -138,6 +138,7 @@ pub enum TcrMode {
 /// Metastructure for calculated or set values
 pub struct Calculated {
     pub speed_to_fly: AirSpeed,
+    pub av_speed_to_fly: Speed, // ref. IAS
     pub speed_to_fly_dif: Speed,
     pub speed_to_fly_1s: Speed, // ref. IAS
     pub thermal_climb_rate: Speed,
@@ -152,6 +153,7 @@ impl Default for Calculated {
     fn default() -> Self {
         Calculated {
             speed_to_fly: AirSpeed::from_tas_at_nn(127.0.km_h()),
+            av_speed_to_fly: Speed::from_km_h(0.0),
             speed_to_fly_dif: 3.0.km_h(),
             speed_to_fly_1s: 0.0.km_h(),
             thermal_climb_rate: 1.3.m_s(),
@@ -178,7 +180,8 @@ pub struct Config {
     pub uuid: u32,
     pub hw_version: HwVersion,
     pub sw_version: SwVersion,
-    pub av2_time_const: f32,
+    pub av2_climb_rate_tc: f32,
+    pub av_speed_to_fly_tc: f32,
 }
 
 impl Default for Config {
@@ -197,7 +200,8 @@ impl Default for Config {
             uuid: 0,
             hw_version: HwVersion::default(),
             sw_version: SwVersion::default(),
-            av2_time_const: 30.0,
+            av2_climb_rate_tc: 30.0,
+            av_speed_to_fly_tc: 5.0,
         }
     }
 }
