@@ -69,7 +69,7 @@ pub enum SysValueId {
 
 #[rustfmt::skip]
 #[allow(unused)]
-pub mod sensor {
+pub mod sensor_legacy {
     pub const EULER_ANGLES: u16 = 0x101;    // i16, i16, i16 roll nick yaw / 1/1000 rad
     pub const AIRSPEED: u16 = 0x102;        // i16, i16 TAS, IAS / km/h
     pub const VARIO: u16 = 0x103;           // i16, i16 vario, integrator / mm/s
@@ -95,7 +95,7 @@ pub mod sensor {
 
 #[rustfmt::skip]
 #[allow(unused)]
-pub mod audio {
+pub mod audio_legacy {
     pub const HEART_BEAT: u16 = 0x200;      // u32  version as 0x0102002a "1.02 Build 42"
     pub const CMD_2_XCSOAR: u16 = 0x201;    // u8 command for XCSoar
                                             // = 0 Unforce XCSoar CLIMB-CRUISE
@@ -113,7 +113,7 @@ pub mod audio {
 
 #[rustfmt::skip]
 #[allow(unused)]
-pub mod frontend {
+pub mod frontend_legacy {
     pub const HEART_BEAT: u16 = 0x300;      // u32  version as 0x0102002a "1.02 Build 42"
     pub const CMD_2_XCSOAR: u16 = 0x301;    // u8 command for XCSoar
                                             // = 0 Unforce XCSoar CLIMB-CRUISE
