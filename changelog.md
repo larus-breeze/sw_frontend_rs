@@ -1,7 +1,9 @@
 Changelog
 =
 
-v0.1.0 Initial test release
+v0.1.2 Detail optimisation
+- Speed to fly is now low-pass filtered
+- Air Avionics: no LCD flickering during firmware update
 
 v0.1.1 First updateable release
 - Vario display based on the lagacy can bus protocol
@@ -14,3 +16,5 @@ v0.1.1 First updateable release
 - Remote control function for installation in a two-seater
 - Power failure-proof storage of settings in EEPROM
 - SW update function with SD cards for Larus and Air Avionics hardware
+
+v0.1.0 Initial test release
