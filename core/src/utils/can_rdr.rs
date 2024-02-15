@@ -1,20 +1,90 @@
 use crate::{
-    model::VarioModeControl, AirSpeed, CoreModel, FloatToAcceleration, FloatToAngularVelocity,
-    FloatToDensity, FloatToLength, FloatToMass, FloatToPressure, FloatToSpeed, FlyMode, GenericId,
-    SysConfigId,
-    Frame, CanFrame, GenericFrame,
+    model::VarioModeControl, AirSpeed, CanFrame, CoreModel, 
+    FloatToAcceleration, FloatToAngularVelocity, FloatToDensity, FloatToLength, FloatToMass, FloatToPressure, FloatToSpeed, 
+    FlyMode, Frame, GenericFrame, GenericId, SpecificFrame, SysConfigId
 };
 use byteorder::{ByteOrder, LittleEndian as LE};
 use embedded_graphics::prelude::AngleUnit;
 
-use crate::utils::sensor_legacy;
+use crate::utils::{sensor_legacy, object_id};
 
 pub fn read_can_frame(cm: &mut CoreModel, frame: &Frame) {
     match frame {
         Frame::Generic(generic_frame) => read_generic_frame(cm, generic_frame),
-        Frame::Specific(_specific_frame) => (),
+        Frame::Specific(specific_frame) => read_specific_frame(cm, specific_frame),
         Frame::Legacy(can_frame) => read_legacy_frame(cm, can_frame),
     }
+}
+
+fn read_specific_frame(cm: &mut CoreModel, frame: &SpecificFrame) {
+    match frame.object_id {
+        object_id::SENSOR => read_sensor_values(cm, frame),
+        _ => (),
+    }
+}
+
+/* FIXME: This is an unfinished fragment
+
+missing:
+        sensor_legacy::ACCELERATION => {
+            cm.sensor.g_force = ((rdr.pop_i16() as f32) * 0.001).m_s2();
+            cm.sensor.vertical_g_force = ((rdr.pop_i16() as f32) * 0.001).m_s2();
+            cm.sensor.gps_climb_rate = ((rdr.pop_i16() as f32) * 0.001).m_s();
+            match rdr.pop_u8() {
+                0 => cm.control.fly_mode = FlyMode::StraightFlight,
+                2 => cm.control.fly_mode = FlyMode::Circling,
+                _ => (),
+            }
+        }
+        sensor_legacy::GPS_ALT => {
+            cm.sensor.gps_altitude = (rdr.pop_u32() as f32).mm();
+            cm.sensor.gps_geo_seperation = (rdr.pop_u32() as f32 * 0.1).m();
+        }
+        sensor_legacy::GPS_TRK_SPD => {
+            cm.sensor.gps_track = (rdr.pop_i16() as f32 * 0.001).rad();
+            cm.sensor.gps_ground_speed = (rdr.pop_u16() as f32).km_h();
+            if cm.sensor.gps_ground_speed < 1.0.km_h() {
+                cm.sensor.gps_track = 0.0.rad();
+            }
+            if cm.sensor.gps_track < 0.0.rad() {
+                cm.sensor.gps_track += 360.0.deg();
+            }
+        }
+
+*/
+fn read_sensor_values(_cm: &mut CoreModel, _frame: &SpecificFrame) {
+
+    /* FIXME: This is an unfinished fragment
+    let mut rdr: Reader<'_> = Reader::new(frame.can_frame.data());
+    match frame.specific_id {
+        //sensor::EULER_ANGLES => (),
+        sensor::HEADING_MAGN_DECL => (),
+        sensor::TAS_IAS => {
+            let (tas_ok, tas) = (rdr.f32_is_finite(), rdr.pop_f32());
+            let (ias_ok, ias) = (rdr.f32_is_finite(), rdr.pop_f32());
+            if tas_ok && ias_ok {
+                cm.sensor.airspeed = AirSpeed::from_speeds(ias.m_s(), tas.m_s());
+            }
+        },
+        sensor::VARIO_AV_VARIO => (),
+        sensor::WIND_DIR_SPEED => (),
+        sensor::AV_WIND_DIR_SPEED => (),
+        sensor::AMB_PRESS_AIR_DENS => {
+            if rdr.f32_is_finite() {
+                cm.sensor.pressure = rdr.pop_f32().n_m2();
+            }
+            if rdr.f32_is_finite() {
+                cm.sensor.density = rdr.pop_f32().g_m3();
+            }
+        },
+        sensor::AC_ANG_FRONT_RIGHT => (),
+        sensor::TURN_RATE_STATE => (),
+        sensor::CALC_TRIFT_ANGLE => (),
+        sensor::SYSTEM_STATE_GIT => (),
+        sensor::SUPPLY_VOLTAGE => (),
+        _ => (),
+
+    }*/
 }
 
 fn read_generic_frame(cm: &mut CoreModel, frame: &GenericFrame) {
@@ -186,6 +256,13 @@ impl<'a> Reader<'a> {
         let idx = self.pos;
         self.pos += 4;
         LE::read_f32(&self.data[idx..self.pos])
+    }
+
+    #[inline]
+    #[allow(unused)]
+    fn f32_is_finite(&mut self) -> bool {
+        let idx = self.pos;
+        LE::read_f32(&self.data[self.pos..self.pos + 4]).is_finite()
     }
 }
 
