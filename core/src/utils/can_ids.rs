@@ -69,6 +69,47 @@ pub enum SysValueId {
 
 #[rustfmt::skip]
 #[allow(unused)]
+pub mod object_id {
+    pub const ARBITRATION: u16 = 0;
+    pub const CONFIG: u16 = 1;
+    pub const SENSOR: u16 = 2;
+    pub const GPS: u16 = 3;
+    pub const FRONTEND: u16 = 4;
+}
+
+#[rustfmt::skip]
+#[allow(unused)]
+pub mod sensor {
+    pub const EULER_ANGLES: u16 = 0;        // f32 roll, f32 nick
+    pub const HEADING_MAGN_DECL: u16 = 1;   // f32 heading, f32 magnetic_declination
+    pub const TAS_IAS: u16 = 2;             // f32 TAS, f32 IAS
+    pub const VARIO_AV_VARIO: u16 = 3;      // f32 vario, f32 av_vario
+    pub const WIND_DIR_SPEED: u16 = 4;      // f32 wind_direction, f32 wind_speed
+    pub const AV_WIND_DIR_SPEED: u16 = 5;   // f32 av_wind_directin, f32 av_wind_speed
+    pub const AMB_PRESS_AIR_DENS: u16 = 6;  // f32 ambient_pressure, f32 air_density,
+    pub const AC_ANG_FRONT_RIGHT: u16 = 7;  // f32 acceleration_front, f32 acceleration_right
+    pub const TURN_RATE_STATE: u16 = 8;     // f32 turnrate_to_the_right, u8 state
+    pub const CALC_TRIFT_ANGLE: u16 = 9;    // f32 rad + if track right of heading
+    pub const SYSTEM_STATE_GIT: u16 = 10;   // u32 system state, u32 git tag
+    pub const SUPPLY_VOLTAGE: u16 = 11;     // f32 volt
+}
+
+#[rustfmt::skip]
+#[allow(unused)]
+pub mod gps {
+    pub const DATE_TIME: u16 = 0;           // u16 year, u8 month, u8 day, u8 h, u8 min, u8 s
+    pub const LATITUDE: u16 = 1;            // f64 latitude
+    pub const LONGITUDE: u16 = 2;           // f64 longitude
+    pub const ALTITUDE_GEO_SEP: u16 = 3;    // f32 altitude, f32 geo_seperation
+    pub const GROUND_TRACK_SPEED: u16 = 4;  // f32 ground_track, f32 ground_speed
+    pub const NO_SAT_FIX_VALID: u16 = 5;    // u8 no sats, bool sat_fix_valid, bool sad_heading_valid
+}
+
+
+
+
+#[rustfmt::skip]
+#[allow(unused)]
 pub mod sensor_legacy {
     pub const EULER_ANGLES: u16 = 0x101;    // i16, i16, i16 roll nick yaw / 1/1000 rad
     pub const AIRSPEED: u16 = 0x102;        // i16, i16 TAS, IAS / km/h

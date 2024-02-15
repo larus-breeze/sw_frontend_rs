@@ -25,7 +25,7 @@ use heapless::{
     FnvIndexSet, Vec,
 };
 
-// This queue transports the can bus frames from the view component to the can dispatcher.
+// This queue transports the can bus frames from the can dispatcher to the send irq service routine.
 pub type QTxIrqFrames<const MAX_TX_FRAMES: usize> = Queue<CanFrame, MAX_TX_FRAMES>;
 pub type PTxIrqFrames<const MAX_TX_FRAMES: usize> = Producer<'static, CanFrame, MAX_TX_FRAMES>;
 pub type CTxIrqFrames<const MAX_TX_FRAMES: usize> = Consumer<'static, CanFrame, MAX_TX_FRAMES>;
