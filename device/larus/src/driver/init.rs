@@ -97,6 +97,10 @@ pub fn hw_init<'a>(
     let gpioe = dp.GPIOE.split(ccdr.peripheral.GPIOE);
     let gpiof = dp.GPIOF.split(ccdr.peripheral.GPIOF);
 
+    // Setup ----------> The EEPROM Write Protect Signal
+    let mut wp = gpioc.pc5.into_push_pull_output();
+    wp.set_low(); // Always enable writing to the eeprom 
+
     // Setup ----------> The front key interface
     let keyboard = {
         let keyboard_pins = KeyboardPins::new(gpioe.pe5, gpioe.pe6, gpioe.pe4);
