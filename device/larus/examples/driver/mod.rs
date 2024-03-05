@@ -28,17 +28,27 @@ mod sys_timer;
 use corelib::Event;
 #[allow(unused)]
 use heapless::mpmc::MpMcQueue;
-
+#[allow(unused)]
 pub use amplifier::*;
+#[allow(unused)]
 pub use canbus::*;
+#[allow(unused)]
 pub use eeprom::*;
+#[allow(unused)]
 pub use file_sys::*;
+#[allow(unused)]
 pub use fmc_lcd::*;
+#[allow(unused)]
 pub use frame_buffer::*;
+#[allow(unused)]
 pub use i2c_mgr::*;
+#[allow(unused)]
 pub use keyboard::*;
+#[allow(unused)]
 pub use panic::*;
+#[allow(unused)]
 pub use sound::*;
+#[allow(unused)]
 pub use sys_timer::*;
 
 pub type QEvents = MpMcQueue<Event, 8>;
