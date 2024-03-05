@@ -29,7 +29,7 @@ pub use frame_buffer::*;
 pub use i2c_mgr::*;
 pub use init::*;
 pub use keyboard::*;
-pub use panic::*;
+//pub use panic::*;
 pub use rng_uuid::*;
 pub use sound::*;
 pub use sys_timer::*;
