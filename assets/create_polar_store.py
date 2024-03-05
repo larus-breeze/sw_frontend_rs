@@ -15,7 +15,7 @@ TRANSLATE_GLIDER_NAMES = {
     "SZD-54-2 Perkoz (WL 20m)) /* long winglet */": "SZD-54-2 20m WL",
     "SZD-9 bis 1E Bocian": "SZD-9-1E Bocian",
     "Ventus 2c (18m)": "Ventus 2c 18m",
-    "Ventus 2cT (18m)": "Ventus 2c 18m",
+    "Ventus 2cT (18m)": "Ventus 2cT 18m",
     "Ventus 2cx (18m)": "Ventus 2cx 18m",
     "Ventus 2cxT (18m)": "Ventus 2cxT 18m",
     "Ventus a/b (16.6m)": "Ventus a/b 16.6m",
@@ -71,6 +71,7 @@ class Glider():
 ADDITONAL = (
     [b"LS-3 WL", 396, 121, 80, -0.604, 105, -0.700, 180, -1.939, 10.5, 250/3.6, 108, 295],
     [b"ASG-32", 807, 125, 100, -0.582, 126, -0.648, 185, -1.450, 15.7, 250/3.6, 120, 650],
+    [b"Ventus 2b 15m", 339, 200, 85, -0.576, 110, -0.648, 200, -2.230, 9.7, 250/3.6, 115, 248],
 )
 
 
