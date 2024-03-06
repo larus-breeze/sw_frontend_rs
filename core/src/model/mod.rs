@@ -152,11 +152,11 @@ impl Default for Calculated {
     #[allow(unused)]
     fn default() -> Self {
         Calculated {
-            speed_to_fly: AirSpeed::from_tas_at_nn(127.0.km_h()),
+            speed_to_fly: AirSpeed::from_tas_at_nn(100.0.km_h()),
             av_speed_to_fly: Speed::from_km_h(0.0),
-            speed_to_fly_dif: 3.0.km_h(),
+            speed_to_fly_dif: 0.0.km_h(),
             speed_to_fly_1s: 0.0.km_h(),
-            thermal_climb_rate: 1.3.m_s(),
+            thermal_climb_rate: 0.0.m_s(),
             av2_climb_rate: 0.0.m_s(),
             frequency: 500,
             continuous: false,
@@ -230,8 +230,8 @@ pub struct Control {
 impl Default for Control {
     fn default() -> Self {
         Self {
-            fly_mode: FlyMode::Circling,
-            vario_mode: VarioMode::Vario,
+            fly_mode: FlyMode::StraightFlight,
+            vario_mode: VarioMode::SpeedToFly,
             vario_mode_control: VarioModeControl::Auto,
             vario_mode_switch_ratio: 1.05,
             speed_to_fly_limit: 105.0.km_h(),
@@ -277,10 +277,10 @@ impl Default for Sensor {
     #[allow(unused)]
     fn default() -> Self {
         Sensor {
-            airspeed: AirSpeed::from_tas_at_nn(100.0.km_h()),
-            average_climb_rate: 1.1.m_s(),
-            average_wind: WindVector::new(15.0.km_h(), 80.0.deg()),
-            climb_rate: 1.7.m_s(),
+            airspeed: AirSpeed::from_tas_at_nn(0.0.km_h()),
+            average_climb_rate: 0.0.m_s(),
+            average_wind: WindVector::new(0.0.km_h(), 0.0.deg()),
+            climb_rate: 0.0.m_s(),
             density: Density::AT_NN(),
             g_force: 9.81.m_s2(),
             gps_altitude: 0.0.m(),
