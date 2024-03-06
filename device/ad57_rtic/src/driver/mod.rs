@@ -15,9 +15,8 @@ pub use file_sys::*;
 pub use frame_buffer::FrameBuffer;
 pub use init::*;
 pub use keyboard::*;
+#[allow(unused)]
 pub use panic::*;
-pub use r61580::R61580;
 pub use rng_uuid::*;
 pub use sys_timer::*;
 
-pub use init::*;
