@@ -36,7 +36,12 @@ const VARIO_COLORS: VarioColors = VarioColors {
     background: Colors::Black,
     mc_cready: Colors::Red,
     needle: Colors::White,
+
+    #[cfg(feature = "air_avionics_ad57")]
     scale: Colors::DarkGray,
+    #[cfg(feature = "larus_ad57")]
+    scale: Colors::White,
+
     speed_to_fly: Colors::Coral,
     thermal_climb_rate: Colors::Yellow,
     wind_fill: Colors::Blue,

@@ -81,6 +81,7 @@ class LifGen():
 
 
 DARK_GRAY = 24
+WHITE = 135
 
 lif_type1 = LifGen(227, 285, 'assets/size_227x285', 'core/assets/size_227x285')
 lif_type1.generate(1, 'glider.png', {0: DARK_GRAY}, 67, 117)
@@ -96,6 +97,6 @@ lif_type1.generate(1, 'glider.png', {0: DARK_GRAY}, 82, 136)
 lif_type1.generate(1, 'north.png', {0: DARK_GRAY}, 82, 58)
 lif_type1.generate(1, 'spiral.png', {0: DARK_GRAY})
 lif_type1.generate(1, 'straight.png', {0: DARK_GRAY})
-lif_type1.generate(2, 'vario_wallpaper.png', {0: DARK_GRAY})
+lif_type1.generate(2, 'vario_wallpaper.png', {0: WHITE})
 lif_type1.generate(1, 'km_h.png', {0: DARK_GRAY})
 lif_type1.generate(1, 'm_s.png', {0: DARK_GRAY})
