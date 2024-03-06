@@ -112,17 +112,22 @@ impl CoreController {
             }
         };
 
-        // activate editor, if desired
-        match result {
-            Result::Edit(mode, var, timeout) => {
-                core_model.control.edit_mode = mode;
-                core_model.control.edit_var = var;
-                core_model.control.edit_ticks = timeout * CONTROLLER_TICK_RATE;
-                self.check_edit_results(core_model)
+        if *key_event == KeyEvent::BtnEnc && core_model.control.edit_ticks > 1 {
+            core_model.control.edit_ticks = 1; // finish edit session
+        } else {
+            // activate editor, if desired
+            match result {
+                Result::Edit(mode, var, timeout) => {
+                    core_model.control.edit_mode = mode;
+                    core_model.control.edit_var = var;
+                    core_model.control.edit_ticks = timeout * CONTROLLER_TICK_RATE;
+                    self.check_edit_results(core_model)
+                }
+                Result::Nothing => (),
+                Result::NextDisplay(_) => (),
             }
-            Result::Nothing => (),
-            Result::NextDisplay(_) => (),
         }
+
     }
 
     pub fn time_action(&mut self, core_model: &mut CoreModel) {
