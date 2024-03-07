@@ -29,6 +29,8 @@ struct VarioColors {
     thermal_climb_rate: Colors,
     wind_fill: Colors,
     wind_stroke: Colors,
+    wind_fill_abs: Colors,
+    wind_stroke_abs: Colors,
 }
 
 const VARIO_COLORS: VarioColors = VarioColors {
@@ -46,6 +48,8 @@ const VARIO_COLORS: VarioColors = VarioColors {
     thermal_climb_rate: Colors::Yellow,
     wind_fill: Colors::Blue,
     wind_stroke: Colors::LightSkyBlue,
+    wind_fill_abs: Colors::Magenta,
+    wind_stroke_abs: Colors::White,
 };
 
 use VARIO_COLORS as COLS;
@@ -111,7 +115,7 @@ where
 
     // draw wind arrow
     let wind_speed = cm.sensor.wind_vector.speed().to_km_h();
-    let (angle, av_angle) = match cm.control.fly_mode {
+    let (angle, av_angle, fill_color, stroke_color) = match cm.control.fly_mode {
         FlyMode::Circling => {
             // draw noth symbol
             display.draw_img(NORTH_IMG, Point::new(0, 0))?;
@@ -119,6 +123,8 @@ where
             (
                 cm.sensor.wind_vector.angle(),
                 cm.sensor.average_wind.angle(),
+                COLS.wind_fill_abs,
+                COLS.wind_stroke_abs,
             )
         }
         FlyMode::StraightFlight => {
@@ -128,6 +134,8 @@ where
                 // return relativ wind vector
                 cm.sensor.wind_vector.angle() - cm.sensor.gps_track,
                 cm.sensor.average_wind.angle() - cm.sensor.gps_track,
+                COLS.wind_fill,
+                COLS.wind_stroke,
             )
         }
     };
@@ -146,8 +154,8 @@ where
         angle,
         av_angle,
         len,
-        COLS.wind_fill,
-        COLS.wind_stroke,
+        fill_color,
+        stroke_color,
     )?;
 
     // draw wind direction an speed text
