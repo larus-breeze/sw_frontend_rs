@@ -183,11 +183,16 @@ pub fn hw_init<'a>(
         let pins = SdcardPins::new(
             gpioc.pc12, gpiod.pd2, gpioc.pc8, gpioc.pc9, gpioc.pc10, gpioc.pc11, gpioe.pe3,
         );
-        let file_sys =  FileSys::new(pins, dp.SDMMC1, ccdr.peripheral.SDMMC1, &ccdr.clocks).ok();
+
+        // Init filesystem if sdcard available
+        let _ = FileSys::new(pins, dp.SDMMC1, ccdr.peripheral.SDMMC1, &ccdr.clocks).ok();
+
+        // Init reset watch and create entry in PANIC.LOG if watchdog reset
+        let _ = ResetWatch::init();
 
         let watchdog = IndependentWatchdog::new(dp.IWDG);
 
-        IdleLoop::new(i2c, file_sys, watchdog, c_idle_events, &Q_EVENTS, &mut core_model)
+        IdleLoop::new(i2c, watchdog, c_idle_events, &Q_EVENTS, &mut core_model)
     };
 
     let sound = {

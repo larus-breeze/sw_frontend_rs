@@ -1,3 +1,6 @@
+use heapless::String;
+
+#[derive(Clone, Copy, Debug)]
 pub struct DateTime {
     year: u16,
     month: u8,
@@ -56,5 +59,14 @@ impl DateTime {
         insert(&mut buf, self.min as u16, 16);
         insert(&mut buf, self.sec as u16, 19);
         buf
+    }
+
+    pub fn to_string(&self) -> String<20> {
+        let bytes = self.to_bytes();
+        let mut r = String::<20>::new();
+        for c in bytes {
+            r.push(c as char).unwrap();
+        }
+        r
     }
 }

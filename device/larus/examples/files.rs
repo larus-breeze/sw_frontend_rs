@@ -42,19 +42,16 @@ unsafe fn main() -> ! {
         gpioc.pc12, gpiod.pd2, gpioc.pc8, gpioc.pc9, gpioc.pc10, gpioc.pc11, gpioe.pe3,
     );
 
-    let mut fs = FileSys::new(pins, dp.SDMMC1, ccdr.peripheral.SDMMC1, &ccdr.clocks).unwrap();
+    FileSys::new(pins, dp.SDMMC1, ccdr.peripheral.SDMMC1, &ccdr.clocks).unwrap();
 
-    let volume = fs.fat().get_volume(VolumeIdx(0)).unwrap();
-
-    let root_dir = fs.fat().open_root_dir(&volume).unwrap();
-
-    fs.fat()
-        .iterate_dir(&volume, &root_dir, |entry| {
+    if let Some(fs) = get_filesys() {
+        let mut volume = fs.vol_mgr().open_volume(VolumeIdx(0)).unwrap();
+        let mut root_dir =  volume.open_root_dir().unwrap();
+        root_dir.iterate_dir(|entry| {
             trace!("{}", defmt::Display2Format(&entry.name));
         })
         .unwrap();
-
-    fs.fat().close_dir(&volume, root_dir);
+    }
 
     loop {
         cortex_m::asm::nop()

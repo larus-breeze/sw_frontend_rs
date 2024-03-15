@@ -9,19 +9,15 @@ use crate::{driver::*, HW_VERSION};
 
 use super::SW_VERSION;
 
-pub fn update_available(file_sys: &mut Option<FileSys>) -> Option<SwVersion> {
-    if file_sys.is_none() {
-        return None
-    };
+pub fn update_available() -> Option<SwVersion> {
+    let fs = get_filesys()?;
     // open filesystem
-    let mut volume = file_sys.as_mut()?.fat().get_volume(VolumeIdx(0)).ok()?;
-    let root_dir = file_sys.as_mut()?.fat().open_root_dir(&volume).ok()?;
-    let fatfs = file_sys.as_mut()?.fat();
+    let mut volume = fs.vol_mgr().open_volume(VolumeIdx(0)).ok()?;
+    let mut root_dir = volume.open_root_dir().ok()?;
 
     // read root directory, look after *.bin files
     let mut files = Vec::<ShortFileName, 20>::new();
-    fatfs
-        .iterate_dir(&volume, &root_dir, |entry| {
+    root_dir.iterate_dir(|entry| {
             if entry.name.extension() == [66, 73, 78] && // BIN
                 entry.size > SIZE_METADATA_V1 as u32 {
                     let _ = files.push(entry.name.clone());
@@ -40,26 +36,18 @@ pub fn update_available(file_sys: &mut Option<FileSys>) -> Option<SwVersion> {
         let ext = unsafe { str::from_utf8_unchecked(name.extension()) };
         let _ = fname.push_str(ext);
 
-        let mut file = fatfs.open_file_in_dir(
-            &mut volume, 
-            &root_dir, 
+        let mut file = root_dir.open_file_in_dir(
             fname.as_str(), 
             Mode::ReadOnly).ok()?;
-        let num_read = fatfs.read(
-            &volume, 
-            &mut file, 
-            &mut buffer).ok()?;
+        let num_read = file.read(&mut buffer).ok()?;
         if num_read == SIZE_METADATA_V1 {
             check.analyse(fname.as_str(), &buffer)
         }
-        let _ = fatfs.close_file(&volume, file);
     }
 
     let result = if let Some(image_name) = check.new_image_name()  {
         // a new image file was found
-        let mut image_file = fatfs.open_file_in_dir(
-            &mut volume, 
-            &root_dir, 
+        let mut image_file = root_dir.open_file_in_dir(
             image_name.as_str(), 
             Mode::ReadOnly).ok()?;
     
@@ -81,7 +69,7 @@ pub fn update_available(file_sys: &mut Option<FileSys>) -> Option<SwVersion> {
         let mut buffer = [0_u8; 512];
         let mut bytes_read = 0_u32;
         loop {
-            let b_read = fatfs.read(&volume, &mut image_file, &mut buffer).ok()?;
+            let b_read = image_file.read(&mut buffer).ok()?;
             NorFlash::write(
                 &mut unlocked_flash, 
                 bytes_read, 
@@ -92,7 +80,6 @@ pub fn update_available(file_sys: &mut Option<FileSys>) -> Option<SwVersion> {
             }
         }
         drop(unlocked_flash);
-        let _ = fatfs.close_file(&volume, image_file);
 
         // Check crc
         let meta_data = meta_data();
@@ -114,7 +101,6 @@ pub fn update_available(file_sys: &mut Option<FileSys>) -> Option<SwVersion> {
     } else {
         None
     };
-    fatfs.close_dir(&volume, root_dir);
     result
 }
 

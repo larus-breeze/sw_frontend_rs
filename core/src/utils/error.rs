@@ -8,6 +8,7 @@ pub enum CoreError {
     EepromOrI2c1,
     NoItemAvailable,
     OutOfRange,
+    SdCard,
 }
 
 impl From<u8g2_fonts::Error<CoreError>> for CoreError {

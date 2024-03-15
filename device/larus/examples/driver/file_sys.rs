@@ -1,16 +1,14 @@
-use cortex_m::peripheral;
+use core::cell::RefCell;
 use embedded_sdmmc::{
-    Controller, DirEntry, Directory, Error as SdmmcError, File, Mode, Volume, VolumeIdx,
+    Block, BlockCount, BlockDevice, BlockIdx, Error as SdmmcError, VolumeManager
 };
 use stm32h7xx_hal::{
     device::SDMMC1,
     gpio::{Alternate, Input, Pin, Speed},
-    pac,
     prelude::*,
-    rcc::rec::PeripheralREC,
     rcc::rec::Sdmmc1,
     rcc::CoreClocks,
-    sdmmc::{Error as DeviceError, SdCard, Sdmmc, SdmmcBlockDevice, SdmmcExt},
+    sdmmc::{Error as DeviceError, SdCard, Sdmmc, SdmmcExt},
 };
 type FileSysError = SdmmcError<DeviceError>;
 
@@ -86,11 +84,85 @@ impl embedded_sdmmc::TimeSource for TimeSource {
     }
 }
 
-type FatFs = Controller<SdmmcBlockDevice<Sdmmc<pac::SDMMC1, SdCard>>, TimeSource>;
+pub struct FileIo {
+    size: u64,
+    sdmmc: RefCell<Sdmmc<SDMMC1, SdCard>>,
+}
 
+impl FileIo {
+    pub fn new(
+        pins: SdcardPins,
+        sdmmc1: SDMMC1,
+        prec: Sdmmc1, 
+        clocks: &CoreClocks
+    ) -> Result<Self, FileSysError> {
+        if pins.detect.is_low() {
+            return Err(SdmmcError::DeviceError(DeviceError::NoCard));
+        }
+        let pins = (pins.clk, pins.cmd, pins.d0, pins.d1, pins.d2, pins.d3);
+        let mut sdmmc: Sdmmc<_, SdCard> = sdmmc1.sdmmc(pins, prec, clocks);
+        sdmmc.init(10.MHz()).map_err(|e| SdmmcError::DeviceError(e))?;
+        let size = sdmmc.card().map_err(|e| SdmmcError::DeviceError(e))?.size();
+        Ok(FileIo { size, sdmmc: RefCell::new(sdmmc) })
+    }
+}
+
+impl BlockDevice for FileIo {
+    type Error = FileSysError;
+
+    fn read(
+        &self,
+        blocks: &mut [Block],
+        start_block_idx: BlockIdx,
+        _reason: &str,
+    ) -> Result<(), Self::Error> {
+        // unsafe is ok, becaus we are the only one knowing and using sdmmc
+        let mut sdmmc = unsafe { self.sdmmc.borrow_mut() };
+        let start = start_block_idx.0;
+        for block_idx in start..(start + blocks.len() as u32) {
+            sdmmc
+                .read_block(block_idx, &mut blocks[(block_idx - start) as usize].contents)
+                .map_err(|e| SdmmcError::DeviceError(e))?;
+        }
+        Ok(())
+    }
+
+    fn write(
+        &self, 
+        blocks: 
+        &[Block], 
+        start_block_idx: BlockIdx
+    ) -> Result<(), Self::Error> {
+        // unsafe is ok, becaus we are the only one knowing and using sdmmc
+        let mut sdmmc = unsafe { self.sdmmc.borrow_mut() };
+        let start = start_block_idx.0;
+        for block_idx in start..(start + blocks.len() as u32) {
+            let block = &blocks[(block_idx - start) as usize].contents;
+            sdmmc
+                .write_block(block_idx, block)
+                .map_err(|e| SdmmcError::DeviceError(e))?;
+        }
+        Ok(())
+    }
+
+    fn num_blocks(&self) -> Result<BlockCount, Self::Error> {
+        Ok(BlockCount((self.size / 512u64) as u32))
+    }
+}
+
+
+type VolMgr = VolumeManager<FileIo, TimeSource>;
+
+static mut FILE_SYS: Option<FileSys> = None;
+
+/// Access to the file system of the SdCard
+///
+/// The file system may only be accessed when the application is started or when all interrupts 
+/// are disabled. The background to this is that the SDIO driver of the HAL is not resistant to 
+/// interrupts during access. For this reason, access from different thread contexts is not 
+/// protected.
 pub struct FileSys {
-    detect: Pin<'E', 3, Input>,
-    fat_fs: FatFs,
+    vol_mgr: VolMgr,
 }
 
 impl FileSys {
@@ -100,25 +172,23 @@ impl FileSys {
         sdmmc1: SDMMC1,
         prec: Sdmmc1,
         clocks: &CoreClocks,
-    ) -> Result<FileSys, FileSysError> {
-        if pins.detect.is_low() {
-            return Err(SdmmcError::DeviceError(DeviceError::NoCard));
+    ) -> Result<(), FileSysError> {
+        let file_io = FileIo::new(pins, sdmmc1, prec, clocks)?;
+        let mut vol_mgr = VolumeManager::new(file_io, TimeSource);
+        // ok, since access only provided from one thread 
+        unsafe {
+            FILE_SYS = Some(FileSys { vol_mgr })
         }
-        let mut sdmmc: Sdmmc<_, SdCard> = sdmmc1.sdmmc(
-            (pins.clk, pins.cmd, pins.d0, pins.d1, pins.d2, pins.d3),
-            prec,
-            clocks,
-        );
-        sdmmc.init(10.MHz())?;
-        let mut fat_fs = Controller::new(sdmmc.sdmmc_block_device(), TimeSource);
-        let volume = fat_fs.get_volume(VolumeIdx(0))?;
-        Ok(Self {
-            fat_fs,
-            detect: pins.detect,
-        })
+        Ok(())
     }
 
-    pub fn fat(&mut self) -> &mut FatFs {
-        &mut self.fat_fs
+    pub fn vol_mgr(&mut self) -> &mut VolMgr {
+        &mut self.vol_mgr
     }
+}
+
+pub fn get_filesys() -> Option<&'static mut FileSys> {
+        // ok, since access only provided from one thread 
+        unsafe { FILE_SYS.as_mut() }
+
 }
