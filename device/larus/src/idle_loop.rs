@@ -17,14 +17,12 @@ pub struct IdleLoop {
     eeprom: Eeprom<Storage<I2cManager<'static>, I2cError>>,
     c_idle_events: CIdleEvents,
     q_events: &'static QEvents,
-    _file_sys: Option<FileSys>,
     watchdog: IndependentWatchdog,
 }
 
 impl IdleLoop {
     pub fn new(
         i2c: I2c<I2C1>,
-        mut file_sys: Option<FileSys>,
         mut watchdog: IndependentWatchdog,
         c_idle_events: CIdleEvents,
         q_events: &'static QEvents,
@@ -42,7 +40,7 @@ impl IdleLoop {
             core_model.restore_persistent_item(item);
         }
 
-        if let Some(version) = update_available(&mut file_sys) {
+        if let Some(version) = update_available() {
             // When software update is on the way, no watchdog is used
             let event = Event::DeviceItem(DeviceEvent::FwAvailable(version));
             let _ = q_events.enqueue(event);
@@ -58,7 +56,6 @@ impl IdleLoop {
             eeprom,
             c_idle_events,
             q_events,
-            _file_sys: file_sys,
             watchdog,
         }
     }

@@ -10,7 +10,6 @@ use corelib::*;
 use cortex_m_rt::entry;
 use heapless::mpmc::MpMcQueue;
 use stm32h7xx_hal::{independent_watchdog::IndependentWatchdog, pac, prelude::*};
-use embedded_sdmmc::{VolumeIdx, Mode};
 
 use driver::*;
 
@@ -61,29 +60,8 @@ fn main() -> ! {
     let pins = SdcardPins::new(
         gpioc.pc12, gpiod.pd2, gpioc.pc8, gpioc.pc9, gpioc.pc10, gpioc.pc11, gpioe.pe3,
     );
-
-    let mut fs = FileSys::new(pins, dp.SDMMC1, ccdr.peripheral.SDMMC1, &ccdr.clocks).unwrap();
-    let mut volume = fs.fat().get_volume(VolumeIdx(0)).unwrap();
-    let root_dir = fs.fat().open_root_dir(&volume).unwrap();
-
-
-    let pb = PanicBuffer::init();
-    if pb.has_content() {
-        let mut file = fs.fat()
-        .open_file_in_dir(
-            &mut volume,
-            &root_dir,
-            "PANIC.LOG",
-            Mode::ReadWriteCreateOrAppend,
-        )
-        .unwrap();
-    
-        let content = pb.content();
-        fs.fat().write(&mut volume, &mut file, &content).unwrap();
-        fs.fat().close_file(&mut volume, file).unwrap();
-        pb.clear();
-    }
-    fs.fat().close_dir(&volume, root_dir);
+    let _ = FileSys::new(pins, dp.SDMMC1, ccdr.peripheral.SDMMC1, &ccdr.clocks);
+    let _ = ResetWatch::init();
 
     let mut watchdog = IndependentWatchdog::new(dp.IWDG);
     watchdog.start(1000.millis());

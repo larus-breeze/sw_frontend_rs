@@ -19,10 +19,10 @@ rtic-monotonic = "1.0.0"
 eeprom24x = "0.6.0"
 fdcan = "0.2"
 st7789 = "0.7.0"
-stm32h7xx-hal = { version = "0.15.1", features = ["rt", "stm32h743", "fmc", "can", "sdmmc", "sdmmc-fatfs", "defmt"] }
+stm32h7xx-hal = { version = "0.15.1", features = ["rt", "stm32h743", "fmc", "can", "sdmmc", "defmt"] }
 embedded-dma = "0.2.0"
 sdio-host = "0.9"
-embedded-sdmmc = "0.5"
+embedded-sdmmc = { version = "0.7" }
 
 # other libraries
 display-interface = "0.4"

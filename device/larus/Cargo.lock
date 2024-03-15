@@ -69,7 +69,7 @@ dependencies = [
  "byteorder",
  "defmt",
  "embedded-graphics",
- "embedded-hal",
+ "embedded-hal 0.2.7",
  "heapless 0.8.0",
  "micromath",
  "num",
@@ -85,7 +85,7 @@ dependencies = [
  "bare-metal 0.2.5",
  "bitfield",
  "critical-section",
- "embedded-hal",
+ "embedded-hal 0.2.7",
  "volatile-register",
 ]
 
@@ -197,7 +197,7 @@ version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bfbf82c7da4264160da270637038860fae049e4eb54b132a7059835f5b06529d"
 dependencies = [
- "embedded-hal",
+ "embedded-hal 0.2.7",
  "embedded-storage",
  "nb 1.1.0",
 ]
@@ -255,13 +255,20 @@ dependencies = [
 ]
 
 [[package]]
-name = "embedded-sdmmc"
-version = "0.5.0"
+name = "embedded-hal"
+version = "1.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2f4d14180a76a8af24a45a0e1a4f9c97491b05a3b962d59d5e4ce0e6ab103736"
+checksum = "361a90feb7004eca4019fb28352a9465666b24f840f5c3cddf0ff13920590b89"
+
+[[package]]
+name = "embedded-sdmmc"
+version = "0.7.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "da528dbf3f1c1f0b321552bc334d04799bb17c1936de55bccfb643a4f39300d8"
 dependencies = [
  "byteorder",
- "embedded-hal",
+ "embedded-hal 1.0.0",
+ "heapless 0.7.16",
  "log",
 ]
 
@@ -606,7 +613,7 @@ checksum = "86e89eaa897f8688aa897a7a8a62847e00e3f49f804d918bdebd14d4a1beb5ab"
 dependencies = [
  "display-interface",
  "embedded-graphics-core 0.3.3",
- "embedded-hal",
+ "embedded-hal 0.2.7",
  "heapless 0.7.16",
  "nb 1.1.0",
 ]
@@ -629,7 +636,7 @@ version = "0.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "830ed60f33e6194ecb377f5d6ab765dc0e37e7b65e765f1fa87df13336658d63"
 dependencies = [
- "embedded-hal",
+ "embedded-hal 0.2.7",
 ]
 
 [[package]]
@@ -655,8 +662,7 @@ dependencies = [
  "cortex-m",
  "defmt",
  "embedded-dma",
- "embedded-hal",
- "embedded-sdmmc",
+ "embedded-hal 0.2.7",
  "embedded-storage",
  "fdcan",
  "fugit",
@@ -739,7 +745,7 @@ dependencies = [
  "eeprom24x",
  "embedded-dma",
  "embedded-graphics",
- "embedded-hal",
+ "embedded-hal 0.2.7",
  "embedded-sdmmc",
  "embedded-storage",
  "fdcan",
