@@ -22,7 +22,7 @@ const SIGNATURE2: u32 = 0x1234_5678;
 static mut RESET_WATCH: MaybeUninit<ResetWatch> = unsafe { MaybeUninit::uninit().assume_init() };
 
 impl ResetWatch {
-pub fn new() -> &'static mut Self {
+pub fn new() {
         // SAFETY: The signature ensures that we are either dealing with an initialised data 
         // structure or are initialising it.
         unsafe {
@@ -36,7 +36,6 @@ pub fn new() -> &'static mut Self {
                 reset_watch.date_time = DateTime::new();
                 reset_watch.signature2 = SIGNATURE2;
             }
-            reset_watch
         }
     }
 

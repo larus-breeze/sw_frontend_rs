@@ -23,7 +23,7 @@ const SIGNATURE2: u32 = 0x1234_5678;
 static mut RESET_WATCH: MaybeUninit<ResetWatch> = unsafe { MaybeUninit::uninit().assume_init() };
 
 impl ResetWatch {
-pub fn init() -> &'static mut Self {
+pub fn new() {
         // SAFETY: The signature ensures that we are either dealing with an initialised data 
         // structure or are initialising it.
         unsafe {
@@ -38,7 +38,21 @@ pub fn init() -> &'static mut Self {
                 reset_watch.date_time = DateTime::new();
                 reset_watch.signature2 = SIGNATURE2;
             }
-            reset_watch
+        }
+    }
+
+    pub fn init() -> Option<&'static mut Self> {
+        // SAFETY: The signature ensures that we are either dealing with an initialised data 
+        // structure or are initialising it.
+        unsafe {
+            let reset_watch = 
+                core::mem::transmute::<&'static mut MaybeUninit<ResetWatch>, &'static mut ResetWatch>(&mut RESET_WATCH);
+            
+            if (reset_watch.signature == SIGNATURE) && (reset_watch.signature2 == SIGNATURE2) {
+                Some(reset_watch)
+            } else {
+                None
+            }
         }
     }
 
@@ -53,8 +67,11 @@ fn write_panic_msg(msg: &[u8]) -> Result<(), CoreError> {
         let mut root_dir =  volume.open_root_dir().map_err(|_| CoreError::SdCard)?;
         let mut file = root_dir.open_file_in_dir("PANIC.LOG", Mode::ReadWriteCreateOrAppend).map_err(|_| CoreError::SdCard)?;
 
-        let rw = ResetWatch::init();
-        let dt = rw.date_time().to_bytes();
+        let dt = if let Some(rw) = ResetWatch::init() {
+            rw.date_time.to_bytes()
+        } else {
+            DateTime::new().to_bytes()
+        };
 
         file.write(&dt).map_err(|_| CoreError::SdCard)?;
         file.write(b" ").map_err(|_| CoreError::SdCard)?;

@@ -38,7 +38,10 @@ nb = "1"
 [dependencies.corelib]
 path = "../../core"
 default-features = false 
-features = ["larus_ad57", "eeprom_size_8192"] 
+features = ["larus_ad57", "eeprom_size_8192"]
+
+[features]
+test-panic = []
 
 [[bin]]
 name = "vario"
