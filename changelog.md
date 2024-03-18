@@ -1,6 +1,14 @@
 Changelog
 =
 
+v0.1.3 Optimized usability - improved crash reports
+- Write watchdog and panic events to sdcard inluding time and date
+- Add Ventus 2 15m polar
+- Change vario scale color to white
+- The color of the wind arrow changes between flying straight ahead and thermaling
+- Set wind direction and speed to zero when not flying
+- Volume control range is now 50 dB instead of 30 dB
+
 v0.1.2 Detail optimisation
 - Speed to fly is now low-pass filtered
 - Air Avionics: no LCD flickering during firmware update
