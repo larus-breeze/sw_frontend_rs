@@ -71,8 +71,8 @@ impl VarioController {
                 cm.config.volume = match key_event {
                     KeyEvent::Rotary1Left => return Result::NextDisplay(Direction::Backward),
                     KeyEvent::Rotary1Right => return Result::NextDisplay(Direction::Forward),
-                    KeyEvent::Rotary2Left => clamp(cm.config.volume - 1, 0, 30),
-                    KeyEvent::Rotary2Right => clamp(cm.config.volume + 1, 0, 30),
+                    KeyEvent::Rotary2Left => clamp(cm.config.volume - 1, 0, 50),
+                    KeyEvent::Rotary2Right => clamp(cm.config.volume + 1, 0, 50),
                     _ => return Result::Nothing,
                 };
                 let frame = can_frame_sys_config(
