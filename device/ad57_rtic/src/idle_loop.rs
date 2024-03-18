@@ -3,7 +3,7 @@ use defmt::trace;
 use stm32f4xx_hal::{timer::monotonic::fugit::ExtU32, watchdog::IndependentWatchdog};
 
 use crate::{
-    driver::{delay_ms, FileSys, QEvents, Storage},
+    driver::{delay_ms, QEvents, Storage},
     install_and_restart, update_available,
 };
 use corelib::{CIdleEvents, DeviceEvent, Eeprom, Event, IdleEvent, SdCardCmd};
@@ -11,7 +11,6 @@ use corelib::{CIdleEvents, DeviceEvent, Eeprom, Event, IdleEvent, SdCardCmd};
 pub struct IdleLoop {
     eeprom: Eeprom<Storage>,
     c_idle_events: CIdleEvents,
-    _file_sys: Option<FileSys>,
     q_events: &'static QEvents,
     watchdog: IndependentWatchdog,
 }
@@ -20,11 +19,10 @@ impl IdleLoop {
     pub fn new(
         eeprom: Eeprom<Storage>,
         c_idle_events: CIdleEvents,
-        mut file_sys: Option<FileSys>,
         q_events: &'static QEvents,
         mut watchdog: IndependentWatchdog,
     ) -> Self {
-        if let Some(version) = update_available(&mut file_sys) {
+        if let Some(version) = update_available() {
             // When software update is on the way, no watchdog is used
             let event = Event::DeviceItem(DeviceEvent::FwAvailable(version));
             let _ = q_events.enqueue(event);
@@ -38,7 +36,6 @@ impl IdleLoop {
         IdleLoop {
             eeprom,
             c_idle_events,
-            _file_sys: file_sys,
             q_events,
             watchdog,
         }
