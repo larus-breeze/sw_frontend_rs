@@ -1,10 +1,7 @@
 mod persistence;
 
 use crate::{
-    basic_config::MAX_TX_FRAMES,
-    utils::{DeviceEvent, PIdleEvents},
-    HwVersion, SwVersion,
-    common::PTxFrames,
+    basic_config::MAX_TX_FRAMES, common::PTxFrames, utils::{DeviceEvent, PIdleEvents}, DateTime, HwVersion, SwVersion
 };
 use embedded_graphics::geometry::{Angle, AngleUnit};
 use heapless::FnvIndexSet;
@@ -262,6 +259,7 @@ pub struct Sensor {
     pub g_force: Acceleration,
     pub gps_altitude: Length,
     pub gps_climb_rate: Speed,
+    pub gps_date_time: DateTime,
     pub gps_geo_seperation: Length,
     pub gps_track: Angle,
     pub gps_ground_speed: Speed,
@@ -285,6 +283,7 @@ impl Default for Sensor {
             g_force: 9.81.m_s2(),
             gps_altitude: 0.0.m(),
             gps_climb_rate: 0.0.m_s(),
+            gps_date_time: DateTime::new(),
             gps_geo_seperation: 0.0.m(),
             gps_track: 0.0.deg(),
             gps_ground_speed: 0.0.m_s(),

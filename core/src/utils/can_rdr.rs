@@ -153,6 +153,15 @@ fn read_legacy_frame(cm: &mut CoreModel, frame: &CanFrame) {
             cm.sensor.gps_altitude = (rdr.pop_u32() as f32).mm();
             cm.sensor.gps_geo_seperation = (rdr.pop_u32() as f32 * 0.1).m();
         }
+        sensor_legacy::GPS_DATE_TIME => {
+            let year = 2000 + rdr.pop_u8() as u16;
+            let month = rdr.pop_u8();
+            let day = rdr.pop_u8();
+            let hour = rdr.pop_u8();
+            let min = rdr.pop_u8();
+            let sec = rdr.pop_u8();
+            cm.sensor.gps_date_time.set_date_time(year, month, day, hour, min, sec);
+        }
         sensor_legacy::GPS_TRK_SPD => {
             cm.sensor.gps_track = (rdr.pop_i16() as f32 * 0.001).rad();
             cm.sensor.gps_ground_speed = (rdr.pop_u16() as f32).km_h();

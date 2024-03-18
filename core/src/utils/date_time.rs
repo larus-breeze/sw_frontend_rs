@@ -11,7 +11,7 @@ pub struct DateTime {
 }
 
 impl DateTime {
-    pub fn new() -> Self {
+    pub const fn new() -> Self {
         DateTime { year: 2000, month: 1, day: 1, hour: 0, min: 0, sec: 0 }
     }
 
