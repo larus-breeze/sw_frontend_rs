@@ -139,18 +139,6 @@ pub fn hw_init(
         Keyboard::new(keyboard_pins, enc1_res, enc2_res, &Q_EVENTS)
     };
 
-    // Setup ----------> FileSys driver for idle loop
-    let sdio_pins: SdioPins = (
-        gpioc.pc12,
-        gpiod.pd2.internal_pull_up(true),
-        gpioc.pc8.internal_pull_up(true),
-        gpioc.pc9.internal_pull_up(true),
-        gpioc.pc10.internal_pull_up(true),
-        gpioc.pc11.internal_pull_up(true),
-    );
-    //let sd_detect = gpioc.pc0.internal_pull_up(true).into_input();
-    let file_sys = FileSys::new(device.SDIO, &clocks, sdio_pins).ok();
-
     // Setup ----------> Eeprom driver for idle loop
     let scl = gpiob.pb6.internal_pull_up(true);
     let sda = gpiob.pb7.internal_pull_up(true);
@@ -195,7 +183,26 @@ pub fn hw_init(
 
     // Setup ----------> Idleloop (last, because of the dog)
     let watchdog = IndependentWatchdog::new(device.IWDG);
-    let idle_loop = IdleLoop::new(eeprom, c_idle_events, file_sys, &Q_EVENTS, watchdog);
+    let idle_loop = {
+        // Setup ----------> FileSys driver for idle loop
+        let sdio_pins: SdioPins = (
+            gpioc.pc12,
+            gpiod.pd2.internal_pull_up(true),
+            gpioc.pc8.internal_pull_up(true),
+            gpioc.pc9.internal_pull_up(true),
+            gpioc.pc10.internal_pull_up(true),
+            gpioc.pc11.internal_pull_up(true),
+        );
+
+        //let sd_detect = gpioc.pc0.internal_pull_up(true).into_input();
+        // Init filesystem if sdcard available
+        let _ = FileSys::new(device.SDIO, &clocks, sdio_pins);
+
+        // Init reset watch and create entry in PANIC.LOG if watchdog reset
+        let _ = ResetWatch::init();
+
+        IdleLoop::new(eeprom, c_idle_events, &Q_EVENTS, watchdog)
+    };
     trace!("AD57 initialized");
 
     // Setup ----------> Backlight Port an switch on the lcd as a last action

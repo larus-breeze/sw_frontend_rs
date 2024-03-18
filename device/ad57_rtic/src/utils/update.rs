@@ -9,19 +9,16 @@ use crate::{driver::*, HW_VERSION};
 
 use super::SW_VERSION;
 
-pub fn update_available(file_sys: &mut Option<FileSys>) -> Option<SwVersion> {
-    if file_sys.is_none() {
-        return None;
-    };
+pub fn update_available() -> Option<SwVersion> {
+    let fs = get_filesys()?;
     // open filesystem
-    let volume = file_sys.as_mut()?.fat().open_volume(VolumeIdx(0)).ok()?;
-    let root_dir = file_sys.as_mut()?.fat().open_root_dir(volume).ok()?;
+    let volume = fs.vol_mgr().open_volume(VolumeIdx(0)).ok()?;
+    let root_dir = fs.vol_mgr().open_root_dir(volume).ok()?;
 
     // read root directory, look after *.bin files
     let mut files = Vec::<ShortFileName, 20>::new();
-    file_sys
-        .as_mut()?
-        .fat()
+    fs
+        .vol_mgr()
         .iterate_dir(root_dir, |entry| {
             if entry.name.extension() == [66, 73, 78] && // BIN
                 entry.size > SIZE_METADATA_V1 as u32
@@ -42,23 +39,21 @@ pub fn update_available(file_sys: &mut Option<FileSys>) -> Option<SwVersion> {
         let ext = unsafe { str::from_utf8_unchecked(name.extension()) };
         let _ = fname.push_str(ext);
 
-        let file = file_sys
-            .as_mut()?
-            .fat()
+        let file = fs
+            .vol_mgr()
             .open_file_in_dir(root_dir, fname.as_str(), Mode::ReadOnly)
             .ok()?;
-        let num_read = file_sys.as_mut()?.fat().read(file, &mut buffer).ok()?;
+        let num_read = fs.vol_mgr().read(file, &mut buffer).ok()?;
         if num_read == SIZE_METADATA_V1 {
             check.analyse(fname.as_str(), &buffer)
         }
-        let _ = file_sys.as_mut()?.fat().close_file(file);
+        let _ = fs.vol_mgr().close_file(file);
     }
 
     let result = if let Some(image_name) = check.new_image_name() {
         // a new image file was found
-        let image_file = file_sys
-            .as_mut()?
-            .fat()
+        let image_file = fs
+            .vol_mgr()
             .open_file_in_dir(root_dir, image_name.as_str(), Mode::ReadOnly)
             .ok()?;
 
@@ -66,7 +61,7 @@ pub fn update_available(file_sys: &mut Option<FileSys>) -> Option<SwVersion> {
         let mut flash = LockedFlash::new(dp.FLASH);
         let mut unlocked_flash = flash.unlocked();
 
-        let image_size = file_sys.as_mut()?.fat().file_length(image_file).ok()?;
+        let image_size = fs.vol_mgr().file_length(image_file).ok()?;
 
         let flash_offset = (STORAGE - BEGIN_FLASH) as u32;
 
@@ -76,9 +71,8 @@ pub fn update_available(file_sys: &mut Option<FileSys>) -> Option<SwVersion> {
         let mut buffer = [0_u8; 512];
         let mut bytes_read = 0_u32;
         loop {
-            let b_read = file_sys
-                .as_mut()?
-                .fat()
+            let b_read = fs
+                .vol_mgr()
                 .read(image_file, &mut buffer)
                 .ok()?;
             NorFlash::write(&mut unlocked_flash, flash_offset + bytes_read, &buffer).ok()?;
@@ -88,7 +82,7 @@ pub fn update_available(file_sys: &mut Option<FileSys>) -> Option<SwVersion> {
             }
         }
         drop(unlocked_flash);
-        let _ = file_sys.as_mut()?.fat().close_file(image_file);
+        let _ = fs.vol_mgr().close_file(image_file);
 
         // Check crc
         let meta_data = meta_data();
@@ -110,7 +104,7 @@ pub fn update_available(file_sys: &mut Option<FileSys>) -> Option<SwVersion> {
     } else {
         None
     };
-    file_sys.as_mut()?.fat().close_dir(root_dir).ok()?;
+    fs.vol_mgr().close_dir(root_dir).ok()?;
     result
 }
 
