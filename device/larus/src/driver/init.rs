@@ -188,7 +188,7 @@ pub fn hw_init<'a>(
         let _ = FileSys::new(pins, dp.SDMMC1, ccdr.peripheral.SDMMC1, &ccdr.clocks).ok();
 
         // Init reset watch and create entry in PANIC.LOG if watchdog reset
-        let _ = ResetWatch::init();
+        ResetWatch::new();
 
         let watchdog = IndependentWatchdog::new(dp.IWDG);
 

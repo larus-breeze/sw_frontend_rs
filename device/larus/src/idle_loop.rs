@@ -91,6 +91,12 @@ impl IdleLoop {
                             }
                         }
                     }
+                    IdleEvent::DateTime(date_time) => {
+                        // Set date and time for PANIC.LOG
+                        if let Some(reset_watch) = ResetWatch::init() {
+                            reset_watch.date_time().clone_from(&date_time);
+                        }
+                    }   
                 }
             }
 

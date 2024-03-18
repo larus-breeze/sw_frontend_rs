@@ -1,6 +1,10 @@
 use corelib::{basic_config::MAX_RX_FRAMES, CoreModel, Event, CRxFrames}; // sensor
-
 use crate::{driver::QEvents, CoreController};
+
+#[cfg(feature = "test-panic")]
+use corelib::FloatToMass;
+#[cfg(feature = "test-panic")]
+use defmt::trace;
 
 pub struct DevController {
     core_controller: CoreController,
@@ -38,5 +42,18 @@ impl DevController {
         }
 
         self.core_controller.time_action(core_model);
+
+        #[cfg(feature = "test-panic")]
+        {
+            let cm = core_model;
+            if cm.glider_data.pilot_weight > 100.9.kg() && cm.glider_data.pilot_weight < 101.1.kg() {
+                trace!("panic!");
+                panic!();
+            }
+            if cm.glider_data.pilot_weight > 101.9.kg() && cm.glider_data.pilot_weight < 102.1.kg() {
+                trace!("watchdog reset");
+                loop {};
+            }
+        }
     }
 }
