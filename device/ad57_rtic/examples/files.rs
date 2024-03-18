@@ -8,7 +8,7 @@ use defmt::trace;
 use embedded_sdmmc::{Mode, VolumeIdx};
 use stm32f4xx_hal::pac::{CorePeripherals, Peripherals};
 use stm32f4xx_hal::prelude::*;
-use {defmt_rtt as _, panic_probe as _};
+use defmt_rtt as _;
 
 use driver::*;
 
@@ -40,29 +40,30 @@ fn main() -> ! {
         gpioc.pc11.internal_pull_up(true),
     );
     //let sd_detect = gpioc.pc0.internal_pull_up(true).into_input();
-    let mut file_sys = FileSys::new(dp.SDIO, &clocks, sdio_pins).unwrap();
-    let volume = file_sys.fat().open_volume(VolumeIdx(0)).unwrap();
+    FileSys::new(dp.SDIO, &clocks, sdio_pins).unwrap();
+    let file_sys = get_filesys().unwrap();
+    let volume = file_sys.vol_mgr().open_volume(VolumeIdx(0)).unwrap();
 
-    let root_dir = file_sys.fat().open_root_dir(volume).unwrap();
+    let root_dir = file_sys.vol_mgr().open_root_dir(volume).unwrap();
     trace!("List all the directories and their info");
     file_sys
-        .fat()
+        .vol_mgr()
         .iterate_dir(root_dir, |entry| {
             trace!("{}", defmt::Display2Format(&entry.name));
         })
         .unwrap();
 
     let file = file_sys
-        .fat()
-        .open_file_in_dir(root_dir, "TEST.TXT", Mode::ReadWriteAppend)
+        .vol_mgr()
+        .open_file_in_dir(root_dir, "TEST.TXT", Mode::ReadWriteCreateOrAppend)
         .unwrap();
     for _idx in [0..1000] {
         file_sys
-            .fat()
+            .vol_mgr()
             .write(file, "Dies ist ein Test, der zeigen soll... ".as_bytes())
             .unwrap();
     }
-    file_sys.fat().close_file(file).unwrap();
+    file_sys.vol_mgr().close_file(file).unwrap();
 
     // Create a delay abstraction based on SysTick
     let mut delay = cp.SYST.delay(&clocks);

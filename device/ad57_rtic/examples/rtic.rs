@@ -9,7 +9,7 @@ use defmt_rtt as _;
 use fugit::Instant;
 use rtic::app;
 use stm32f4xx_hal::{pac, prelude::*};
-use {defmt_rtt as _, panic_probe as _};
+use defmt_rtt as _;
 
 use driver::*;
 

@@ -288,7 +288,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3778099e48fedd6b81048e1d84f60db663124f5c6e22fcef495040b9d51fe06a"
 dependencies = [
  "byteorder",
- "defmt",
  "embedded-hal 0.2.7",
  "heapless 0.7.16",
 ]

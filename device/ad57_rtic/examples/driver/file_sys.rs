@@ -1,8 +1,5 @@
 use core::cell::RefCell;
-use embedded_sdmmc::{
-    Block, BlockCount, BlockDevice as SdmmcBlockDevice, BlockIdx, File, Volume, VolumeIdx,
-    VolumeManager,
-};
+use embedded_sdmmc::{Block, BlockCount, BlockDevice as SdmmcBlockDevice, BlockIdx, VolumeManager};
 use stm32f4xx_hal::{
     gpio::Pin,
     pac::SDIO,
@@ -41,10 +38,9 @@ pub type SdioPins = (
     Pin<'C', 11>,
 );
 
-static mut SDIO: RefCell<Option<Sdio<SdCard>>> = RefCell::new(None);
-
 pub struct FileIo {
     size: u64,
+    sdio: RefCell<Sdio<SdCard>>,
 }
 
 impl FileIo {
@@ -55,8 +51,8 @@ impl FileIo {
         let card = sdio.card().ok()?;
         let size = card.csd.card_size();
         // unsafe is ok, becaus we are the only one knowing and using SDIO
-        unsafe { SDIO.replace(Some(sdio)) };
-        Some(FileIo { size })
+        //unsafe { SDIO.replace(Some(sdio)) };
+        Some(FileIo { size, sdio: RefCell::new(sdio) })
     }
 }
 
@@ -70,9 +66,7 @@ impl SdmmcBlockDevice for FileIo {
         _reason: &str,
     ) -> Result<(), Self::Error> {
         let start = start_block_idx.0;
-        // unsafe is ok, becaus we are the only one knowing and using SDIO
-        let mut rc = unsafe { SDIO.borrow_mut() };
-        let sdio = rc.as_mut().ok_or(Error::SdCard)?;
+        let mut sdio = self.sdio.borrow_mut();
         for block_idx in start..(start + blocks.len() as u32) {
             sdio.read_block(
                 block_idx,
@@ -84,9 +78,7 @@ impl SdmmcBlockDevice for FileIo {
     }
 
     fn write(&self, blocks: &[Block], start_block_idx: BlockIdx) -> Result<(), Self::Error> {
-        // unsafe is ok, becaus we are the only one knowing and using SDIO
-        let mut rc = unsafe { SDIO.borrow_mut() };
-        let sdio = rc.as_mut().ok_or(Error::SdCard)?;
+        let mut sdio = self.sdio.borrow_mut();
         let start = start_block_idx.0;
         for block_idx in start..(start + blocks.len() as u32) {
             sdio.write_block(block_idx, &blocks[(block_idx - start) as usize].contents)
@@ -102,18 +94,36 @@ impl SdmmcBlockDevice for FileIo {
 
 type FatFs = VolumeManager<FileIo, TimeSource>;
 
+static mut FILE_SYS: Option<FileSys> = None;
+
+/// Access to the file system of the SdCard
+///
+/// The file system may only be accessed when the application is started or when all interrupts 
+/// are disabled. The background to this is that the SDIO driver of the HAL is not resistant to 
+/// interrupts during access. For this reason, access from different thread contexts is not 
+/// protected.
 pub struct FileSys {
-    fat_fs: FatFs,
+    vol_mgr: FatFs,
 }
 
 impl FileSys {
-    pub fn new(dp_sdio: SDIO, clocks: &Clocks, pins: SdioPins) -> Result<Self, Error> {
-        let file_io = FileIo::new(dp_sdio, &clocks, pins).ok_or(Error::SdCard)?;
-        let mut fat_fs = VolumeManager::new(file_io, TimeSource);
-        Ok(FileSys { fat_fs })
+    pub fn new(dp_sdio: SDIO, clocks: &Clocks, pins: SdioPins) -> Result<(), Error> {
+        let file_io = FileIo::new(dp_sdio, clocks, pins).ok_or(Error::SdCard)?;
+        let vol_mgr = VolumeManager::new(file_io, TimeSource);
+        // ok, since access only provided from one thread 
+        unsafe {
+            FILE_SYS = Some(FileSys { vol_mgr })
+        }
+        Ok(())
     }
 
-    pub fn fat(&mut self) -> &mut FatFs {
-        &mut self.fat_fs
+    pub fn vol_mgr(&mut self) -> &mut FatFs {
+        &mut self.vol_mgr
     }
+}
+
+pub fn get_filesys() -> Option<&'static mut FileSys> {
+    // ok, since access only provided from one thread 
+    unsafe { FILE_SYS.as_mut() }
+
 }
