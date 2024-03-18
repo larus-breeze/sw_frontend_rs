@@ -26,31 +26,27 @@ use stm32h7xx_hal::{
     pac,
     pac::{DAC, DMA1},
 };
+
 const SAMPLES_CNT: usize = 20;
 #[allow(unused)]
-const SILENT_WAVE: [u16; SAMPLES_CNT] = [
-    2047, 2047, 2047, 2047, 2047, 2047, 2047, 2047, 2047, 2047, 2047, 2047, 2047, 2047, 2047, 2047,
-    2047, 2047, 2047, 2047,
-];
+const SILENT_WAVE: [u16; SAMPLES_CNT] = [2047, 2047, 2047, 2047, 2047, 2047, 2047, 2047, 2047, 2047, 2047, 2047, 2047, 2047, 2047, 2047, 2047, 2047, 2047, 2047];
 #[allow(unused)]
-const TRIANGULAR_WAVE: [u16; SAMPLES_CNT] = [
-    2456, 2866, 3275, 3685, 4094, 3685, 3275, 2866, 2456, 2047, 1637, 1228, 818, 409, 0, 409, 818,
-    1228, 1637, 2047,
-];
+const TRIANGULAR_WAVE: [u16; SAMPLES_CNT] = [2456, 2866, 3275, 3685, 4094, 3685, 3275, 2866, 2456, 2047, 1637, 1228, 818, 409, 0, 409, 818, 1228, 1637, 2047];
 #[allow(unused)]
-const SAWTOOTH_WAVE: [u16; SAMPLES_CNT] = [
-    2251, 2456, 2661, 2866, 3070, 3275, 3480, 3685, 3889, 4094, 204, 409, 614, 819, 1023, 1228,
-    1433, 1638, 1842, 2047,
-];
+const TRIANGULAR_20DB_WAVE: [u16; SAMPLES_CNT] = [2087, 2128, 2169, 2210, 2251, 2210, 2169, 2128, 2087, 2046, 2006, 1965, 1924, 1883, 1842, 1883, 1924, 1965, 2006, 2046];
 #[allow(unused)]
-const RECTANGULAR_WAVE: [u16; SAMPLES_CNT] = [
-    4094, 4094, 4094, 4094, 4094, 4094, 4094, 4094, 4094, 4094, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-];
+const SAWTOOTH_WAVE: [u16; SAMPLES_CNT] = [2251, 2456, 2661, 2866, 3070, 3275, 3480, 3685, 3889, 4094, 204, 409, 614, 819, 1023, 1228, 1433, 1638, 1842, 2047];
 #[allow(unused)]
-const SINE_WAVE: [u16; SAMPLES_CNT] = [
-    2680, 3251, 3704, 3995, 4095, 3995, 3704, 3251, 2680, 2048, 1415, 844, 391, 100, 0, 100, 391,
-    844, 1415, 2047,
-];
+const SAWTOOTH_20DB_WAVE: [u16; SAMPLES_CNT] = [2067, 2087, 2108, 2128, 2149, 2169, 2190, 2210, 2231, 2251, 1863, 1883, 1904, 1924, 1945, 1965, 1986, 2006, 2027, 2047];
+#[allow(unused)]
+const RECTANGULAR_WAVE: [u16; SAMPLES_CNT] = [4094, 4094, 4094, 4094, 4094, 4094, 4094, 4094, 4094, 4094, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0];
+#[allow(unused)]
+const RECTANGULAR_20DB_WAVE: [u16; SAMPLES_CNT] = [2251, 2251, 2251, 2251, 2251, 2251, 2251, 2251, 2251, 2251, 1843, 1843, 1843, 1843, 1843, 1843, 1843, 1843, 1843, 1843];
+#[allow(unused)]
+const SINE_WAVE: [u16; SAMPLES_CNT] = [2680, 3251, 3704, 3995, 4095, 3995, 3704, 3251, 2680, 2048, 1415, 844, 391, 100, 0, 100, 391, 844, 1415, 2047];
+#[allow(unused)]
+const SINE_20DB_WAVE: [u16; SAMPLES_CNT] = [2111, 2168, 2213, 2242, 2252, 2242, 2213, 2168, 2111, 2048, 1984, 1927, 1882, 1853, 1843, 1853, 1882, 1927, 1984, 2047];
+
 #[derive(Clone, Copy, Format)]
 pub enum Waveform {
     Triangular,
@@ -92,7 +88,7 @@ pub struct Sound {
     delta_f: f32,
     on: bool,
     continous: bool,
-    mute: bool,
+    gain: i8,
     waveform: Waveform,
 }
 
@@ -153,7 +149,7 @@ impl Sound {
             delta_f: 0.0,
             on: true,
             continous: false,
-            mute: false,
+            gain: 0,
             waveform: Waveform::Triangular,
         }
     }
@@ -162,7 +158,7 @@ impl Sound {
         self.duty_cycle = duty_cycle;
     }
 
-    pub fn set_params(&mut self, fq: u16, continous: bool, mute: bool) {
+    pub fn set_params(&mut self, fq: u16, continous: bool, gain: i8) {
         let devider = self.tim.arr.read().bits();
         self.wave_ctr = 0;
         self.curr_f = 100_000_000.0 / SAMPLES_CNT as f32 / devider as f32;
@@ -172,7 +168,7 @@ impl Sound {
         // let devider = (100_000_000 / SAMPLES_CNT as u32 / fq as u32) as u16;
         // self.tim.arr.write(|w| w.arr().bits(devider)); // preload register
         self.continous = continous;
-        self.mute = mute;
+        self.gain = gain;
     }
 
     pub fn set_waveform(&mut self, waveform: Waveform) {
@@ -198,7 +194,7 @@ impl Sound {
 
         self.cycle_counter += 1;
 
-        if self.mute {
+        if self.gain == 0 {
             if self.on {
                 self.set_wave(false);
             }
@@ -223,11 +219,21 @@ impl Sound {
     fn set_wave(&mut self, sound_on: bool) {
         self.on = sound_on;
         let wave_ptr = if sound_on {
-            match self.waveform {
-                Waveform::Triangular => TRIANGULAR_WAVE.as_ptr(),
-                Waveform::Sawtooth => SAWTOOTH_WAVE.as_ptr(),
-                Waveform::Rectangular => RECTANGULAR_WAVE.as_ptr(),
-                Waveform::SineWave => SINE_WAVE.as_ptr(),
+            if self.gain > 30 {
+                match self.waveform {
+                    Waveform::Triangular => TRIANGULAR_WAVE.as_ptr(),
+                    Waveform::Sawtooth => SAWTOOTH_WAVE.as_ptr(),
+                    Waveform::Rectangular => RECTANGULAR_WAVE.as_ptr(),
+                    Waveform::SineWave => SINE_WAVE.as_ptr(),
+                }
+            } else {
+                match self.waveform {
+                    Waveform::Triangular => TRIANGULAR_20DB_WAVE.as_ptr(),
+                    Waveform::Sawtooth => SAWTOOTH_20DB_WAVE.as_ptr(),
+                    Waveform::Rectangular => RECTANGULAR_20DB_WAVE.as_ptr(),
+                    Waveform::SineWave => SINE_20DB_WAVE.as_ptr(),
+                }
+    
             }
         } else {
             SILENT_WAVE.as_ptr()

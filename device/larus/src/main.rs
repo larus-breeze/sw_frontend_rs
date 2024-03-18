@@ -194,7 +194,7 @@ mod app {
 
         // set sound params
         cx.shared.sound.lock(|sound| {
-            sound.set_params(frequecy, continuous, gain == 0);
+            sound.set_params(frequecy, continuous, gain);
         });
 
         task_end!(cx, Task::Controller);

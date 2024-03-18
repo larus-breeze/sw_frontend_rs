@@ -36,11 +36,16 @@ where
     pub fn set_gain(&mut self, gain: u8) {
         // Note: gain 0 is not mute for the amplifier, you always hear something. Volume 0
         // is handled by the sound modul, which mutes the sound in this case.
-        if gain <= 30 {
+        match gain {
+            0..=30 => self.write(5, gain),
+            31..=50 => self.write(5, gain - 20),
+            _ => self.write(5, 30),
+        }
+        /*if gain <= 30 {
             self.write(5, gain);
         } else {
             self.write(5, 30);
-        }
+        }*/
     }
 
     fn write(&mut self, register: u8, value: u8) {

@@ -292,7 +292,7 @@ impl Default for Sensor {
             slip_angle: 0.0.deg(),
             turn_rate: 0.0.rad_s(),
             vertical_g_force: 9.81.m_s2(),
-            wind_vector: WindVector::new(15.0.km_h(), 66.0.deg()),
+            wind_vector: WindVector::new(0.0.km_h(), 0.0.deg()),
         }
     }
 }
