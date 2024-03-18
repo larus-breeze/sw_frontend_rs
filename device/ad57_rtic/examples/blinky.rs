@@ -2,9 +2,9 @@
 #![no_std]
 
 use cortex_m_rt::entry;
+use defmt_rtt as _;
 use stm32f4xx_hal::pac::{CorePeripherals, Peripherals};
 use stm32f4xx_hal::prelude::*;
-use defmt_rtt as _;
 
 #[entry]
 fn main() -> ! {

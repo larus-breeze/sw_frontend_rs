@@ -1,7 +1,4 @@
-use crate::{
-    GenericId, SpecialId, SysConfigId, SysValueId,
-    Frame, CanFrame, 
-};
+use crate::{CanFrame, Frame, GenericId, SpecialId, SysConfigId, SysValueId};
 use byteorder::{ByteOrder, LittleEndian as LE};
 
 const OBJECT_ID: u16 = 4;

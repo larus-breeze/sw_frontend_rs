@@ -15,6 +15,6 @@ pub const GIT_COMMIT_TIME: &str = "2024-02-15T08:25:56+01:0";
 #[allow(unused)]
 pub const GIT_TAG_INFO: &str = "v0.1.2";
 
-pub const HW_VERSION: HwVersion = HwVersion { 
+pub const HW_VERSION: HwVersion = HwVersion {
     version: [1, 3, 1, 0],
 };

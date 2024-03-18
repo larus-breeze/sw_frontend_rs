@@ -7,8 +7,8 @@ use super::{
 use crate::{basic_config::*, utils::FONT_HELV_18, Concat, CoreError, DrawImage};
 use crate::{
     model::{CoreModel, FlyMode, VarioMode},
-    utils::Colors,
     system_of_units::FloatToSpeed,
+    utils::Colors,
 };
 
 use embedded_graphics::{
@@ -141,16 +141,16 @@ where
         }
     };
 
-    // Patch: set wind to 0 when aircraft is on the ground. However, this should be realised in 
+    // Patch: set wind to 0 when aircraft is on the ground. However, this should be realised in
     // the sensor box.
-    let txt_angle = if cm.sensor.airspeed.ias() < 20.0.km_h() { 
+    let txt_angle = if cm.sensor.airspeed.ias() < 20.0.km_h() {
         angle = 0.0.rad();
         av_angle = 0.0.rad();
         0.0.rad()
     } else {
         cm.sensor.wind_vector.angle()
     };
-    
+
     let len = match wind_speed {
         x if x < WIND_MIN => SZS.wind_len_min, // Light wind is set to a minimum size
         x if x > WIND_MAX => SZS.wind_len,     // Strong wind is set to a maximum size

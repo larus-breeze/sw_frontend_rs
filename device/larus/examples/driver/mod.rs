@@ -25,13 +25,11 @@ mod sound;
 mod sys_timer;
 
 #[allow(unused)]
-use corelib::Event;
-#[allow(unused)]
-use heapless::mpmc::MpMcQueue;
-#[allow(unused)]
 pub use amplifier::*;
 #[allow(unused)]
 pub use canbus::*;
+#[allow(unused)]
+use corelib::Event;
 #[allow(unused)]
 pub use eeprom::*;
 #[allow(unused)]
@@ -40,6 +38,8 @@ pub use file_sys::*;
 pub use fmc_lcd::*;
 #[allow(unused)]
 pub use frame_buffer::*;
+#[allow(unused)]
+use heapless::mpmc::MpMcQueue;
 #[allow(unused)]
 pub use i2c_mgr::*;
 #[allow(unused)]

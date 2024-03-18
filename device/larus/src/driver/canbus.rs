@@ -1,5 +1,5 @@
-use corelib::{CTxIrqFrames, CanFrame};
 use core::num::{NonZeroU16, NonZeroU8};
+use corelib::{CTxIrqFrames, CanFrame};
 use fdcan::{
     config::NominalBitTiming,
     filter::{StandardFilter, StandardFilterSlot},

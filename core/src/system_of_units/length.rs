@@ -42,25 +42,25 @@ impl Length {
     /// Extract a float number in the unit milimeter
     #[inline]
     pub fn to_mm(self) -> Float {
-        (self.0 * 1.0 / MILLI).into()
+        self.0 * 1.0 / MILLI
     }
 
     /// Extract a float number in the unit centimeter
     #[inline]
     pub fn to_cm(self) -> Float {
-        (self.0 * 1.0 / CENTI).into()
+        self.0 * 1.0 / CENTI
     }
 
     /// Extract a float number in the unit meter
     #[inline]
     pub fn to_m(self) -> Float {
-        self.0.into()
+        self.0
     }
 
     /// Extract a float number in the unit kilometer
     #[inline]
     pub fn to_km(self) -> Float {
-        (self.0 * 1.0 / KILO).into()
+        self.0 * 1.0 / KILO
     }
 
     /// Create an instance of type Length from a float number in foot
@@ -90,25 +90,25 @@ impl Length {
     /// Extract a float number in the unit foot
     #[inline]
     pub fn to_ft(self) -> Float {
-        (self.0 * 1.0 / FOOT).into()
+        self.0 * 1.0 / FOOT
     }
 
     /// Extract a float number in the unit inch
     #[inline]
     pub fn to_inch(self) -> Float {
-        (self.0 * 1.0 / INCH).into()
+        self.0 * 1.0 / INCH
     }
 
     /// Extract a float number in the unit nautical mile
     #[inline]
     pub fn to_NM(self) -> Float {
-        (self.0 * 1.0 / NAUTICAL_MILE).into()
+        self.0 * 1.0 / NAUTICAL_MILE
     }
 
     /// Extract a float number in the unit statue mile
     #[inline]
     pub fn to_mi(self) -> Float {
-        (self.0 * 1.0 / MILE).into()
+        self.0 * 1.0 / MILE
     }
 }
 

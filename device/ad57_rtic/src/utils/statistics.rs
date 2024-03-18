@@ -13,7 +13,7 @@ pub enum Task {
     Controller,
     View,
     LcdCopy,
-    NoTask,
+    None,
 }
 
 // Pattern defines, which taks must be active to feed the watchdog
@@ -21,7 +21,7 @@ const ALL_ALIVE_PATTERN: u32 = 0b0111_1110;
 
 impl Task {
     pub fn from_usize(u: usize) -> Self {
-        if u < Task::NoTask as usize {
+        if u < Task::None as usize {
             // We checked the range, so transmute is ok
             unsafe { core::mem::transmute::<u8, Task>(u as u8) }
         } else {
@@ -40,7 +40,7 @@ const TASK_NAMES: [&str; TASK_CNT] = [
     "View",
     "LcdCopy",
 ];
-const TASK_CNT: usize = Task::NoTask as usize;
+const TASK_CNT: usize = Task::None as usize;
 
 // storage for the task times
 #[derive(Clone, Copy)]

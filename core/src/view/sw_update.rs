@@ -28,8 +28,7 @@ where
         DeviceEvent::PrepareFwUpload => text.push_str("Preparing..."),
         DeviceEvent::UploadInProgress => {
             dialog_box.set_text_color(Colors::Coral);
-            text
-                .push_str("Installing...\nDo NOT power\noff device")
+            text.push_str("Installing...\nDo NOT power\noff device")
         }
         _ => text,
     };

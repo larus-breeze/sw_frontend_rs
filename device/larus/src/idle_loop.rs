@@ -3,13 +3,13 @@ use core::cell::RefCell;
 use defmt::trace;
 
 use crate::{driver::*, install_and_restart, update_available};
-use corelib::{CIdleEvents, CoreModel, Eeprom, IdleEvent, Event, DeviceEvent, SdCardCmd};
+use corelib::{CIdleEvents, CoreModel, DeviceEvent, Eeprom, Event, IdleEvent, SdCardCmd};
+use fugit::ExtU32;
 use stm32h7xx_hal::{
     device::I2C1,
     i2c::{Error as I2cError, I2c},
     independent_watchdog::IndependentWatchdog,
-}; 
-use fugit::ExtU32;
+};
 
 static mut I2C_REF: Option<RefCell<I2c<I2C1>>> = None;
 pub struct IdleLoop {
@@ -32,8 +32,8 @@ impl IdleLoop {
         let (mut eeprom, amplifier) = unsafe {
             I2C_REF.replace(RefCell::new(i2c));
             (
-                Storage::new(I2cManager::new(&I2C_REF.as_ref().unwrap())).unwrap(),
-                Amplifier::new(I2cManager::new(&I2C_REF.as_ref().unwrap())),
+                Storage::new(I2cManager::new(I2C_REF.as_ref().unwrap())).unwrap(),
+                Amplifier::new(I2cManager::new(I2C_REF.as_ref().unwrap())),
             )
         };
         for item in eeprom.iter_over(corelib::EepromTopic::ConfigValues) {
@@ -96,7 +96,7 @@ impl IdleLoop {
                         if let Some(reset_watch) = ResetWatch::init() {
                             reset_watch.date_time().clone_from(&date_time);
                         }
-                    }   
+                    }
                 }
             }
 

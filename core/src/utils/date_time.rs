@@ -12,31 +12,29 @@ pub struct DateTime {
 
 impl DateTime {
     pub const fn new() -> Self {
-        DateTime { year: 2000, month: 1, day: 1, hour: 0, min: 0, sec: 0 }
+        DateTime {
+            year: 2000,
+            month: 1,
+            day: 1,
+            hour: 0,
+            min: 0,
+            sec: 0,
+        }
     }
 
-
-     pub fn set_date(&mut self, year: u16, month: u8, day: u8) {
+    pub fn set_date(&mut self, year: u16, month: u8, day: u8) {
         self.year = year;
         self.month = month;
         self.day = day;
-     }
+    }
 
-     pub fn set_time(&mut self, hour: u8, min: u8, sec: u8) {
+    pub fn set_time(&mut self, hour: u8, min: u8, sec: u8) {
         self.hour = hour;
         self.min = min;
         self.sec = sec;
     }
 
-    pub fn set_date_time(
-        &mut self,
-        year: u16,
-        month: u8,
-        day: u8,
-        hour: u8,
-        min: u8,
-        sec: u8
-    ) {
+    pub fn set_date_time(&mut self, year: u16, month: u8, day: u8, hour: u8, min: u8, sec: u8) {
         self.set_date(year, month, day);
         self.set_time(hour, min, sec);
     }
@@ -47,10 +45,9 @@ impl DateTime {
                 idx -= 1;
                 buf[idx] = (val % 10) as u8 + b'0';
                 val /= 10;
-
             }
         }
-        let mut buf= [0u8; 20];
+        let mut buf = [0u8; 20];
         buf.copy_from_slice(b"0000-00-00T00:00:00Z");
         insert(&mut buf, self.year, 4);
         insert(&mut buf, self.month as u16, 7);

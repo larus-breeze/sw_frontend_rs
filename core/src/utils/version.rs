@@ -3,7 +3,7 @@ use core::cmp::Ordering;
 use heapless::String;
 
 #[repr(C)]
-#[derive(PartialEq, Clone, Copy)]
+#[derive(PartialEq, Clone, Copy, Default)]
 pub struct HwVersion {
     pub version: [u8; 4],
 }
@@ -36,16 +36,8 @@ impl HwVersion {
     }
 }
 
-impl Default for HwVersion {
-    fn default() -> Self {
-        HwVersion {
-            version: [0, 0, 0, 0],
-        }
-    }
-}
-
 #[repr(C)]
-#[derive(PartialEq, Clone, Copy)]
+#[derive(PartialEq, Clone, Copy, Default)]
 pub struct SwVersion {
     pub version: [u8; 4],
 }
@@ -75,14 +67,6 @@ impl SwVersion {
             .push_str("_")
             .push_u8(self.version[3])
             .as_string()
-    }
-}
-
-impl Default for SwVersion {
-    fn default() -> Self {
-        SwVersion {
-            version: [0, 0, 0, 0],
-        }
     }
 }
 

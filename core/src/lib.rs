@@ -33,10 +33,10 @@ pub use model::{CoreModel, FlyMode, VarioMode};
 pub use view::{CoreView, FRAME_RATE};
 
 // Some helper functionality
+pub use common::*;
 pub use flight_physics::*;
 pub use system_of_units::*;
 pub use utils::*;
-pub use common::*;
 
 // Re-exports to be used by the hal
 use embedded_graphics::prelude::*;

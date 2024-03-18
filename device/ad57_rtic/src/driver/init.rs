@@ -206,7 +206,7 @@ pub fn hw_init(
     trace!("AD57 initialized");
 
     // Setup ----------> Backlight Port an switch on the lcd as a last action
-    // Should be activated at the very end, otherwise the LCD will show a strange display during 
+    // Should be activated at the very end, otherwise the LCD will show a strange display during
     // the firmware update.
     let mut backlight = gpiob.pb4.into_push_pull_output();
     backlight.set_high(); // Is fixed at the moment, perhaps PWM in the future
