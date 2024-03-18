@@ -297,6 +297,10 @@ impl CoreController {
                 let can_frame = can_frame_heartbeat(core_model.config.uuid);
                 let _ = core_model.p_tx_frames.enqueue(can_frame);
             }
+            4 => {
+                let event = IdleEvent::DateTime(core_model.sensor.gps_date_time);
+                core_model.send_idle_event(event);
+            }
             _ => (),
         }
     }

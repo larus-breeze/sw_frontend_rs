@@ -2,7 +2,6 @@ use corelib::CoreError;
 use super::file_sys::get_filesys;
 use embedded_sdmmc::{VolumeIdx, Mode};
 use corelib::{Concat, DateTime};
-use defmt::trace;
 use defmt_rtt as _;
 use core::{
     mem::MaybeUninit, panic::PanicInfo,
@@ -23,7 +22,7 @@ const SIGNATURE2: u32 = 0x1234_5678;
 static mut RESET_WATCH: MaybeUninit<ResetWatch> = unsafe { MaybeUninit::uninit().assume_init() };
 
 impl ResetWatch {
-pub fn init() -> &'static mut Self {
+pub fn new() -> &'static mut Self {
         // SAFETY: The signature ensures that we are either dealing with an initialised data 
         // structure or are initialising it.
         unsafe {
@@ -33,12 +32,26 @@ pub fn init() -> &'static mut Self {
             if (reset_watch.signature == SIGNATURE) && (reset_watch.signature2 == SIGNATURE2) {
                 let _ = write_panic_msg(b"Reset");
             } else {
-                trace!("Initializing panic buffer...");
                 reset_watch.signature = SIGNATURE;
                 reset_watch.date_time = DateTime::new();
                 reset_watch.signature2 = SIGNATURE2;
             }
             reset_watch
+        }
+    }
+
+    pub fn init() -> Option<&'static mut Self> {
+        // SAFETY: The signature ensures that we are either dealing with an initialised data 
+        // structure or are initialising it.
+        unsafe {
+            let reset_watch = 
+                core::mem::transmute::<&'static mut MaybeUninit<ResetWatch>, &'static mut ResetWatch>(&mut RESET_WATCH);
+            
+            if (reset_watch.signature == SIGNATURE) && (reset_watch.signature2 == SIGNATURE2) {
+                Some(reset_watch)
+            } else {
+                None
+            }
         }
     }
 
@@ -53,14 +66,20 @@ fn write_panic_msg(msg: &[u8]) -> Result<(), CoreError> {
         let root_dir = fs.vol_mgr().open_root_dir(volume).map_err(|_| CoreError::SdCard)?;
         let file = fs.vol_mgr().open_file_in_dir(root_dir, "PANIC.LOG", Mode::ReadWriteCreateOrAppend).map_err(|_| CoreError::SdCard)?;
 
-        let rw = ResetWatch::init();
-        let dt = rw.date_time().to_bytes();
+        let dt = if let Some(rw) = ResetWatch::init() {
+            rw.date_time().to_bytes()
+        } else {
+            DateTime::new().to_bytes()
+        };
 
         fs.vol_mgr().write(file, &dt).map_err(|_| CoreError::SdCard)?;
         fs.vol_mgr().write(file, b" ").map_err(|_| CoreError::SdCard)?;
         fs.vol_mgr().write(file, msg).map_err(|_| CoreError::SdCard)?;
         fs.vol_mgr().write(file, b"\n").map_err(|_| CoreError::SdCard)?;
+
         fs.vol_mgr().close_file(file).unwrap();
+        fs.vol_mgr().close_dir(root_dir).map_err(|_| CoreError::SdCard)?;
+        fs.vol_mgr().close_volume(volume).map_err(|_| CoreError::SdCard)?;
         Ok(())
     } else {
         Err(CoreError::SdCard)
@@ -69,7 +88,6 @@ fn write_panic_msg(msg: &[u8]) -> Result<(), CoreError> {
 
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
-    trace!("PANIC!");
     cortex_m::interrupt::disable(); // Please not interrupts any more, we will reset device anyway
 
     let msg = Concat::<200>::new();

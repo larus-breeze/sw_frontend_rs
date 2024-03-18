@@ -4,7 +4,7 @@ use stm32f4xx_hal::{timer::monotonic::fugit::ExtU32, watchdog::IndependentWatchd
 
 use crate::{
     driver::{delay_ms, QEvents, Storage},
-    install_and_restart, update_available,
+    install_and_restart, update_available, ResetWatch,
 };
 use corelib::{CIdleEvents, DeviceEvent, Eeprom, Event, IdleEvent, SdCardCmd};
 
@@ -66,6 +66,12 @@ impl IdleLoop {
                                 self.watchdog.start(ExtU32::millis(1000));
                                 trace!("Start watchdog");
                             }
+                        }
+                    }
+                    IdleEvent::DateTime(date_time) => {
+                        // Set date and time for PANIC.LOG
+                        if let Some(reset_watch) = ResetWatch::init() {
+                            reset_watch.date_time().clone_from(&date_time);
                         }
                     }
                 }
