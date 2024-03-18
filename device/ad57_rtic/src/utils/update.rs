@@ -105,6 +105,7 @@ pub fn update_available() -> Option<SwVersion> {
         None
     };
     fs.vol_mgr().close_dir(root_dir).ok()?;
+    fs.vol_mgr().close_volume(volume).ok()?;
     result
 }
 

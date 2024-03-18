@@ -199,7 +199,7 @@ pub fn hw_init(
         let _ = FileSys::new(device.SDIO, &clocks, sdio_pins);
 
         // Init reset watch and create entry in PANIC.LOG if watchdog reset
-        let _ = ResetWatch::init();
+        let _ = ResetWatch::new();
 
         IdleLoop::new(eeprom, c_idle_events, &Q_EVENTS, watchdog)
     };

@@ -45,6 +45,7 @@ features = ["air_avionics_ad57", "eeprom_size_8192"]
 
 [features]
 defmt-default = []
+test-panic = []
 
 [[bin]]
 name = "vario"

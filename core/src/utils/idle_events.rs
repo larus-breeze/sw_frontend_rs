@@ -1,4 +1,4 @@
-use crate::{eeprom, PersistenceItem};
+use crate::{eeprom, DateTime, PersistenceItem};
 use heapless::spsc::{Consumer, Producer, Queue};
 
 #[repr(u16)]
@@ -8,6 +8,7 @@ pub enum IdleEvent {
     SdCardItem(SdCardCmd),
     FeedTheDog,
     SetGain(u8),
+    DateTime(DateTime),
 }
 
 #[repr(u16)]
