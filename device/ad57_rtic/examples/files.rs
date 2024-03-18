@@ -5,10 +5,10 @@ mod driver;
 
 use cortex_m_rt::entry;
 use defmt::trace;
+use defmt_rtt as _;
 use embedded_sdmmc::{Mode, VolumeIdx};
 use stm32f4xx_hal::pac::{CorePeripherals, Peripherals};
 use stm32f4xx_hal::prelude::*;
-use defmt_rtt as _;
 
 use driver::*;
 

@@ -4,13 +4,13 @@ use core::convert::From;
 
 use cortex_m_rt::entry;
 use defmt::trace;
+use defmt_rtt as _;
 use eeprom24x::{addr_size::TwoBytes, page_size::B32, Eeprom24x, SlaveAddr};
 use stm32f4xx_hal::{
     pac::{CorePeripherals, Peripherals},
     prelude::*,
     {i2c::I2c, pac::I2C1},
 };
-use defmt_rtt as _;
 
 pub fn delay_ms(millis: u32) {
     let cycles = millis * 168_000;

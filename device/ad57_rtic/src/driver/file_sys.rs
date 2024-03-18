@@ -45,6 +45,7 @@ pub struct FileIo {
 
 impl FileIo {
     /// Init Card if available
+    #[allow(clippy::new_ret_no_self)]
     pub fn new(dp_sdio: SDIO, clocks: &Clocks, pins: SdioPins) -> Option<Self> {
         let mut sdio: Sdio<SdCard> = Sdio::new(dp_sdio, pins, clocks);
         sdio.init(ClockFreq::F24Mhz).ok()?;
@@ -52,7 +53,10 @@ impl FileIo {
         let size = card.csd.card_size();
         // unsafe is ok, becaus we are the only one knowing and using SDIO
         //unsafe { SDIO.replace(Some(sdio)) };
-        Some(FileIo { size, sdio: RefCell::new(sdio) })
+        Some(FileIo {
+            size,
+            sdio: RefCell::new(sdio),
+        })
     }
 }
 
@@ -98,22 +102,21 @@ static mut FILE_SYS: Option<FileSys> = None;
 
 /// Access to the file system of the SdCard
 ///
-/// The file system may only be accessed when the application is started or when all interrupts 
-/// are disabled. The background to this is that the SDIO driver of the HAL is not resistant to 
-/// interrupts during access. For this reason, access from different thread contexts is not 
+/// The file system may only be accessed when the application is started or when all interrupts
+/// are disabled. The background to this is that the SDIO driver of the HAL is not resistant to
+/// interrupts during access. For this reason, access from different thread contexts is not
 /// protected.
 pub struct FileSys {
     vol_mgr: FatFs,
 }
 
 impl FileSys {
+    #[allow(clippy::new_ret_no_self)]
     pub fn new(dp_sdio: SDIO, clocks: &Clocks, pins: SdioPins) -> Result<(), Error> {
         let file_io = FileIo::new(dp_sdio, clocks, pins).ok_or(Error::SdCard)?;
         let vol_mgr = VolumeManager::new(file_io, TimeSource);
-        // ok, since access only provided from one thread 
-        unsafe {
-            FILE_SYS = Some(FileSys { vol_mgr })
-        }
+        // ok, since access only provided from one thread
+        unsafe { FILE_SYS = Some(FileSys { vol_mgr }) }
         Ok(())
     }
 
@@ -123,7 +126,6 @@ impl FileSys {
 }
 
 pub fn get_filesys() -> Option<&'static mut FileSys> {
-    // ok, since access only provided from one thread 
+    // ok, since access only provided from one thread
     unsafe { FILE_SYS.as_mut() }
-
 }

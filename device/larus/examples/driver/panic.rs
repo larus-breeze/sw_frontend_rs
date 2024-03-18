@@ -1,19 +1,18 @@
-use corelib::CoreError;
 use super::file_sys::get_filesys;
-use embedded_sdmmc::{VolumeIdx, Mode, File, Error as SdmmcError};
+use core::{
+    borrow::BorrowMut,
+    mem::MaybeUninit,
+    panic::{Location, PanicInfo},
+    ptr::{addr_of, addr_of_mut},
+    sync::atomic::{AtomicU32, AtomicU8, AtomicUsize, Ordering},
+};
+use corelib::CoreError;
 use corelib::{Concat, DateTime};
 use defmt::trace;
 use defmt_rtt as _;
+use embedded_sdmmc::{Error as SdmmcError, File, Mode, VolumeIdx};
 use embedded_storage::nor_flash::NorFlash;
-use stm32h7xx_hal::{
-    flash::FlashExt, 
-    independent_watchdog::IndependentWatchdog, 
-    pac, 
-    prelude::*,
- };
-use core::{
-    borrow::BorrowMut, mem::MaybeUninit, panic::{Location, PanicInfo}, ptr::{addr_of, addr_of_mut}, sync::atomic::{AtomicU32, AtomicU8, AtomicUsize, Ordering}
-};
+use stm32h7xx_hal::{flash::FlashExt, independent_watchdog::IndependentWatchdog, pac, prelude::*};
 
 #[repr(C)]
 #[derive(Debug)]
@@ -30,13 +29,15 @@ const SIGNATURE2: u32 = 0x1234_5678;
 static mut RESET_WATCH: MaybeUninit<ResetWatch> = unsafe { MaybeUninit::uninit().assume_init() };
 
 impl ResetWatch {
-pub fn init() -> &'static mut Self {
-        // SAFETY: The signature ensures that we are either dealing with an initialised data 
+    pub fn init() -> &'static mut Self {
+        // SAFETY: The signature ensures that we are either dealing with an initialised data
         // structure or are initialising it.
         unsafe {
-            let mut reset_watch = 
-                core::mem::transmute::<&'static mut MaybeUninit<ResetWatch>, &'static mut ResetWatch>(&mut RESET_WATCH);
-            
+            let mut reset_watch = core::mem::transmute::<
+                &'static mut MaybeUninit<ResetWatch>,
+                &'static mut ResetWatch,
+            >(&mut RESET_WATCH);
+
             if (reset_watch.signature == SIGNATURE) && (reset_watch.signature2 == SIGNATURE2) {
                 let _ = write_panic_msg(b"Unexpeced reset");
             } else {
@@ -56,9 +57,14 @@ pub fn init() -> &'static mut Self {
 
 fn write_panic_msg(msg: &[u8]) -> Result<(), CoreError> {
     if let Some(fs) = get_filesys() {
-        let mut volume = fs.vol_mgr().open_volume(VolumeIdx(0)).map_err(|_| CoreError::SdCard)?;
-        let mut root_dir =  volume.open_root_dir().map_err(|_| CoreError::SdCard)?;
-        let mut file = root_dir.open_file_in_dir("PANIC.LOG", Mode::ReadWriteCreateOrAppend).map_err(|_| CoreError::SdCard)?;
+        let mut volume = fs
+            .vol_mgr()
+            .open_volume(VolumeIdx(0))
+            .map_err(|_| CoreError::SdCard)?;
+        let mut root_dir = volume.open_root_dir().map_err(|_| CoreError::SdCard)?;
+        let mut file = root_dir
+            .open_file_in_dir("PANIC.LOG", Mode::ReadWriteCreateOrAppend)
+            .map_err(|_| CoreError::SdCard)?;
 
         let rw = ResetWatch::init();
         let dt = rw.date_time().to_bytes();
@@ -78,13 +84,12 @@ fn panic(info: &PanicInfo) -> ! {
 
     let msg = Concat::<200>::new();
     let msg = if let Some(location) = info.location() {
-        msg
-            .push_str("Panic in '")
+        msg.push_str("Panic in '")
             .push_str(location.file())
             .push_str("' line ")
             .push_u32(location.line())
     } else {
-        msg.push_str("Panic without location info")    
+        msg.push_str("Panic without location info")
     };
 
     let _ = write_panic_msg(msg.as_bytes());

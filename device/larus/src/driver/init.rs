@@ -1,8 +1,7 @@
 use crate::{driver::*, utils::*, DevController, DevView, IdleLoop};
 use corelib::{
     basic_config::{MAX_RX_FRAMES, MAX_TX_FRAMES, VDA},
-    CoreModel, QIdleEvents,
-    CanDispatch, QRxFrames, QTxFrames, QTxIrqFrames,
+    CanDispatch, CoreModel, QIdleEvents, QRxFrames, QTxFrames, QTxIrqFrames,
 };
 use cortex_m::peripheral::Peripherals as CorePeripherals;
 use defmt::*;
@@ -18,7 +17,7 @@ use stm32h7xx_hal::{
 
 pub type DevCanDispatch = CanDispatch<VDA, 8, MAX_TX_FRAMES, MAX_RX_FRAMES, DevRng>;
 
-pub fn hw_init<'a>(
+pub fn hw_init(
     dp: DevicePeripherals,
     mut cp: CorePeripherals,
 ) -> (
@@ -172,8 +171,8 @@ pub fn hw_init<'a>(
     // Setup ----------> Idleloop (last, because of the dog)
     let idle_loop = {
         let mut wp = gpioc.pc5.into_push_pull_output();
-        wp.set_low(); // Always enable writing to the eeprom 
-        
+        wp.set_low(); // Always enable writing to the eeprom
+
         let scl = gpiob.pb6.into_alternate_open_drain();
         let sda = gpiob.pb7.into_alternate_open_drain();
         let i2c = dp

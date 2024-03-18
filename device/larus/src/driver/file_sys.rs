@@ -1,6 +1,6 @@
 use core::cell::RefCell;
 use embedded_sdmmc::{
-    Block, BlockCount, BlockDevice, BlockIdx, Error as SdmmcError, VolumeManager
+    Block, BlockCount, BlockDevice, BlockIdx, Error as SdmmcError, VolumeManager,
 };
 use stm32h7xx_hal::{
     device::SDMMC1,
@@ -93,17 +93,20 @@ impl FileIo {
     pub fn new(
         pins: SdcardPins,
         sdmmc1: SDMMC1,
-        prec: Sdmmc1, 
-        clocks: &CoreClocks
+        prec: Sdmmc1,
+        clocks: &CoreClocks,
     ) -> Result<Self, FileSysError> {
         if pins.detect.is_low() {
             return Err(SdmmcError::DeviceError(DeviceError::NoCard));
         }
         let pins = (pins.clk, pins.cmd, pins.d0, pins.d1, pins.d2, pins.d3);
         let mut sdmmc: Sdmmc<_, SdCard> = sdmmc1.sdmmc(pins, prec, clocks);
-        sdmmc.init(10.MHz()).map_err(|e| SdmmcError::DeviceError(e))?;
-        let size = sdmmc.card().map_err(|e| SdmmcError::DeviceError(e))?.size();
-        Ok(FileIo { size, sdmmc: RefCell::new(sdmmc) })
+        sdmmc.init(10.MHz()).map_err(SdmmcError::DeviceError)?;
+        let size = sdmmc.card().map_err(SdmmcError::DeviceError)?.size();
+        Ok(FileIo {
+            size,
+            sdmmc: RefCell::new(sdmmc),
+        })
     }
 }
 
@@ -120,25 +123,23 @@ impl BlockDevice for FileIo {
         let start = start_block_idx.0;
         for block_idx in start..(start + blocks.len() as u32) {
             sdmmc
-                .read_block(block_idx, &mut blocks[(block_idx - start) as usize].contents)
-                .map_err(|e| SdmmcError::DeviceError(e))?;
+                .read_block(
+                    block_idx,
+                    &mut blocks[(block_idx - start) as usize].contents,
+                )
+                .map_err(SdmmcError::DeviceError)?;
         }
         Ok(())
     }
 
-    fn write(
-        &self, 
-        blocks: 
-        &[Block], 
-        start_block_idx: BlockIdx
-    ) -> Result<(), Self::Error> {
+    fn write(&self, blocks: &[Block], start_block_idx: BlockIdx) -> Result<(), Self::Error> {
         let mut sdmmc = self.sdmmc.borrow_mut();
         let start = start_block_idx.0;
         for block_idx in start..(start + blocks.len() as u32) {
             let block = &blocks[(block_idx - start) as usize].contents;
             sdmmc
                 .write_block(block_idx, block)
-                .map_err(|e| SdmmcError::DeviceError(e))?;
+                .map_err(SdmmcError::DeviceError)?;
         }
         Ok(())
     }
@@ -148,22 +149,22 @@ impl BlockDevice for FileIo {
     }
 }
 
-
 type VolMgr = VolumeManager<FileIo, TimeSource>;
 
 static mut FILE_SYS: Option<FileSys> = None;
 
 /// Access to the file system of the SdCard
 ///
-/// The file system may only be accessed when the application is started or when all interrupts 
-/// are disabled. The background to this is that the SDIO driver of the HAL is not resistant to 
-/// interrupts during access. For this reason, access from different thread contexts is not 
+/// The file system may only be accessed when the application is started or when all interrupts
+/// are disabled. The background to this is that the SDIO driver of the HAL is not resistant to
+/// interrupts during access. For this reason, access from different thread contexts is not
 /// protected.
 pub struct FileSys {
     vol_mgr: VolMgr,
 }
 
 impl FileSys {
+    #[allow(clippy::new_ret_no_self)]
     pub fn new(
         pins: SdcardPins,
         //        time_source: TimeSource,
@@ -173,10 +174,8 @@ impl FileSys {
     ) -> Result<(), FileSysError> {
         let file_io = FileIo::new(pins, sdmmc1, prec, clocks)?;
         let vol_mgr = VolumeManager::new(file_io, TimeSource);
-        // ok, since access only provided from one thread 
-        unsafe {
-            FILE_SYS = Some(FileSys { vol_mgr })
-        }
+        // ok, since access only provided from one thread
+        unsafe { FILE_SYS = Some(FileSys { vol_mgr }) }
         Ok(())
     }
 
@@ -186,7 +185,6 @@ impl FileSys {
 }
 
 pub fn get_filesys() -> Option<&'static mut FileSys> {
-        // ok, since access only provided from one thread 
-        unsafe { FILE_SYS.as_mut() }
-
+    // ok, since access only provided from one thread
+    unsafe { FILE_SYS.as_mut() }
 }

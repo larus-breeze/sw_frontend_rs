@@ -1,7 +1,10 @@
 mod persistence;
 
 use crate::{
-    basic_config::MAX_TX_FRAMES, common::PTxFrames, utils::{DeviceEvent, PIdleEvents}, DateTime, HwVersion, SwVersion
+    basic_config::MAX_TX_FRAMES,
+    common::PTxFrames,
+    utils::{DeviceEvent, PIdleEvents},
+    DateTime, HwVersion, SwVersion,
 };
 use embedded_graphics::geometry::{Angle, AngleUnit};
 use heapless::FnvIndexSet;

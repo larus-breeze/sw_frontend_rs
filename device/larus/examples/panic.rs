@@ -37,7 +37,6 @@ fn main() -> ! {
     cp.SCB.enable_icache();
     cp.DWT.enable_cycle_counter();
 
-
     let gpioa = dp.GPIOA.split(ccdr.peripheral.GPIOA);
     let gpiob = dp.GPIOB.split(ccdr.peripheral.GPIOB);
     let gpioc = dp.GPIOC.split(ccdr.peripheral.GPIOC);

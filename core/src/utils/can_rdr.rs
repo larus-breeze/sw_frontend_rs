@@ -1,12 +1,12 @@
 use crate::{
-    model::VarioModeControl, AirSpeed, CanFrame, CoreModel, 
-    FloatToAcceleration, FloatToAngularVelocity, FloatToDensity, FloatToLength, FloatToMass, FloatToPressure, FloatToSpeed, 
-    FlyMode, Frame, GenericFrame, GenericId, SpecificFrame, SysConfigId
+    model::VarioModeControl, AirSpeed, CanFrame, CoreModel, FloatToAcceleration,
+    FloatToAngularVelocity, FloatToDensity, FloatToLength, FloatToMass, FloatToPressure,
+    FloatToSpeed, FlyMode, Frame, GenericFrame, GenericId, SpecificFrame, SysConfigId,
 };
 use byteorder::{ByteOrder, LittleEndian as LE};
 use embedded_graphics::prelude::AngleUnit;
 
-use crate::utils::{sensor_legacy, object_id};
+use crate::utils::{object_id, sensor_legacy};
 
 pub fn read_can_frame(cm: &mut CoreModel, frame: &Frame) {
     match frame {
@@ -17,6 +17,7 @@ pub fn read_can_frame(cm: &mut CoreModel, frame: &Frame) {
 }
 
 fn read_specific_frame(cm: &mut CoreModel, frame: &SpecificFrame) {
+    #[allow(clippy::single_match)]
     match frame.object_id {
         object_id::SENSOR => read_sensor_values(cm, frame),
         _ => (),
@@ -160,7 +161,9 @@ fn read_legacy_frame(cm: &mut CoreModel, frame: &CanFrame) {
             let hour = rdr.pop_u8();
             let min = rdr.pop_u8();
             let sec = rdr.pop_u8();
-            cm.sensor.gps_date_time.set_date_time(year, month, day, hour, min, sec);
+            cm.sensor
+                .gps_date_time
+                .set_date_time(year, month, day, hour, min, sec);
         }
         sensor_legacy::GPS_TRK_SPD => {
             cm.sensor.gps_track = (rdr.pop_i16() as f32 * 0.001).rad();

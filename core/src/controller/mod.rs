@@ -14,8 +14,7 @@ use crate::{
     model::{DisplayActive, EditMode, TcrMode, VarioModeControl},
     system_of_units::{FloatToSpeed, Speed},
     utils::{read_can_frame, KeyEvent, Pt1},
-    CoreModel, DeviceEvent, FlyMode, IdleEvent, PersistenceId, VarioMode, POLARS,
-    Frame,
+    CoreModel, DeviceEvent, FlyMode, Frame, IdleEvent, PersistenceId, VarioMode, POLARS,
 };
 
 #[allow(unused_imports)]
@@ -62,8 +61,16 @@ impl CoreController {
     pub fn new(core_model: &mut CoreModel) -> Self {
         let polar_idx = core_model.config.glider_idx as usize;
         let polar = Polar::new(&POLARS[polar_idx], &mut core_model.glider_data);
-        let av2_climb_rate = Pt1::new(0.0.m_s(), CONTROLLER_TICK_RATE, core_model.config.av2_climb_rate_tc);
-        let av_speed_to_fly = Pt1::new(0.0.m_s(), CONTROLLER_TICK_RATE, core_model.config.av_speed_to_fly_tc);
+        let av2_climb_rate = Pt1::new(
+            0.0.m_s(),
+            CONTROLLER_TICK_RATE,
+            core_model.config.av2_climb_rate_tc,
+        );
+        let av_speed_to_fly = Pt1::new(
+            0.0.m_s(),
+            CONTROLLER_TICK_RATE,
+            core_model.config.av_speed_to_fly_tc,
+        );
         Self {
             demo: DemoController::new(),
             polar,
@@ -127,7 +134,6 @@ impl CoreController {
                 Result::NextDisplay(_) => (),
             }
         }
-
     }
 
     pub fn time_action(&mut self, core_model: &mut CoreModel) {
@@ -160,11 +166,11 @@ impl CoreController {
         let sink_rate = self.polar.sink_rate(core_model.sensor.airspeed);
         core_model.calculated.speed_to_fly =
             self.polar.speed_to_fly(climb_rate - sink_rate, mc_cready);
-        self.av_speed_to_fly.tick(core_model.calculated.speed_to_fly.ias());
+        self.av_speed_to_fly
+            .tick(core_model.calculated.speed_to_fly.ias());
         core_model.calculated.av_speed_to_fly = self.av_speed_to_fly.value();
         core_model.calculated.speed_to_fly_dif =
             core_model.calculated.av_speed_to_fly - core_model.sensor.airspeed.ias();
-
 
         // calculate sound parameters and push can frame to queue
         let cms = &core_model.sensor;
@@ -272,24 +278,22 @@ impl CoreController {
                         };
                         core_model.calculated.thermal_climb_rate = tcr;
                     }
-                    FlyMode::StraightFlight => {
-                        match core_model.control.tcr_mode {
-                            TcrMode::Climbing => {
-                                core_model.control.tcr_mode = TcrMode::Transition;
-                                core_model.control.tcr_1s_transient_ticks = 0;
-                            }
-                            TcrMode::Transition => {
-                                core_model.control.tcr_1s_transient_ticks += 1;
-                                if core_model.control.tcr_1s_transient_ticks > 30 {
-                                    core_model.control.tcr_mode = TcrMode::StraightFlight;
-                                    core_model.calculated.thermal_climb_rate = 0.0.m_s();
-                                }
-                            }
-                            TcrMode::StraightFlight => {
-                                core_model.control.tcr_start = core_model.sensor.gps_altitude
+                    FlyMode::StraightFlight => match core_model.control.tcr_mode {
+                        TcrMode::Climbing => {
+                            core_model.control.tcr_mode = TcrMode::Transition;
+                            core_model.control.tcr_1s_transient_ticks = 0;
+                        }
+                        TcrMode::Transition => {
+                            core_model.control.tcr_1s_transient_ticks += 1;
+                            if core_model.control.tcr_1s_transient_ticks > 30 {
+                                core_model.control.tcr_mode = TcrMode::StraightFlight;
+                                core_model.calculated.thermal_climb_rate = 0.0.m_s();
                             }
                         }
-                    }
+                        TcrMode::StraightFlight => {
+                            core_model.control.tcr_start = core_model.sensor.gps_altitude
+                        }
+                    },
                 }
             }
             3 => {

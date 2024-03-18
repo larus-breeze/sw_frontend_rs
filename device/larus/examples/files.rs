@@ -46,11 +46,12 @@ unsafe fn main() -> ! {
 
     if let Some(fs) = get_filesys() {
         let mut volume = fs.vol_mgr().open_volume(VolumeIdx(0)).unwrap();
-        let mut root_dir =  volume.open_root_dir().unwrap();
-        root_dir.iterate_dir(|entry| {
-            trace!("{}", defmt::Display2Format(&entry.name));
-        })
-        .unwrap();
+        let mut root_dir = volume.open_root_dir().unwrap();
+        root_dir
+            .iterate_dir(|entry| {
+                trace!("{}", defmt::Display2Format(&entry.name));
+            })
+            .unwrap();
     }
 
     loop {

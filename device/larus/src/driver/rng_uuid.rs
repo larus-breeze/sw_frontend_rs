@@ -1,5 +1,5 @@
-use corelib::CanRng;
 use corelib::stm32_crc;
+use corelib::CanRng;
 use stm32h7xx_hal::rng::{self, RngCore};
 
 pub struct DevRng {

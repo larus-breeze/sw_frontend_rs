@@ -17,8 +17,7 @@ pub fn update_available() -> Option<SwVersion> {
 
     // read root directory, look after *.bin files
     let mut files = Vec::<ShortFileName, 20>::new();
-    fs
-        .vol_mgr()
+    fs.vol_mgr()
         .iterate_dir(root_dir, |entry| {
             if entry.name.extension() == [66, 73, 78] && // BIN
                 entry.size > SIZE_METADATA_V1 as u32
@@ -71,10 +70,7 @@ pub fn update_available() -> Option<SwVersion> {
         let mut buffer = [0_u8; 512];
         let mut bytes_read = 0_u32;
         loop {
-            let b_read = fs
-                .vol_mgr()
-                .read(image_file, &mut buffer)
-                .ok()?;
+            let b_read = fs.vol_mgr().read(image_file, &mut buffer).ok()?;
             NorFlash::write(&mut unlocked_flash, flash_offset + bytes_read, &buffer).ok()?;
             bytes_read += b_read as u32;
             if b_read == 0 {

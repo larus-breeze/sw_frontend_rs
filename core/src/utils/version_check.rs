@@ -1,4 +1,4 @@
-pub use super::{HwVersion, SwVersion, MetaDataV1, SIZE_METADATA_V1};
+pub use super::{HwVersion, MetaDataV1, SwVersion, SIZE_METADATA_V1};
 
 use core::mem::transmute;
 use heapless::String;
@@ -13,7 +13,9 @@ impl ImageInfo {
     pub const fn new() -> Self {
         ImageInfo {
             file_name: String::new(),
-            sw_version: SwVersion { version: [0, 0, 0, 0] },
+            sw_version: SwVersion {
+                version: [0, 0, 0, 0],
+            },
         }
     }
 
@@ -86,7 +88,9 @@ impl VersionCheck {
 mod tests {
     use super::{HwVersion, MetaDataV1, SwVersion, VersionCheck};
     const HW_VERSION: HwVersion = HwVersion::from_bytes([1, 3, 1, 0]);
-    const SW_VERSION: SwVersion = SwVersion { version: [0, 0, 0, 0] };
+    const SW_VERSION: SwVersion = SwVersion {
+        version: [0, 0, 0, 0],
+    };
 
     #[test]
     fn check_magic() {

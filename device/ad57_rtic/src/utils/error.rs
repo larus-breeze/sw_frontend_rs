@@ -6,9 +6,9 @@
 pub enum Error {
     Unknown,
     SdCard,
-    CrcError,
-    DisplayError,
-    PinError,
+    Crc,
+    Display,
+    Pin,
     EepromOrI2c1,
     NoItemAvailable,
 }

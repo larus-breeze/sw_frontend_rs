@@ -7,12 +7,12 @@ use core::cell::RefCell;
 use cortex_m::interrupt::Mutex;
 use cortex_m_rt::entry;
 use defmt::*;
+use defmt_rtt as _;
 use rtic_monotonic::Monotonic;
 use stm32f4xx_hal::{
     pac::{interrupt, CorePeripherals, Peripherals, NVIC},
     prelude::*,
 };
-use defmt_rtt as _;
 
 use driver::*;
 

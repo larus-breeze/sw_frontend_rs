@@ -21,8 +21,12 @@ impl Default for MetaDataV1 {
             crc: 0,
             meta_version: 1,
             storage_addr: 0,
-            hw_version: HwVersion { version: [0, 0, 0, 0] },
-            sw_version: SwVersion { version: [0, 0, 0, 0] },
+            hw_version: HwVersion {
+                version: [0, 0, 0, 0],
+            },
+            sw_version: SwVersion {
+                version: [0, 0, 0, 0],
+            },
             copy_func: 0,
             new_app: 0,
             new_app_len: 0,

@@ -105,9 +105,6 @@ pub mod gps {
     pub const NO_SAT_FIX_VALID: u16 = 5;    // u8 no sats, bool sat_fix_valid, bool sad_heading_valid
 }
 
-
-
-
 #[rustfmt::skip]
 #[allow(unused)]
 pub mod sensor_legacy {
