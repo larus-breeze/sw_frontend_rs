@@ -10,7 +10,7 @@ use stm32f4xx_hal::{
     prelude::*,
     {i2c::I2c, pac::I2C1},
 };
-use {defmt_rtt as _, panic_probe as _};
+use defmt_rtt as _;
 
 pub fn delay_ms(millis: u32) {
     let cycles = millis * 168_000;

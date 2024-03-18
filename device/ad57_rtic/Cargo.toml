@@ -27,7 +27,7 @@ display-interface = "0.4"
 embedded-graphics = "0.8"
 embedded-hal = "0.2"
 embedded-storage = "0.2.0"
-embedded-sdmmc = { version = "0.6.0", default-features = false, features = ["defmt-log"] }
+embedded-sdmmc = { version = "0.6.0", default-features = false }
 fugit = "0.3"
 heapless = "0.8"
 micromath = { version = "2.0", default-features = false }

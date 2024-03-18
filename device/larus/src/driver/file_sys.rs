@@ -132,7 +132,6 @@ impl BlockDevice for FileIo {
         &[Block], 
         start_block_idx: BlockIdx
     ) -> Result<(), Self::Error> {
-        // unsafe is ok, becaus we are the only one knowing and using sdmmc
         let mut sdmmc = self.sdmmc.borrow_mut();
         let start = start_block_idx.0;
         for block_idx in start..(start + blocks.len() as u32) {
