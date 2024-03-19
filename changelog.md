@@ -8,6 +8,7 @@ v0.1.3 Optimized usability - improved crash reports
 - The color of the wind arrow changes between flying straight ahead and thermaling
 - Set wind direction and speed to zero when not flying
 - Volume control range is now 50 dB instead of 30 dB
+- Show firmware version on start up
 
 v0.1.2 Detail optimisation
 - Speed to fly is now low-pass filtered
