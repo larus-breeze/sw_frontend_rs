@@ -1,7 +1,7 @@
+use crate::SW_VERSION;
 use super::file_sys::get_filesys;
 use core::{mem::MaybeUninit, panic::PanicInfo};
-use corelib::CoreError;
-use corelib::{Concat, DateTime};
+use corelib::{Concat, CoreError, DateTime};
 use defmt::trace;
 use defmt_rtt as _;
 use embedded_sdmmc::{Mode, VolumeIdx};
@@ -32,7 +32,9 @@ impl ResetWatch {
             >(&mut RESET_WATCH);
 
             if (reset_watch.signature == SIGNATURE) && (reset_watch.signature2 == SIGNATURE2) {
-                let _ = write_panic_msg(b"Reset");
+                let mut s = Concat::<50>::new();
+                s = s.push_str("Reset - Firmware ").push_str(SW_VERSION.as_string().as_str());
+                let _ = write_panic_msg(s.as_bytes());
             } else {
                 trace!("Initializing panic buffer...");
                 reset_watch.signature = SIGNATURE;
