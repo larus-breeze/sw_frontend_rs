@@ -174,7 +174,7 @@ where
         let s = cm.config.sw_version.as_string();
         FONT_HELV_18.render_aligned(
             s.as_str(),
-            SZS.wind_pos,
+            SZS.version_pos,
             VerticalPosition::Top,
             HorizontalAlignment::Right,
             FontColor::Transparent(COLS.needle),
