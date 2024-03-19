@@ -32,7 +32,7 @@ impl ResetWatch {
             >(&mut RESET_WATCH);
 
             if (reset_watch.signature == SIGNATURE) && (reset_watch.signature2 == SIGNATURE2) {
-                let _ = write_panic_msg(b"Unexpeced reset");
+                let _ = write_panic_msg(b"Reset");
             } else {
                 trace!("Initializing panic buffer...");
                 reset_watch.signature = SIGNATURE;
