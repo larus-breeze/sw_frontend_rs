@@ -304,6 +304,7 @@ impl CoreController {
             4 => {
                 let event = IdleEvent::DateTime(core_model.sensor.gps_date_time);
                 core_model.send_idle_event(event);
+                core_model.control.alive_ticks += 1;
             }
             _ => (),
         }
