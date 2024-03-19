@@ -170,20 +170,32 @@ where
         stroke_color,
     )?;
 
-    // draw wind direction an speed text
-    display.draw_img(KM_H_IMG, SZS.wind_pos)?;
-    let wind_deg = txt_angle.to_degrees();
-    let wind_speed = cm.sensor.wind_vector.speed().to_km_h();
-    let s = Concat::<25>::from_f32(wind_deg, 0).push_str("° ");
-    let s = s.push_f32(wind_speed, 0);
-    FONT_HELV_18.render_aligned(
-        s.as_str(),
-        SZS.wind_pos,
-        VerticalPosition::Top,
-        HorizontalAlignment::Right,
-        FontColor::Transparent(COLS.needle),
-        display,
-    )?;
+    if cm.control.alive_ticks < 4 {
+        let s = cm.config.sw_version.as_string();
+        FONT_HELV_18.render_aligned(
+            s.as_str(),
+            SZS.wind_pos,
+            VerticalPosition::Top,
+            HorizontalAlignment::Right,
+            FontColor::Transparent(COLS.needle),
+            display,
+        )?;
+    } else {
+        // draw wind direction an speed text
+        display.draw_img(KM_H_IMG, SZS.wind_pos)?;
+        let wind_deg = txt_angle.to_degrees();
+        let wind_speed = cm.sensor.wind_vector.speed().to_km_h();
+        let s = Concat::<25>::from_f32(wind_deg, 0).push_str("° ");
+        let s = s.push_f32(wind_speed, 0);
+        FONT_HELV_18.render_aligned(
+            s.as_str(),
+            SZS.wind_pos,
+            VerticalPosition::Top,
+            HorizontalAlignment::Right,
+            FontColor::Transparent(COLS.needle),
+            display,
+        )?;
+    }
 
     // dependend on vario_mode draw speed_to_fly or average_climb_rate
     match cm.control.vario_mode {

@@ -58,7 +58,7 @@ impl SwVersion {
 
     pub fn as_string(&self) -> String<20> {
         Concat::<20>::default()
-            .push_str("Version ")
+            .push_str("v")
             .push_u8(self.version[0])
             .push_str(".")
             .push_u8(self.version[1])

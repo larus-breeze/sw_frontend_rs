@@ -208,28 +208,46 @@ impl Default for Config {
 
 /// Metastructure for different control variables
 pub struct Control {
+    /// Count secs the firmware is alive
+    pub alive_ticks: u32,
+    /// FlyMode::Circling, FlyMode::StraightFlight
     pub fly_mode: FlyMode,
+    /// VarioMode::Vario, VarioMode::SpeedToFly
     pub vario_mode: VarioMode,
+    /// VarioMode::Vario, VarioMode::SpeedToFly, VarioMode::Auto
     pub vario_mode_control: VarioModeControl,
-    // Sets the switching point Vario/SpeedToFly in relation to speed of the best l/d ratio
+    /// Sets the switching point Vario/SpeedToFly in relation to speed of the best l/d ratio
     pub vario_mode_switch_ratio: f32,
-    pub speed_to_fly_limit: Speed, // Speed limit above which SpeedToFly is activated
+    /// Speed limit above which SpeedToFly is activated
+    pub speed_to_fly_limit: Speed,
+    /// EditMode::Section, EditMode::Fullscreen
     pub edit_mode: EditMode,
+    /// Editable::{ClimbRate, Glider, McCready, ...}
     pub edit_var: Editable,
+    /// Timeout counter for editor
     pub edit_ticks: u32, // Used by the editor for the timeout
+    /// Timeout counter to save persistent data
     pub pers_ticks: u32,
+    /// These values have to be stored
     pub pers_vals: FnvIndexSet<PersistenceId, MAX_PERS_IDS>,
-    pub demo_acitve: bool, // Activates the demo mode
+    /// Activates the demo mode
+    pub demo_acitve: bool,
+    /// DeviceEvent::FwAvailable, PrepareFwUpload, ...
     pub firmware_update_state: DeviceEvent,
+    /// TcrMode::StraightFlight, TcrMode::Transition, TcrMode::Climbing
     pub tcr_mode: TcrMode,
+    /// Measurement of time climbing
     pub tcr_1s_climb_ticks: u32,
+    /// Measurement of time transient climb <-> straigt flight
     pub tcr_1s_transient_ticks: u32,
+    /// Height at the beginning of the climb
     pub tcr_start: Length,
 }
 
 impl Default for Control {
     fn default() -> Self {
         Self {
+            alive_ticks: 0,
             fly_mode: FlyMode::StraightFlight,
             vario_mode: VarioMode::SpeedToFly,
             vario_mode_control: VarioModeControl::Auto,
