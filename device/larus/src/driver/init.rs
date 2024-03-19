@@ -141,13 +141,12 @@ pub fn hw_init(
         let interface = LcdInterface::new(pfmc, dp.FMC, lcd_pins);
 
         let lcd_reset = gpioc.pc0.into_push_pull_output();
-        let backlight_control = gpiof.pf5.into_push_pull_output();
 
         // Add LCD controller driver
         let mut lcd = ST7789::new(
             interface,
             Some(lcd_reset),
-            Some(backlight_control),
+            None,
             320,
             240,
         );
@@ -191,7 +190,13 @@ pub fn hw_init(
 
         let watchdog = IndependentWatchdog::new(dp.IWDG);
 
-        IdleLoop::new(i2c, watchdog, c_idle_events, &Q_EVENTS, &mut core_model)
+        let idle_loop = IdleLoop::new(i2c, watchdog, c_idle_events, &Q_EVENTS, &mut core_model);
+
+        // switch LCD backlight on, after eventually firmware update (avoids flickering)
+        let mut backlight_control = gpiof.pf5.into_push_pull_output();
+        backlight_control.set_high();
+
+        idle_loop
     };
 
     let sound = {
