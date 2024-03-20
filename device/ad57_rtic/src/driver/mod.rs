@@ -12,7 +12,7 @@ mod sys_timer;
 pub use canbus::*;
 pub use eeprom::*;
 pub use file_sys::*;
-pub use frame_buffer::FrameBuffer;
+pub use frame_buffer::*;
 pub use init::*;
 pub use keyboard::*;
 #[allow(unused)]
