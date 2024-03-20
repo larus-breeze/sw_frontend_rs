@@ -1,5 +1,5 @@
 use crate::driver::r61580::{
-    Instruction, Orientation, AVAIL_PIXELS, PORTRAIT_AVAIL_HEIGHT, PORTRAIT_AVAIL_WIDTH,
+    Orientation, AVAIL_PIXELS, PORTRAIT_AVAIL_HEIGHT, PORTRAIT_AVAIL_WIDTH,
     PORTRAIT_ORIGIN_X, PORTRAIT_ORIGIN_Y, R61580,
 };
 use core::convert::TryInto;
@@ -15,20 +15,26 @@ use embedded_graphics::{
     Pixel,
 };
 use stm32f4xx_hal::{
-    fsmc_lcd::{AccessMode, DataPins16, FsmcLcd, LcdPins, Timing},
-    fsmc_lcd::{Lcd, SubBank1},
+    fsmc_lcd::{AccessMode, DataPins16, FsmcLcd, Lcd, LcdPins, SubBank1, Timing},
     gpio::{alt::fsmc, Output, Pin},
     pac::{interrupt, FSMC, NVIC},
     rcc::{Enable, Reset},
 };
 
+pub trait SetRow {
+    fn set_row(&mut self, pos_x: u16, pos_y: u16, buf: &mut [u16]);
+}
+
 pub type LcdReset = Pin<'D', 3, Output>;
 pub type DevLcdPins = LcdPins<DataPins16, fsmc::Address, fsmc::ChipSelect1>;
 
+enum DisplayDriver {
+    R61580(R61580<Lcd<SubBank1>>),
+}
+
 #[allow(dead_code)]
-pub struct FrameBuffer {
-    // REMARK: These are conceptual thoughts, currently no DMA has been implemented.
-    //
+pub struct FrameBuffer
+{
     // A note aboute the safety of FrameBuffer: REMARK: A
     //
     // The display driver and the DMA copy routine must both have access to the FRAME_BUFFER and DMA_FINISHED variables.
@@ -43,19 +49,16 @@ pub struct FrameBuffer {
     // the DMA process. After the complete copying of the data the DMA interrupt service routine sets the flag to true.
     // Before the next buffer write, this flag can be used to assess whether the copy process was completed successfully.
     pub buf: &'static mut [u8; AVAIL_PIXELS],
-    line_buf: &'static mut [u16; PORTRAIT_AVAIL_WIDTH as usize],
-    di: Lcd<SubBank1>,
+    line_buf: [u16; PORTRAIT_AVAIL_WIDTH as usize],
     line_y: u16,
+    lcd: DisplayDriver, //R61580<Lcd<SubBank1>>,
 }
 impl FrameBuffer {
-    pub fn new(fsmc: FSMC, lcd_pins: DevLcdPins, lcd_reset: LcdReset) -> (Self, Display) {
+    pub fn new(fsmc: FSMC, lcd_pins: DevLcdPins, lcd_reset: LcdReset) -> (Display, Self) {
         #[link_section = ".ccmram.BUFFERS"]
         static mut FRAME_BUFFER: [u8; AVAIL_PIXELS] = [0; AVAIL_PIXELS];
         let buf = unsafe { &mut FRAME_BUFFER };
         let buf2 = unsafe { &mut FRAME_BUFFER };
-
-        static mut LINE_BUFFER: [u16; 227] = [0xaaaa; 227];
-        let line_buf = unsafe { &mut LINE_BUFFER };
 
         let timing = Timing::default()
             .data(3)
@@ -70,102 +73,49 @@ impl FrameBuffer {
             FSMC::reset_unchecked();
         }
 
-        /*let rcc = unsafe { &*pac::RCC::ptr() };
-        rcc.ahb1enr.modify(|_, w| w.dma2en().set_bit()); // enable ahb1 clock for dma2
-
-        unsafe {
-            let dma2 = &*pac::DMA2::ptr();
-            let src = LINE_BUFFER.as_ptr() as u32;
-            dma2.st[0].cr.write(|w| w.bits(0x2_2a90));
-            dma2.st[0].fcr.write(|w| w.bits(0x27));
-            dma2.st[0].par.write(|w| w.bits(src)); // source address
-            dma2.st[0].m0ar.write(|w| w.bits(0x6002_0000)); // dest address
-        }*/
-
-        let (_fsmc, mut lcd_interface) = FsmcLcd::new(fsmc, lcd_pins, &timing, &timing);
+        let (_fsmc, lcd_interface) = FsmcLcd::new(fsmc, lcd_pins, &timing, &timing);
 
         // Initialize RG61580 LCD driver
-        let mut lcd = R61580::new(&mut lcd_interface, lcd_reset);
-        let _ = lcd.set_orientation(&mut lcd_interface, Orientation::Portrait);
+        let mut lcd = R61580::new(lcd_interface, lcd_reset);
+        lcd.init();
+        let _ = lcd.set_orientation(Orientation::Portrait);
 
         (
+            Display { buf: buf2 },
             FrameBuffer {
                 buf,
-                line_buf,
-                di: lcd_interface,
+                line_buf: [0xaaaa; 227],
+                lcd: DisplayDriver::R61580(lcd),
                 line_y: 0,
             },
-            Display { buf: buf2 },
         )
     }
-}
 
-/// Framebuffer for buffering the LCD content
-///
-/// The framebuffer is used by two instances. One instance writes the contents, another reads them
-/// and passes them to the LCD
-#[allow(clippy::transmute_ptr_to_ref)]
-impl FrameBuffer {
     pub fn flush(&mut self) {
         self.line_y = 0;
         NVIC::pend(interrupt::DMA2_STREAM0);
     }
 
     pub fn on_interrupt(&mut self) {
-        while self.line_y < PORTRAIT_AVAIL_HEIGHT {
-            write_command_and_data(Instruction::PosX as u8, PORTRAIT_ORIGIN_X);
-            write_command_and_data(Instruction::PosY as u8, self.line_y + PORTRAIT_ORIGIN_Y);
-            write_command(Instruction::Gram as u8);
-            let idx_y = (self.line_y * PORTRAIT_AVAIL_WIDTH) as usize;
-            for x in 0..PORTRAIT_AVAIL_WIDTH as usize {
-                let color_idx = self.buf[x + idx_y] as usize;
-                let color = RGB565_COLORS[color_idx];
-                write_data(color);
+        match &mut self.lcd {
+            DisplayDriver::R61580(lcd) => {
+                while self.line_y < PORTRAIT_AVAIL_HEIGHT {
+                    let idx_y = (self.line_y * PORTRAIT_AVAIL_WIDTH) as usize;
+                    for x in 0..PORTRAIT_AVAIL_WIDTH as usize {
+                        let color_idx = self.buf[x + idx_y] as usize;
+                        let color = RGB565_COLORS[color_idx];
+                        self.line_buf[x] = color;
+                    }
+                    lcd.set_row(
+                        PORTRAIT_ORIGIN_X, 
+                        PORTRAIT_ORIGIN_Y + self.line_y, 
+                        &mut self.line_buf
+                    );
+                    self.line_y += 1;
+                }
             }
-            self.line_y += 1;
         }
-        /*unsafe {
-            let dma2 = &*pac::DMA2::ptr();
-            dma2.st[0].cr.modify(|_, w| w.en().clear_bit()); // disable stream0
-            dma2.lifcr.write(|w| w.ctcif0().set_bit()); // reset dma complete ir
-        }
-
-        if self.line_y < PORTRAIT_AVAIL_HEIGHT {
-            let idx_y = (self.line_y * PORTRAIT_AVAIL_WIDTH) as usize;
-            for x in 0..PORTRAIT_AVAIL_WIDTH as usize {
-                let color = self.buf[x + idx_y] as usize;
-                self.line_buf[x] = RGB565_COLORS[color];
-            }
-            write_command_and_data(Instruction::PosX as u8, PORTRAIT_ORIGIN_X);
-            write_command_and_data(Instruction::PosY as u8, self.line_y + PORTRAIT_ORIGIN_Y);
-            write_command(Instruction::Gram as u8);
-            self.line_y += 1;
-
-            unsafe {
-                let dma2 = &*pac::DMA2::ptr();
-                dma2.st[0].ndtr.write(|w| w.bits(227)); // count DMA moves
-                dma2.st[0].cr.modify(|_, w| w.en().set_bit()); // enable stream0
-            }
-        }*/
     }
-}
-
-#[inline]
-fn write_command(cmd: u8) {
-    // Safety: Writing u8 is atomic, so unsafe is ok
-    unsafe { core::ptr::write_volatile(0x60000000 as *mut u8, cmd) }
-}
-
-#[inline]
-fn write_data(data: u16) {
-    // Safety: Writing u16 is atomic, so unsafe is ok
-    unsafe { core::ptr::write_volatile(0x60020000 as *mut u16, data) };
-}
-
-#[inline]
-fn write_command_and_data(cmd: u8, data: u16) {
-    write_command(cmd);
-    write_data(data)
 }
 
 pub struct Display {
