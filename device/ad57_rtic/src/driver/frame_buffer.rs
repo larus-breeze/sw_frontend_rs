@@ -1,6 +1,5 @@
 use crate::driver::r61580::{
-    Orientation, AVAIL_PIXELS, PORTRAIT_AVAIL_HEIGHT, PORTRAIT_AVAIL_WIDTH,
-    PORTRAIT_ORIGIN_X, PORTRAIT_ORIGIN_Y, R61580,
+    is_r61580, Orientation, AVAIL_PIXELS, PORTRAIT_AVAIL_HEIGHT, PORTRAIT_AVAIL_WIDTH, PORTRAIT_ORIGIN_X, PORTRAIT_ORIGIN_Y, R61580
 };
 use core::convert::TryInto;
 use corelib::{
@@ -14,12 +13,14 @@ use embedded_graphics::{
     primitives::Rectangle,
     Pixel,
 };
+use embedded_hal::blocking::delay::DelayUs;
 use stm32f4xx_hal::{
     fsmc_lcd::{AccessMode, DataPins16, FsmcLcd, Lcd, LcdPins, SubBank1, Timing},
     gpio::{alt::fsmc, Output, Pin},
     pac::{interrupt, FSMC, NVIC},
     rcc::{Enable, Reset},
 };
+use st7789::ST7789;
 
 pub trait SetRow {
     fn set_row(&mut self, pos_x: u16, pos_y: u16, buf: &mut [u16]);
@@ -30,6 +31,7 @@ pub type DevLcdPins = LcdPins<DataPins16, fsmc::Address, fsmc::ChipSelect1>;
 
 enum DisplayDriver {
     R61580(R61580<Lcd<SubBank1>>),
+    ST7789(ST7789<Lcd<SubBank1>, Pin<'D', 3, Output>, Pin<'D', 3, Output>>),
 }
 
 #[allow(dead_code)]
@@ -54,7 +56,7 @@ pub struct FrameBuffer
     lcd: DisplayDriver, //R61580<Lcd<SubBank1>>,
 }
 impl FrameBuffer {
-    pub fn new(fsmc: FSMC, lcd_pins: DevLcdPins, lcd_reset: LcdReset) -> (Display, Self) {
+    pub fn new(fsmc: FSMC, lcd_pins: DevLcdPins, mut lcd_reset: LcdReset, delay: &mut impl DelayUs<u32>) -> (Display, Self) {
         #[link_section = ".ccmram.BUFFERS"]
         static mut FRAME_BUFFER: [u8; AVAIL_PIXELS] = [0; AVAIL_PIXELS];
         let buf = unsafe { &mut FRAME_BUFFER };
@@ -73,21 +75,31 @@ impl FrameBuffer {
             FSMC::reset_unchecked();
         }
 
-        let (_fsmc, lcd_interface) = FsmcLcd::new(fsmc, lcd_pins, &timing, &timing);
+        let (_fsmc, mut lcd_interface) = FsmcLcd::new(fsmc, lcd_pins, &timing, &timing);
 
-        // Initialize RG61580 LCD driver
-        let mut lcd = R61580::new(lcd_interface, lcd_reset);
-        lcd.init();
-        let _ = lcd.set_orientation(Orientation::Portrait);
+        let lcd = if is_r61580(&mut lcd_interface, &mut lcd_reset) {
+            // Initialize RG61580 LCD driver
+            let mut lcd = R61580::new(lcd_interface, lcd_reset);
+            lcd.init();
+            let _ = lcd.set_orientation(Orientation::Portrait);
+            DisplayDriver::R61580(lcd)
+        } else {
+            let mut lcd = ST7789::new(
+                lcd_interface,
+                Some(lcd_reset),
+                None,
+                320,
+                240,
+            );
+            // Initialise the display and clear the screen
+            lcd.init(delay).unwrap();
+            lcd.set_orientation(st7789::Orientation::Portrait).unwrap();
+            DisplayDriver::ST7789(lcd)
+        };
 
         (
             Display { buf: buf2 },
-            FrameBuffer {
-                buf,
-                line_buf: [0xaaaa; 227],
-                lcd: DisplayDriver::R61580(lcd),
-                line_y: 0,
-            },
+            FrameBuffer { buf, line_buf: [0xaaaa; 227], lcd, line_y: 0 },
         )
     }
 
@@ -110,6 +122,24 @@ impl FrameBuffer {
                         PORTRAIT_ORIGIN_X, 
                         PORTRAIT_ORIGIN_Y + self.line_y, 
                         &mut self.line_buf
+                    );
+                    self.line_y += 1;
+                }
+            }
+            DisplayDriver::ST7789(lcd) => {
+                while self.line_y < PORTRAIT_AVAIL_HEIGHT {
+                    let idx_y = (self.line_y * PORTRAIT_AVAIL_WIDTH) as usize;
+                    for x in 0..PORTRAIT_AVAIL_WIDTH as usize {
+                        let color_idx = self.buf[x + idx_y] as usize;
+                        let color = RGB565_COLORS[color_idx];
+                        self.line_buf[x] = color;
+                    }
+                    let _ = lcd.set_pixels(
+                        PORTRAIT_ORIGIN_X, 
+                        PORTRAIT_ORIGIN_Y + self.line_y, 
+                        PORTRAIT_ORIGIN_X, 
+                        PORTRAIT_ORIGIN_Y + self.line_y + 1, 
+                        self.line_buf
                     );
                     self.line_y += 1;
                 }

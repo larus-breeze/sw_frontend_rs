@@ -169,8 +169,9 @@ pub fn hw_init(
             fsmc::ChipSelect1::from(gpiod.pd7),
         );
         let lcd_reset = gpiod.pd3.into_push_pull_output();
+        let mut delay = core.SYST.delay(&clocks);
 
-        let (display, frame_buffer) = FrameBuffer::new(device.FSMC, lcd_pins, lcd_reset);
+        let (display, frame_buffer) = FrameBuffer::new(device.FSMC, lcd_pins, lcd_reset, &mut delay);
 
         unsafe {
             core.NVIC.set_priority(interrupt::DMA2_STREAM0, 3);

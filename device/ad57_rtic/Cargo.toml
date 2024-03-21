@@ -20,6 +20,7 @@ systick-monotonic = "1.0.1"
 # hardware specific
 bxcan = "0.7"
 # st7789 = { path = "/media/winni/1p4/Werkstatt/crates/st7789" }
+st7789 = "0.7.0"
 eeprom24x = "0.6.0"
 stm32f4xx-hal = { version = "0.17", features = ["rt", "stm32f407", "fsmc_lcd", "can", "can1", "rtic", "sdio", "sdio-host"] }
 
