@@ -137,7 +137,7 @@ impl FrameBuffer {
                     let _ = lcd.set_pixels(
                         PORTRAIT_ORIGIN_X, 
                         PORTRAIT_ORIGIN_Y + self.line_y, 
-                        PORTRAIT_ORIGIN_X, 
+                        PORTRAIT_ORIGIN_X + PORTRAIT_AVAIL_WIDTH, 
                         PORTRAIT_ORIGIN_Y + self.line_y + 1, 
                         self.line_buf
                     );
