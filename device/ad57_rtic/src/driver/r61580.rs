@@ -52,6 +52,24 @@ pub enum Instruction {
     VEA = 0x53, // y-end
 }
 
+pub fn is_r61580<PinE>(di: &mut impl WriteOnlyDataCommand, rst: &mut impl OutputPin<Error = PinE>) -> bool 
+{
+    // Performs a hard reset using the RST pin sequence
+    let _ = rst.set_high();
+    delay_ms(1); // ensure the pin change will get registered
+    let _ = rst.set_low();
+    delay_ms(2); // ensure the pin change will get registered
+    let _ = rst.set_high();
+    delay_ms(2); // ensure the pin change will get registered
+
+
+    let _ = di.send_commands(U8Iter(&mut once(0)));
+    // Safety: Reading u16 is atomic, so unsafe is ok
+    let id = unsafe { core::ptr::read_volatile(0x6002_0000 as *const u16) };
+    id == 0x1580
+}
+
+
 ///
 /// R61580 driver to connect to LCD displays.
 ///
