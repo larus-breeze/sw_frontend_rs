@@ -24,6 +24,7 @@ pub use can_wtr::*;
 pub use colors16::Colors;
 #[cfg(feature = "air_avionics_ad57")]
 pub use colors8::Colors;
+pub use colors8::Colors as Colors8;
 pub use concat::Concat;
 pub use crc::*;
 pub use date_time::*;

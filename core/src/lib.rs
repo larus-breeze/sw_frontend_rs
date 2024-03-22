@@ -118,5 +118,5 @@ pub mod basic_config {
 /// specifically designed to be ultra-fast. It is defined in the Python script
 /// assets/convert_pictures.py and is described there.
 pub trait DrawImage {
-    fn draw_img(&mut self, img: &[u8], offset: Point) -> Result<(), CoreError>;
+    fn draw_img(&mut self, img: &[u8], offset: Point, cover_up: Option<Colors8>) -> Result<(), CoreError>;
 }

@@ -4,7 +4,7 @@ use crate::driver::r61580::{
 use core::convert::TryInto;
 use corelib::{
     basic_config::{DISPLAY_HEIGHT, DISPLAY_WIDTH},
-    Colors, CoreError, DrawImage, RGB565_COLORS,
+    Colors, Colors8, CoreError, DrawImage, RGB565_COLORS,
 };
 use embedded_graphics::{
     draw_target::DrawTarget,
@@ -204,7 +204,7 @@ impl OriginDimensions for Display {
 }
 
 impl DrawImage for Display {
-    fn draw_img(&mut self, img: &[u8], offset: Point) -> Result<(), CoreError> {
+    fn draw_img(&mut self, img: &[u8], offset: Point, cover_up: Option<Colors8>) -> Result<(), CoreError> {
         // Safety: the img format has been defined in terms of compatibility,(_fsmc,  so the conversion is ok here
         let img16 =
             unsafe { core::slice::from_raw_parts(img.as_ptr() as *const u16, img.len() / 2) };
@@ -220,7 +220,11 @@ impl DrawImage for Display {
         let mut idx = 4;
         let ofs = offset.x as usize + offset.y as usize * DISPLAY_WIDTH as usize;
         for _ in 0..color_cnt {
-            let color = img16[idx] as u8;
+            let color = if let Some(color) = cover_up {
+                color as u8
+            } else {
+                img16[idx] as u8
+            };
             let px_cnt = img16[idx + 1] as usize;
             idx += 2;
             for b_idx in img16.iter().skip(idx).take(px_cnt) {
