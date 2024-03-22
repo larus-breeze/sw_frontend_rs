@@ -26,7 +26,7 @@ impl MockDisplay {
 }
 
 impl DrawImage for MockDisplay {
-    fn draw_img(&mut self, img: &[u8], offset: Point) -> Result<(), CoreError> {
+    fn draw_img(&mut self, img: &[u8], offset: Point, cover_up: Option<Colors8>) -> Result<(), CoreError> {
         // Safety: the img format has been defined in terms of compatibility, so the conversion is ok here
         // At the moment we only know format 1
         let img_vers = img[0];
@@ -44,13 +44,19 @@ impl DrawImage for MockDisplay {
             let color_cnt = img16[3];
             let mut idx = 4;
             for _ in 0..color_cnt {
+                let color_idx = if let Some(color) = cover_up {
+                    color as usize
+                } else {
+                    img16[idx] as usize
+                };
+
                 #[cfg(feature = "larus_ad57")]
-                let u16_col = RGB565_COLORS[img16[idx] as usize];
+                let u16_col = RGB565_COLORS[color_idx];
                 #[cfg(feature = "larus_ad57")]
                 let color = Colors::from(u16_col);
 
                 #[cfg(feature = "air_avionics_ad57")]
-                let color = Colors::from(img16[idx] as u8);
+                let color = Colors::from(color_idx as u8);
 
                 let px_cnt = img16[idx + 1] as usize;
                 idx += 2;
@@ -75,13 +81,19 @@ impl DrawImage for MockDisplay {
             let color_cnt = img32[3];
             let mut idx = 4;
             for _ in 0..color_cnt {
+                let color_idx = if let Some(color) = cover_up {
+                    color as usize
+                } else {
+                    img32[idx] as usize
+                };
+
                 #[cfg(feature = "larus_ad57")]
-                let u16_col = RGB565_COLORS[img32[idx] as usize];
+                let u16_col = RGB565_COLORS[color_idx as usize];
                 #[cfg(feature = "larus_ad57")]
                 let color = Colors::from(u16_col);
 
                 #[cfg(feature = "air_avionics_ad57")]
-                let color = Colors::from(img32[idx] as u8);
+                let color = Colors::from(color_idx as u8);
 
                 let px_cnt = img32[idx + 1] as usize;
                 idx += 2;

@@ -152,7 +152,10 @@ fn main() -> Result<(), core::convert::Infallible> {
 
         while c_idle_events.len() > 0 {
             let idle_event = c_idle_events.dequeue().unwrap();
-            println!("StorageItem {:?}", &idle_event);
+            match idle_event {
+                IdleEvent::DateTime(_) => (),
+                _ => println!("IdleEvent {:?}", &idle_event),
+            }
             match idle_event {
                 IdleEvent::EepromItem(item) => eeprom.write_item(item).unwrap(),
                 IdleEvent::SdCardItem(item) => {
@@ -162,6 +165,7 @@ fn main() -> Result<(), core::convert::Infallible> {
                 }
                 IdleEvent::FeedTheDog => (), // No Watchdog in this demo app
                 IdleEvent::SetGain(_) => (), // Sound is done via can datagram
+                IdleEvent::DateTime(_) => (), // Date and time for crash reports are not required
             }
         }
 

@@ -66,8 +66,8 @@ where
 {
     // draw wallpaper
     display.clear(COLS.background)?;
-    display.draw_img(WALLPAPER_IMG, Point::new(0, 0))?;
-    display.draw_img(M_S_IMG, SZS.unit_pos)?;
+    display.draw_img(WALLPAPER_IMG, Point::new(0, 0), None)?;
+    display.draw_img(M_S_IMG, SZS.unit_pos, None)?;
 
     for (pos_x, pos_y, txt) in WALLPAPER_SCALE {
         let pos = Point::new(pos_x, pos_y);
@@ -119,7 +119,7 @@ where
     let (mut angle, mut av_angle, fill_color, stroke_color) = match cm.control.fly_mode {
         FlyMode::Circling => {
             // draw noth symbol
-            display.draw_img(NORTH_IMG, Point::new(0, 0))?;
+            display.draw_img(NORTH_IMG, Point::new(0, 0), None)?;
             // return absolut wind vector
             (
                 cm.sensor.wind_vector.angle(),
@@ -130,7 +130,7 @@ where
         }
         FlyMode::StraightFlight => {
             // draw glider symbol
-            display.draw_img(GLIDER_IMG, Point::new(0, 0))?;
+            display.draw_img(GLIDER_IMG, Point::new(0, 0), None)?;
             (
                 // return relativ wind vector
                 cm.sensor.wind_vector.angle() - cm.sensor.gps_track,
@@ -182,7 +182,7 @@ where
         )?;
     } else {
         // draw wind direction an speed text
-        display.draw_img(KM_H_IMG, SZS.wind_pos)?;
+        display.draw_img(KM_H_IMG, SZS.wind_pos, None)?;
         let wind_deg = txt_angle.to_degrees();
         let wind_speed = cm.sensor.wind_vector.speed().to_km_h();
         let s = Concat::<25>::from_f32(wind_deg, 0).push_str("° ");
@@ -200,8 +200,8 @@ where
     // dependend on vario_mode draw speed_to_fly or average_climb_rate
     match cm.control.vario_mode {
         VarioMode::Vario => {
-            display.draw_img(SPIRAL_IMG, SZS.pic_left_under_pos)?;
-            display.draw_img(M_S_IMG, SZS.left_under_pos)?;
+            display.draw_img(SPIRAL_IMG, SZS.pic_left_under_pos, None)?;
+            display.draw_img(M_S_IMG, SZS.left_under_pos, None)?;
             let acr = num::clamp(cm.calculated.thermal_climb_rate.to_m_s(), -9.9, 99.9);
             let txt = Concat::<10>::from_f32(acr, 1);
             FONT_HELV_18.render_aligned(
@@ -214,8 +214,8 @@ where
             )?;
         }
         VarioMode::SpeedToFly => {
-            display.draw_img(STRAIGHT_IMG, SZS.pic_left_under_pos)?;
-            display.draw_img(KM_H_IMG, SZS.left_under_pos)?;
+            display.draw_img(STRAIGHT_IMG, SZS.pic_left_under_pos, None)?;
+            display.draw_img(KM_H_IMG, SZS.left_under_pos, None)?;
             let stf = num::clamp(-cm.calculated.speed_to_fly_dif.to_km_h() / 10.0, -5.0, 5.0);
             let angle_sweep = (VARIO_SIZES.angle_m_s * stf).deg();
             Arc::with_center(CENTER, SZS.diameter_stf, 180.0.deg(), angle_sweep)
