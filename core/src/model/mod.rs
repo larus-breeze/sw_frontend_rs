@@ -1,10 +1,7 @@
 mod persistence;
 
 use crate::{
-    basic_config::MAX_TX_FRAMES,
-    common::PTxFrames,
-    utils::{DeviceEvent, PIdleEvents},
-    DateTime, HwVersion, SwVersion,
+    basic_config::MAX_TX_FRAMES, common::PTxFrames, utils::{DeviceEvent, PIdleEvents}, CanActive, DateTime, HwVersion, SwVersion
 };
 use embedded_graphics::geometry::{Angle, AngleUnit};
 use heapless::FnvIndexSet;
@@ -135,6 +132,22 @@ pub enum TcrMode {
     Climbing,
 }
 
+/// Enum for GPS state
+#[derive(Clone, Copy, PartialEq)]
+pub enum GpsState {
+    NoGps,
+    GpsActive,
+    Fix2D,
+    Fix3D,
+}
+
+/// Enum for Larus System State
+#[derive(Clone, Copy, PartialEq)]
+pub enum SystemState {
+    NoCom,
+    CanOk,
+    CanAndGpsOk,
+}
 /// Metastructure for calculated or set values
 pub struct Calculated {
     pub speed_to_fly: AirSpeed,
@@ -210,6 +223,10 @@ impl Default for Config {
 pub struct Control {
     /// Count secs the firmware is alive
     pub alive_ticks: u32,
+    /// State of the Larus system
+    pub system_state: SystemState,
+    /// Bit pattern of all can bus devices
+    pub can_devices: u32,
     /// FlyMode::Circling, FlyMode::StraightFlight
     pub fly_mode: FlyMode,
     /// VarioMode::Vario, VarioMode::SpeedToFly
@@ -248,6 +265,8 @@ impl Default for Control {
     fn default() -> Self {
         Self {
             alive_ticks: 0,
+            system_state: SystemState::NoCom,
+            can_devices: CanActive::None as u32,
             fly_mode: FlyMode::StraightFlight,
             vario_mode: VarioMode::SpeedToFly,
             vario_mode_control: VarioModeControl::Auto,
@@ -284,6 +303,8 @@ pub struct Sensor {
     pub gps_geo_seperation: Length,
     pub gps_track: Angle,
     pub gps_ground_speed: Speed,
+    pub gps_sats: u8,
+    pub gps_state: GpsState,
     pub nick_angle: Angle,
     pub pressure: Pressure,
     pub slip_angle: Angle,
@@ -308,6 +329,8 @@ impl Default for Sensor {
             gps_geo_seperation: 0.0.m(),
             gps_track: 0.0.deg(),
             gps_ground_speed: 0.0.m_s(),
+            gps_sats: 0,
+            gps_state: GpsState::NoGps,
             nick_angle: 0.0.deg(),
             pressure: Pressure::AT_NN(),
             slip_angle: 0.0.deg(),

@@ -65,6 +65,7 @@ pub mod basic_config {
     pub const STRAIGHT_IMG: &[u8] = include_bytes!("../assets/size_227x285/straight.lif");
     pub const KM_H_IMG: &[u8] = include_bytes!("../assets/size_227x285/km_h.lif");
     pub const M_S_IMG: &[u8] = include_bytes!("../assets/size_227x285/m_s.lif");
+    pub const SAT_IMG: &[u8] = include_bytes!("../assets/size_227x285/sat.lif");
     pub const WALLPAPER_SCALE: [(i32, i32, &str); 11] = [
         (194, 238, "5"),
         (152, 255, "4"),
@@ -99,6 +100,7 @@ pub mod basic_config {
     pub const STRAIGHT_IMG: &[u8] = include_bytes!("../assets/size_240x320/straight.lif");
     pub const KM_H_IMG: &[u8] = include_bytes!("../assets/size_240x320/km_h.lif");
     pub const M_S_IMG: &[u8] = include_bytes!("../assets/size_240x320/m_s.lif");
+    pub const SAT_IMG: &[u8] = include_bytes!("../assets/size_240x320/sat.lif");
     pub const WALLPAPER_SCALE: [(i32, i32, &str); 11] = [
         (211, 274, "5"),
         (163, 290, "4"),

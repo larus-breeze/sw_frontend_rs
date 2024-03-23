@@ -192,3 +192,8 @@ pub mod frontend_legacy {
     pub const HAVE_CONTROL: u16 = 0x321;    // empty package, just a trigger
     pub const NOTHING: u16 = 0x3ff;         // just a placeholder for a hw filter, no content
 }
+
+pub enum CanActive {
+    None = 0x00,
+    SensorboxLegacy = 0x01,
+}

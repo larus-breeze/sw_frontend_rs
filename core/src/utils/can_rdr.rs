@@ -1,7 +1,5 @@
 use crate::{
-    model::VarioModeControl, AirSpeed, CanFrame, CoreModel, FloatToAcceleration,
-    FloatToAngularVelocity, FloatToDensity, FloatToLength, FloatToMass, FloatToPressure,
-    FloatToSpeed, FlyMode, Frame, GenericFrame, GenericId, SpecificFrame, SysConfigId,
+    model::{GpsState, VarioModeControl}, AirSpeed, CanActive, CanFrame, CoreModel, FloatToAcceleration, FloatToAngularVelocity, FloatToDensity, FloatToLength, FloatToMass, FloatToPressure, FloatToSpeed, FlyMode, Frame, GenericFrame, GenericId, SpecificFrame, SysConfigId
 };
 use byteorder::{ByteOrder, LittleEndian as LE};
 use embedded_graphics::prelude::AngleUnit;
@@ -175,6 +173,15 @@ fn read_legacy_frame(cm: &mut CoreModel, frame: &CanFrame) {
                 cm.sensor.gps_track += 360.0.deg();
             }
         }
+        sensor_legacy::GPS_SATS => {
+            cm.sensor.gps_sats = rdr.pop_u8();
+            match rdr.pop_u8() {
+                1 => cm.sensor.gps_state = GpsState::GpsActive,
+                2 => cm.sensor.gps_state = GpsState::Fix2D,
+                3 => cm.sensor.gps_state = GpsState::Fix3D,
+                _ => cm.sensor.gps_state = GpsState::NoGps,
+            }
+        }
         sensor_legacy::TURN_COORD => {
             cm.sensor.slip_angle = ((rdr.pop_i16() as f32) * 0.001).rad();
             cm.sensor.turn_rate = ((rdr.pop_i16() as f32) * 0.001).rad_s();
@@ -183,6 +190,7 @@ fn read_legacy_frame(cm: &mut CoreModel, frame: &CanFrame) {
         sensor_legacy::VARIO => {
             cm.sensor.climb_rate = ((rdr.pop_i16() as f32) * 0.001).m_s();
             cm.sensor.average_climb_rate = ((rdr.pop_i16() as f32) * 0.001).m_s();
+            cm.control.can_devices |= CanActive::SensorboxLegacy as u32;
         }
         sensor_legacy::WIND => {
             cm.sensor

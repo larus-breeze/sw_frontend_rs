@@ -11,7 +11,7 @@ use crate::{
     basic_config::CONTROLLER_TICK_RATE,
     can_frame_heartbeat, can_frame_sound,
     flight_physics::Polar,
-    model::{DisplayActive, EditMode, TcrMode, VarioModeControl},
+    model::{DisplayActive, EditMode, GpsState, SystemState, TcrMode, VarioModeControl},
     system_of_units::{FloatToSpeed, Speed},
     utils::{read_can_frame, KeyEvent, Pt1},
     CoreModel, DeviceEvent, FlyMode, Frame, IdleEvent, PersistenceId, VarioMode, POLARS,
@@ -300,6 +300,16 @@ impl CoreController {
                 // create CAN frame and add to queue
                 let can_frame = can_frame_heartbeat(core_model.config.uuid);
                 let _ = core_model.p_tx_frames.enqueue(can_frame);
+                core_model.control.system_state =if core_model.control.can_devices != 0 {
+                    match core_model.sensor.gps_state {
+                        GpsState::Fix3D => SystemState::CanAndGpsOk,
+                        _ => SystemState::CanOk,
+                    }
+                } else {
+                    core_model.sensor.gps_state = GpsState::NoGps;
+                    SystemState::NoCom
+                };
+                core_model.control.can_devices = 0;
             }
             4 => {
                 let event = IdleEvent::DateTime(core_model.sensor.gps_date_time);

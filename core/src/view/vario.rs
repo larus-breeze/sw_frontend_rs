@@ -4,6 +4,7 @@ use super::{
     RADIUS,
     VARIO_SIZES,
 };
+use crate::model::SystemState;
 use crate::{basic_config::*, utils::FONT_HELV_18, Concat, CoreError, DrawImage};
 use crate::{
     model::{CoreModel, FlyMode, VarioMode},
@@ -55,6 +56,15 @@ const VARIO_COLORS: VarioColors = VarioColors {
 
 use VARIO_COLORS as COLS;
 
+mod sysem_state_colors {
+    use crate::Colors8;
+
+    pub const NO_COM: Colors8 = Colors8::Red;
+    pub const CAN_OK: Colors8 = Colors8::Coral;
+    pub const CAN_AND_GPS_OK: Colors8 = Colors8::LimeGreen;
+
+}
+
 // Limits of the wind arrow
 const WIND_MIN: f32 = 10.0; // 10 km/h
 const WIND_MAX: f32 = 30.0; // 30 km/h
@@ -79,6 +89,13 @@ where
             display,
         )?;
     }
+
+    let color = match cm.control.system_state {
+        SystemState::NoCom => sysem_state_colors::NO_COM,
+        SystemState::CanOk => sysem_state_colors::CAN_OK,
+        SystemState::CanAndGpsOk => sysem_state_colors::CAN_AND_GPS_OK,
+    };
+    display.draw_img(SAT_IMG, SZS.sat_pos, Some(color))?;
 
     // draw mc_ready marker
     scale_marker(
