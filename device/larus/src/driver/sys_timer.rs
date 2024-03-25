@@ -69,6 +69,30 @@ impl DelayUs<u32> for Delay {
     }
 }
 
+impl DelayMs<u16> for Delay {
+    fn delay_ms(&mut self, ms: u16) {
+        delay_ms(ms as u32)
+    }
+}
+
+impl DelayUs<u16> for Delay {
+    fn delay_us(&mut self, us: u16) {
+        delay_us(us as u32)
+    }
+}
+
+impl DelayMs<u8> for Delay {
+    fn delay_ms(&mut self, ms: u8) {
+        delay_ms(ms as u32)
+    }
+}
+
+impl DelayUs<u8> for Delay {
+    fn delay_us(&mut self, us: u8) {
+        delay_us(us as u32)
+    }
+}
+
 const OVF_VALUE: u64 = 0x1_0000_0000; // Overflow for u32
 const TICKS_PER_SECOND: u32 = 1_000_000; // TIM2 runs with 1 MHz
 

@@ -7,7 +7,7 @@
 use core::{mem::transmute, ptr::addr_of};
 use corelib::{
     basic_config::{DISPLAY_HEIGHT, DISPLAY_WIDTH},
-    Colors, CoreError, DrawImage, RGB565_COLORS,
+    Colors, Colors8, CoreError, DrawImage, RGB565_COLORS,
 };
 use embedded_graphics::{
     draw_target::DrawTarget, pixelcolor::PixelColor, prelude::*, primitives::Rectangle,
@@ -201,7 +201,12 @@ impl OriginDimensions for Display {
 }
 
 impl DrawImage for Display {
-    fn draw_img(&mut self, img: &[u8], offset: Point) -> Result<(), CoreError> {
+    fn draw_img(
+        &mut self,
+        img: &[u8],
+        offset: Point,
+        _cover_up: Option<Colors8>,
+    ) -> Result<(), CoreError> {
         // At the moment we only know format 1
         assert!((img[0] == 1) || (img[0] == 2));
 
