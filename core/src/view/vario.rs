@@ -89,6 +89,14 @@ where
         )?;
     }
 
+    if cm.device.supply_voltage > cm.device.voltage_limit_good {
+        display.draw_img(BAT_FULL_IMG, SZS.bat_pos, None)?;
+    } else if cm.device.supply_voltage < cm.device.voltage_limit_bad {
+        display.draw_img(BAT_EMPTY_IMG, SZS.bat_pos, None)?;
+    } else {
+        display.draw_img(BAT_HALF_IMG, SZS.bat_pos, None)?;
+    }
+
     let color = match cm.control.system_state {
         SystemState::NoCom => sysem_state_colors::NO_COM,
         SystemState::CanOk => sysem_state_colors::CAN_OK,
