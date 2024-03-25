@@ -8,11 +8,12 @@ use defmt::*;
 use heapless::{mpmc::MpMcQueue, spsc::Queue};
 use st7789::ST7789;
 use stm32h7xx_hal::{
+    adc,
     dma::dma::StreamsTuple,
     independent_watchdog::IndependentWatchdog,
     pac::Peripherals as DevicePeripherals,
     prelude::*,
-    rcc::{rec, rec::FmcClkSel, ResetEnable},
+    rcc::{rec, rec::AdcClkSel, rec::FmcClkSel, ResetEnable},
 };
 
 pub type DevCanDispatch = CanDispatch<VDA, 8, MAX_TX_FRAMES, MAX_RX_FRAMES, DevRng>;
@@ -67,9 +68,13 @@ pub fn hw_init(
     // This queue routes the events to the controller.
     static Q_EVENTS: QEvents = MpMcQueue::new();
 
+    // Unfortantly adc does not work on vos3
     // Constrain and freeze power, save a little bit power, optimum is at vos3 / 200 MHz
-    let pwrcfg = dp.PWR.constrain().vos3().freeze();
-    let ccdr = dp
+    // let pwrcfg = dp.PWR.constrain().vos3().freeze();
+    // Constrain and Freeze power
+    let pwrcfg = dp.PWR.constrain().freeze();
+
+    let mut ccdr = dp
         .RCC
         .constrain()
         .use_hse(16.MHz())
@@ -83,6 +88,9 @@ pub fn hw_init(
     // Enable cortex m7 cache and cyclecounter
     cp.SCB.enable_icache();
     cp.DWT.enable_cycle_counter();
+
+    ccdr.peripheral.kernel_adc_clk_mux(AdcClkSel::Per);
+
 
     // Setup ----------> system timer
     let mono = MonoTimer::new(dp.TIM2, ccdr.peripheral.TIM2, &ccdr.clocks);
@@ -143,13 +151,7 @@ pub fn hw_init(
         let lcd_reset = gpioc.pc0.into_push_pull_output();
 
         // Add LCD controller driver
-        let mut lcd = ST7789::new(
-            interface,
-            Some(lcd_reset),
-            None,
-            320,
-            240,
-        );
+        let mut lcd = ST7789::new(interface, Some(lcd_reset), None, 320, 240);
         // Initialise the display and clear the screen
         lcd.init(&mut delay).unwrap();
         lcd.set_orientation(st7789::Orientation::PortraitSwapped)
@@ -165,7 +167,26 @@ pub fn hw_init(
     let mut core_model = CoreModel::new(p_idle_events, p_tx_frames, uuid(), HW_VERSION, SW_VERSION);
 
     // Setup ----------> controller
-    let dev_controller = DevController::new(&mut core_model, &Q_EVENTS, c_rx_frames);
+    let dev_controller = {
+        let mut adc1 = adc::Adc::adc1(
+            dp.ADC1,
+            4.MHz(),
+            &mut delay,
+            ccdr.peripheral.ADC12,
+            &ccdr.clocks,
+        );
+        adc1.calibrate();
+
+        DevController::new(
+            &mut core_model,
+            &Q_EVENTS,
+            c_rx_frames,
+            adc1.enable(),
+            gpioa.pa6,
+            gpioc.pc4,
+            gpiob.pb1,
+        )
+    };
 
     // Setup ----------> Idleloop (last, because of the dog)
     let idle_loop = {

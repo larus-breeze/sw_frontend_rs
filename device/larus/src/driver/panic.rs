@@ -1,5 +1,5 @@
-use crate::SW_VERSION;
 use super::file_sys::get_filesys;
+use crate::SW_VERSION;
 use core::{mem::MaybeUninit, panic::PanicInfo};
 use corelib::{Concat, CoreError, DateTime};
 use defmt::trace;
@@ -33,7 +33,9 @@ impl ResetWatch {
 
             if (reset_watch.signature == SIGNATURE) && (reset_watch.signature2 == SIGNATURE2) {
                 let mut s = Concat::<50>::new();
-                s = s.push_str("Reset - Firmware ").push_str(SW_VERSION.as_string().as_str());
+                s = s
+                    .push_str("Reset - Firmware ")
+                    .push_str(SW_VERSION.as_string().as_str());
                 let _ = write_panic_msg(s.as_bytes());
             } else {
                 trace!("Initializing panic buffer...");

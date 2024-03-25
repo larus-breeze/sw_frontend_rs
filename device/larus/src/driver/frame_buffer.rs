@@ -196,7 +196,12 @@ impl OriginDimensions for Display {
 }
 
 impl DrawImage for Display {
-    fn draw_img(&mut self, img: &[u8], offset: Point, cover_up: Option<Colors8>) -> Result<(), CoreError> {
+    fn draw_img(
+        &mut self,
+        img: &[u8],
+        offset: Point,
+        cover_up: Option<Colors8>,
+    ) -> Result<(), CoreError> {
         // At the moment we only know format 1
         assert!((img[0] == 1) || (img[0] == 2));
 

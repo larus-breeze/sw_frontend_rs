@@ -1,6 +1,7 @@
 mod calculated;
 mod config;
 mod control;
+mod device;
 mod persistence;
 mod sensor;
 
@@ -13,6 +14,7 @@ pub use config::{Config, DisplayActive};
 pub use control::{
     Control, EditMode, FlyMode, SystemState, TcrMode, VarioMode, VarioModeControl, MAX_PERS_IDS,
 };
+use device::Device;
 pub use sensor::{GpsState, Sensor};
 
 /// Data model for the entire device
@@ -26,6 +28,7 @@ pub struct CoreModel {
     pub calculated: Calculated,
     pub config: Config,
     pub control: Control,
+    pub device: Device,
     pub glider_data: GliderData,
     pub sensor: Sensor,
     p_idle_events: PIdleEvents,
@@ -48,12 +51,14 @@ impl CoreModel {
             ..Default::default()
         };
         let control = Control::default();
+        let device = Device::default();
         let glider_data = GliderData::default();
         let sensor = Sensor::default();
         CoreModel {
             calculated,
             config,
             control,
+            device,
             glider_data,
             sensor,
             p_idle_events,
