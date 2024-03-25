@@ -12,12 +12,12 @@ pub struct Device {
 impl Default for Device {
     fn default() -> Self {
         Device {
-            supply_voltage: 0.0,
+            supply_voltage: 13.0,
             illumination_voltage: 0.0,
             temperature_pcb: 0.0,
 
-            voltage_limit_bad: 12.8,
-            voltage_limit_good: 13.0,
+            voltage_limit_bad: 10.5,
+            voltage_limit_good: 12.0,
         }
     }
 

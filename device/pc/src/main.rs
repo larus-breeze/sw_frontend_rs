@@ -121,6 +121,18 @@ fn main() -> Result<(), core::convert::Infallible> {
                             controller.device_action(&mut core_model, &device_event);
                             KeyEvent::NoEvent
                         }
+                        Keycode::Kp1 => {
+                            core_model.device.supply_voltage = 13.0;
+                            KeyEvent::NoEvent
+                        }
+                        Keycode::Kp2 => {
+                            core_model.device.supply_voltage = 11.0;
+                            KeyEvent::NoEvent
+                        }
+                        Keycode::Kp3 => { 
+                            core_model.device.supply_voltage = 10.0;
+                            KeyEvent::NoEvent
+                        }
                         _ => {
                             println!("Key with no effect {:?}", keycode);
                             KeyEvent::NoEvent

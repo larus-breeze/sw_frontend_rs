@@ -58,6 +58,9 @@ pub mod basic_config {
     pub const SECTION_EDITOR_TIMEOUT: u32 = 3;
     pub const PERSISTENCE_TIMEOUT: u32 = 3;
 
+    pub const BAT_EMPTY_IMG: &[u8] = include_bytes!("../assets/size_227x285/bat_empty.lif");
+    pub const BAT_FULL_IMG: &[u8] = include_bytes!("../assets/size_227x285/bat_full.lif");
+    pub const BAT_HALF_IMG: &[u8] = include_bytes!("../assets/size_227x285/bat_half.lif");
     pub const GLIDER_IMG: &[u8] = include_bytes!("../assets/size_227x285/glider.lif");
     pub const NORTH_IMG: &[u8] = include_bytes!("../assets/size_227x285/north.lif");
     pub const WALLPAPER_IMG: &[u8] = include_bytes!("../assets/size_227x285/vario_wallpaper.lif");
@@ -93,6 +96,9 @@ pub mod basic_config {
     pub const SECTION_EDITOR_TIMEOUT: u32 = 3;
     pub const PERSISTENCE_TIMEOUT: u32 = 3;
 
+    pub const BAT_EMPTY_IMG: &[u8] = include_bytes!("../assets/size_240x320/bat_empty.lif");
+    pub const BAT_FULL_IMG: &[u8] = include_bytes!("../assets/size_240x320/bat_full.lif");
+    pub const BAT_HALF_IMG: &[u8] = include_bytes!("../assets/size_240x320/bat_half.lif");
     pub const GLIDER_IMG: &[u8] = include_bytes!("../assets/size_240x320/glider.lif");
     pub const NORTH_IMG: &[u8] = include_bytes!("../assets/size_240x320/north.lif");
     pub const WALLPAPER_IMG: &[u8] = include_bytes!("../assets/size_240x320/vario_wallpaper.lif");

@@ -81,9 +81,15 @@ class LifGen():
 
 
 DARK_GRAY = 24
+GOLD = 47
+LIME = 75
+RED = 112
 WHITE = 135
 
 lif_gen = LifGen(227, 285, 'assets/size_227x285', 'core/assets/size_227x285')
+lif_gen.generate(1, 'bat_empty.png', {0: RED})
+lif_gen.generate(1, 'bat_full.png', {0: DARK_GRAY, 1: LIME})
+lif_gen.generate(1, 'bat_half.png', {0: DARK_GRAY, 1: GOLD})
 lif_gen.generate(1, 'glider.png', {0: DARK_GRAY}, 67, 117)
 lif_gen.generate(1, 'north.png', {0: DARK_GRAY}, 71, 53)
 lif_gen.generate(1, 'spiral.png', {0: DARK_GRAY})
@@ -94,6 +100,9 @@ lif_gen.generate(1, 'm_s.png', {0: DARK_GRAY})
 lif_gen.generate(1, 'sat.png', {0: DARK_GRAY})
 
 lif_gen = LifGen(240, 320, 'assets/size_240x320', 'core/assets/size_240x320')
+lif_gen.generate(1, 'bat_empty.png', {0: RED})
+lif_gen.generate(1, 'bat_full.png', {0: DARK_GRAY, 1: LIME})
+lif_gen.generate(1, 'bat_half.png', {0: DARK_GRAY, 1: GOLD})
 lif_gen.generate(1, 'glider.png', {0: DARK_GRAY}, 85, 136)
 lif_gen.generate(1, 'north.png', {0: DARK_GRAY}, 85, 58)
 lif_gen.generate(1, 'spiral.png', {0: DARK_GRAY})
