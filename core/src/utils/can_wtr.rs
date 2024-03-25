@@ -16,6 +16,16 @@ pub fn can_frame_sound(frequency: u16, gain: u8, duty_cycle: u16, continuous: bo
     )
 }
 
+pub fn can_frame_volt_temp(voltage: f32, temperature: f32) -> Frame {
+    Frame::specific(
+        CanFrame::empty_from_id(0x00)
+            .push_f32(voltage)
+            .push_f32(temperature),
+        SpecialId::VoltTemp as u16,
+        OBJECT_ID,
+    )
+}
+
 pub fn can_frame_heartbeat(uuid: u32) -> Frame {
     Frame::generic(
         CanFrame::empty_from_id(0x00)

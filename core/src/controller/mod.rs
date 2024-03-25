@@ -9,7 +9,7 @@ use sw_update::SwUpdateController;
 
 use crate::{
     basic_config::CONTROLLER_TICK_RATE,
-    can_frame_heartbeat, can_frame_sound,
+    can_frame_heartbeat, can_frame_sound, can_frame_volt_temp,
     flight_physics::Polar,
     model::{DisplayActive, EditMode, GpsState, SystemState, TcrMode, VarioModeControl},
     system_of_units::{FloatToSpeed, Speed},
@@ -315,6 +315,13 @@ impl CoreController {
                 let event = IdleEvent::DateTime(core_model.sensor.gps_date_time);
                 core_model.send_idle_event(event);
                 core_model.control.alive_ticks += 1;
+            }
+            5 => {
+                let can_frame = can_frame_volt_temp(
+                    core_model.device.supply_voltage,
+                    core_model.device.temperature_pcb,
+                );
+                let _ = core_model.p_tx_frames.enqueue(can_frame);
             }
             _ => (),
         }
