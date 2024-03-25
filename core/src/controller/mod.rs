@@ -300,7 +300,7 @@ impl CoreController {
                 // create CAN frame and add to queue
                 let can_frame = can_frame_heartbeat(core_model.config.uuid);
                 let _ = core_model.p_tx_frames.enqueue(can_frame);
-                core_model.control.system_state =if core_model.control.can_devices != 0 {
+                core_model.control.system_state = if core_model.control.can_devices != 0 {
                     match core_model.sensor.gps_state {
                         GpsState::Fix3D => SystemState::CanAndGpsOk,
                         _ => SystemState::CanOk,
