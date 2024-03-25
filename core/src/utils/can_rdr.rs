@@ -1,5 +1,8 @@
 use crate::{
-    model::{GpsState, VarioModeControl}, AirSpeed, CanActive, CanFrame, CoreModel, FloatToAcceleration, FloatToAngularVelocity, FloatToDensity, FloatToLength, FloatToMass, FloatToPressure, FloatToSpeed, FlyMode, Frame, GenericFrame, GenericId, SpecificFrame, SysConfigId
+    model::{GpsState, VarioModeControl},
+    AirSpeed, CanActive, CanFrame, CoreModel, FloatToAcceleration, FloatToAngularVelocity,
+    FloatToDensity, FloatToLength, FloatToMass, FloatToPressure, FloatToSpeed, FlyMode, Frame,
+    GenericFrame, GenericId, SpecificFrame, SysConfigId,
 };
 use byteorder::{ByteOrder, LittleEndian as LE};
 use embedded_graphics::prelude::AngleUnit;
