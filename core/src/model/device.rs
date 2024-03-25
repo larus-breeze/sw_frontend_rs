@@ -1,5 +1,3 @@
-
-
 pub struct Device {
     pub supply_voltage: f32,
     pub illumination_voltage: f32,
@@ -20,5 +18,4 @@ impl Default for Device {
             voltage_limit_good: 12.0,
         }
     }
-
 }

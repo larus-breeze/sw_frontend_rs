@@ -4,7 +4,8 @@ use core::mem::transmute;
 pub enum SpecialId {
     Sound = 0,
     SpeedToFly = 1,
-    Ignore = 2,
+    VoltTemp = 2,
+    Ignore,
 }
 
 impl From<u16> for SpecialId {
