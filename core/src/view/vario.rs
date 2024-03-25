@@ -60,9 +60,8 @@ mod sysem_state_colors {
     use crate::Colors8;
 
     pub const NO_COM: Colors8 = Colors8::Red;
-    pub const CAN_OK: Colors8 = Colors8::Coral;
+    pub const CAN_OK: Colors8 = Colors8::Yellow;
     pub const CAN_AND_GPS_OK: Colors8 = Colors8::LimeGreen;
-
 }
 
 // Limits of the wind arrow
