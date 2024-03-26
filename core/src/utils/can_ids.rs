@@ -3,8 +3,7 @@ use core::mem::transmute;
 /// Definition of special ids (Object Id 4 Vario Display)
 pub enum SpecialId {
     Sound = 0,
-    SpeedToFly = 1,
-    VoltTemp = 2,
+    VoltTemp = 1,
     Ignore,
 }
 
