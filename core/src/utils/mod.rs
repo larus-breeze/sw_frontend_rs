@@ -41,8 +41,16 @@ pub use can_ids::{audio_legacy, frontend_legacy, sensor_legacy};
 pub(crate) use can_rdr::read_can_frame;
 
 use u8g2_fonts::{fonts, FontRenderer};
-pub const FONT_HELV_14: FontRenderer = FontRenderer::new::<fonts::u8g2_font_helvR14_tf>();
-pub const FONT_HELV_18: FontRenderer = FontRenderer::new::<fonts::u8g2_font_helvR18_tf>();
+
+#[cfg(feature = "air_avionics_ad57")]
+pub const FONT_SMALL: FontRenderer = FontRenderer::new::<fonts::u8g2_font_helvB14_tf>();
+#[cfg(feature = "larus_ad57")]
+pub const FONT_SMALL: FontRenderer = FontRenderer::new::<fonts::u8g2_font_helvB14_tf>();
+
+#[cfg(feature = "air_avionics_ad57")]
+pub const FONT_BIG: FontRenderer = FontRenderer::new::<fonts::u8g2_font_fub17_tf>();
+#[cfg(feature = "larus_ad57")]
+pub const FONT_BIG: FontRenderer = FontRenderer::new::<fonts::u8g2_font_fub20_tf>();
 
 use num::clamp;
 
