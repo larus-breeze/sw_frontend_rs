@@ -5,7 +5,7 @@ use crate::driver::r61580::{
 use core::{convert::TryInto, mem::transmute, ptr::addr_of};
 use corelib::{
     basic_config::{DISPLAY_HEIGHT, DISPLAY_WIDTH},
-    Colors, Colors8, CoreError, DrawImage, RGB565_COLORS,
+    Colors, CoreError, DrawImage, RGB565_COLORS,
 };
 use embedded_graphics::{
     draw_target::DrawTarget,
@@ -216,7 +216,7 @@ impl DrawImage for Display {
         &mut self,
         img: &[u8],
         offset: Point,
-        cover_up: Option<Colors8>,
+        cover_up: Option<Colors>,
     ) -> Result<(), CoreError> {
         // Safety: the img format has been defined in terms of compatibility,(_fsmc,  so the conversion is ok here
         let img16 =

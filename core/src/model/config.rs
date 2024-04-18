@@ -1,6 +1,8 @@
 use crate::{
+    model::CoreModel,
     system_of_units::{FloatToSpeed, Speed},
-    HwVersion, SwVersion,
+    utils::themes::{Palette, PaletteColors, DARK_MODE},
+    Colors, HwVersion, SwVersion,
 };
 
 /// Possible displays
@@ -28,6 +30,7 @@ pub struct Config {
     pub sw_version: SwVersion,
     pub av2_climb_rate_tc: f32,
     pub av_speed_to_fly_tc: f32,
+    pub theme: &'static PaletteColors,
 }
 
 impl Default for Config {
@@ -48,6 +51,13 @@ impl Default for Config {
             sw_version: SwVersion::default(),
             av2_climb_rate_tc: 30.0,
             av_speed_to_fly_tc: 5.0,
+            theme: &DARK_MODE,
         }
+    }
+}
+
+impl CoreModel {
+    pub fn color(&self, color_name: Palette) -> Colors {
+        self.config.theme[color_name as usize]
     }
 }

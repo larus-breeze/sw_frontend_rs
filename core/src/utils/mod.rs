@@ -13,6 +13,7 @@ mod idle_events;
 mod metadata;
 mod persistence;
 mod rgb565_colors;
+pub mod themes;
 mod version;
 mod version_check;
 

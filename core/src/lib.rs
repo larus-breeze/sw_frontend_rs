@@ -130,6 +130,6 @@ pub trait DrawImage {
         &mut self,
         img: &[u8],
         offset: Point,
-        cover_up: Option<Colors8>,
+        cover_up: Option<Colors>,
     ) -> Result<(), CoreError>;
 }
