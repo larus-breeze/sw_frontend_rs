@@ -94,6 +94,7 @@ dependencies = [
  "heapless",
  "micromath 2.0.0",
  "num",
+ "tfmt",
  "u8g2-fonts",
 ]
 
@@ -666,6 +667,27 @@ dependencies = [
  "proc-macro2",
  "quote",
  "unicode-ident",
+]
+
+[[package]]
+name = "tfmt"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e920d0d6acf280ffd506ad894ada0b68facec4bebeb4c90c705caf2b8db044ab"
+dependencies = [
+ "heapless",
+ "tfmt-macros",
+]
+
+[[package]]
+name = "tfmt-macros"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2666e458fa4943989904d3ea1e6c11b9a7e45a316b8a4dc9495da45548a99cee"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 1.0.109",
 ]
 
 [[package]]

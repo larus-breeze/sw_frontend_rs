@@ -91,7 +91,6 @@ pub fn hw_init(
 
     ccdr.peripheral.kernel_adc_clk_mux(AdcClkSel::Per);
 
-
     // Setup ----------> system timer
     let mono = MonoTimer::new(dp.TIM2, ccdr.peripheral.TIM2, &ccdr.clocks);
     let mut delay = Delay {};

@@ -1,7 +1,8 @@
 use crate::driver::r61580::{
-    is_r61580, Orientation, AVAIL_PIXELS, PORTRAIT_AVAIL_HEIGHT, PORTRAIT_AVAIL_WIDTH, PORTRAIT_ORIGIN_X, PORTRAIT_ORIGIN_Y, R61580
+    is_r61580, Orientation, AVAIL_PIXELS, PORTRAIT_AVAIL_HEIGHT, PORTRAIT_AVAIL_WIDTH,
+    PORTRAIT_ORIGIN_X, PORTRAIT_ORIGIN_Y, R61580,
 };
-use core::convert::TryInto;
+use core::{convert::TryInto, mem::transmute, ptr::addr_of};
 use corelib::{
     basic_config::{DISPLAY_HEIGHT, DISPLAY_WIDTH},
     Colors, Colors8, CoreError, DrawImage, RGB565_COLORS,
@@ -14,13 +15,13 @@ use embedded_graphics::{
     Pixel,
 };
 use embedded_hal::blocking::delay::DelayUs;
+use st7789::ST7789;
 use stm32f4xx_hal::{
     fsmc_lcd::{AccessMode, DataPins16, FsmcLcd, Lcd, LcdPins, SubBank1, Timing},
     gpio::{alt::fsmc, Output, Pin},
     pac::{interrupt, FSMC, NVIC},
     rcc::{Enable, Reset},
 };
-use st7789::ST7789;
 
 pub trait SetRow {
     fn set_row(&mut self, pos_x: u16, pos_y: u16, buf: &mut [u16]);
@@ -35,8 +36,7 @@ enum DisplayDriver {
 }
 
 #[allow(dead_code)]
-pub struct FrameBuffer
-{
+pub struct FrameBuffer {
     // A note aboute the safety of FrameBuffer: REMARK: A
     //
     // The display driver and the DMA copy routine must both have access to the FRAME_BUFFER and DMA_FINISHED variables.
@@ -56,11 +56,20 @@ pub struct FrameBuffer
     lcd: DisplayDriver, //R61580<Lcd<SubBank1>>,
 }
 impl FrameBuffer {
-    pub fn new(fsmc: FSMC, lcd_pins: DevLcdPins, mut lcd_reset: LcdReset, delay: &mut impl DelayUs<u32>) -> (Display, Self) {
+    pub fn new(
+        fsmc: FSMC,
+        lcd_pins: DevLcdPins,
+        mut lcd_reset: LcdReset,
+        delay: &mut impl DelayUs<u32>,
+    ) -> (Display, Self) {
         #[link_section = ".ccmram.BUFFERS"]
         static mut FRAME_BUFFER: [u8; AVAIL_PIXELS] = [0; AVAIL_PIXELS];
-        let buf = unsafe { &mut FRAME_BUFFER };
-        let buf2 = unsafe { &mut FRAME_BUFFER };
+        let buf = unsafe {
+            transmute::<*const [u8; AVAIL_PIXELS], &mut [u8; AVAIL_PIXELS]>(addr_of!(FRAME_BUFFER))
+        };
+        let buf2 = unsafe {
+            transmute::<*const [u8; AVAIL_PIXELS], &mut [u8; AVAIL_PIXELS]>(addr_of!(FRAME_BUFFER))
+        };
 
         let timing = Timing::default()
             .data(3)
@@ -84,13 +93,7 @@ impl FrameBuffer {
             let _ = lcd.set_orientation(Orientation::Portrait);
             DisplayDriver::R61580(lcd)
         } else {
-            let mut lcd = ST7789::new(
-                lcd_interface,
-                Some(lcd_reset),
-                None,
-                320,
-                240,
-            );
+            let mut lcd = ST7789::new(lcd_interface, Some(lcd_reset), None, 320, 240);
             // Initialise the display and clear the screen
             lcd.init(delay).unwrap();
             lcd.set_orientation(st7789::Orientation::Portrait).unwrap();
@@ -99,7 +102,12 @@ impl FrameBuffer {
 
         (
             Display { buf: buf2 },
-            FrameBuffer { buf, line_buf: [0xaaaa; 227], lcd, line_y: 0 },
+            FrameBuffer {
+                buf,
+                line_buf: [0xaaaa; 227],
+                lcd,
+                line_y: 0,
+            },
         )
     }
 
@@ -119,9 +127,9 @@ impl FrameBuffer {
                         self.line_buf[x] = color;
                     }
                     lcd.set_row(
-                        PORTRAIT_ORIGIN_X, 
-                        PORTRAIT_ORIGIN_Y + self.line_y, 
-                        &mut self.line_buf
+                        PORTRAIT_ORIGIN_X,
+                        PORTRAIT_ORIGIN_Y + self.line_y,
+                        &mut self.line_buf,
                     );
                     self.line_y += 1;
                 }
@@ -135,11 +143,11 @@ impl FrameBuffer {
                         self.line_buf[x] = color;
                     }
                     let _ = lcd.set_pixels(
-                        PORTRAIT_ORIGIN_X, 
-                        PORTRAIT_ORIGIN_Y + self.line_y, 
-                        PORTRAIT_ORIGIN_X + PORTRAIT_AVAIL_WIDTH, 
-                        PORTRAIT_ORIGIN_Y + self.line_y + 1, 
-                        self.line_buf
+                        PORTRAIT_ORIGIN_X,
+                        PORTRAIT_ORIGIN_Y + self.line_y,
+                        PORTRAIT_ORIGIN_X + PORTRAIT_AVAIL_WIDTH,
+                        PORTRAIT_ORIGIN_Y + self.line_y + 1,
+                        self.line_buf,
                     );
                     self.line_y += 1;
                 }
@@ -204,7 +212,12 @@ impl OriginDimensions for Display {
 }
 
 impl DrawImage for Display {
-    fn draw_img(&mut self, img: &[u8], offset: Point, cover_up: Option<Colors8>) -> Result<(), CoreError> {
+    fn draw_img(
+        &mut self,
+        img: &[u8],
+        offset: Point,
+        cover_up: Option<Colors8>,
+    ) -> Result<(), CoreError> {
         // Safety: the img format has been defined in terms of compatibility,(_fsmc,  so the conversion is ok here
         let img16 =
             unsafe { core::slice::from_raw_parts(img.as_ptr() as *const u16, img.len() / 2) };

@@ -32,6 +32,7 @@ embedded-storage = "0.2.0"
 embedded-sdmmc = { version = "0.6.0", default-features = false }
 fugit = "0.3"
 heapless = "0.8"
+tfmt = "0.4"
 micromath = { version = "2.0", default-features = false }
 nb = "1"
 rand_core = "0.6"

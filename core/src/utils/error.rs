@@ -9,6 +9,7 @@ pub enum CoreError {
     NoItemAvailable,
     OutOfRange,
     SdCard,
+    ConversionError,
 }
 
 impl From<u8g2_fonts::Error<CoreError>> for CoreError {

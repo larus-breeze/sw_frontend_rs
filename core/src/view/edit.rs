@@ -2,14 +2,16 @@ use crate::{
     basic_config::{DISPLAY_HEIGHT, DISPLAY_WIDTH},
     controller::Editable,
     model::{CoreModel, VarioModeControl},
+    tformat,
     utils::{Colors, FONT_HELV_14, FONT_HELV_18},
     view::SCREEN_CENTER,
-    Concat, CoreError, DrawImage, POLARS,
+    CoreError, DrawImage, POLARS,
 };
 use embedded_graphics::{
     prelude::*,
     primitives::{PrimitiveStyleBuilder, Rectangle},
 };
+use heapless::String;
 use u8g2_fonts::types::{FontColor, HorizontalAlignment, VerticalPosition};
 
 const VALUE_COLOR: Colors = Colors::White;
@@ -56,7 +58,7 @@ where
     Ok(())
 }
 
-fn get_edit_strs(cm: &CoreModel) -> (&str, Concat<20>) {
+fn get_edit_strs(cm: &CoreModel) -> (&str, String<20>) {
     let name_str = match cm.control.edit_var {
         Editable::ClimbRate => "Climb Rate",
         Editable::Glider => "Glider",
@@ -70,32 +72,23 @@ fn get_edit_strs(cm: &CoreModel) -> (&str, Concat<20>) {
         Editable::WindSpeed => "Wind Speed",
     };
 
-    let val_str = Concat::<20>::new();
     let val_str = match cm.control.edit_var {
-        Editable::ClimbRate => val_str
-            .push_f32(cm.sensor.climb_rate.to_m_s(), 1)
-            .push_str(" m/s"),
-        Editable::Glider => val_str.push_str(POLARS[cm.config.glider_idx as usize].name),
-        Editable::McCready => val_str.push_f32(cm.config.mc_cready.to_m_s(), 1),
-        Editable::PilotWeight => val_str.push_f32(cm.glider_data.pilot_weight.to_kg(), 0),
+        Editable::ClimbRate => tformat!(20, "{:.1} m/s", cm.sensor.climb_rate.to_m_s()),
+        Editable::Glider => tformat!(20, "{}", POLARS[cm.config.glider_idx as usize].name),
+        Editable::McCready => tformat!(20, "{:.1} m/s", cm.config.mc_cready.to_m_s()),
+        Editable::PilotWeight => tformat!(20, "{:.0} kg", cm.glider_data.pilot_weight.to_kg()),
         Editable::VarioModeControl => match cm.control.vario_mode_control {
-            VarioModeControl::Auto => val_str.push_str("Auto"),
-            VarioModeControl::Vario => val_str.push_str("Vario"),
-            VarioModeControl::SpeedToFly => val_str.push_str("SpeedToFly"),
+            VarioModeControl::Auto => tformat!(20, "Autot"),
+            VarioModeControl::Vario => tformat!(20, "Vario"),
+            VarioModeControl::SpeedToFly => tformat!(20, "SpeedToFly"),
         },
-        Editable::Speed => val_str
-            .push_f32(cm.sensor.airspeed.ias().to_km_h(), 0)
-            .push_str(" km/h"),
-        Editable::Volume => val_str.push_i8(cm.config.volume),
-        Editable::WaterBallast => val_str
-            .push_f32(cm.glider_data.water_ballast.to_kg(), 0)
-            .push_str(" kg"),
-        Editable::WindDirection => val_str
-            .push_f32(cm.sensor.wind_vector.angle().to_degrees(), 0)
-            .push_str(" °"),
-        Editable::WindSpeed => val_str
-            .push_f32(cm.sensor.wind_vector.speed().to_km_h(), 0)
-            .push_str(" km/h"),
+        Editable::Speed => tformat!(20, "{:.0} km/h", cm.sensor.airspeed.ias().to_km_h()),
+        Editable::Volume => tformat!(20, "{}", cm.config.volume),
+        Editable::WaterBallast => tformat!(20, "{:.0} kg", cm.glider_data.water_ballast.to_kg()),
+        Editable::WindDirection => {
+            tformat!(20, "{:.0} °", cm.sensor.wind_vector.angle().to_degrees())
+        }
+        Editable::WindSpeed => tformat!(20, "{:.0} km/h", cm.sensor.wind_vector.speed().to_km_h()),
     };
-    (name_str, val_str)
+    (name_str, val_str.unwrap())
 }

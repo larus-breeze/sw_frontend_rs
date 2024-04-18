@@ -4,12 +4,15 @@ use super::{
     RADIUS,
     VARIO_SIZES,
 };
-use crate::model::SystemState;
-use crate::{basic_config::*, utils::FONT_HELV_18, Concat, CoreError, DrawImage};
 use crate::{
+    basic_config::*,
+    model::SystemState,
     model::{CoreModel, FlyMode, VarioMode},
     system_of_units::FloatToSpeed,
+    tformat,
     utils::Colors,
+    utils::FONT_HELV_18,
+    CoreError, DrawImage,
 };
 
 use embedded_graphics::{
@@ -209,8 +212,7 @@ where
         display.draw_img(KM_H_IMG, SZS.wind_pos, None)?;
         let wind_deg = txt_angle.to_degrees();
         let wind_speed = cm.sensor.wind_vector.speed().to_km_h();
-        let s = Concat::<25>::from_f32(wind_deg, 0).push_str("° ");
-        let s = s.push_f32(wind_speed, 0);
+        let s = tformat!(25, "{:.0}° {:.0}", wind_deg, wind_speed).unwrap();
         FONT_HELV_18.render_aligned(
             s.as_str(),
             SZS.wind_pos,
@@ -227,7 +229,7 @@ where
             display.draw_img(SPIRAL_IMG, SZS.pic_left_under_pos, None)?;
             display.draw_img(M_S_IMG, SZS.left_under_pos, None)?;
             let acr = num::clamp(cm.calculated.thermal_climb_rate.to_m_s(), -9.9, 99.9);
-            let txt = Concat::<10>::from_f32(acr, 1);
+            let txt = tformat!(10, "{:.1}", acr).unwrap();
             FONT_HELV_18.render_aligned(
                 txt.as_str(),
                 SZS.left_under_pos,
@@ -246,7 +248,7 @@ where
                 .into_styled(PrimitiveStyle::with_stroke(COLS.speed_to_fly, 6))
                 .draw(display)?;
             let stf = num::clamp(cm.calculated.speed_to_fly_1s.to_km_h(), 0.0, 999.0);
-            let txt = Concat::<10>::from_f32(stf, 0);
+            let txt = tformat!(10, "{:.0}", stf).unwrap();
             FONT_HELV_18.render_aligned(
                 txt.as_str(),
                 SZS.left_under_pos,
