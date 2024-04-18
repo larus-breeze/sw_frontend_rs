@@ -3,7 +3,7 @@ use crate::{
     controller::Editable,
     model::{CoreModel, VarioModeControl},
     tformat,
-    utils::{Colors, FONT_HELV_14, FONT_HELV_18},
+    utils::{Colors, FONT_SMALL, FONT_BIG},
     view::SCREEN_CENTER,
     CoreError, DrawImage, POLARS,
 };
@@ -38,7 +38,7 @@ where
 
     let (name_str, val_str) = get_edit_strs(cm);
 
-    FONT_HELV_14.render_aligned(
+    FONT_SMALL.render_aligned(
         name_str,
         SCREEN_CENTER + Point::new(0, -13),
         VerticalPosition::Baseline,
@@ -47,7 +47,7 @@ where
         display,
     )?;
 
-    FONT_HELV_18.render_aligned(
+    FONT_BIG.render_aligned(
         val_str.as_str(),
         SCREEN_CENTER + Point::new(0, 25),
         VerticalPosition::Baseline,
@@ -78,7 +78,7 @@ fn get_edit_strs(cm: &CoreModel) -> (&str, String<20>) {
         Editable::McCready => tformat!(20, "{:.1} m/s", cm.config.mc_cready.to_m_s()),
         Editable::PilotWeight => tformat!(20, "{:.0} kg", cm.glider_data.pilot_weight.to_kg()),
         Editable::VarioModeControl => match cm.control.vario_mode_control {
-            VarioModeControl::Auto => tformat!(20, "Autot"),
+            VarioModeControl::Auto => tformat!(20, "Auto"),
             VarioModeControl::Vario => tformat!(20, "Vario"),
             VarioModeControl::SpeedToFly => tformat!(20, "SpeedToFly"),
         },

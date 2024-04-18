@@ -2,9 +2,7 @@ use heapless::Vec;
 
 use super::{VarioModeControl, MAX_PERS_IDS};
 use crate::{
-    basic_config::{CONTROLLER_TICK_RATE, PERSISTENCE_TIMEOUT},
-    system_of_units::Speed,
-    CoreModel, IdleEvent, Mass, PersistenceId, PersistenceItem,
+    basic_config::{CONTROLLER_TICK_RATE, PERSISTENCE_TIMEOUT}, system_of_units::Speed, themes::{BRIGHT_MODE, DARK_MODE}, CoreModel, IdleEvent, Mass, PersistenceId, PersistenceItem
 };
 
 impl CoreModel {
@@ -25,6 +23,13 @@ impl CoreModel {
             PersistenceId::Glider => self.config.glider_idx = item.to_i32(),
             PersistenceId::VarioModeControl => {
                 self.control.vario_mode_control = VarioModeControl::from(item.to_u8())
+            }
+            PersistenceId::DisplayMode => {
+                self.config.theme = if item.to_i32() == 0 {
+                    &DARK_MODE
+                } else {
+                    &BRIGHT_MODE
+                }
             }
             _ => (),
         }
@@ -66,6 +71,14 @@ impl CoreModel {
             PersistenceId::Glider => PersistenceItem::from_i32(id, self.config.glider_idx),
             PersistenceId::VarioModeControl => {
                 PersistenceItem::from_u8(id, self.control.vario_mode_control as u8)
+            }
+            PersistenceId::DisplayMode => {
+                let mode = if self.config.theme == &DARK_MODE {
+                    0
+                } else {
+                    1
+                };
+                PersistenceItem::from_i32(id, mode)
             }
             _ => PersistenceItem::do_not_store(),
         };

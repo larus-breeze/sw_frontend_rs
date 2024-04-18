@@ -28,6 +28,7 @@ pub enum PersistenceId {
     PilotWeight = 3,
     Glider = 4,
     VarioModeControl = 5,
+    DisplayMode = 6, // Dark = 0, Bright = 1
 }
 
 // This queue transports the configuration PersItems from controller to the idle loop.

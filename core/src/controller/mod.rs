@@ -8,13 +8,7 @@ mod sw_update;
 use sw_update::SwUpdateController;
 
 use crate::{
-    basic_config::CONTROLLER_TICK_RATE,
-    can_frame_heartbeat, can_frame_sound, can_frame_volt_temp,
-    flight_physics::Polar,
-    model::{DisplayActive, EditMode, GpsState, SystemState, TcrMode, VarioModeControl},
-    system_of_units::{FloatToSpeed, Speed},
-    utils::{read_can_frame, KeyEvent, Pt1},
-    CoreModel, DeviceEvent, FlyMode, Frame, IdleEvent, PersistenceId, VarioMode, POLARS,
+    basic_config::CONTROLLER_TICK_RATE, can_frame_heartbeat, can_frame_sound, can_frame_volt_temp, flight_physics::Polar, model::{DisplayActive, EditMode, GpsState, SystemState, TcrMode, VarioModeControl}, system_of_units::{FloatToSpeed, Speed}, themes::{BRIGHT_MODE, DARK_MODE}, utils::{read_can_frame, KeyEvent, Pt1}, CoreModel, DeviceEvent, FlyMode, Frame, IdleEvent, PersistenceId, VarioMode, POLARS
 };
 
 #[allow(unused_imports)]
@@ -101,15 +95,27 @@ impl CoreController {
     }
 
     pub fn key_action(&mut self, core_model: &mut CoreModel, key_event: &KeyEvent) {
-        if *key_event == KeyEvent::Btn1EscS3 {
-            if core_model.control.demo_acitve {
-                core_model.control.demo_acitve = false;
-                return;
-            } else {
-                core_model.control.demo_acitve = true;
-                return;
+        match key_event {
+            KeyEvent::Btn1EscS3 => {
+                if core_model.control.demo_acitve {
+                    core_model.control.demo_acitve = false;
+                    return;
+                } else {
+                    core_model.control.demo_acitve = true;
+                    return;
+                }
             }
+            KeyEvent::Btn2S3 => {
+                if core_model.config.theme == &DARK_MODE {
+                    core_model.config.theme = &BRIGHT_MODE;
+                } else {
+                    core_model.config.theme = &DARK_MODE;
+                };
+                core_model.push_persistence_id(PersistenceId::DisplayMode);
+            }
+            _ => (),
         }
+
         let result = if core_model.control.demo_acitve {
             self.demo.key_action(core_model, key_event)
         } else {
