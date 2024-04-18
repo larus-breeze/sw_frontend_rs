@@ -1,9 +1,5 @@
 use crate::view::dialog_box::DialogBox;
-use crate::{
-    model::CoreModel,
-    utils::{Colors, Concat},
-    CoreError, DeviceEvent, DrawImage,
-};
+use crate::{model::CoreModel, tformat, utils::Colors, CoreError, DeviceEvent, DrawImage};
 use embedded_graphics::draw_target::DrawTarget;
 
 pub fn draw<D>(display: &mut D, cm: &CoreModel) -> Result<(), CoreError>
@@ -18,20 +14,15 @@ where
         Colors::LightSkyBlue,
     );
 
-    let text = Concat::<100>::new();
     let text = match cm.control.firmware_update_state {
-        DeviceEvent::FwAvailable(version) => {
-            let v_str = version.as_string();
-            text.push_str(v_str.as_str())
-                .push_str("\nAccept with key 1\nother keys reject")
-        }
-        DeviceEvent::PrepareFwUpload => text.push_str("Preparing..."),
+        DeviceEvent::FwAvailable(_version) => tformat!(100, "Not used"),
+        DeviceEvent::PrepareFwUpload => tformat!(100, "Preparing..."),
         DeviceEvent::UploadInProgress => {
             dialog_box.set_text_color(Colors::Coral);
-            text.push_str("Installing...\nDo NOT power\noff device")
+            tformat!(100, "Installing...\nDo NOT power\noff device")
         }
-        _ => text,
+        _ => tformat!(100, "Error!"),
     };
-    dialog_box.draw(display, text.as_str())?;
+    dialog_box.draw(display, text.unwrap().as_str())?;
     Ok(())
 }

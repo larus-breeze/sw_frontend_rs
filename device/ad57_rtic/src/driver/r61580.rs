@@ -52,8 +52,10 @@ pub enum Instruction {
     VEA = 0x53, // y-end
 }
 
-pub fn is_r61580<PinE>(di: &mut impl WriteOnlyDataCommand, rst: &mut impl OutputPin<Error = PinE>) -> bool 
-{
+pub fn is_r61580<PinE>(
+    di: &mut impl WriteOnlyDataCommand,
+    rst: &mut impl OutputPin<Error = PinE>,
+) -> bool {
     // Performs a hard reset using the RST pin sequence
     let _ = rst.set_high();
     delay_ms(1); // ensure the pin change will get registered
@@ -62,19 +64,17 @@ pub fn is_r61580<PinE>(di: &mut impl WriteOnlyDataCommand, rst: &mut impl Output
     let _ = rst.set_high();
     delay_ms(2); // ensure the pin change will get registered
 
-
     let _ = di.send_commands(U8Iter(&mut once(0)));
     // Safety: Reading u16 is atomic, so unsafe is ok
     let id = unsafe { core::ptr::read_volatile(0x6002_0000 as *const u16) };
     id == 0x1580
 }
 
-
 ///
 /// R61580 driver to connect to LCD displays.
 ///
 pub struct R61580<DI> {
-    di: DI
+    di: DI,
 }
 
 ///
@@ -95,7 +95,7 @@ impl Default for Orientation {
 }
 
 #[allow(unused)]
-impl <DI>R61580<DI> 
+impl<DI> R61580<DI>
 where
     DI: WriteOnlyDataCommand,
 {
@@ -184,10 +184,7 @@ where
     /// Sets display orientation
     ///
     #[allow(unused)]
-    pub fn set_orientation(
-        &mut self,
-        orientation: Orientation,
-    ) -> Result<(), DevError>
+    pub fn set_orientation(&mut self, orientation: Orientation) -> Result<(), DevError>
     where
         DI: WriteOnlyDataCommand,
     {
@@ -238,18 +235,18 @@ where
     fn write_command(&mut self, cmd: u8) {
         let _ = self.di.send_commands(U8Iter(&mut once(cmd)));
     }
-    
+
     #[inline]
     fn write_data(&mut self, data: u16) {
         let _ = self.di.send_data(U16BEIter(&mut once(data)));
     }
-    
+
     #[inline]
     fn read_data(&self) -> u16 {
         // Safety: Reading u16 is atomic, so unsafe is ok
         unsafe { core::ptr::read_volatile(0x6002_0000 as *const u16) }
     }
-    
+
     #[inline]
     fn write_command_and_data(&mut self, cmd: u8, data: u16) {
         self.write_command(cmd);
@@ -257,9 +254,9 @@ where
     }
 }
 
-impl <DI>SetRow for R61580<DI> 
+impl<DI> SetRow for R61580<DI>
 where
-    DI: WriteOnlyDataCommand
+    DI: WriteOnlyDataCommand,
 {
     fn set_row(&mut self, pos_x: u16, pos_y: u16, buf: &mut [u16]) {
         self.write_command_and_data(Instruction::PosX as u8, pos_x);

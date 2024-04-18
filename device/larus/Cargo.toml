@@ -31,6 +31,7 @@ embedded-hal = { version = "0.2.6", features = ["unproven"] }
 embedded-storage = "0.3"
 fugit = "0.3"
 heapless = "0.8"
+tfmt = "0.4"
 nb = "1"
 
 # local

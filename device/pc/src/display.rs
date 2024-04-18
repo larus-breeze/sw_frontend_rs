@@ -26,7 +26,12 @@ impl MockDisplay {
 }
 
 impl DrawImage for MockDisplay {
-    fn draw_img(&mut self, img: &[u8], offset: Point, cover_up: Option<Colors8>) -> Result<(), CoreError> {
+    fn draw_img(
+        &mut self,
+        img: &[u8],
+        offset: Point,
+        cover_up: Option<Colors8>,
+    ) -> Result<(), CoreError> {
         // Safety: the img format has been defined in terms of compatibility, so the conversion is ok here
         // At the moment we only know format 1
         let img_vers = img[0];

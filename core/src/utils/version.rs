@@ -1,4 +1,4 @@
-use crate::utils::Concat;
+use crate::tformat;
 use core::cmp::Ordering;
 use heapless::String;
 
@@ -57,16 +57,15 @@ impl SwVersion {
     }
 
     pub fn as_string(&self) -> String<20> {
-        Concat::<20>::default()
-            .push_str("v")
-            .push_u8(self.version[0])
-            .push_str(".")
-            .push_u8(self.version[1])
-            .push_str(".")
-            .push_u8(self.version[2])
-            .push_str("_")
-            .push_u8(self.version[3])
-            .as_string()
+        tformat!(
+            20,
+            "v{}.{}.{}.{}",
+            self.version[0],
+            self.version[1],
+            self.version[2],
+            self.version[3]
+        )
+        .unwrap()
     }
 }
 

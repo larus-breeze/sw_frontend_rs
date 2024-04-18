@@ -13,18 +13,18 @@ use core::iter::{Cloned, Cycle};
 use core::slice::Iter;
 use cortex_m_rt::entry;
 use defmt_rtt as _;
-use stm32f4xx_hal::{
-    pac::{CorePeripherals, Peripherals},
-    prelude::*,
-    fsmc_lcd::{AccessMode, Timing, FsmcLcd, LcdPins, DataPins16},
-};
 use embedded_graphics::{
-    prelude::*,
-    primitives::{Circle, PrimitiveStyle},
     draw_target::DrawTarget,
     pixelcolor::Rgb565,
+    prelude::*,
+    primitives::{Circle, PrimitiveStyle},
 };
 use st7789::ST7789;
+use stm32f4xx_hal::{
+    fsmc_lcd::{AccessMode, DataPins16, FsmcLcd, LcdPins, Timing},
+    pac::{CorePeripherals, Peripherals},
+    prelude::*,
+};
 
 #[entry]
 fn main() -> ! {
@@ -47,7 +47,6 @@ fn main() -> ! {
     let gpiod = dp.GPIOD.split();
     let gpioe = dp.GPIOE.split();
 
-
     // Pins connected to the LCD on the 32F412GDISCOVERY board
     use stm32f4xx_hal::gpio::alt::fsmc as alt;
     let lcd_pins = LcdPins::new(
@@ -65,11 +64,11 @@ fn main() -> ! {
     let backlight_control = gpiob.pb4.into_push_pull_output();
 
     let timing = Timing::default()
-    .data(3)
-    .address_setup(6)
-    .bus_turnaround(0)
-    .address_hold(1)
-    .access_mode(AccessMode::ModeB);
+        .data(3)
+        .address_setup(6)
+        .bus_turnaround(0)
+        .address_hold(1)
+        .access_mode(AccessMode::ModeB);
 
     let (_fsmc, interface) = FsmcLcd::new(dp.FSMC, lcd_pins, &timing, &timing);
 

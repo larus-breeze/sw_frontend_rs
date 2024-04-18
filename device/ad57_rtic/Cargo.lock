@@ -94,6 +94,7 @@ dependencies = [
  "heapless 0.8.0",
  "micromath",
  "num",
+ "tfmt",
  "u8g2-fonts",
 ]
 
@@ -744,6 +745,27 @@ dependencies = [
 ]
 
 [[package]]
+name = "tfmt"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e920d0d6acf280ffd506ad894ada0b68facec4bebeb4c90c705caf2b8db044ab"
+dependencies = [
+ "heapless 0.8.0",
+ "tfmt-macros",
+]
+
+[[package]]
+name = "tfmt-macros"
+version = "0.4.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "2666e458fa4943989904d3ea1e6c11b9a7e45a316b8a4dc9495da45548a99cee"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 1.0.109",
+]
+
+[[package]]
 name = "thiserror"
 version = "1.0.44"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -821,6 +843,7 @@ dependencies = [
  "static_cell",
  "stm32f4xx-hal",
  "systick-monotonic",
+ "tfmt",
 ]
 
 [[package]]

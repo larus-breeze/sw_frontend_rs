@@ -125,3 +125,15 @@ macro_rules! assert_float_eq {
         assert!(($a - $b).abs() < $a.abs() * 0.001, "{} =! {}", $a, $b)
     };
 }
+
+#[macro_export]
+macro_rules! tformat {
+    ($cap:expr, $($tt:tt)*) => {{
+        let mut s = heapless::String::<$cap>::new();
+        #[allow(unreachable_code)]
+        match tfmt::uwrite!(&mut s, $($tt)*) {
+            Ok(_) => Ok(s),
+            Err(_) => Err(crate::CoreError::ConversionError),
+        }
+    }};
+}

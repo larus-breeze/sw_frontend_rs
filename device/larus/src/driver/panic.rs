@@ -1,7 +1,7 @@
 use super::file_sys::get_filesys;
 use crate::SW_VERSION;
-use core::{mem::MaybeUninit, panic::PanicInfo};
-use corelib::{Concat, CoreError, DateTime};
+use core::{mem::MaybeUninit, panic::PanicInfo, ptr::addr_of};
+use corelib::{tformat, CoreError, DateTime};
 use defmt::trace;
 use defmt_rtt as _;
 use embedded_sdmmc::{Mode, VolumeIdx};
@@ -27,15 +27,13 @@ impl ResetWatch {
         // structure or are initialising it.
         unsafe {
             let reset_watch = core::mem::transmute::<
-                &'static mut MaybeUninit<ResetWatch>,
+                *const MaybeUninit<ResetWatch>,
                 &'static mut ResetWatch,
-            >(&mut RESET_WATCH);
+            >(addr_of!(RESET_WATCH));
 
             if (reset_watch.signature == SIGNATURE) && (reset_watch.signature2 == SIGNATURE2) {
-                let mut s = Concat::<50>::new();
-                s = s
-                    .push_str("Reset - Firmware ")
-                    .push_str(SW_VERSION.as_string().as_str());
+                let s =
+                    tformat!(50, "Reset - Firmware {}", SW_VERSION.as_string().as_str()).unwrap();
                 let _ = write_panic_msg(s.as_bytes());
             } else {
                 trace!("Initializing panic buffer...");
@@ -51,9 +49,9 @@ impl ResetWatch {
         // structure or are initialising it.
         unsafe {
             let reset_watch = core::mem::transmute::<
-                &'static mut MaybeUninit<ResetWatch>,
+                *const MaybeUninit<ResetWatch>,
                 &'static mut ResetWatch,
-            >(&mut RESET_WATCH);
+            >(addr_of!(RESET_WATCH));
 
             if (reset_watch.signature == SIGNATURE) && (reset_watch.signature2 == SIGNATURE2) {
                 Some(reset_watch)
@@ -98,17 +96,18 @@ fn write_panic_msg(msg: &[u8]) -> Result<(), CoreError> {
 fn panic(info: &PanicInfo) -> ! {
     cortex_m::interrupt::disable(); // Please not interrupts any more, we will reset device anyway
 
-    let msg = Concat::<200>::new();
     let msg = if let Some(location) = info.location() {
-        msg.push_str("Panic in '")
-            .push_str(location.file())
-            .push_str("' line ")
-            .push_u32(location.line())
+        tformat!(
+            200,
+            "Panic in '{}' line {}",
+            location.file(),
+            location.line()
+        )
     } else {
-        msg.push_str("Panic without location info")
+        tformat!(200, "Panic without location info")
     };
 
-    let _ = write_panic_msg(msg.as_bytes());
+    let _ = write_panic_msg(msg.unwrap().as_bytes());
 
     loop {}
 }

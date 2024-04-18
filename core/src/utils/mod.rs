@@ -4,7 +4,6 @@ mod can_rdr;
 mod can_wtr;
 mod colors16;
 mod colors8;
-mod concat;
 mod crc;
 mod date_time;
 mod error;
@@ -25,7 +24,6 @@ pub use colors16::Colors;
 #[cfg(feature = "air_avionics_ad57")]
 pub use colors8::Colors;
 pub use colors8::Colors as Colors8;
-pub use concat::Concat;
 pub use crc::*;
 pub use date_time::*;
 pub use error::CoreError;
