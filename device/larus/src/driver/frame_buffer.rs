@@ -7,7 +7,7 @@
 use core::{mem::transmute, ptr::addr_of};
 use corelib::{
     basic_config::{DISPLAY_HEIGHT, DISPLAY_WIDTH},
-    Colors, Colors8, CoreError, DrawImage, RGB565_COLORS,
+    Colors, CoreError, DrawImage, RGB565_COLORS,
 };
 use embedded_graphics::{draw_target::DrawTarget, prelude::*, primitives::Rectangle};
 use stm32h7xx_hal::{

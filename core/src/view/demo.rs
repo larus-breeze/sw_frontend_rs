@@ -1,6 +1,6 @@
 use crate::{
     model::CoreModel,
-    utils::{Colors, FONT_HELV_14},
+    utils::{Colors, FONT_SMALL},
     CoreError, DrawImage,
 };
 use embedded_graphics::prelude::*;
@@ -10,7 +10,7 @@ pub fn draw<D>(display: &mut D, _cm: &CoreModel) -> Result<(), CoreError>
 where
     D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
 {
-    let _ = FONT_HELV_14.render_aligned(
+    let _ = FONT_SMALL.render_aligned(
         "Demo",
         Point::new(3, 3),
         VerticalPosition::Top,

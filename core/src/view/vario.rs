@@ -12,7 +12,7 @@ use crate::{
     tformat,
     utils::themes::Palette,
     utils::Colors,
-    utils::FONT_HELV_18,
+    utils::FONT_BIG,
     CoreError, DrawImage,
 };
 
@@ -35,12 +35,12 @@ where
 {
     // draw wallpaper
     display.clear(cm.color(Palette::Background))?;
-    display.draw_img(WALLPAPER_IMG, Point::new(0, 0), None)?;
-    display.draw_img(M_S_IMG, SZS.unit_pos, None)?;
+    display.draw_img(WALLPAPER_IMG, Point::new(0, 0), Some(cm.color(Palette::Scale)))?;
+    display.draw_img(M_S_IMG, SZS.unit_pos, Some(cm.color(Palette::Scale)))?;
 
     for (pos_x, pos_y, txt) in WALLPAPER_SCALE {
         let pos = Point::new(pos_x, pos_y);
-        FONT_HELV_18.render(
+        FONT_BIG.render(
             txt,
             pos,
             VerticalPosition::Baseline,
@@ -50,11 +50,11 @@ where
     }
 
     if cm.device.supply_voltage > cm.device.voltage_limit_good {
-        display.draw_img(BAT_FULL_IMG, SZS.bat_pos, None)?;
+        display.draw_img(BAT_FULL_IMG, SZS.bat_pos, Some(cm.color(Palette::SignalGo)))?;
     } else if cm.device.supply_voltage < cm.device.voltage_limit_bad {
-        display.draw_img(BAT_EMPTY_IMG, SZS.bat_pos, None)?;
+        display.draw_img(BAT_EMPTY_IMG, SZS.bat_pos, Some(cm.color(Palette::SignalWarning)))?;
     } else {
-        display.draw_img(BAT_HALF_IMG, SZS.bat_pos, None)?;
+        display.draw_img(BAT_HALF_IMG, SZS.bat_pos, Some(cm.color(Palette::SignalStop)))?;
     }
 
     let color = match cm.control.system_state {
@@ -103,7 +103,7 @@ where
     let (mut angle, mut av_angle, fill_color, stroke_color) = match cm.control.fly_mode {
         FlyMode::Circling => {
             // draw noth symbol
-            display.draw_img(NORTH_IMG, Point::new(0, 0), None)?;
+            display.draw_img(NORTH_IMG, Point::new(0, 0), Some(cm.color(Palette::Scale)))?;
             // return absolut wind vector
             (
                 cm.sensor.wind_vector.angle(),
@@ -114,7 +114,7 @@ where
         }
         FlyMode::StraightFlight => {
             // draw glider symbol
-            display.draw_img(GLIDER_IMG, Point::new(0, 0), None)?;
+            display.draw_img(GLIDER_IMG, Point::new(0, 0), Some(cm.color(Palette::Scale)))?;
             (
                 // return relativ wind vector
                 cm.sensor.wind_vector.angle() - cm.sensor.gps_track,
@@ -156,7 +156,7 @@ where
 
     if cm.control.alive_ticks < 4 {
         let s = cm.config.sw_version.as_string();
-        FONT_HELV_18.render_aligned(
+        FONT_BIG.render_aligned(
             s.as_str(),
             SZS.version_pos,
             VerticalPosition::Top,
@@ -166,11 +166,11 @@ where
         )?;
     } else {
         // draw wind direction an speed text
-        display.draw_img(KM_H_IMG, SZS.wind_pos, None)?;
+        display.draw_img(KM_H_IMG, SZS.wind_pos, Some(cm.color(Palette::Scale)))?;
         let wind_deg = txt_angle.to_degrees();
         let wind_speed = cm.sensor.wind_vector.speed().to_km_h();
         let s = tformat!(25, "{:.0}° {:.0}", wind_deg, wind_speed).unwrap();
-        FONT_HELV_18.render_aligned(
+        FONT_BIG.render_aligned(
             s.as_str(),
             SZS.wind_pos,
             VerticalPosition::Top,
@@ -183,11 +183,11 @@ where
     // dependend on vario_mode draw speed_to_fly or average_climb_rate
     match cm.control.vario_mode {
         VarioMode::Vario => {
-            display.draw_img(SPIRAL_IMG, SZS.pic_left_under_pos, None)?;
-            display.draw_img(M_S_IMG, SZS.left_under_pos, None)?;
+            display.draw_img(SPIRAL_IMG, SZS.pic_left_under_pos, Some(cm.color(Palette::Scale)))?;
+            display.draw_img(M_S_IMG, SZS.left_under_pos, Some(cm.color(Palette::Scale)))?;
             let acr = num::clamp(cm.calculated.thermal_climb_rate.to_m_s(), -9.9, 99.9);
             let txt = tformat!(10, "{:.1}", acr).unwrap();
-            FONT_HELV_18.render_aligned(
+            FONT_BIG.render_aligned(
                 txt.as_str(),
                 SZS.left_under_pos,
                 VerticalPosition::Top,
@@ -197,8 +197,8 @@ where
             )?;
         }
         VarioMode::SpeedToFly => {
-            display.draw_img(STRAIGHT_IMG, SZS.pic_left_under_pos, None)?;
-            display.draw_img(KM_H_IMG, SZS.left_under_pos, None)?;
+            display.draw_img(STRAIGHT_IMG, SZS.pic_left_under_pos, Some(cm.color(Palette::Scale)))?;
+            display.draw_img(KM_H_IMG, SZS.left_under_pos, Some(cm.color(Palette::Scale)))?;
             let stf = num::clamp(-cm.calculated.speed_to_fly_dif.to_km_h() / 10.0, -5.0, 5.0);
             let angle_sweep = (VARIO_SIZES.angle_m_s * stf).deg();
             let col = cm.color(Palette::Needle5);
@@ -207,7 +207,7 @@ where
                 .draw(display)?;
             let stf = num::clamp(cm.calculated.speed_to_fly_1s.to_km_h(), 0.0, 999.0);
             let txt = tformat!(10, "{:.0}", stf).unwrap();
-            FONT_HELV_18.render_aligned(
+            FONT_BIG.render_aligned(
                 txt.as_str(),
                 SZS.left_under_pos,
                 VerticalPosition::Top,

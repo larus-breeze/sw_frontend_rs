@@ -1,6 +1,6 @@
 use crate::{
     basic_config::DISPLAY_WIDTH,
-    utils::{Colors, FONT_HELV_18},
+    utils::{Colors, FONT_BIG},
     CoreError, DrawImage,
 };
 use embedded_graphics::{
@@ -44,7 +44,7 @@ impl<'a> DialogBox<'a> {
     {
         display.clear(self.background_color)?;
 
-        FONT_HELV_18.render_aligned(
+        FONT_BIG.render_aligned(
             self.header,
             Point::new(DISPLAY_WIDTH as i32 / 2, 20),
             VerticalPosition::Top,
@@ -59,7 +59,7 @@ impl<'a> DialogBox<'a> {
 
         let mut y_pos = 80;
         for line in text.lines() {
-            FONT_HELV_18.render_aligned(
+            FONT_BIG.render_aligned(
                 line,
                 Point::new(DISPLAY_WIDTH as i32 / 2, y_pos),
                 VerticalPosition::Top,

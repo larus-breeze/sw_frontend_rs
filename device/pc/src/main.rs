@@ -36,10 +36,11 @@ fn main() -> Result<(), core::convert::Infallible> {
     ⇓  Big Encoder left\n\n\
 \
     F8 Button 1 and Esc fro 3 secs (Domo Mode)\n\
-    F9 Button 1 for 3 secs (Glider)\n
-
-    S Key to save image as png file
-    U Key to simulate Firmware Update
+    F9 Button 1 for 3 secs (Glider)\n\
+    F10 Button 2 for 3 secs (Dark/Bright Mode)\n\n\
+\
+    S Key to save image as png file\n\
+    U Key to simulate Firmware Update\n\
 "
     );
 
@@ -103,6 +104,7 @@ fn main() -> Result<(), core::convert::Infallible> {
                         Keycode::F5 => KeyEvent::BtnEnc,
                         Keycode::F8 => KeyEvent::Btn1EscS3,
                         Keycode::F9 => KeyEvent::Btn1S3,
+                        Keycode::F10 => KeyEvent::Btn2S3,
 
                         Keycode::S => {
                             img_no += 1;
