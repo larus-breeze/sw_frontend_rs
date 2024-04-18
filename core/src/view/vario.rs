@@ -10,6 +10,7 @@ use crate::{
     model::{CoreModel, FlyMode, VarioMode},
     system_of_units::FloatToSpeed,
     tformat,
+    utils::themes::Palette,
     utils::Colors,
     utils::FONT_HELV_18,
     CoreError, DrawImage,
@@ -23,50 +24,6 @@ use embedded_graphics::{
 use u8g2_fonts::types::{FontColor, HorizontalAlignment, VerticalPosition};
 use VARIO_SIZES as SZS;
 
-#[allow(dead_code)]
-struct VarioColors {
-    average_climb_rate: Colors,
-    background: Colors,
-    mc_cready: Colors,
-    needle: Colors,
-    scale: Colors,
-    speed_to_fly: Colors,
-    thermal_climb_rate: Colors,
-    wind_fill: Colors,
-    wind_stroke: Colors,
-    wind_fill_abs: Colors,
-    wind_stroke_abs: Colors,
-}
-
-const VARIO_COLORS: VarioColors = VarioColors {
-    average_climb_rate: Colors::LimeGreen,
-    background: Colors::Black,
-    mc_cready: Colors::Red,
-    needle: Colors::White,
-
-    #[cfg(feature = "air_avionics_ad57")]
-    scale: Colors::DarkGray,
-    #[cfg(feature = "larus_ad57")]
-    scale: Colors::White,
-
-    speed_to_fly: Colors::Coral,
-    thermal_climb_rate: Colors::Yellow,
-    wind_fill: Colors::Blue,
-    wind_stroke: Colors::LightSkyBlue,
-    wind_fill_abs: Colors::Magenta,
-    wind_stroke_abs: Colors::White,
-};
-
-use VARIO_COLORS as COLS;
-
-mod sysem_state_colors {
-    use crate::Colors8;
-
-    pub const NO_COM: Colors8 = Colors8::Red;
-    pub const CAN_OK: Colors8 = Colors8::Yellow;
-    pub const CAN_AND_GPS_OK: Colors8 = Colors8::LimeGreen;
-}
-
 // Limits of the wind arrow
 const WIND_MIN: f32 = 10.0; // 10 km/h
 const WIND_MAX: f32 = 30.0; // 30 km/h
@@ -77,7 +34,7 @@ where
     D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
 {
     // draw wallpaper
-    display.clear(COLS.background)?;
+    display.clear(cm.color(Palette::Background))?;
     display.draw_img(WALLPAPER_IMG, Point::new(0, 0), None)?;
     display.draw_img(M_S_IMG, SZS.unit_pos, None)?;
 
@@ -87,7 +44,7 @@ where
             txt,
             pos,
             VerticalPosition::Baseline,
-            FontColor::Transparent(COLS.scale),
+            FontColor::Transparent(cm.color(Palette::Scale)),
             display,
         )?;
     }
@@ -101,9 +58,9 @@ where
     }
 
     let color = match cm.control.system_state {
-        SystemState::NoCom => sysem_state_colors::NO_COM,
-        SystemState::CanOk => sysem_state_colors::CAN_OK,
-        SystemState::CanAndGpsOk => sysem_state_colors::CAN_AND_GPS_OK,
+        SystemState::NoCom => cm.color(Palette::SignalStop),
+        SystemState::CanOk => cm.color(Palette::SignalWarning),
+        SystemState::CanAndGpsOk => cm.color(Palette::SignalGo),
     };
     display.draw_img(SAT_IMG, SZS.sat_pos, Some(color))?;
 
@@ -115,7 +72,7 @@ where
         RADIUS as i32,
         SZS.mc_len as i32,
         SZS.mc_width,
-        COLS.mc_cready,
+        cm.color(Palette::Needle2),
     )?;
 
     // draw average climb rate marker
@@ -126,7 +83,7 @@ where
         (RADIUS - SZS.indicator_len) as i32,
         SZS.tcr_len as i32,
         SZS.tcr_width,
-        COLS.average_climb_rate,
+        cm.color(Palette::Needle3),
     )?;
 
     // draw climb rate indicator
@@ -138,7 +95,7 @@ where
         SZS.indicator_width as i32,
         (RADIUS - SZS.indicator_len) as i32,
         RADIUS as i32,
-        COLS.needle,
+        cm.color(Palette::Needle1),
     )?;
 
     // draw wind arrow
@@ -151,8 +108,8 @@ where
             (
                 cm.sensor.wind_vector.angle(),
                 cm.sensor.average_wind.angle(),
-                COLS.wind_fill_abs,
-                COLS.wind_stroke_abs,
+                cm.color(Palette::Sprite2Fill),
+                cm.color(Palette::Sprite2Stroke),
             )
         }
         FlyMode::StraightFlight => {
@@ -162,8 +119,8 @@ where
                 // return relativ wind vector
                 cm.sensor.wind_vector.angle() - cm.sensor.gps_track,
                 cm.sensor.average_wind.angle() - cm.sensor.gps_track,
-                COLS.wind_fill,
-                COLS.wind_stroke,
+                cm.color(Palette::Sprite1Fill),
+                cm.color(Palette::Sprite1Stroke),
             )
         }
     };
@@ -204,7 +161,7 @@ where
             SZS.version_pos,
             VerticalPosition::Top,
             HorizontalAlignment::Right,
-            FontColor::Transparent(COLS.needle),
+            FontColor::Transparent(cm.color(Palette::Scale)),
             display,
         )?;
     } else {
@@ -218,7 +175,7 @@ where
             SZS.wind_pos,
             VerticalPosition::Top,
             HorizontalAlignment::Right,
-            FontColor::Transparent(COLS.needle),
+            FontColor::Transparent(cm.color(Palette::Scale)),
             display,
         )?;
     }
@@ -235,7 +192,7 @@ where
                 SZS.left_under_pos,
                 VerticalPosition::Top,
                 HorizontalAlignment::Right,
-                FontColor::Transparent(COLS.thermal_climb_rate),
+                FontColor::Transparent(cm.color(Palette::Needle4)),
                 display,
             )?;
         }
@@ -244,8 +201,9 @@ where
             display.draw_img(KM_H_IMG, SZS.left_under_pos, None)?;
             let stf = num::clamp(-cm.calculated.speed_to_fly_dif.to_km_h() / 10.0, -5.0, 5.0);
             let angle_sweep = (VARIO_SIZES.angle_m_s * stf).deg();
+            let col = cm.color(Palette::Needle5);
             Arc::with_center(CENTER, SZS.diameter_stf, 180.0.deg(), angle_sweep)
-                .into_styled(PrimitiveStyle::with_stroke(COLS.speed_to_fly, 6))
+                .into_styled(PrimitiveStyle::with_stroke(col, 6))
                 .draw(display)?;
             let stf = num::clamp(cm.calculated.speed_to_fly_1s.to_km_h(), 0.0, 999.0);
             let txt = tformat!(10, "{:.0}", stf).unwrap();
@@ -254,7 +212,7 @@ where
                 SZS.left_under_pos,
                 VerticalPosition::Top,
                 HorizontalAlignment::Right,
-                FontColor::Transparent(COLS.speed_to_fly),
+                FontColor::Transparent(col),
                 display,
             )?;
         }

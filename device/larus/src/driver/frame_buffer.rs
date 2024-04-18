@@ -204,7 +204,7 @@ impl DrawImage for Display {
         &mut self,
         img: &[u8],
         offset: Point,
-        cover_up: Option<Colors8>,
+        cover_up: Option<Colors>,
     ) -> Result<(), CoreError> {
         // At the moment we only know format 1
         assert!((img[0] == 1) || (img[0] == 2));
@@ -222,12 +222,11 @@ impl DrawImage for Display {
             let mut idx = 4;
             let ofs = offset.x as usize + offset.y as usize * DISPLAY_WIDTH as usize;
             for _ in 0..color_cnt {
-                let color_idx = if let Some(color_idx) = cover_up {
-                    color_idx as usize
+                let color = if let Some(color) = cover_up {
+                    color as u16
                 } else {
-                    img16[idx] as usize
+                    RGB565_COLORS[img16[idx] as usize]
                 };
-                let color = RGB565_COLORS[color_idx];
                 let px_cnt = img16[idx + 1] as usize;
                 idx += 2;
                 for b_idx in img16.iter().skip(idx).take(px_cnt) {
@@ -249,12 +248,11 @@ impl DrawImage for Display {
             let mut idx = 4;
             let ofs = offset.x as usize + offset.y as usize * DISPLAY_WIDTH as usize;
             for _ in 0..color_cnt {
-                let color_idx = if let Some(color_idx) = cover_up {
-                    color_idx as usize
+                let color = if let Some(color) = cover_up {
+                    color as u16
                 } else {
-                    img32[idx] as usize
+                    RGB565_COLORS[img32[idx] as usize]
                 };
-                let color = RGB565_COLORS[color_idx];
                 let px_cnt = img32[idx + 1] as usize;
                 idx += 2;
                 for b_idx in img32.iter().skip(idx).take(px_cnt) {

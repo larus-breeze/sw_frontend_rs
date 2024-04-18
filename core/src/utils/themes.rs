@@ -1,0 +1,37 @@
+use crate::utils::Colors;
+
+pub type PaletteColors = [Colors; 14];
+
+pub enum Palette {
+    Background,
+    Scale,
+    Needle1,
+    Needle2,
+    Needle3,
+    Needle4,
+    Needle5,
+    Sprite1Stroke,
+    Sprite1Fill,
+    Sprite2Stroke,
+    Sprite2Fill,
+    SignalStop,
+    SignalWarning,
+    SignalGo,
+}
+
+pub const DARK_MODE: PaletteColors = [
+    Colors::Black,        // BackGround
+    Colors::DarkGray,     // Scale,
+    Colors::White,        // Needle1,
+    Colors::Red,          // Needle2,
+    Colors::LimeGreen,    // Needle3,
+    Colors::Yellow,       // Needle4,
+    Colors::Coral,        // Needle5,
+    Colors::LightSkyBlue, // Sprite1Stroke,
+    Colors::Blue,         // Sprite1Fill,
+    Colors::White,        // Sprite2Stroke,
+    Colors::Magenta,      // Sprite2Fill,
+    Colors::Red,          // SignalStop,
+    Colors::Yellow,       // SignalWarning,
+    Colors::LimeGreen,    // SignalGo,
+];
