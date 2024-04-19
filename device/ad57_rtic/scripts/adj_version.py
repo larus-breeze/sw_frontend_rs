@@ -6,9 +6,10 @@ import os
 import sys
 
 version_string = subprocess.check_output("git describe --always --dirty --tags", shell=True).decode('utf-8')
-if "dirty" in version_string:
-    print("Project is not in a consistent state, please comit first!")
-    sys.exit(1)
+if not (len(sys.argv) > 1 and sys.argv[1]=='-i'): 
+    if "dirty" in version_string:
+        print("Project is not in a consistent state, please comit first or use -i option!")
+        sys.exit(1)
 
 first = 0xff
 second = 0xff

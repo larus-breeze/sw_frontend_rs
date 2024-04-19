@@ -1,6 +1,13 @@
 Changelog
 =
 
+v.0.1.4 Optimisation of readability
+- Introduction of bright mode
+- Bold and bigger fonds
+- Bat symbol for voltage representation
+- Sat symbol for can bus and gps reception
+- ST7789 driver for the new air avionics hw (not testet)
+
 v0.1.3 Optimized usability - improved crash reports
 - Write watchdog and panic events to sdcard inluding time and date
 - Add Ventus 2 15m polar
