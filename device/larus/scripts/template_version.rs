@@ -15,6 +15,6 @@ pub const GIT_COMMIT_TIME: &str = "@git_time@";
 #[allow(unused)]
 pub const GIT_TAG_INFO: &str = "@git_tag@";
 
-pub const HW_VERSION: HwVersion = HwVersion { 
+pub const HW_VERSION: HwVersion = HwVersion {
     version: [1, 3, 1, 0],
 };
