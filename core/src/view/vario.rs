@@ -154,7 +154,7 @@ where
         stroke_color,
     )?;
 
-    if cm.control.alive_ticks < 4 {
+    if cm.control.alive_ticks < 5 {
         let s = cm.config.sw_version.as_string();
         FONT_BIG.render_aligned(
             s.as_str(),

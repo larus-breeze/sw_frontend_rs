@@ -69,8 +69,8 @@ pub const BRIGHT_MODE: PaletteColors = [
     Colors::Black,        // Sprite2Stroke,
     Colors::Magenta,      // Sprite2Fill,
     Colors::Red,          // SignalStop,
-    Colors::DarkRed,      // SignalWarning,
-    Colors::Green,        // SignalGo,
+    Colors::Gold,         // SignalWarning,
+    Colors::LimeGreen,    // SignalGo,
 ];
 
 #[cfg(feature = "air_avionics_ad57")]
@@ -87,7 +87,7 @@ pub const BRIGHT_MODE: PaletteColors = [
     Colors::Black,        // Sprite2Stroke,
     Colors::Magenta,      // Sprite2Fill,
     Colors::Red,          // SignalStop,
-    Colors::DarkRed,      // SignalWarning,
-    Colors::Green,        // SignalGo,
+    Colors::Gold,         // SignalWarning,
+    Colors::LimeGreen,    // SignalGo,
 ];
 
