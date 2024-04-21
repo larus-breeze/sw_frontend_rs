@@ -2,7 +2,10 @@ use heapless::Vec;
 
 use super::{VarioModeControl, MAX_PERS_IDS};
 use crate::{
-    basic_config::{CONTROLLER_TICK_RATE, PERSISTENCE_TIMEOUT}, system_of_units::Speed, themes::{BRIGHT_MODE, DARK_MODE}, CoreModel, IdleEvent, Mass, PersistenceId, PersistenceItem
+    basic_config::{CONTROLLER_TICK_RATE, PERSISTENCE_TIMEOUT},
+    system_of_units::Speed,
+    themes::{BRIGHT_MODE, DARK_MODE},
+    CoreModel, IdleEvent, Mass, PersistenceId, PersistenceItem,
 };
 
 impl CoreModel {

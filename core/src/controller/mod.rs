@@ -8,7 +8,13 @@ mod sw_update;
 use sw_update::SwUpdateController;
 
 use crate::{
-    basic_config::CONTROLLER_TICK_RATE, can_frame_heartbeat, can_frame_sound, can_frame_volt_temp, flight_physics::Polar, model::{DisplayActive, EditMode, GpsState, SystemState, TcrMode, VarioModeControl}, system_of_units::{FloatToSpeed, Speed}, themes::{BRIGHT_MODE, DARK_MODE}, utils::{read_can_frame, KeyEvent, Pt1}, CoreModel, DeviceEvent, FlyMode, Frame, IdleEvent, PersistenceId, VarioMode, POLARS
+    basic_config::CONTROLLER_TICK_RATE,
+    flight_physics::Polar,
+    model::{DisplayActive, EditMode, GpsState, SystemState, TcrMode, VarioModeControl},
+    system_of_units::{FloatToSpeed, Speed},
+    themes::{BRIGHT_MODE, DARK_MODE},
+    utils::{KeyEvent, Pt1},
+    CoreModel, DeviceEvent, FlyMode, Frame, IdleEvent, PersistenceId, VarioMode, POLARS,
 };
 
 #[allow(unused_imports)]
@@ -211,12 +217,7 @@ impl CoreController {
         }
 
         // create CAN frame
-        let can_frame = can_frame_sound(
-            frequency,
-            gain as u8,
-            core_model.config.snd_duty_cycle,
-            continuous,
-        );
+        let can_frame = core_model.can_frame_sound();
         // add CAN frame to queue, ignore if the queue is full
         let _ = core_model.p_tx_frames.enqueue(can_frame);
 
@@ -304,7 +305,7 @@ impl CoreController {
             }
             3 => {
                 // create CAN frame and add to queue
-                let can_frame = can_frame_heartbeat(core_model.config.uuid);
+                let can_frame = core_model.can_frame_heartbeat();
                 let _ = core_model.p_tx_frames.enqueue(can_frame);
                 core_model.control.system_state = if core_model.control.can_devices != 0 {
                     match core_model.sensor.gps_state {
@@ -323,10 +324,7 @@ impl CoreController {
                 core_model.control.alive_ticks += 1;
             }
             5 => {
-                let can_frame = can_frame_volt_temp(
-                    core_model.device.supply_voltage,
-                    core_model.device.temperature_pcb,
-                );
+                let can_frame = core_model.can_frame_volt_temp();
                 let _ = core_model.p_tx_frames.enqueue(can_frame);
             }
             _ => (),
@@ -335,7 +333,7 @@ impl CoreController {
 
     /// Interprets a Can Frame and stores the results in the CoreModel
     pub fn read_can_frame(&self, core_model: &mut CoreModel, frame: &Frame) {
-        read_can_frame(core_model, frame)
+        core_model.can_frame_read(frame)
     }
 
     /// Executes instructions based on the user's input

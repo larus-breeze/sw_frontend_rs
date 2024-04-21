@@ -3,7 +3,7 @@ use crate::{
     controller::Editable,
     model::{CoreModel, VarioModeControl},
     tformat,
-    utils::{Colors, FONT_SMALL, FONT_BIG},
+    utils::{Colors, FONT_BIG, FONT_SMALL},
     view::SCREEN_CENTER,
     CoreError, DrawImage, POLARS,
 };

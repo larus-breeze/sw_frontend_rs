@@ -57,37 +57,36 @@ pub const DARK_MODE: PaletteColors = [
 
 #[cfg(feature = "larus_ad57")]
 pub const BRIGHT_MODE: PaletteColors = [
-    Colors::White,        // BackGround
-    Colors::Black,        // Scale,
-    Colors::Black,        // Needle1,
-    Colors::Red,          // Needle2,
-    Colors::Green,        // Needle3,
-    Colors::Green,        // Needle4,
-    Colors::Sienna,       // Needle5,
-    Colors::Black,        // Sprite1Stroke,
-    Colors::Blue,         // Sprite1Fill,
-    Colors::Black,        // Sprite2Stroke,
-    Colors::Magenta,      // Sprite2Fill,
-    Colors::Red,          // SignalStop,
-    Colors::Gold,         // SignalWarning,
-    Colors::LimeGreen,    // SignalGo,
+    Colors::White,     // BackGround
+    Colors::Black,     // Scale,
+    Colors::Black,     // Needle1,
+    Colors::Red,       // Needle2,
+    Colors::Green,     // Needle3,
+    Colors::Green,     // Needle4,
+    Colors::Sienna,    // Needle5,
+    Colors::Black,     // Sprite1Stroke,
+    Colors::Blue,      // Sprite1Fill,
+    Colors::Black,     // Sprite2Stroke,
+    Colors::Magenta,   // Sprite2Fill,
+    Colors::Red,       // SignalStop,
+    Colors::Gold,      // SignalWarning,
+    Colors::LimeGreen, // SignalGo,
 ];
 
 #[cfg(feature = "air_avionics_ad57")]
 pub const BRIGHT_MODE: PaletteColors = [
-    Colors::White,        // BackGround
-    Colors::Black,        // Scale,
-    Colors::Black,        // Needle1,
-    Colors::Red,          // Needle2,
-    Colors::Green,        // Needle3,
-    Colors::Green,        // Needle4,
-    Colors::Sienna,       // Needle5,
-    Colors::Black,        // Sprite1Stroke,
-    Colors::Blue,         // Sprite1Fill,
-    Colors::Black,        // Sprite2Stroke,
-    Colors::Magenta,      // Sprite2Fill,
-    Colors::Red,          // SignalStop,
-    Colors::Gold,         // SignalWarning,
-    Colors::LimeGreen,    // SignalGo,
+    Colors::White,     // BackGround
+    Colors::Black,     // Scale,
+    Colors::Black,     // Needle1,
+    Colors::Red,       // Needle2,
+    Colors::Green,     // Needle3,
+    Colors::Green,     // Needle4,
+    Colors::Sienna,    // Needle5,
+    Colors::Black,     // Sprite1Stroke,
+    Colors::Blue,      // Sprite1Fill,
+    Colors::Black,     // Sprite2Stroke,
+    Colors::Magenta,   // Sprite2Fill,
+    Colors::Red,       // SignalStop,
+    Colors::Gold,      // SignalWarning,
+    Colors::LimeGreen, // SignalGo,
 ];
-

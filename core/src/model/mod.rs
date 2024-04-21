@@ -1,4 +1,6 @@
 mod calculated;
+mod can_rdr;
+mod can_wtr;
 mod config;
 mod control;
 mod device;

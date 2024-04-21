@@ -1,7 +1,5 @@
 mod can_frame;
 mod can_ids;
-mod can_rdr;
-mod can_wtr;
 mod colors16;
 mod colors8;
 mod crc;
@@ -19,7 +17,6 @@ mod version_check;
 
 pub use can_frame::*;
 pub use can_ids::*;
-pub use can_wtr::*;
 #[cfg(feature = "larus_ad57")]
 pub use colors16::Colors;
 #[cfg(feature = "air_avionics_ad57")]
@@ -38,7 +35,6 @@ pub use version::*;
 pub use version_check::*;
 
 pub use can_ids::{audio_legacy, frontend_legacy, sensor_legacy};
-pub(crate) use can_rdr::read_can_frame;
 
 use u8g2_fonts::{fonts, FontRenderer};
 
