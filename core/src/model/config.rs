@@ -1,5 +1,8 @@
 use crate::{
-    model::CoreModel, system_of_units::{FloatToSpeed, Speed}, utils::themes::{Palette, PaletteColors, DARK_MODE}, Colors, HwVersion, SwVersion
+    model::CoreModel,
+    system_of_units::{FloatToSpeed, Speed},
+    utils::themes::{Palette, PaletteColors, DARK_MODE},
+    Colors, HwVersion, SwVersion,
 };
 
 /// Possible displays

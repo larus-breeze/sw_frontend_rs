@@ -133,7 +133,7 @@ macro_rules! tformat {
         #[allow(unreachable_code)]
         match tfmt::uwrite!(&mut s, $($tt)*) {
             Ok(_) => Ok(s),
-            Err(_) => Err(crate::CoreError::ConversionError),
+            Err(_) => Err($crate::CoreError::ConversionError),
         }
     }};
 }

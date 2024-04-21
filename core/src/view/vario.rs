@@ -35,7 +35,11 @@ where
 {
     // draw wallpaper
     display.clear(cm.color(Palette::Background))?;
-    display.draw_img(WALLPAPER_IMG, Point::new(0, 0), Some(cm.color(Palette::Scale)))?;
+    display.draw_img(
+        WALLPAPER_IMG,
+        Point::new(0, 0),
+        Some(cm.color(Palette::Scale)),
+    )?;
     display.draw_img(M_S_IMG, SZS.unit_pos, Some(cm.color(Palette::Scale)))?;
 
     for (pos_x, pos_y, txt) in WALLPAPER_SCALE {
@@ -52,9 +56,17 @@ where
     if cm.device.supply_voltage > cm.device.voltage_limit_good {
         display.draw_img(BAT_FULL_IMG, SZS.bat_pos, Some(cm.color(Palette::SignalGo)))?;
     } else if cm.device.supply_voltage < cm.device.voltage_limit_bad {
-        display.draw_img(BAT_EMPTY_IMG, SZS.bat_pos, Some(cm.color(Palette::SignalWarning)))?;
+        display.draw_img(
+            BAT_EMPTY_IMG,
+            SZS.bat_pos,
+            Some(cm.color(Palette::SignalWarning)),
+        )?;
     } else {
-        display.draw_img(BAT_HALF_IMG, SZS.bat_pos, Some(cm.color(Palette::SignalStop)))?;
+        display.draw_img(
+            BAT_HALF_IMG,
+            SZS.bat_pos,
+            Some(cm.color(Palette::SignalStop)),
+        )?;
     }
 
     let color = match cm.control.system_state {
@@ -183,7 +195,11 @@ where
     // dependend on vario_mode draw speed_to_fly or average_climb_rate
     match cm.control.vario_mode {
         VarioMode::Vario => {
-            display.draw_img(SPIRAL_IMG, SZS.pic_left_under_pos, Some(cm.color(Palette::Scale)))?;
+            display.draw_img(
+                SPIRAL_IMG,
+                SZS.pic_left_under_pos,
+                Some(cm.color(Palette::Scale)),
+            )?;
             display.draw_img(M_S_IMG, SZS.left_under_pos, Some(cm.color(Palette::Scale)))?;
             let acr = num::clamp(cm.calculated.thermal_climb_rate.to_m_s(), -9.9, 99.9);
             let txt = tformat!(10, "{:.1}", acr).unwrap();
@@ -197,7 +213,11 @@ where
             )?;
         }
         VarioMode::SpeedToFly => {
-            display.draw_img(STRAIGHT_IMG, SZS.pic_left_under_pos, Some(cm.color(Palette::Scale)))?;
+            display.draw_img(
+                STRAIGHT_IMG,
+                SZS.pic_left_under_pos,
+                Some(cm.color(Palette::Scale)),
+            )?;
             display.draw_img(KM_H_IMG, SZS.left_under_pos, Some(cm.color(Palette::Scale)))?;
             let stf = num::clamp(-cm.calculated.speed_to_fly_dif.to_km_h() / 10.0, -5.0, 5.0);
             let angle_sweep = (VARIO_SIZES.angle_m_s * stf).deg();

@@ -1,12 +1,11 @@
 use crate::{
     basic_config::SECTION_EDITOR_TIMEOUT,
-    can_frame_sys_config,
     controller::{Direction, Editable, Result},
     flight_physics::POLAR_COUNT,
     model::{CoreModel, EditMode, VarioModeControl},
     system_of_units::{FloatToMass, FloatToSpeed},
     utils::{val_manip, KeyEvent},
-    SysConfigId, SysValueId,
+    SysConfigId,
 };
 use num::clamp;
 
@@ -61,11 +60,9 @@ impl VarioController {
             Editable::McCready => {
                 cm.config.mc_cready =
                     val_manip(cm.config.mc_cready.to_m_s(), key_event, 0.1, 0.5, 0.0, 5.0).m_s();
-                let frame = can_frame_sys_config(
-                    SysConfigId::MacCready,
-                    SysValueId::F32(cm.config.mc_cready.to_m_s()),
-                );
-                let _ = cm.p_tx_frames.enqueue(frame);
+                if let Some(frame) = cm.can_frame_sys_config(SysConfigId::MacCready) {
+                    let _ = cm.p_tx_frames.enqueue(frame);
+                }
             }
             Editable::Volume => {
                 cm.config.volume = match key_event {
@@ -75,11 +72,9 @@ impl VarioController {
                     KeyEvent::Rotary2Right => clamp(cm.config.volume + 1, 0, 50),
                     _ => return Result::Nothing,
                 };
-                let frame = can_frame_sys_config(
-                    SysConfigId::VolumeVario,
-                    SysValueId::U8(cm.config.volume as u8),
-                );
-                let _ = cm.p_tx_frames.enqueue(frame);
+                if let Some(frame) = cm.can_frame_sys_config(SysConfigId::VolumeVario) {
+                    let _ = cm.p_tx_frames.enqueue(frame);
+                }
             }
             Editable::WaterBallast => {
                 cm.glider_data.water_ballast = val_manip(
@@ -91,11 +86,9 @@ impl VarioController {
                     250.0,
                 )
                 .kg();
-                let frame = can_frame_sys_config(
-                    SysConfigId::WaterBallast,
-                    SysValueId::F32(cm.glider_data.water_ballast.to_kg()),
-                );
-                let _ = cm.p_tx_frames.enqueue(frame);
+                if let Some(frame) = cm.can_frame_sys_config(SysConfigId::WaterBallast) {
+                    let _ = cm.p_tx_frames.enqueue(frame);
+                }
             }
             Editable::Glider => {
                 cm.config.glider_idx = val_manip(
@@ -117,11 +110,9 @@ impl VarioController {
                     250.0,
                 )
                 .kg();
-                let frame = can_frame_sys_config(
-                    SysConfigId::PilotWeight,
-                    SysValueId::F32(cm.glider_data.pilot_weight.to_kg()),
-                );
-                let _ = cm.p_tx_frames.enqueue(frame);
+                if let Some(frame) = cm.can_frame_sys_config(SysConfigId::PilotWeight) {
+                    let _ = cm.p_tx_frames.enqueue(frame);
+                }
             }
             Editable::VarioModeControl => {
                 cm.control.vario_mode_control = match key_event {
@@ -137,11 +128,9 @@ impl VarioController {
                     },
                     _ => cm.control.vario_mode_control,
                 };
-                let frame = can_frame_sys_config(
-                    SysConfigId::VarioModeControl,
-                    SysValueId::U8(cm.control.vario_mode_control as u8),
-                );
-                let _ = cm.p_tx_frames.enqueue(frame);
+                if let Some(frame) = cm.can_frame_sys_config(SysConfigId::VarioModeControl) {
+                    let _ = cm.p_tx_frames.enqueue(frame);
+                }
             }
             _ => (),
         }
