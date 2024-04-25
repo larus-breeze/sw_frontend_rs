@@ -59,13 +59,13 @@ where
         display.draw_img(
             BAT_EMPTY_IMG,
             SZS.bat_pos,
-            Some(cm.color(Palette::SignalWarning)),
+            Some(cm.color(Palette::SignalStop)),
         )?;
     } else {
         display.draw_img(
             BAT_HALF_IMG,
             SZS.bat_pos,
-            Some(cm.color(Palette::SignalStop)),
+            Some(cm.color(Palette::SignalWarning)),
         )?;
     }
 
