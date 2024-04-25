@@ -1,6 +1,7 @@
 mod acceleration;
 mod angular_velocity;
 mod area;
+mod coord;
 mod density;
 mod length;
 mod mass;
@@ -12,6 +13,7 @@ use core::f32::consts::PI;
 pub use acceleration::{Acceleration, FloatToAcceleration};
 pub use angular_velocity::{AngularVelocity, FloatToAngularVelocity};
 pub use area::{Area, FloatToArea};
+pub use coord::{Coord, F64ToCoord, Latitude, Longitude};
 pub use density::{Density, FloatToDensity};
 pub use embedded_graphics::geometry::{Angle, AngleUnit};
 pub use length::{FloatToLength, Length};
