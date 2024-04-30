@@ -139,10 +139,10 @@ where
 
     // Patch: set wind to 0 when aircraft is on the ground. However, this should be realised in
     // the sensor box.
-    let txt_angle = if cm.sensor.airspeed.ias() < 20.0.km_h() {
-        angle = 0.0.rad();
-        av_angle = 0.0.rad();
-        0.0.rad()
+    let txt_angle = if cm.sensor.airspeed.ias() < 30.0.km_h() {
+        angle = 180.0.deg();
+        av_angle = 180.0.deg();
+        cm.sensor.euler_yaw
     } else {
         cm.sensor.wind_vector.angle()
     };
