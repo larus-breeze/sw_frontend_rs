@@ -116,9 +116,8 @@ impl CoreModel {
             sensor_legacy::GPS_SATS => {
                 self.sensor.gps_sats = rdr.pop_u8();
                 match rdr.pop_u8() {
-                    1 => self.sensor.gps_state = GpsState::GpsActive,
-                    2 => self.sensor.gps_state = GpsState::Fix2D,
-                    3 => self.sensor.gps_state = GpsState::Fix3D,
+                    1 => self.sensor.gps_state = GpsState::PosAvail,
+                    3 => self.sensor.gps_state = GpsState::HeadingAvail,
                     _ => self.sensor.gps_state = GpsState::NoGps,
                 }
             }
