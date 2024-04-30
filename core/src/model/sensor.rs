@@ -12,9 +12,8 @@ use embedded_graphics::geometry::{Angle, AngleUnit};
 #[derive(Clone, Copy, PartialEq)]
 pub enum GpsState {
     NoGps,
-    GpsActive,
-    Fix2D,
-    Fix3D,
+    PosAvail,
+    HeadingAvail,
 }
 
 /// Sensor Values

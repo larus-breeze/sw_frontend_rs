@@ -309,7 +309,7 @@ impl CoreController {
                 let _ = core_model.p_tx_frames.enqueue(can_frame);
                 core_model.control.system_state = if core_model.control.can_devices != 0 {
                     match core_model.sensor.gps_state {
-                        GpsState::Fix3D => SystemState::CanAndGpsOk,
+                        GpsState::PosAvail | GpsState::HeadingAvail => SystemState::CanAndGpsOk,
                         _ => SystemState::CanOk,
                     }
                 } else {
