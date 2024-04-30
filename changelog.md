@@ -1,6 +1,11 @@
 Changelog
 =
 
+v.0.1.5 Bug fix release
+- fix color half/empty bat symbol
+- add some can datagrams
+- fix hang up of air avionics display
+
 v.0.1.4 Optimisation of readability
 - Introduction of bright mode
 - Bold and bigger fonds
