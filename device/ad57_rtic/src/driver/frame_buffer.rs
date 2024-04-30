@@ -19,11 +19,12 @@ use st7789::ST7789;
 use stm32f4xx_hal::{
     fsmc_lcd::{AccessMode, DataPins16, FsmcLcd, Lcd, LcdPins, SubBank1, Timing},
     gpio::{alt::fsmc, Output, Pin},
-    pac::{interrupt, FSMC, NVIC},
+    pac::{interrupt, FSMC, NVIC, RCC, DMA2},
     rcc::{Enable, Reset},
 };
 
 pub trait SetRow {
+    fn set_pos(&mut self, pos_x: u16, pos_y: u16);
     fn set_row(&mut self, pos_x: u16, pos_y: u16, buf: &mut [u16]);
 }
 
@@ -51,7 +52,7 @@ pub struct FrameBuffer {
     // the DMA process. After the complete copying of the data the DMA interrupt service routine sets the flag to true.
     // Before the next buffer write, this flag can be used to assess whether the copy process was completed successfully.
     pub buf: &'static mut [u8; AVAIL_PIXELS],
-    line_buf: [u16; PORTRAIT_AVAIL_WIDTH as usize],
+    line_buf: &'static mut [u16; PORTRAIT_AVAIL_WIDTH as usize],
     line_y: u16,
     lcd: DisplayDriver, //R61580<Lcd<SubBank1>>,
 }
@@ -71,6 +72,11 @@ impl FrameBuffer {
             transmute::<*const [u8; AVAIL_PIXELS], &mut [u8; AVAIL_PIXELS]>(addr_of!(FRAME_BUFFER))
         };
 
+        static mut LINE_BUFFER: [u16; 227] = [0xaaaa; 227];
+        let line_buf = unsafe { 
+            transmute::<*const [u16; 227], &mut [u16; 227]>(addr_of!(LINE_BUFFER))
+        };
+
         let timing = Timing::default()
             .data(3)
             .address_setup(6)
@@ -82,6 +88,18 @@ impl FrameBuffer {
             // Enable the FSMC/FMC peripheral
             FSMC::enable_unchecked();
             FSMC::reset_unchecked();
+        }
+
+        let rcc = unsafe { &*RCC::ptr() };
+        rcc.ahb1enr.modify(|_, w| w.dma2en().set_bit()); // enable ahb1 clock for dma2
+
+        unsafe {
+            let dma2 = &*DMA2::ptr();
+            let src = LINE_BUFFER.as_ptr() as u32;
+            dma2.st[0].cr.write(|w| w.bits(0x2_2a90));
+            dma2.st[0].fcr.write(|w| w.bits(0x27));
+            dma2.st[0].par.write(|w| w.bits(src)); // source address
+            dma2.st[0].m0ar.write(|w| w.bits(0x6002_0000)); // dest address
         }
 
         let (_fsmc, mut lcd_interface) = FsmcLcd::new(fsmc, lcd_pins, &timing, &timing);
@@ -104,7 +122,7 @@ impl FrameBuffer {
             Display { buf: buf2 },
             FrameBuffer {
                 buf,
-                line_buf: [0xaaaa; 227],
+                line_buf,
                 lcd,
                 line_y: 0,
             },
@@ -119,7 +137,7 @@ impl FrameBuffer {
     pub fn on_interrupt(&mut self) {
         match &mut self.lcd {
             DisplayDriver::R61580(lcd) => {
-                while self.line_y < PORTRAIT_AVAIL_HEIGHT {
+                /*while self.line_y < PORTRAIT_AVAIL_HEIGHT {
                     let idx_y = (self.line_y * PORTRAIT_AVAIL_WIDTH) as usize;
                     for x in 0..PORTRAIT_AVAIL_WIDTH as usize {
                         let color_idx = self.buf[x + idx_y] as usize;
@@ -129,9 +147,33 @@ impl FrameBuffer {
                     lcd.set_row(
                         PORTRAIT_ORIGIN_X,
                         PORTRAIT_ORIGIN_Y + self.line_y,
-                        &mut self.line_buf,
+                        self.line_buf,
                     );
                     self.line_y += 1;
+                }*/
+                unsafe {
+                    let dma2 = &*DMA2::ptr();
+                    dma2.st[0].cr.modify(|_, w| w.en().clear_bit()); // disable stream0
+                    dma2.lifcr.write(|w| w.ctcif0().set_bit()); // reset dma complete ir
+                }
+        
+                if self.line_y < PORTRAIT_AVAIL_HEIGHT {
+                    let idx_y = (self.line_y * PORTRAIT_AVAIL_WIDTH) as usize;
+                    for x in 0..PORTRAIT_AVAIL_WIDTH as usize {
+                        let color = self.buf[x + idx_y] as usize;
+                        self.line_buf[x] = RGB565_COLORS[color];
+                    }
+                    lcd.set_pos(
+                        PORTRAIT_ORIGIN_X,
+                        PORTRAIT_ORIGIN_Y + self.line_y,
+                    );
+                    self.line_y += 1;
+        
+                    unsafe {
+                        let dma2 = &*DMA2::ptr();
+                        dma2.st[0].ndtr.write(|w| w.bits(227)); // count DMA moves
+                        dma2.st[0].cr.modify(|_, w| w.en().set_bit()); // enable stream0
+                    }
                 }
             }
             DisplayDriver::ST7789(lcd) => {
@@ -147,7 +189,7 @@ impl FrameBuffer {
                         PORTRAIT_ORIGIN_Y + self.line_y,
                         PORTRAIT_ORIGIN_X + PORTRAIT_AVAIL_WIDTH,
                         PORTRAIT_ORIGIN_Y + self.line_y + 1,
-                        self.line_buf,
+                        *self.line_buf,
                     );
                     self.line_y += 1;
                 }

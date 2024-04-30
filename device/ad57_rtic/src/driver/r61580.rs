@@ -258,10 +258,14 @@ impl<DI> SetRow for R61580<DI>
 where
     DI: WriteOnlyDataCommand,
 {
-    fn set_row(&mut self, pos_x: u16, pos_y: u16, buf: &mut [u16]) {
+    fn set_pos(&mut self, pos_x: u16, pos_y: u16) {
         self.write_command_and_data(Instruction::PosX as u8, pos_x);
         self.write_command_and_data(Instruction::PosY as u8, pos_y);
         self.write_command(Instruction::Gram as u8);
+    }
+
+    fn set_row(&mut self, pos_x: u16, pos_y: u16, buf: &mut [u16]) {
+        self.set_pos(pos_x, pos_y);
         let _ = self.di.send_data(U16BE(buf));
     }
 }
