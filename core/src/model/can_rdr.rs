@@ -1,6 +1,6 @@
 use crate::{
     model::{GpsState, VarioModeControl},
-    AirSpeed, CanActive, CanFrame, CoreModel, FloatToAcceleration, FloatToAngularVelocity,
+    AirSpeed, CanActive, CanFrame, CoreModel, FloatToAcceleration, FloatToAngularVelocity, Angle,
     FloatToDensity, FloatToLength, FloatToMass, FloatToPressure, FloatToSpeed, FlyMode, Frame,
     GenericFrame, GenericId, SpecificFrame, SysConfigId,
 };
@@ -65,10 +65,20 @@ impl CoreModel {
     }
 
     fn can_frame_read_legacy(&mut self, frame: &CanFrame) {
+        fn norm_rad(mut r: i16) -> Angle {
+            if r < 0 { r += 3142 }
+            ((r as f32) * 0.001).rad()
+        }
+
         let id = frame.id();
         let mut rdr = Reader::new(frame.data());
 
         match id {
+            sensor_legacy::EULER_ANGLES => {
+                self.sensor.euler_roll = norm_rad(rdr.pop_i16());
+                self.sensor.euler_nick = norm_rad(rdr.pop_i16());
+                self.sensor.euler_yaw = norm_rad(rdr.pop_i16());
+            }
             sensor_legacy::ACCELERATION => {
                 self.sensor.g_force = ((rdr.pop_i16() as f32) * 0.001).m_s2();
                 self.sensor.vertical_g_force = ((rdr.pop_i16() as f32) * 0.001).m_s2();
