@@ -101,7 +101,10 @@ pub fn hw_init(
     let gpioc = dp.GPIOC.split(ccdr.peripheral.GPIOC);
     let gpiod = dp.GPIOD.split(ccdr.peripheral.GPIOD);
     let gpioe = dp.GPIOE.split(ccdr.peripheral.GPIOE);
-    let gpiof = dp.GPIOF.split(ccdr.peripheral.GPIOF);
+
+    // Switch LCD Backlight off
+    let mut backlight_control = gpioc.pc6.into_push_pull_output();
+    backlight_control.set_high();
 
     // Setup ----------> The front key interface
     let keyboard = {
@@ -213,8 +216,7 @@ pub fn hw_init(
         let idle_loop = IdleLoop::new(i2c, watchdog, c_idle_events, &Q_EVENTS, &mut core_model);
 
         // switch LCD backlight on, after eventually firmware update (avoids flickering)
-        let mut backlight_control = gpiof.pf5.into_push_pull_output();
-        backlight_control.set_high();
+        backlight_control.set_low();
 
         idle_loop
     };
