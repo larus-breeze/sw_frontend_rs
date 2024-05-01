@@ -1,6 +1,4 @@
 #[allow(dead_code)]
-mod concat;
-#[allow(dead_code)]
 mod keyboard;
 #[allow(dead_code)]
 mod r61580;

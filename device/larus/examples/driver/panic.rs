@@ -7,12 +7,13 @@ use core::{
     sync::atomic::{AtomicU32, AtomicU8, AtomicUsize, Ordering},
 };
 use corelib::CoreError;
-use corelib::{Concat, DateTime};
+use corelib::DateTime;
 use defmt::trace;
 use defmt_rtt as _;
 use embedded_sdmmc::{Error as SdmmcError, File, Mode, VolumeIdx};
 use embedded_storage::nor_flash::NorFlash;
 use stm32h7xx_hal::{flash::FlashExt, independent_watchdog::IndependentWatchdog, pac, prelude::*};
+use tfmt::uformat;
 
 #[repr(C)]
 #[derive(Debug)]
@@ -34,9 +35,9 @@ impl ResetWatch {
         // structure or are initialising it.
         unsafe {
             let mut reset_watch = core::mem::transmute::<
-                &'static mut MaybeUninit<ResetWatch>,
+                *const MaybeUninit<ResetWatch>,
                 &'static mut ResetWatch,
-            >(&mut RESET_WATCH);
+            >(addr_of!(RESET_WATCH));
 
             if (reset_watch.signature == SIGNATURE) && (reset_watch.signature2 == SIGNATURE2) {
                 let _ = write_panic_msg(b"Unexpeced reset");
@@ -82,17 +83,18 @@ fn write_panic_msg(msg: &[u8]) -> Result<(), CoreError> {
 fn panic(info: &PanicInfo) -> ! {
     cortex_m::interrupt::disable(); // Please not interrupts any more, we will reset device anyway
 
-    let msg = Concat::<200>::new();
     let msg = if let Some(location) = info.location() {
-        msg.push_str("Panic in '")
-            .push_str(location.file())
-            .push_str("' line ")
-            .push_u32(location.line())
+        uformat!(
+            200,
+            "Panic in '{}' line {}",
+            location.file(),
+            location.line()
+        )
     } else {
-        msg.push_str("Panic without location info")
+        uformat!(200, "Panic without location info")
     };
 
-    let _ = write_panic_msg(msg.as_bytes());
+    let _ = write_panic_msg(msg.unwrap().as_bytes());
 
     loop {}
 }
