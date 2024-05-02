@@ -1,5 +1,5 @@
 use crate::{
-    flight_physics::WindVector,
+    flight_physics::{WindVector, PressureAltitude},
     system_of_units::{
         Acceleration, AngularVelocity, FloatToAcceleration, FloatToAngularVelocity, FloatToLength,
         FloatToSpeed, Length, Pressure, Speed,
@@ -41,6 +41,7 @@ pub struct Sensor {
     pub gps_state: GpsState,
     pub nick_angle: Angle,
     pub pressure: Pressure,
+    pub pressure_altitude: PressureAltitude, 
     pub slip_angle: Angle,
     pub turn_rate: AngularVelocity,
     pub vertical_g_force: Acceleration,
@@ -71,6 +72,7 @@ impl Default for Sensor {
             gps_state: GpsState::NoGps,
             nick_angle: 0.0_f32.deg(),
             pressure: Pressure::AT_NN(),
+            pressure_altitude: PressureAltitude::default(),
             slip_angle: 0.0_f32.deg(),
             turn_rate: 0.0.rad_s(),
             vertical_g_force: 9.81.m_s2(),

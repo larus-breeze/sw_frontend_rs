@@ -53,7 +53,7 @@ pub(crate) const DAY: Float = 86400.0; // d -> s
 #[allow(dead_code)]
 pub(crate) const ISA_DENSITY_AT_NN: Float = 1.225; // density at NN in kg/m³
 #[allow(dead_code)]
-pub(crate) const ISA_PRESSURE_AT_NN: Float = 101335.0; // pressure at NN in Pa
+pub(crate) const ISA_PRESSURE_AT_NN: Float = 101325.0; // pressure at NN in Pa
 
 // RAD
 #[allow(dead_code)]
