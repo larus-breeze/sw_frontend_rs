@@ -216,7 +216,7 @@ mod tests {
         cm.sensor.gps_geo_seperation = 12.3.m();
 
         let s = cm.nmea_gpgga();
-        assert_eq!(s, "$GPGGA,120520.00,4941.39652,S,835.06958,W,1,23,1.0,2745.9,M,12.3,M,,*55\r\n");
+        assert_eq!(s, "$GPGGA,120520.00,4941.39652,S,835.06958,W,2,23,1.0,2745.9,M,12.3,M,,*56\r\n");
     }
 
     #[test]
