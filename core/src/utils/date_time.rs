@@ -1,5 +1,5 @@
 use heapless::String;
-use tfmt::{uDisplayFormatted, uWrite, Formatter, Padding, Convert};
+use tfmt::{uDisplayFormatted, uWrite, Convert, Formatter, Padding};
 
 #[derive(Clone, Copy, Debug)]
 pub struct Date {
@@ -24,8 +24,16 @@ pub struct DateTime {
 impl DateTime {
     pub const fn new() -> Self {
         DateTime {
-            date: Date { year: 2000, month: 1, day: 1 },
-            time: Time { hour: 0, min: 0, sec: 0 }
+            date: Date {
+                year: 2000,
+                month: 1,
+                day: 1,
+            },
+            time: Time {
+                hour: 0,
+                min: 0,
+                sec: 0,
+            },
         }
     }
 
@@ -53,7 +61,7 @@ impl DateTime {
             val /= 10;
         }
     }
-    
+
     pub fn to_bytes(&self) -> [u8; 20] {
         let mut buf = [0u8; 20];
         buf.copy_from_slice(b"0000-00-00T00:00:00Z");
@@ -92,19 +100,20 @@ impl uDisplayFormatted for &Date {
         cmd: char,
         _padding: Padding,
         _pad_char: char,
-        _behind: usize
+        _behind: usize,
     ) -> Result<(), W::Error>
-       where W: uWrite + ?Sized {
+    where
+        W: uWrite + ?Sized,
+    {
         if cmd == 'n' {
             let mut conv = Convert::<6>::new(b'0');
             conv.u32_pad(self.year as u32 - 2000, 2).unwrap();
             conv.u32_pad(self.month as u32, 2).unwrap();
             conv.u32_pad(self.day as u32, 2).unwrap();
             fmt.write_str(conv.as_str())
-    
-            } else {
-                fmt.write_str("FormatError")
-            }
+        } else {
+            fmt.write_str("FormatError")
+        }
     }
 }
 
@@ -116,9 +125,11 @@ impl uDisplayFormatted for &Time {
         cmd: char,
         _padding: Padding,
         _pad_char: char,
-        _behind: usize
+        _behind: usize,
     ) -> Result<(), W::Error>
-       where W: uWrite + ?Sized {
+    where
+        W: uWrite + ?Sized,
+    {
         if cmd == 'n' {
             let mut conv = Convert::<9>::new(b'0');
             conv.write_str(".00").unwrap();

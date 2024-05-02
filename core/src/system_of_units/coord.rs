@@ -1,9 +1,9 @@
+use core::f64::consts::PI;
 #[allow(unused_imports)]
 use micromath::F32Ext;
 #[allow(unused_imports)]
 use num::traits::float::FloatCore;
-use tfmt::{uDisplayFormatted, uWrite, Formatter, Padding, Convert};
-use core::f64::consts::PI;
+use tfmt::{uDisplayFormatted, uWrite, Convert, Formatter, Padding};
 
 #[allow(dead_code)]
 const RAD_PER_DEGREE: f64 = PI / 180.0;
@@ -71,9 +71,11 @@ impl uDisplayFormatted for Latitude {
         cmd: char,
         _padding: Padding,
         _pad_char: char,
-        _behind: usize
+        _behind: usize,
     ) -> Result<(), W::Error>
-       where W: uWrite + ?Sized {
+    where
+        W: uWrite + ?Sized,
+    {
         if cmd == 'n' {
             let degs = self.0.to_deg();
             let (degs, sign) = if degs.is_sign_positive() {
@@ -103,9 +105,11 @@ impl uDisplayFormatted for Longitude {
         cmd: char,
         _padding: Padding,
         _pad_char: char,
-        _behind: usize
+        _behind: usize,
     ) -> Result<(), W::Error>
-       where W: uWrite + ?Sized {
+    where
+        W: uWrite + ?Sized,
+    {
         if cmd == 'n' {
             let degs = self.0.to_deg();
             let (degs, sign) = if degs.is_sign_positive() {
