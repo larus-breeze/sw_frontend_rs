@@ -32,6 +32,18 @@ impl Default for GliderData {
     }
 }
 
+impl GliderData {
+    pub fn ballast_ratio(&self) -> f32 {
+        (self.empty_weight + self.pilot_weight + self.water_ballast) / (self.empty_weight + self.pilot_weight)
+    }    
+
+    pub fn set_ballast_ratio(&mut self, ratio: f32) {
+        let wb = ratio * (self.empty_weight.to_kg() + self.pilot_weight.to_kg()) - self.empty_weight.to_kg() - self.pilot_weight.to_kg();
+        self.water_ballast = wb.kg();
+    }
+}
+
+
 pub struct Polar {
     v_max: Float,         // km/h
     density_ratio: Float, // -

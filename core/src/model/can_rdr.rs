@@ -2,7 +2,7 @@ use crate::{
     model::{GpsState, VarioModeControl},
     AirSpeed, CanActive, CanFrame, CoreModel, FloatToAcceleration, FloatToAngularVelocity, Angle,
     FloatToDensity, FloatToLength, FloatToMass, FloatToPressure, FloatToSpeed, FlyMode, Frame,
-    GenericFrame, GenericId, SpecificFrame, SysConfigId,
+    GenericFrame, GenericId, SpecificFrame, SysConfigId, Latitude, Longitude, F64ToCoord,
 };
 use byteorder::{ByteOrder, LittleEndian as LE};
 use embedded_graphics::prelude::AngleUnit;
@@ -18,14 +18,6 @@ impl CoreModel {
         }
     }
 
-    fn can_frame_read_specific(&mut self, frame: &SpecificFrame) {
-        #[allow(clippy::single_match)]
-        match frame.object_id {
-            object_id::SENSOR => self.can_frame_read_sensor_values(frame),
-            _ => (),
-        }
-    }
-
     fn can_frame_read_generic(&mut self, frame: &GenericFrame) {
         let mut rdr: Reader<'_> = Reader::new(frame.can_frame.data());
         #[allow(clippy::single_match)]
@@ -34,6 +26,14 @@ impl CoreModel {
                 let config_id = SysConfigId::from(rdr.pop_u16());
                 self.can_frame_read_sys_config_value(config_id, &frame.can_frame)
             }
+            _ => (),
+        }
+    }
+
+    fn can_frame_read_specific(&mut self, frame: &SpecificFrame) {
+        #[allow(clippy::single_match)]
+        match frame.object_id {
+            object_id::SENSOR => self.can_frame_read_sensor_values(frame),
             _ => (),
         }
     }
@@ -66,7 +66,7 @@ impl CoreModel {
 
     fn can_frame_read_legacy(&mut self, frame: &CanFrame) {
         fn norm_rad(mut r: i16) -> Angle {
-            if r < 0 { r += 3142 }
+            if r < 0 { r += 6284 }
             ((r as f32) * 0.001).rad()
         }
 
@@ -98,10 +98,6 @@ impl CoreModel {
                 self.sensor.pressure = (rdr.pop_u32() as f32).n_m2();
                 self.sensor.density = (rdr.pop_u32() as f32).g_m3();
             }
-            sensor_legacy::GPS_ALT => {
-                self.sensor.gps_altitude = (rdr.pop_u32() as f32).mm();
-                self.sensor.gps_geo_seperation = (rdr.pop_u32() as f32 * 0.1).m();
-            }
             sensor_legacy::GPS_DATE_TIME => {
                 let year = 2000 + rdr.pop_u8() as u16;
                 let month = rdr.pop_u8();
@@ -113,14 +109,22 @@ impl CoreModel {
                     .gps_date_time
                     .set_date_time(year, month, day, hour, min, sec);
             }
+            sensor_legacy::GPS_LAT_LON => {
+                self.sensor.gps_lat = Latitude(((rdr.pop_i32() as f64) * 1.0e-7).deg());
+                self.sensor.gps_lon = Longitude(((rdr.pop_i32() as f64) * 1.0e-7).deg());
+            }
+            sensor_legacy::GPS_ALT => {
+                self.sensor.gps_altitude = (rdr.pop_i32() as f32).mm();
+                self.sensor.gps_geo_seperation = (rdr.pop_i32() as f32 * 0.1).m();
+            }
             sensor_legacy::GPS_TRK_SPD => {
                 self.sensor.gps_track = (rdr.pop_i16() as f32 * 0.001).rad();
                 self.sensor.gps_ground_speed = (rdr.pop_u16() as f32).km_h();
                 if self.sensor.gps_ground_speed < 1.0.km_h() {
-                    self.sensor.gps_track = 0.0.rad();
+                    self.sensor.gps_track = 0.0_f32.rad();
                 }
-                if self.sensor.gps_track < 0.0.rad() {
-                    self.sensor.gps_track += 360.0.deg();
+                if self.sensor.gps_track < 0.0_f32.rad() {
+                    self.sensor.gps_track += 360.0_f32.deg();
                 }
             }
             sensor_legacy::GPS_SATS => {
@@ -298,6 +302,21 @@ impl<'a> Reader<'a> {
     fn f32_is_finite(&mut self) -> bool {
         let idx = self.pos;
         LE::read_f32(&self.data[self.pos..self.pos + 4]).is_finite()
+    }
+
+    #[inline]
+    #[allow(unused)]
+    fn pop_f64(&mut self) -> f64 {
+        let idx = self.pos;
+        self.pos += 8;
+        LE::read_f64(&self.data[idx..self.pos])
+    }
+
+    #[inline]
+    #[allow(unused)]
+    fn f64_is_finite(&mut self) -> bool {
+        let idx = self.pos;
+        LE::read_f64(&self.data[self.pos..self.pos + 8]).is_finite()
     }
 }
 

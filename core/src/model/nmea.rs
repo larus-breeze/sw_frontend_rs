@@ -24,7 +24,8 @@ impl CoreModel {
     pub fn nmea_gpgga(&mut self) -> &str {
         self.nmea_buf.reset();
         let gps_quality_indicator = match self.sensor.gps_state {
-            GpsState::Fix3D => 1,
+            GpsState::PosAvail => 1,
+            GpsState::HeadingAvail => 2,
             _ => 0,
         };
         let _ = uwrite!(
@@ -74,7 +75,7 @@ impl CoreModel {
             self.nmea_buf, 
             "$PLARA,{:.1},{:.1},{:.1}",
             self.sensor.euler_roll.to_degrees(),
-            self.sensor.euler_pitch.to_degrees(),
+            self.sensor.euler_nick.to_degrees(),
             self.sensor.euler_yaw.to_degrees(),
         );
         self.nmea_buf.finish()
@@ -177,7 +178,7 @@ mod tests {
     fn plara() {
         let mut cm = core_model();
         cm.sensor.euler_roll = 123.4_f32.deg();
-        cm.sensor.euler_pitch = 98.7_f32.deg();
+        cm.sensor.euler_nick = 98.7_f32.deg();
         cm.sensor.euler_yaw = 12.3_f32.deg();
         let s = cm.nmea_plara();
         assert_eq!(s, "$PLARA,123.4,98.7,12.3*4E\r\n");
@@ -209,7 +210,7 @@ mod tests {
         cm.sensor.gps_date_time.set_date_time(2023, 06, 23, 12, 05, 20);
         cm.sensor.gps_lon = Longitude(Coord(-0.1498276674644056));
         cm.sensor.gps_lat = Latitude(Coord(-0.8672530930250163));
-        cm.sensor.gps_state =  GpsState::Fix3D;
+        cm.sensor.gps_state =  GpsState::HeadingAvail;
         cm.sensor.gps_sats = 23;
         cm.sensor.gps_altitude = 2745.9.m();
         cm.sensor.gps_geo_seperation = 12.3.m();
@@ -224,7 +225,7 @@ mod tests {
         cm.sensor.gps_date_time.set_date_time(2023, 06, 23, 12, 05, 20);
         cm.sensor.gps_lon = Longitude(Coord(0.1498276674644056));
         cm.sensor.gps_lat = Latitude(Coord(0.8672530930250163));
-        cm.sensor.gps_state =  GpsState::Fix3D;
+        cm.sensor.gps_state =  GpsState::HeadingAvail;
         cm.sensor.gps_ground_speed = 123.4.kt();
         cm.sensor.gps_track = 321.4_f32.deg();
 

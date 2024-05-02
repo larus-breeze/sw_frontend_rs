@@ -41,6 +41,7 @@ fn main() -> Result<(), core::convert::Infallible> {
 \
     S Key to save image as png file\n\
     U Key to simulate Firmware Update\n\
+    N Key to export available NMEA strings\n\
 "
     );
 
@@ -127,6 +128,12 @@ fn main() -> Result<(), core::convert::Infallible> {
                                 sw_update_status + 1
                             };
                             controller.device_action(&mut core_model, &device_event);
+                            KeyEvent::NoEvent
+                        }
+                        Keycode::N => {
+                            println!("{:?}", core_model.nmea_gprmc());
+                            println!("{:?}", core_model.nmea_gpgga());                            
+                            println!("{:?}", core_model.nmea_hchdt());                            
                             KeyEvent::NoEvent
                         }
                         Keycode::Kp1 => {

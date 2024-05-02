@@ -4,7 +4,7 @@ use crate::{
         Acceleration, AngularVelocity, FloatToAcceleration, FloatToAngularVelocity, FloatToLength,
         FloatToSpeed, Length, Pressure, Speed,
     },
-    AirSpeed, DateTime, Density,
+    AirSpeed, DateTime, Density, F64ToCoord, Latitude, Longitude
 };
 use embedded_graphics::geometry::{Angle, AngleUnit};
 
@@ -33,6 +33,8 @@ pub struct Sensor {
     pub gps_climb_rate: Speed,
     pub gps_date_time: DateTime,
     pub gps_geo_seperation: Length,
+    pub gps_lat: Latitude,
+    pub gps_lon: Longitude,
     pub gps_track: Angle,
     pub gps_ground_speed: Speed,
     pub gps_sats: u8,
@@ -51,27 +53,29 @@ impl Default for Sensor {
         Sensor {
             airspeed: AirSpeed::from_tas_at_nn(0.0.km_h()),
             average_climb_rate: 0.0.m_s(),
-            average_wind: WindVector::new(0.0.km_h(), 0.0.deg()),
             climb_rate: 0.0.m_s(),
             density: Density::AT_NN(),
-            euler_roll: 0.0.deg(),
-            euler_nick: 0.0.deg(),
-            euler_yaw: 0.0.deg(),
+            euler_roll: 0.0_f32.deg(),
+            euler_nick: 0.0_f32.deg(),
+            euler_yaw: 0.0_f32.deg(),
             g_force: 9.81.m_s2(),
             gps_altitude: 0.0.m(),
             gps_climb_rate: 0.0.m_s(),
             gps_date_time: DateTime::new(),
             gps_geo_seperation: 0.0.m(),
-            gps_track: 0.0.deg(),
+            gps_lat: Latitude(0.0_f64.deg()),
+            gps_lon: Longitude(0.0_f64.deg()),
+            gps_track: 0.0_f32.deg(),
             gps_ground_speed: 0.0.m_s(),
             gps_sats: 0,
             gps_state: GpsState::NoGps,
-            nick_angle: 0.0.deg(),
+            nick_angle: 0.0_f32.deg(),
             pressure: Pressure::AT_NN(),
-            slip_angle: 0.0.deg(),
+            slip_angle: 0.0_f32.deg(),
             turn_rate: 0.0.rad_s(),
             vertical_g_force: 9.81.m_s2(),
-            wind_vector: WindVector::new(0.0.km_h(), 0.0.deg()),
+            average_wind: WindVector::new(0.0.km_h(), 0.0_f32.deg()),
+            wind_vector: WindVector::new(0.0.km_h(), 0.0_f32.deg()),
         }
     }
 }
