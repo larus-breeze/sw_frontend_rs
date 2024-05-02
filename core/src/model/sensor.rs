@@ -1,10 +1,10 @@
 use crate::{
-    flight_physics::{WindVector, PressureAltitude},
+    flight_physics::{PressureAltitude, WindVector},
     system_of_units::{
         Acceleration, AngularVelocity, FloatToAcceleration, FloatToAngularVelocity, FloatToLength,
         FloatToSpeed, Length, Pressure, Speed,
     },
-    AirSpeed, DateTime, Density, F64ToCoord, Latitude, Longitude
+    AirSpeed, DateTime, Density, F64ToCoord, Latitude, Longitude,
 };
 use embedded_graphics::geometry::{Angle, AngleUnit};
 
@@ -41,7 +41,7 @@ pub struct Sensor {
     pub gps_state: GpsState,
     pub nick_angle: Angle,
     pub pressure: Pressure,
-    pub pressure_altitude: PressureAltitude, 
+    pub pressure_altitude: PressureAltitude,
     pub slip_angle: Angle,
     pub turn_rate: AngularVelocity,
     pub vertical_g_force: Acceleration,

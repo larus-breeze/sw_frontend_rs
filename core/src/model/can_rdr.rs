@@ -1,8 +1,9 @@
 use crate::{
     model::{GpsState, VarioModeControl},
-    AirSpeed, CanActive, CanFrame, CoreModel, FloatToAcceleration, FloatToAngularVelocity, Angle,
-    FloatToDensity, FloatToLength, FloatToMass, FloatToPressure, FloatToSpeed, FlyMode, Frame,
-    GenericFrame, GenericId, SpecificFrame, SysConfigId, Latitude, Longitude, F64ToCoord,
+    AirSpeed, Angle, CanActive, CanFrame, CoreModel, F64ToCoord, FloatToAcceleration,
+    FloatToAngularVelocity, FloatToDensity, FloatToLength, FloatToMass, FloatToPressure,
+    FloatToSpeed, FlyMode, Frame, GenericFrame, GenericId, Latitude, Longitude, SpecificFrame,
+    SysConfigId,
 };
 use byteorder::{ByteOrder, LittleEndian as LE};
 use embedded_graphics::prelude::AngleUnit;
@@ -66,7 +67,9 @@ impl CoreModel {
 
     fn can_frame_read_legacy(&mut self, frame: &CanFrame) {
         fn norm_rad(mut r: i16) -> Angle {
-            if r < 0 { r += 6284 }
+            if r < 0 {
+                r += 6284
+            }
             ((r as f32) * 0.001).rad()
         }
 
@@ -97,6 +100,9 @@ impl CoreModel {
             sensor_legacy::ATHMOSPHERE => {
                 self.sensor.pressure = (rdr.pop_u32() as f32).n_m2();
                 self.sensor.density = (rdr.pop_u32() as f32).g_m3();
+                self.sensor
+                    .pressure_altitude
+                    .set_static_pressure(self.sensor.pressure);
             }
             sensor_legacy::GPS_DATE_TIME => {
                 let year = 2000 + rdr.pop_u8() as u16;

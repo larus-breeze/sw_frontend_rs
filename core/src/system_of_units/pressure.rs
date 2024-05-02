@@ -36,6 +36,12 @@ impl Pressure {
         Pressure(value)
     }
 
+    /// Create an instance of type Pressure from a float number in hecto pascal
+    #[inline]
+    pub fn from_hpa(value: Float) -> Self {
+        Pressure(value * 100.0)
+    }
+
     /// Extract a float number in the unit kilogram per meter and second²
     #[inline]
     pub fn to_kg_ms2(self) -> Float {
@@ -47,6 +53,12 @@ impl Pressure {
     pub fn to_n_ms(self) -> Float {
         self.0
     }
+
+    /// Extract a float number in the unit hecto pascal
+    #[inline]
+    pub fn to_hpa(self) -> Float {
+        self.0 * 0.01
+    }
 }
 
 /// Trait to convert data to the struct [Pressure]
@@ -57,6 +69,9 @@ pub trait FloatToPressure {
 
     /// Create an instance of type Pressure from a float number in newton per square meter
     fn n_m2(self) -> Pressure;
+
+    /// Create an instance of type Pressure from a float number in hecto pascal
+    fn hpa(self) -> Pressure;
 }
 
 impl FloatToPressure for Float {
@@ -67,5 +82,9 @@ impl FloatToPressure for Float {
     #[inline]
     fn n_m2(self) -> Pressure {
         Pressure::from_n_m2(self)
+    }
+    #[inline]
+    fn hpa(self) -> Pressure {
+        Pressure::from_hpa(self)
     }
 }
