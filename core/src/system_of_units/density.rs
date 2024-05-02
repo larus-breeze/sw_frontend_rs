@@ -39,6 +39,12 @@ impl Density {
     pub fn to_kg_m3(self) -> Float {
         self.0
     }
+
+    /// Extract a float number in the unit gram per cubic meter
+    #[inline]
+    pub fn to_g_m3(self) -> Float {
+        self.0 * 1000.0
+    }
 }
 
 /// Trait to convert data to the struct [Density]

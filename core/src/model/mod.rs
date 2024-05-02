@@ -4,6 +4,7 @@ mod can_wtr;
 mod config;
 mod control;
 mod device;
+mod nmea;
 mod persistence;
 mod sensor;
 
@@ -18,6 +19,8 @@ pub use control::{
 };
 use device::Device;
 pub use sensor::{GpsState, Sensor};
+
+use self::nmea::NmeaBuffer;
 
 /// Data model for the entire device
 ///
@@ -35,6 +38,7 @@ pub struct CoreModel {
     pub sensor: Sensor,
     p_idle_events: PIdleEvents,
     pub p_tx_frames: PTxFrames<MAX_TX_FRAMES>,
+    nmea_buf: NmeaBuffer,
 }
 
 impl CoreModel {
@@ -65,6 +69,7 @@ impl CoreModel {
             sensor,
             p_idle_events,
             p_tx_frames,
+            nmea_buf: NmeaBuffer::new(),
         }
     }
 }
