@@ -1,5 +1,6 @@
 mod display;
 mod eeprom;
+mod tcp;
 
 use byteorder::{ByteOrder, LittleEndian as LE};
 use corelib::{
@@ -19,7 +20,8 @@ use eeprom::Storage;
 use embedded_graphics::prelude::*;
 use embedded_graphics_simulator::{sdl2::Keycode, OutputSettings, SimulatorEvent, Window};
 use heapless::spsc::Queue;
-use std::{net::UdpSocket, time::Duration};
+use std::{net::UdpSocket, time::{Duration, SystemTime}};
+use tcp::TcpInterface;
 
 fn main() -> Result<(), core::convert::Infallible> {
     println!(
@@ -69,6 +71,8 @@ fn main() -> Result<(), core::convert::Infallible> {
         SW_VERSION,
     );
     let mut eeprom = Storage::new().unwrap();
+    let mut tcp_interface = TcpInterface::new("127.0.0.1:4353");
+    let mut time = SystemTime::now();
 
     for item in eeprom.iter_over(EepromTopic::ConfigValues) {
         core_model.restore_persistent_item(item);
@@ -130,12 +134,6 @@ fn main() -> Result<(), core::convert::Infallible> {
                             controller.device_action(&mut core_model, &device_event);
                             KeyEvent::NoEvent
                         }
-                        Keycode::N => {
-                            println!("{:?}", core_model.nmea_gprmc());
-                            println!("{:?}", core_model.nmea_gpgga());                            
-                            println!("{:?}", core_model.nmea_hchdt());                            
-                            KeyEvent::NoEvent
-                        }
                         Keycode::Kp1 => {
                             core_model.device.supply_voltage = 13.0;
                             KeyEvent::NoEvent
@@ -184,7 +182,12 @@ fn main() -> Result<(), core::convert::Infallible> {
                 _ => println!("IdleEvent {:?}", &idle_event),
             }
             match idle_event {
-                IdleEvent::EepromItem(item) => eeprom.write_item(item).unwrap(),
+                IdleEvent::EepromItem(item) => {
+                    eeprom.write_item(item).unwrap();
+                    if let Some(nmea_str) = core_model.nmea_plars(item.id) {
+                        tcp_interface.send(nmea_str);
+                    } 
+                }
                 IdleEvent::SdCardItem(item) => {
                     if item == SdCardCmd::SwUpdateCanceled {
                         sw_update_status = 0
@@ -202,6 +205,25 @@ fn main() -> Result<(), core::convert::Infallible> {
             let can_frame = CanFrame::from_slice(id, &buf[2..cnt]);
             let frame = Frame::Legacy(can_frame);
             controller.read_can_frame(&mut core_model, &frame);
+        }
+
+        match time.elapsed() {
+            Ok(elapsed) => if elapsed.as_millis() > 1000 {
+                tcp_interface.send(core_model.nmea_gprmc());
+                tcp_interface.send(core_model.nmea_gpgga());
+                tcp_interface.send(core_model.nmea_hchdt());
+                tcp_interface.send(core_model.nmea_plarw(true));
+                tcp_interface.send(core_model.nmea_plarw(false));
+                tcp_interface.send(core_model.nmea_plara());
+                tcp_interface.send(core_model.nmea_plard());
+                tcp_interface.send(core_model.nmea_plarb());
+                tcp_interface.send(core_model.nmea_plarv());
+                core_model.glider_data.bugs = 1.23;
+                tcp_interface.send(core_model.nmea_plars(PersistenceId::Bugs).unwrap());
+                tcp_interface.flush();
+                time = SystemTime::now();
+            }
+            Err(e) => println!{"{:?}", e}
         }
     }
     Ok(())
