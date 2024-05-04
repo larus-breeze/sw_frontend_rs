@@ -1,6 +1,6 @@
 use tfmt::{uWrite, uwrite};
 
-use crate::{CoreModel, SysConfigId};
+use crate::{CoreModel, PersistenceId};
 
 use super::GpsState;
 
@@ -61,8 +61,8 @@ impl CoreModel {
         let _ = uwrite!(
             self.nmea_buf,
             "$PLARW,{:.0},{:.0},{},A",
-            wind.speed().to_km_h(),
             wind.angle().to_degrees(),
+            wind.speed().to_km_h(),
             kind,
         );
         self.nmea_buf.finish()
@@ -109,33 +109,34 @@ impl CoreModel {
         self.nmea_buf.finish()
     }
 
-    pub fn nmea_plars(&mut self, id: SysConfigId) -> &str {
+    pub fn nmea_plars(&mut self, id: PersistenceId) -> Option<&str> {
         self.nmea_buf.reset();
         let _ = match id {
-            SysConfigId::MacCready => uwrite!(
+            PersistenceId::McCready => uwrite!(
                 self.nmea_buf,
                 "$PLARS,L,MC,{:.1}",
                 self.config.mc_cready.to_m_s()
             ),
-            SysConfigId::WaterBallast => uwrite!(
+            PersistenceId::WaterBallast => uwrite!(
                 self.nmea_buf,
                 "$PLARS,L,BAL,{:.2}",
-                self.glider_data.ballast_ratio()
+                self.glider_data.ballast_ratio(),
             ),
-            SysConfigId::Bugs => uwrite!(
+            PersistenceId::Bugs => uwrite!(
                 self.nmea_buf,
                 "$PLARS,L,BUGS,{:.0}",
                 (self.glider_data.bugs - 1.0) * 100.0
             ),
-            SysConfigId::Qnh => uwrite!(
+            PersistenceId::Qnh => uwrite!(
                 self.nmea_buf,
                 "$PLARS,L,QNH,{:.1}",
                 self.sensor.pressure_altitude.qnh().to_hpa()
             ),
-            _ => return "",
+            _ => return None,
         };
-        self.nmea_buf.finish()
+        Some(self.nmea_buf.finish())
     }
+
 }
 
 #[cfg(test)]
@@ -164,17 +165,17 @@ mod tests {
         cm.glider_data.bugs = 1.23;
         cm.sensor.pressure_altitude.set_qnh(1031.37.hpa());
 
-        let s = cm.nmea_plars(crate::SysConfigId::MacCready);
-        assert_eq!(s, "$PLARS,L,MC,1.7*1A\r\n");
+        let s = cm.nmea_plars(crate::PersistenceId::McCready);
+        assert_eq!(s, Some("$PLARS,L,MC,1.7*1A\r\n"));
 
-        let s = cm.nmea_plars(crate::SysConfigId::WaterBallast);
-        assert_eq!(s, "$PLARS,L,BAL,1.26*68\r\n");
+        let s = cm.nmea_plars(crate::PersistenceId::WaterBallast);
+        assert_eq!(s, Some("$PLARS,L,BAL,1.26*68\r\n"));
 
-        let s = cm.nmea_plars(crate::SysConfigId::Bugs);
-        assert_eq!(s, "$PLARS,L,BUGS,23*3E\r\n");
+        let s = cm.nmea_plars(crate::PersistenceId::Bugs);
+        assert_eq!(s, Some("$PLARS,L,BUGS,23*3E\r\n"));
 
-        let s = cm.nmea_plars(crate::SysConfigId::Qnh);
-        assert_eq!(s, "$PLARS,L,QNH,1031.4*72\r\n");
+        let s = cm.nmea_plars(crate::PersistenceId::Qnh);
+        assert_eq!(s, Some("$PLARS,L,QNH,1031.4*72\r\n"));
     }
 
     #[test]
@@ -221,11 +222,11 @@ mod tests {
         let mut cm = core_model();
         cm.sensor.average_wind = WindVector::new(45.6.km_h(), 321.0_f32.deg());
         let s = cm.nmea_plarw(true);
-        assert_eq!(s, "$PLARW,46,321,A,A*6A\r\n");
+        assert_eq!(s, "$PLARW,321,46,A,A*6A\r\n");
 
         cm.sensor.wind_vector = WindVector::new(45.6.km_h(), 321.0_f32.deg());
         let s = cm.nmea_plarw(false);
-        assert_eq!(s, "$PLARW,46,321,I,A*62\r\n");
+        assert_eq!(s, "$PLARW,321,46,I,A*62\r\n");
     }
 
     #[test]

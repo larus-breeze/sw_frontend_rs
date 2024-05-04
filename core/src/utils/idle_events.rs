@@ -29,6 +29,9 @@ pub enum PersistenceId {
     Glider = 4,
     VarioModeControl = 5,
     DisplayMode = 6, // Dark = 0, Bright = 1
+    Qnh = 7,
+    Bugs = 8,
+    LastItem,
 }
 
 // This queue transports the configuration PersItems from controller to the idle loop.
@@ -39,7 +42,7 @@ pub type CIdleEvents = Consumer<'static, IdleEvent, MAX_IDLE_EVENTS>;
 
 impl From<u16> for PersistenceId {
     fn from(src: u16) -> Self {
-        if src < eeprom::MAX_ITEM_COUNT as u16 {
+        if src < eeprom::MAX_ITEM_COUNT as u16 && src < PersistenceId::LastItem as u16 {
             // Safety: Only valid or possible values are transmuted
             unsafe { core::mem::transmute::<u16, PersistenceId>(src) }
         } else {
