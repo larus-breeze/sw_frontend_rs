@@ -21,9 +21,6 @@ pub use control::{
 use device::Device;
 pub use sensor::{GpsState, Sensor};
 
-use self::nmea_rdr::NmeaRxBuffer;
-use self::nmea_wtr::NmeaTxBuffer;
-
 /// Data model for the entire device
 ///
 /// In the CoreModel all variables of the display are kept in a structure, which is used by
@@ -40,8 +37,6 @@ pub struct CoreModel {
     pub sensor: Sensor,
     p_idle_events: PIdleEvents,
     pub p_tx_frames: PTxFrames<MAX_TX_FRAMES>,
-    nmea_tx_buf: NmeaTxBuffer,
-    nmea_rx_buf: NmeaRxBuffer,
 }
 
 impl CoreModel {
@@ -72,8 +67,6 @@ impl CoreModel {
             sensor,
             p_idle_events,
             p_tx_frames,
-            nmea_tx_buf: NmeaTxBuffer::new(),
-            nmea_rx_buf: NmeaRxBuffer::new(),
         }
     }
 }

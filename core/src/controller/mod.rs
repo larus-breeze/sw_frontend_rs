@@ -221,6 +221,15 @@ impl CoreController {
         // add CAN frame to queue, ignore if the queue is full
         let _ = core_model.p_tx_frames.enqueue(can_frame);
 
+        // initiate nmea if necessary
+        if self.tick % 2 == 0 {
+            if self.tick % 10 == 0 {
+                core_model.nmea_activate(false)
+            } else {
+                core_model.nmea_activate(true)
+            }
+        }
+
         // The following actions are performed infrequently and alternately
         self.tick = (self.tick + 1) % CONTROLLER_TICK_RATE; // every second from beginning
         match self.tick {

@@ -142,6 +142,7 @@ mod tests {
     #[test]
     fn parse_f32() {
         assert_eq!(f32::from_slice(b"0"), Ok(0.0));
+        assert_eq!(f32::from_slice(b"4711"), Ok(4711.0));
         assert_eq!(f32::from_slice(b"3.14"), Ok(3.14));
         assert_eq!(f32::from_slice(b"-3.14"), Ok(-3.14));
         assert_eq!(f32::from_slice(b"1.23456"), Ok(1.23456));
