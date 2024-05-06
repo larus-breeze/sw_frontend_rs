@@ -1,5 +1,5 @@
 #[allow(dead_code)]
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq)]
 pub enum CoreError {
     NoError,
     DrawError,
@@ -10,6 +10,7 @@ pub enum CoreError {
     OutOfRange,
     SdCard,
     ConversionError,
+    ParseError,
 }
 
 impl From<u8g2_fonts::Error<CoreError>> for CoreError {

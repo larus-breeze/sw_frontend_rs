@@ -21,7 +21,7 @@ use embedded_graphics::prelude::*;
 use embedded_graphics_simulator::{sdl2::Keycode, OutputSettings, SimulatorEvent, Window};
 use heapless::spsc::Queue;
 use std::{net::UdpSocket, time::{Duration, SystemTime}};
-use tcp::TcpInterface;
+use tcp::TcpServer;
 
 fn main() -> Result<(), core::convert::Infallible> {
     println!(
@@ -71,7 +71,7 @@ fn main() -> Result<(), core::convert::Infallible> {
         SW_VERSION,
     );
     let mut eeprom = Storage::new().unwrap();
-    let mut tcp_interface = TcpInterface::new("127.0.0.1:4353");
+    let mut nmea_server = TcpServer::new("127.0.0.1:4353");
     let mut time = SystemTime::now();
 
     for item in eeprom.iter_over(EepromTopic::ConfigValues) {
@@ -185,7 +185,7 @@ fn main() -> Result<(), core::convert::Infallible> {
                 IdleEvent::EepromItem(item) => {
                     eeprom.write_item(item).unwrap();
                     if let Some(nmea_str) = core_model.nmea_plars(item.id) {
-                        tcp_interface.send(nmea_str);
+                        nmea_server.send(nmea_str);
                     } 
                 }
                 IdleEvent::SdCardItem(item) => {
@@ -209,21 +209,25 @@ fn main() -> Result<(), core::convert::Infallible> {
 
         match time.elapsed() {
             Ok(elapsed) => if elapsed.as_millis() > 1000 {
-                tcp_interface.send(core_model.nmea_gprmc());
-                tcp_interface.send(core_model.nmea_gpgga());
-                tcp_interface.send(core_model.nmea_hchdt());
-                tcp_interface.send(core_model.nmea_plarw(true));
-                tcp_interface.send(core_model.nmea_plarw(false));
-                tcp_interface.send(core_model.nmea_plara());
-                tcp_interface.send(core_model.nmea_plard());
-                tcp_interface.send(core_model.nmea_plarb());
-                tcp_interface.send(core_model.nmea_plarv());
-                core_model.glider_data.bugs = 1.23;
-                tcp_interface.send(core_model.nmea_plars(PersistenceId::Bugs).unwrap());
-                tcp_interface.flush();
+                nmea_server.send(core_model.nmea_gprmc());
+                nmea_server.send(core_model.nmea_gpgga());
+                nmea_server.send(core_model.nmea_hchdt());
+                nmea_server.send(core_model.nmea_plarw(true));
+                nmea_server.send(core_model.nmea_plarw(false));
+                nmea_server.send(core_model.nmea_plara());
+                nmea_server.send(core_model.nmea_plard());
+                nmea_server.send(core_model.nmea_plarb());
+                nmea_server.send(core_model.nmea_plarv());
+                //core_model.glider_data.bugs = 1.23;
+                //server.send(core_model.nmea_plars(PersistenceId::Bugs).unwrap());
                 time = SystemTime::now();
             }
             Err(e) => println!{"{:?}", e}
+        }
+
+        if let Some(rx_data) = nmea_server.recv() {
+            core_model.nmea_recv_slice(rx_data.as_slice());
+            print!("{}", String::from_utf8(rx_data).unwrap());
         }
     }
     Ok(())
