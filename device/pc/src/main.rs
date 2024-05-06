@@ -20,7 +20,7 @@ use eeprom::Storage;
 use embedded_graphics::prelude::*;
 use embedded_graphics_simulator::{sdl2::Keycode, OutputSettings, SimulatorEvent, Window};
 use heapless::spsc::Queue;
-use std::{net::UdpSocket, time::{Duration, SystemTime}};
+use std::{net::UdpSocket, time::Duration};
 use tcp::TcpServer;
 
 fn main() -> Result<(), core::convert::Infallible> {
@@ -72,7 +72,6 @@ fn main() -> Result<(), core::convert::Infallible> {
     );
     let mut eeprom = Storage::new().unwrap();
     let mut nmea_server = TcpServer::new("127.0.0.1:4353");
-    let mut time = SystemTime::now();
 
     for item in eeprom.iter_over(EepromTopic::ConfigValues) {
         core_model.restore_persistent_item(item);
@@ -199,6 +198,10 @@ fn main() -> Result<(), core::convert::Infallible> {
             }
         }
 
+        while let Some(nmea_data) = core_model.nmea_next() {
+            nmea_server.send(nmea_data);
+        }
+
         let mut buf = [0u8; 10];
         while let Ok((cnt, _adr)) = socket.recv_from(&mut buf) {
             let id = LE::read_u16(&buf[..2]);
@@ -207,27 +210,8 @@ fn main() -> Result<(), core::convert::Infallible> {
             controller.read_can_frame(&mut core_model, &frame);
         }
 
-        match time.elapsed() {
-            Ok(elapsed) => if elapsed.as_millis() > 1000 {
-                nmea_server.send(core_model.nmea_gprmc());
-                nmea_server.send(core_model.nmea_gpgga());
-                nmea_server.send(core_model.nmea_hchdt());
-                nmea_server.send(core_model.nmea_plarw(true));
-                nmea_server.send(core_model.nmea_plarw(false));
-                nmea_server.send(core_model.nmea_plara());
-                nmea_server.send(core_model.nmea_plard());
-                nmea_server.send(core_model.nmea_plarb());
-                nmea_server.send(core_model.nmea_plarv());
-                //core_model.glider_data.bugs = 1.23;
-                //server.send(core_model.nmea_plars(PersistenceId::Bugs).unwrap());
-                time = SystemTime::now();
-            }
-            Err(e) => println!{"{:?}", e}
-        }
-
         if let Some(rx_data) = nmea_server.recv() {
             core_model.nmea_recv_slice(rx_data.as_slice());
-            print!("{}", String::from_utf8(rx_data).unwrap());
         }
     }
     Ok(())

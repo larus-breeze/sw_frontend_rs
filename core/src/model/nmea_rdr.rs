@@ -1,5 +1,58 @@
-use crate::{CoreError, CoreModel, FloatToPressure, FloatToSpeed, ParseSlice};
+use crate::{
+    model::nmea_wtr::NmeaTxBuffer,
+    {CoreError, CoreModel, FloatToPressure, FloatToSpeed, ParseSlice},
+};
 use heapless::Vec;
+
+impl CoreModel {
+    pub fn nmea_recv_u8(&mut self, b: u8) {
+        if self.control.nmea.rx_data.recv_u8(b) {
+            let _ = self.nmea_parse();
+        }
+    }
+
+    pub fn nmea_recv_slice(&mut self, bytes: &[u8]) {
+        for b in bytes {
+            self.nmea_recv_u8(*b);
+        }
+    }
+
+    fn nmea_parse(&mut self) -> Result<(), CoreError> {
+        fn in_range(val: f32, lower: f32, upper: f32) -> Result<f32, CoreError> {
+            if val >= lower && val <= upper {
+                Ok(val)
+            } else {
+                Err(CoreError::ParseError)
+            }
+        }
+
+        // check checksum
+        self.control.nmea.rx_data.check()?;
+
+        self.control.nmea.rx_data.compare_chunk(b"$PLARS")?;
+        self.control.nmea.rx_data.compare_chunk(b"H")?;
+
+        let mut cmd = Vec::<u8, 10>::new();
+        cmd.extend_from_slice(self.control.nmea.rx_data.next_chunk()?)
+            .map_err(|_| CoreError::ParseError)?;
+
+        let s = self.control.nmea.rx_data.next_chunk()?;
+        let val = f32::from_slice(s)?;
+
+        match cmd.as_slice() {
+            b"MC" => Ok(self.config.mc_cready = in_range(val, 0.0, 9.9)?.m_s()),
+            b"BAL" => Ok(self
+                .glider_data
+                .set_ballast_ratio(in_range(val, 1.00, 1.60)?)),
+            b"BUGS" => Ok(self.glider_data.bugs = in_range(val, 0.0, 30.0)?),
+            b"QNH" => Ok(self
+                .sensor
+                .pressure_altitude
+                .set_qnh(in_range(val, 900.0, 1100.0)?.hpa())),
+            _ => Err(CoreError::ParseError),
+        }
+    }
+}
 
 const HEX_TAB: &[u8; 16] = b"0123456789ABCDEF";
 
@@ -25,7 +78,7 @@ impl NmeaRxBuffer {
         }
     }
 
-    pub fn recv_u8(&mut self, b: u8) -> bool {
+    fn recv_u8(&mut self, b: u8) -> bool {
         match self.state {
             RxState::WaitForStart => {
                 if b == b'$' {
@@ -105,51 +158,18 @@ impl NmeaRxBuffer {
     }
 }
 
-impl CoreModel {
-    pub fn nmea_recv_u8(&mut self, b: u8) {
-        if self.nmea_rx_buf.recv_u8(b) {
-            let _ = self.nmea_parse();
-        }
-    }
+pub struct NmeaData {
+    pub rx_data: NmeaRxBuffer,
+    pub tx_data: NmeaTxBuffer,
+    pub readout_idx: u32,
+}
 
-    pub fn nmea_recv_slice(&mut self, bytes: &[u8]) {
-        for b in bytes {
-            self.nmea_recv_u8(*b);
-        }
-    }
-
-    fn nmea_parse(&mut self) -> Result<(), CoreError> {
-        fn in_range(val: f32, lower: f32, upper: f32) -> Result<f32, CoreError> {
-            if val >= lower && val <= upper {
-                Ok(val)
-            } else {
-                Err(CoreError::ParseError)
-            }
-        }
-
-        // check checksum
-        self.nmea_rx_buf.check()?;
-
-        self.nmea_rx_buf.compare_chunk(b"$PLARS")?;
-        self.nmea_rx_buf.compare_chunk(b"H")?;
-
-        let mut cmd = Vec::<u8, 10>::new();
-        cmd.extend_from_slice(self.nmea_rx_buf.next_chunk()?).map_err(|_| CoreError::ParseError)?;
-
-        let s = self.nmea_rx_buf.next_chunk()?;
-        let val = f32::from_slice(s)?;
-
-        match cmd.as_slice() {
-            b"MC" => Ok(self.config.mc_cready = in_range(val, 0.0, 9.9)?.m_s()),
-            b"BAL" => Ok(self
-                .glider_data
-                .set_ballast_ratio(in_range(val, 1.00, 1.60)?)),
-            b"BUGS" => Ok(self.glider_data.bugs = in_range(val, 0.0, 30.0)?),
-            b"QNH" => Ok(self
-                .sensor
-                .pressure_altitude
-                .set_qnh(in_range(val, 900.0, 1100.0)?.hpa())),
-            _ => Err(CoreError::ParseError),
+impl Default for NmeaData {
+    fn default() -> Self {
+        NmeaData {
+            rx_data: NmeaRxBuffer::new(),
+            tx_data: NmeaTxBuffer::new(),
+            readout_idx: 0,
         }
     }
 }
