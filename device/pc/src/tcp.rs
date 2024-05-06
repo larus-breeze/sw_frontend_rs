@@ -1,69 +1,133 @@
 use std::{
-    io::prelude::*,
+    io::{Read, Write},
     net::{TcpListener, TcpStream},
-    time::Duration, vec::Vec,
+    str,
+    sync::mpsc::{self, channel, Receiver, Sender},
+    thread,
 };
 
-const READ_TIMEOUT: Option<Duration> = Some(Duration::from_micros(1));
-
-pub struct TcpInterface {
-    opt_socket: Option<TcpStream>,
-    listener: TcpListener,
-    data: Vec<String>,
+pub struct TcpServer {
+    rx: Option<mpsc::Receiver<Vec<u8>>>,
+    tx: Option<mpsc::Sender<Vec<u8>>>,
+    com: mpsc::Receiver<(mpsc::Receiver<Vec<u8>>, mpsc::Sender<Vec<u8>>)>,
+    rec_str: Vec<u8>,
 }
 
-impl TcpInterface {
+impl TcpServer {
     pub fn new(addr: &str) -> Self {
         let listener = TcpListener::bind(addr).unwrap();
-        TcpInterface { opt_socket: None, listener, data: Vec::new() }
+        let (tx, rx) = mpsc::channel();
+
+        let mut socket = Socket { listener };
+        thread::spawn(move || socket.connect(tx));
+        TcpServer { rx: None, tx: None, com: rx, rec_str: Vec::new() }
     }
 
-    pub fn send(&mut self, sentence: &str) {
-        if self.opt_socket.is_some() {
-            self.data.push(String::from(sentence));
+    fn check_connection(&mut self) {
+        match self.com.try_recv() {
+            Ok((rx, tx)) => {
+                self.rx = Some(rx);
+                self.tx = Some(tx);
+            },
+            Err(_) => (),
         }
     }
 
-    pub fn flush(&mut self) {
-        if self.opt_socket.is_none() {
-            match self.listener.accept() {
-                Ok((socket, _addr)) => {
-                    let r = socket.set_read_timeout(READ_TIMEOUT);
-                    println!("socket.set_read_timeout() {:?}", r);
-                    self.opt_socket = Some(socket);
-                    println!("OK  Socket");
+    pub fn recv(&mut self) -> Option<Vec<u8>> {
+        self.check_connection();
+        match &self.rx {
+            Some(rx) => {
+                match rx.try_recv() {
+                    Ok(s) => self.rec_str.extend(s),
+                    Err(_) => (),
                 }
-                Err(e) => println!("NOK accept() {:?}", e),
             }
+            None => (),
         }
-        if self.send_data().is_err() {
-            self.opt_socket = None;
-        } 
-        self.receive_data();
-    }
 
-    fn send_data(&mut self) -> Result<(), ()> {
-        match self.opt_socket {
-            Some(ref mut socket) => {
-                while self.data.len() > 0 {
-                    let s = self.data.pop().ok_or(())?;
-                    socket.write_all(s.as_bytes()).map_err(|_| ())?;
-                }
-                Ok(())
+        if let Some(idx) = self.rec_str.iter().position(|&x| x==b'\n') {
+            let mut r = self.rec_str.clone();
+            self.rec_str = r.split_off(idx+1);
+
+            if r.len() > 0 {
+                Some(r)
+            } else {
+                None
             }
-            None => Err(())
+        } else {
+            None
         }
     }
 
-    fn receive_data(&mut self) {
-        if let Some(ref mut socket) = self.opt_socket {
-            let mut s = String::new();
-            let r = socket.read_to_string(&mut s);
-            match r {
-                Ok(size) => println!("OK  size {}, s {}", size, s),
-                Err(e) => println!("NOK {:?}", e),
-            }
+    pub fn send(&mut self, s: &[u8]) {
+        self.check_connection();
+        let s = Vec::from(s);
+        match &self.tx {
+            Some(tx) => {
+                let _ = tx.send(s);
+            },
+            None => (),
         }
     }
-
 }
+
+struct Socket {
+    listener: TcpListener,
+}
+
+impl Socket {
+    fn connect(&mut self, com: mpsc::Sender<(mpsc::Receiver<Vec<u8>>, mpsc::Sender<Vec<u8>>)>) {
+        for stream in self.listener.incoming() {
+            match stream {
+                Ok(stream) => {
+                    println!("[TcpServer] new connection");
+
+                    // create 2 channels
+                    let (tx, rx) = channel();
+                    let (tx2, rx2) = channel();
+                    let tx_stream = stream.try_clone().unwrap();
+
+                    // spawn rx and tx thread
+                    thread::spawn(move || { rx_handler(stream, tx);});
+                    thread::spawn(move || { tx_handler(tx_stream, rx2);});
+
+                    // inform TcpServer of new connection
+                    com.send((rx, tx2)).unwrap();
+                }
+                Err(_) => {
+                    println!("Error");
+                }
+            }
+        }
+    }
+}
+
+fn rx_handler(mut stream: TcpStream, tx: Sender<Vec<u8>>) {
+    loop {
+        let mut read = [0; 1028];
+        match stream.read(&mut read) {
+            Ok(n) => {
+                if n == 0 {
+                    // connection was closed
+                    println!("[TcpServer] connection closed");
+                    break;
+                }
+                let s = &read[0..n];
+                tx.send(s.to_vec()).unwrap();
+            }
+            Err(_) => (),
+        }
+    }
+}
+
+fn tx_handler(mut stream: TcpStream, rx: Receiver<Vec<u8>>) {
+    loop {
+        match rx.try_recv() {
+            Ok(s) => {
+                let _ = stream.write(&s[..]);
+            }
+            Err(_) => (),
+        }
+    }
+}
+

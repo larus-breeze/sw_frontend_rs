@@ -5,10 +5,10 @@ use crate::{CoreModel, PersistenceId};
 use super::GpsState;
 
 impl CoreModel {
-    pub fn nmea_gprmc(&mut self) -> &str {
-        self.nmea_buf.reset();
+    pub fn nmea_gprmc(&mut self) -> &[u8] {
+        self.nmea_tx_buf.reset();
         let _ = uwrite!(
-            self.nmea_buf,
+            self.nmea_tx_buf,
             "$GPRMC,{:n},A,{:n},{:n},{:.1},{:.1},{:n},,,A",
             self.sensor.gps_date_time.time(),
             self.sensor.gps_lat,
@@ -17,18 +17,18 @@ impl CoreModel {
             self.sensor.gps_track.to_degrees(),
             self.sensor.gps_date_time.date(),
         );
-        self.nmea_buf.finish()
+        self.nmea_tx_buf.finish()
     }
 
-    pub fn nmea_gpgga(&mut self) -> &str {
-        self.nmea_buf.reset();
+    pub fn nmea_gpgga(&mut self) -> &[u8] {
+        self.nmea_tx_buf.reset();
         let gps_quality_indicator = match self.sensor.gps_state {
             GpsState::PosAvail => 1,
             GpsState::HeadingAvail => 2,
             _ => 0,
         };
         let _ = uwrite!(
-            self.nmea_buf,
+            self.nmea_tx_buf,
             "$GPGGA,{:n},{:n},{:n},{},{},1.0,{:.1},M,{:.1},M,,",
             self.sensor.gps_date_time.time(),
             self.sensor.gps_lat,
@@ -38,105 +38,104 @@ impl CoreModel {
             self.sensor.gps_altitude.to_m(),
             self.sensor.gps_geo_seperation.to_m(),
         );
-        self.nmea_buf.finish()
+        self.nmea_tx_buf.finish()
     }
 
-    pub fn nmea_hchdt(&mut self) -> &str {
-        self.nmea_buf.reset();
+    pub fn nmea_hchdt(&mut self) -> &[u8] {
+        self.nmea_tx_buf.reset();
         let _ = uwrite!(
-            self.nmea_buf,
+            self.nmea_tx_buf,
             "$HCHDT,{:.1},T",
             self.sensor.euler_yaw.to_degrees(),
         );
-        self.nmea_buf.finish()
+        self.nmea_tx_buf.finish()
     }
 
-    pub fn nmea_plarw(&mut self, average: bool) -> &str {
-        self.nmea_buf.reset();
+    pub fn nmea_plarw(&mut self, average: bool) -> &[u8] {
+        self.nmea_tx_buf.reset();
         let (kind, wind) = if average {
             ("A", self.sensor.average_wind)
         } else {
             ("I", self.sensor.wind_vector)
         };
         let _ = uwrite!(
-            self.nmea_buf,
+            self.nmea_tx_buf,
             "$PLARW,{:.0},{:.0},{},A",
             wind.angle().to_degrees(),
             wind.speed().to_km_h(),
             kind,
         );
-        self.nmea_buf.finish()
+        self.nmea_tx_buf.finish()
     }
 
-    pub fn nmea_plara(&mut self) -> &str {
-        self.nmea_buf.reset();
+    pub fn nmea_plara(&mut self) -> &[u8] {
+        self.nmea_tx_buf.reset();
         let _ = uwrite!(
-            self.nmea_buf,
+            self.nmea_tx_buf,
             "$PLARA,{:.1},{:.1},{:.1}",
             self.sensor.euler_roll.to_degrees(),
             self.sensor.euler_nick.to_degrees(),
             self.sensor.euler_yaw.to_degrees(),
         );
-        self.nmea_buf.finish()
+        self.nmea_tx_buf.finish()
     }
 
-    pub fn nmea_plard(&mut self) -> &str {
-        self.nmea_buf.reset();
+    pub fn nmea_plard(&mut self) -> &[u8] {
+        self.nmea_tx_buf.reset();
         let _ = uwrite!(
-            self.nmea_buf,
+            self.nmea_tx_buf,
             "$PLARD,{:.2},M",
             self.sensor.density.to_g_m3(),
         );
-        self.nmea_buf.finish()
+        self.nmea_tx_buf.finish()
     }
 
-    pub fn nmea_plarb(&mut self) -> &str {
-        self.nmea_buf.reset();
-        let _ = uwrite!(self.nmea_buf, "$PLARB,{:.2}", self.device.supply_voltage,);
-        self.nmea_buf.finish()
+    pub fn nmea_plarb(&mut self) -> &[u8] {
+        self.nmea_tx_buf.reset();
+        let _ = uwrite!(self.nmea_tx_buf, "$PLARB,{:.2}", self.device.supply_voltage,);
+        self.nmea_tx_buf.finish()
     }
 
-    pub fn nmea_plarv(&mut self) -> &str {
-        self.nmea_buf.reset();
+    pub fn nmea_plarv(&mut self) -> &[u8] {
+        self.nmea_tx_buf.reset();
         let _ = uwrite!(
-            self.nmea_buf,
+            self.nmea_tx_buf,
             "$PLARV,{:.2},{:.2},{:.0},{:.0}",
             self.sensor.climb_rate.to_m_s(),
             self.sensor.average_climb_rate.to_m_s(),
             self.sensor.pressure_altitude.qne_altitude().to_m(),
             self.sensor.airspeed.tas().to_km_h(),
         );
-        self.nmea_buf.finish()
+        self.nmea_tx_buf.finish()
     }
 
-    pub fn nmea_plars(&mut self, id: PersistenceId) -> Option<&str> {
-        self.nmea_buf.reset();
+    pub fn nmea_plars(&mut self, id: PersistenceId) -> Option<&[u8]> {
+        self.nmea_tx_buf.reset();
         let _ = match id {
             PersistenceId::McCready => uwrite!(
-                self.nmea_buf,
+                self.nmea_tx_buf,
                 "$PLARS,L,MC,{:.1}",
                 self.config.mc_cready.to_m_s()
             ),
             PersistenceId::WaterBallast => uwrite!(
-                self.nmea_buf,
+                self.nmea_tx_buf,
                 "$PLARS,L,BAL,{:.2}",
                 self.glider_data.ballast_ratio(),
             ),
             PersistenceId::Bugs => uwrite!(
-                self.nmea_buf,
+                self.nmea_tx_buf,
                 "$PLARS,L,BUGS,{:.0}",
                 (self.glider_data.bugs - 1.0) * 100.0
             ),
             PersistenceId::Qnh => uwrite!(
-                self.nmea_buf,
+                self.nmea_tx_buf,
                 "$PLARS,L,QNH,{:.1}",
                 self.sensor.pressure_altitude.qnh().to_hpa()
             ),
             _ => return None,
         };
-        Some(self.nmea_buf.finish())
+        Some(self.nmea_tx_buf.finish())
     }
-
 }
 
 #[cfg(test)]
@@ -166,16 +165,16 @@ mod tests {
         cm.sensor.pressure_altitude.set_qnh(1031.37.hpa());
 
         let s = cm.nmea_plars(crate::PersistenceId::McCready);
-        assert_eq!(s, Some("$PLARS,L,MC,1.7*1A\r\n"));
+        assert_eq!(s.unwrap(), b"$PLARS,L,MC,1.7*1A\r\n");
 
         let s = cm.nmea_plars(crate::PersistenceId::WaterBallast);
-        assert_eq!(s, Some("$PLARS,L,BAL,1.26*68\r\n"));
+        assert_eq!(s.unwrap(), b"$PLARS,L,BAL,1.26*68\r\n");
 
         let s = cm.nmea_plars(crate::PersistenceId::Bugs);
-        assert_eq!(s, Some("$PLARS,L,BUGS,23*3E\r\n"));
+        assert_eq!(s.unwrap(), b"$PLARS,L,BUGS,23*3E\r\n");
 
         let s = cm.nmea_plars(crate::PersistenceId::Qnh);
-        assert_eq!(s, Some("$PLARS,L,QNH,1031.4*72\r\n"));
+        assert_eq!(s.unwrap(), b"$PLARS,L,QNH,1031.4*72\r\n");
     }
 
     #[test]
@@ -188,7 +187,7 @@ mod tests {
             .set_static_pressure(97_717.0_f32.n_m2());
         cm.sensor.airspeed = AirSpeed::from_tas_at_nn(111.1.km_h());
         let s = cm.nmea_plarv();
-        assert_eq!(s, "$PLARV,2.50,1.25,305,111*5F\r\n");
+        assert_eq!(s, b"$PLARV,2.50,1.25,305,111*5F\r\n");
     }
 
     #[test]
@@ -196,7 +195,7 @@ mod tests {
         let mut cm = core_model();
         cm.device.supply_voltage = 13.12;
         let s = cm.nmea_plarb();
-        assert_eq!(s, "$PLARB,13.12*4E\r\n");
+        assert_eq!(s, b"$PLARB,13.12*4E\r\n");
     }
 
     #[test]
@@ -204,7 +203,7 @@ mod tests {
         let mut cm = core_model();
         cm.sensor.density = 922.54.g_m3();
         let s = cm.nmea_plard();
-        assert_eq!(s, "$PLARD,922.54,M*10\r\n");
+        assert_eq!(s, b"$PLARD,922.54,M*10\r\n");
     }
 
     #[test]
@@ -214,7 +213,7 @@ mod tests {
         cm.sensor.euler_nick = 98.7_f32.deg();
         cm.sensor.euler_yaw = 12.3_f32.deg();
         let s = cm.nmea_plara();
-        assert_eq!(s, "$PLARA,123.4,98.7,12.3*4E\r\n");
+        assert_eq!(s, b"$PLARA,123.4,98.7,12.3*4E\r\n");
     }
 
     #[test]
@@ -222,11 +221,11 @@ mod tests {
         let mut cm = core_model();
         cm.sensor.average_wind = WindVector::new(45.6.km_h(), 321.0_f32.deg());
         let s = cm.nmea_plarw(true);
-        assert_eq!(s, "$PLARW,321,46,A,A*6A\r\n");
+        assert_eq!(s, b"$PLARW,321,46,A,A*6A\r\n");
 
         cm.sensor.wind_vector = WindVector::new(45.6.km_h(), 321.0_f32.deg());
         let s = cm.nmea_plarw(false);
-        assert_eq!(s, "$PLARW,321,46,I,A*62\r\n");
+        assert_eq!(s, b"$PLARW,321,46,I,A*62\r\n");
     }
 
     #[test]
@@ -234,7 +233,7 @@ mod tests {
         let mut cm = core_model();
         cm.sensor.euler_yaw = 123.4_f32.deg();
         let s = cm.nmea_hchdt();
-        assert_eq!(s, "$HCHDT,123.4,T*2D\r\n");
+        assert_eq!(s, b"$HCHDT,123.4,T*2D\r\n");
     }
 
     #[test]
@@ -253,7 +252,7 @@ mod tests {
         let s = cm.nmea_gpgga();
         assert_eq!(
             s,
-            "$GPGGA,120520.00,4941.39652,S,835.06958,W,2,23,1.0,2745.9,M,12.3,M,,*56\r\n"
+            b"$GPGGA,120520.00,4941.39652,S,835.06958,W,2,23,1.0,2745.9,M,12.3,M,,*56\r\n"
         );
     }
 
@@ -272,7 +271,7 @@ mod tests {
         let s = cm.nmea_gprmc();
         assert_eq!(
             s,
-            "$GPRMC,120520.00,A,4941.39652,N,835.06958,E,123.4,321.4,230623,,,A*53\r\n"
+            b"$GPRMC,120520.00,A,4941.39652,N,835.06958,E,123.4,321.4,230623,,,A*53\r\n"
         );
     }
 
@@ -294,14 +293,14 @@ mod tests {
     }
 }
 
-pub struct NmeaBuffer {
+pub struct NmeaTxBuffer {
     buf: [u8; 82],
     idx: usize,
 }
 
-impl NmeaBuffer {
+impl NmeaTxBuffer {
     pub const fn new() -> Self {
-        NmeaBuffer {
+        NmeaTxBuffer {
             buf: [0; 82],
             idx: 0,
         }
@@ -311,17 +310,17 @@ impl NmeaBuffer {
         self.idx = 0;
     }
 
-    fn finish(&mut self) -> &str {
+    fn finish(&mut self) -> &[u8] {
         let mut cs = 0_u8;
         for b in &self.buf[1..self.idx] {
             cs ^= b;
         }
         let _ = uwrite!(self, "*{:02X}\r\n", cs);
-        unsafe { core::str::from_utf8_unchecked(&self.buf[..self.idx]) }
+        &self.buf[..self.idx]
     }
 }
 
-impl uWrite for NmeaBuffer {
+impl uWrite for NmeaTxBuffer {
     type Error = ();
 
     fn write_str(&mut self, s: &str) -> Result<(), ()> {
