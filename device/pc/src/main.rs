@@ -183,9 +183,6 @@ fn main() -> Result<(), core::convert::Infallible> {
             match idle_event {
                 IdleEvent::EepromItem(item) => {
                     eeprom.write_item(item).unwrap();
-                    if let Some(nmea_str) = core_model.nmea_plars(item.id) {
-                        nmea_server.send(nmea_str);
-                    } 
                 }
                 IdleEvent::SdCardItem(item) => {
                     if item == SdCardCmd::SwUpdateCanceled {
@@ -200,6 +197,7 @@ fn main() -> Result<(), core::convert::Infallible> {
 
         while let Some(nmea_data) = core_model.nmea_next() {
             nmea_server.send(nmea_data);
+            //print!("{}", std::str::from_utf8(nmea_data).unwrap());
         }
 
         let mut buf = [0u8; 10];

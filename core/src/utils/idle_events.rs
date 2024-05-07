@@ -1,7 +1,6 @@
 use crate::{eeprom, DateTime, PersistenceItem};
 use heapless::spsc::{Consumer, Producer, Queue};
 
-#[repr(u16)]
 #[derive(Debug, Copy, Clone)]
 pub enum IdleEvent {
     EepromItem(PersistenceItem),
@@ -11,14 +10,12 @@ pub enum IdleEvent {
     DateTime(DateTime),
 }
 
-#[repr(u16)]
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum SdCardCmd {
     SwUpdateAccepted,
     SwUpdateCanceled,
 }
 
-#[repr(u16)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum PersistenceId {
     DoNotStore = 65535,
