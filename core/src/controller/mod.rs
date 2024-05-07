@@ -224,9 +224,9 @@ impl CoreController {
         // initiate nmea if necessary
         if self.tick % 2 == 0 {
             if self.tick % 10 == 0 {
-                core_model.nmea_activate(false)
+                core_model.nmea_cyclic(false)
             } else {
-                core_model.nmea_activate(true)
+                core_model.nmea_cyclic(true)
             }
         }
 

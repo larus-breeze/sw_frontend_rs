@@ -1,8 +1,8 @@
 use crate::{
     model::nmea_wtr::NmeaTxBuffer,
-    {CoreError, CoreModel, FloatToPressure, FloatToSpeed, ParseSlice},
+    {CoreError, CoreModel, FloatToPressure, FloatToSpeed, ParseSlice, SysConfigId},
 };
-use heapless::Vec;
+use heapless::{Deque, Vec};
 
 impl CoreModel {
     pub fn nmea_recv_u8(&mut self, b: u8) {
@@ -32,8 +32,7 @@ impl CoreModel {
         self.control.nmea.rx_data.compare_chunk(b"$PLARS")?;
         self.control.nmea.rx_data.compare_chunk(b"H")?;
 
-        let mut cmd = Vec::<u8, 10>::new();
-        cmd.extend_from_slice(self.control.nmea.rx_data.next_chunk()?)
+        let cmd: Vec<u8, 10> = Vec::from_slice(self.control.nmea.rx_data.next_chunk()?)
             .map_err(|_| CoreError::ParseError)?;
 
         let s = self.control.nmea.rx_data.next_chunk()?;
@@ -162,6 +161,7 @@ pub struct NmeaData {
     pub rx_data: NmeaRxBuffer,
     pub tx_data: NmeaTxBuffer,
     pub readout_idx: u32,
+    pub pers_id: Deque<SysConfigId, 10>,
 }
 
 impl Default for NmeaData {
@@ -170,6 +170,7 @@ impl Default for NmeaData {
             rx_data: NmeaRxBuffer::new(),
             tx_data: NmeaTxBuffer::new(),
             readout_idx: 0,
+            pers_id: Deque::new(),
         }
     }
 }

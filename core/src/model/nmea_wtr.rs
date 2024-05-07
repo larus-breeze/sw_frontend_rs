@@ -1,40 +1,23 @@
 use tfmt::{uWrite, uwrite};
 
-use crate::{CoreModel, PersistenceId};
+use crate::{CoreModel, SysConfigId};
 
 use super::GpsState;
 
 impl CoreModel {
-    pub fn nmea_plars(&mut self, id: PersistenceId) -> Option<&[u8]> {
-        self.control.nmea.tx_data.reset();
-        let _ = match id {
-            PersistenceId::McCready => uwrite!(
-                self.control.nmea.tx_data,
-                "$PLARS,L,MC,{:.1}",
-                self.config.mc_cready.to_m_s()
-            ),
-            PersistenceId::WaterBallast => uwrite!(
-                self.control.nmea.tx_data,
-                "$PLARS,L,BAL,{:.2}",
-                self.glider_data.ballast_ratio(),
-            ),
-            PersistenceId::Bugs => uwrite!(
-                self.control.nmea.tx_data,
-                "$PLARS,L,BUGS,{:.0}",
-                (self.glider_data.bugs - 1.0) * 100.0
-            ),
-            PersistenceId::Qnh => uwrite!(
-                self.control.nmea.tx_data,
-                "$PLARS,L,QNH,{:.1}",
-                self.sensor.pressure_altitude.qnh().to_hpa()
-            ),
-            _ => return None,
-        };
-        Some(self.control.nmea.tx_data.finish())
+    pub fn nmea_config(&mut self, id: SysConfigId) {
+        // no error if deque is full
+        match id {
+            SysConfigId::Bugs | SysConfigId::MacCready | SysConfigId::WaterBallast | SysConfigId::Qnh => {
+                let _ = self.control.nmea.pers_id.push_back(id);
+            }
+            _ => (),
+        }
+        
     }
 
-    pub fn nmea_activate(&mut self, fast: bool) {
-        if fast {
+    pub fn nmea_cyclic(&mut self, short: bool) {
+        if short {
             self.control.nmea.readout_idx = 106;
         } else {
             self.control.nmea.readout_idx = 100;
@@ -42,6 +25,10 @@ impl CoreModel {
     }
 
     pub fn nmea_next(&mut self) -> Option<&[u8]> {
+        if  self.control.nmea.pers_id.len() > 0 {
+            let id = self.control.nmea.pers_id.pop_front().unwrap();
+            return self.nmea_plars(id);
+        }
         self.control.nmea.readout_idx += 1;
         match self.control.nmea.readout_idx {
             // rarely sent
@@ -136,6 +123,34 @@ impl CoreModel {
             self.sensor.density.to_g_m3(),
         );
         self.control.nmea.tx_data.finish()
+    }
+
+    fn nmea_plars(&mut self, id: SysConfigId) -> Option<&[u8]> {
+        self.control.nmea.tx_data.reset();
+        let _ = match id {
+            SysConfigId::MacCready => uwrite!(
+                self.control.nmea.tx_data,
+                "$PLARS,L,MC,{:.1}",
+                self.config.mc_cready.to_m_s()
+            ),
+            SysConfigId::WaterBallast => uwrite!(
+                self.control.nmea.tx_data,
+                "$PLARS,L,BAL,{:.2}",
+                self.glider_data.ballast_ratio(),
+            ),
+            SysConfigId::Bugs => uwrite!(
+                self.control.nmea.tx_data,
+                "$PLARS,L,BUGS,{:.0}",
+                (self.glider_data.bugs - 1.0) * 100.0
+            ),
+            SysConfigId::Qnh => uwrite!(
+                self.control.nmea.tx_data,
+                "$PLARS,L,QNH,{:.1}",
+                self.sensor.pressure_altitude.qnh().to_hpa()
+            ),
+            _ => return None,
+        };
+        Some(self.control.nmea.tx_data.finish())
     }
 
     fn nmea_plarv(&mut self) -> &[u8] {
@@ -268,16 +283,16 @@ mod tests {
         cm.glider_data.bugs = 1.23;
         cm.sensor.pressure_altitude.set_qnh(1031.37.hpa());
 
-        let s = cm.nmea_plars(crate::PersistenceId::McCready);
+        let s = cm.nmea_plars(crate::SysConfigId::MacCready);
         assert_eq!(s.unwrap(), b"$PLARS,L,MC,1.7*1A\r\n");
 
-        let s = cm.nmea_plars(crate::PersistenceId::WaterBallast);
+        let s = cm.nmea_plars(crate::SysConfigId::WaterBallast);
         assert_eq!(s.unwrap(), b"$PLARS,L,BAL,1.26*68\r\n");
 
-        let s = cm.nmea_plars(crate::PersistenceId::Bugs);
+        let s = cm.nmea_plars(crate::SysConfigId::Bugs);
         assert_eq!(s.unwrap(), b"$PLARS,L,BUGS,23*3E\r\n");
 
-        let s = cm.nmea_plars(crate::PersistenceId::Qnh);
+        let s = cm.nmea_plars(crate::SysConfigId::Qnh);
         assert_eq!(s.unwrap(), b"$PLARS,L,QNH,1031.4*72\r\n");
     }
 
