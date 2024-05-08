@@ -10,8 +10,8 @@ pub struct DevView {
 }
 
 impl DevView {
-    pub fn new(display: DevDisplay) -> Self {
-        let core_view = CoreView::new(display);
+    pub fn new(display: DevDisplay, core_model: &CoreModel) -> Self {
+        let core_view = CoreView::new(display, core_model);
         DevView {
             core_view,
             next_wake_up: DevInstant::from_ticks(0),

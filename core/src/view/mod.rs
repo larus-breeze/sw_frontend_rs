@@ -106,22 +106,28 @@ where
     D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
 {
     pub display: D,
-    primary_view: Option<PrimaryView>,
+    primary_view: PrimaryView,
     secondary_view: Option<SecondaryView>,
+    core_model: CoreModel,
 }
 
 impl<D> CoreView<D>
 where
     D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
 {
-    pub fn new(display: D) -> Self {
-        CoreView { display, primary_view: None, secondary_view: None }
+    pub fn new(display: D, core_model: &CoreModel) -> Self {
+        let primary_view = PrimaryView::Vario(Vario::new(core_model));
+        let core_model = *core_model;
+        CoreView { display, primary_view, secondary_view: None, core_model }
     }
 
     pub fn prepare(&mut self, core_model: &CoreModel) {
+        // take a snapshot
+        self.core_model = *core_model;
+
         self.primary_view = match core_model.config.display_active {
-            DisplayActive::Vario => Some(PrimaryView::Vario(Vario::new(core_model))),
-            DisplayActive::FirmwareUpdate => Some(PrimaryView::SwUpade(SwUpdate::preapare(&core_model))),
+            DisplayActive::Vario => PrimaryView::Vario(Vario::new(core_model)),
+            DisplayActive::FirmwareUpdate => PrimaryView::SwUpade(SwUpdate::preapare(core_model)),
         };
 
         self.secondary_view = if core_model.control.edit_ticks > 0 {
@@ -132,16 +138,14 @@ where
     }
 
     pub fn draw(&mut self) -> Result<(), CoreError> {
-        if let Some(primary_view) = &self.primary_view {
-            match primary_view {
-                PrimaryView::Vario(vario) => vario.draw(&mut self.display)?,
-                PrimaryView::SwUpade(sw_update) => sw_update.draw(&mut self.display)?,
-            }
+        match &self.primary_view {
+            PrimaryView::Vario(vario) => vario.draw(&mut self.display, &self.core_model)?,
+            PrimaryView::SwUpade(sw_update) => sw_update.draw(&mut self.display, &self.core_model)?,
         }
 
         if let Some(secondary_view) = &self.secondary_view {
             match secondary_view {
-                SecondaryView::Edit(edit) => edit.draw(&mut self.display)?,
+                SecondaryView::Edit(edit) => edit.draw(&mut self.display, &self.core_model)?,
             } 
         }
 

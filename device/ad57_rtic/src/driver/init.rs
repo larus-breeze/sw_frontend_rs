@@ -181,7 +181,7 @@ pub fn hw_init(
         }
 
         // Initialize the display and clear the screen
-        (DevView::new(display), frame_buffer)
+        (DevView::new(display, &core_model), frame_buffer)
     };
 
     // Setup ----------> Idleloop (last, because of the dog)

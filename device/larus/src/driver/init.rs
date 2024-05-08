@@ -133,6 +133,9 @@ pub fn hw_init(
     let mut can_dispatch = CanDispatch::new(rnd, p_tx_irq_frames, p_rx_frames, c_tx_frames);
     can_dispatch.set_legacy_filter(0x100, 0x120).unwrap();
 
+    // Setup ----------> CoreModel
+    let mut core_model = CoreModel::new(uuid(), HW_VERSION, SW_VERSION);
+
     // Setup ----------> Frame buffer, Display
     let (frame_buffer, dev_view) = {
         let lcd_pins = LcdPins::new(
@@ -162,11 +165,8 @@ pub fn hw_init(
         let stream0 = stm32h7xx_hal::dma::mdma::StreamsTuple::new(dp.MDMA, ccdr.peripheral.MDMA).0;
 
         let (frame_buffer, display) = FrameBuffer::new(lcd, stream0);
-        (frame_buffer, DevView::new(display))
+        (frame_buffer, DevView::new(display, &core_model))
     };
-
-    // Setup ----------> CoreModel
-    let mut core_model = CoreModel::new(uuid(), HW_VERSION, SW_VERSION);
 
     // Setup ----------> controller
     let mut dev_controller = {
