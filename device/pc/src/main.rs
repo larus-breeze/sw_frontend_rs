@@ -43,7 +43,6 @@ fn main() -> Result<(), core::convert::Infallible> {
 \
     S Key to save image as png file\n\
     U Key to simulate Firmware Update\n\
-    N Key to export available NMEA strings\n\
 "
     );
 
@@ -64,8 +63,6 @@ fn main() -> Result<(), core::convert::Infallible> {
     };
 
     let mut core_model = CoreModel::new(
-        p_idle_events,
-        p_tx_frames,
         0x1234_5678,
         HW_VERSION,
         SW_VERSION,
@@ -73,12 +70,12 @@ fn main() -> Result<(), core::convert::Infallible> {
     let mut eeprom = Storage::new().unwrap();
     let mut nmea_server = TcpServer::new("127.0.0.1:4353");
 
+    let mut controller = CoreController::new(&mut core_model, p_idle_events, p_tx_frames);
     for item in eeprom.iter_over(EepromTopic::ConfigValues) {
-        core_model.restore_persistent_item(item);
+        controller.restore_persistent_item(&mut core_model, item);
         println!("Restored {:?}", item);
     }
 
-    let mut controller = CoreController::new(&mut core_model);
     let mut view = CoreView::new(display);
     let socket = UdpSocket::bind("127.0.0.1:5005").expect("Could not open UDP socket");
     socket
@@ -119,16 +116,14 @@ fn main() -> Result<(), core::convert::Infallible> {
                         }
                         Keycode::U => {
                             let device_event = match sw_update_status {
-                                0 => DeviceEvent::FwAvailable(SW_VERSION),
-                                1 => DeviceEvent::PrepareFwUpload,
-                                2 => DeviceEvent::UploadInProgress,
-                                3 => DeviceEvent::UploadFinished,
-                                _ => DeviceEvent::UploadFinished,
-                            };
-                            sw_update_status = if sw_update_status == 3 {
-                                0
-                            } else {
-                                sw_update_status + 1
+                                0 => {
+                                    sw_update_status = 1;
+                                    DeviceEvent::FwAvailable(SW_VERSION)
+                                },
+                                _ => {
+                                    sw_update_status = 0;
+                                    DeviceEvent::UploadFinished
+                                },
                             };
                             controller.device_action(&mut core_model, &device_event);
                             KeyEvent::NoEvent
@@ -195,7 +190,7 @@ fn main() -> Result<(), core::convert::Infallible> {
             }
         }
 
-        while let Some(nmea_data) = core_model.nmea_next() {
+        while let Some(nmea_data) = controller.nmea_handler.nmea_next(&mut core_model) {
             nmea_server.send(nmea_data);
             //print!("{}", std::str::from_utf8(nmea_data).unwrap());
         }
@@ -209,7 +204,7 @@ fn main() -> Result<(), core::convert::Infallible> {
         }
 
         if let Some(rx_data) = nmea_server.recv() {
-            core_model.nmea_recv_slice(rx_data.as_slice());
+            controller.nmea_handler.nmea_recv_slice(&mut core_model, rx_data.as_slice());
         }
     }
     Ok(())

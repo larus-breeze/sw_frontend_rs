@@ -15,6 +15,8 @@ use crate::{
     CoreError, DrawImage,
 };
 
+use self::sw_update::SwUpdate;
+
 #[allow(dead_code)]
 struct VarioSizes {
     diameter_stf: u32,
@@ -110,7 +112,10 @@ where
     pub fn draw(&mut self, core_model: &mut CoreModel) -> Result<(), CoreError> {
         match core_model.config.display_active {
             DisplayActive::Vario => vario::draw(&mut self.display, core_model)?,
-            DisplayActive::FirmwareUpdate => sw_update::draw(&mut self.display, core_model)?,
+            DisplayActive::FirmwareUpdate => {
+                let sw_update = SwUpdate::preapare(&core_model);
+                sw_update.draw(&mut self.display)?;
+            }
         }
 
         if core_model.control.edit_ticks > 0 {

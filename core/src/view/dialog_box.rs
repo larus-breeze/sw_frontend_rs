@@ -34,10 +34,6 @@ impl<'a> DialogBox<'a> {
         }
     }
 
-    pub fn set_text_color(&mut self, color: Colors) {
-        self.text_color = color;
-    }
-
     pub fn draw<D>(&mut self, display: &mut D, text: &str) -> Result<(), CoreError>
     where
         D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,

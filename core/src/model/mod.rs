@@ -1,22 +1,17 @@
 mod calculated;
-mod can_rdr;
-mod can_wtr;
 mod config;
 mod control;
 mod device;
-mod nmea_rdr;
-mod nmea_wtr;
-mod persistence;
 mod sensor;
 
 use crate::{
-    basic_config::MAX_TX_FRAMES, common::PTxFrames, flight_physics::GliderData, utils::PIdleEvents,
+    flight_physics::GliderData,
     HwVersion, SwVersion,
 };
 use calculated::Calculated;
 pub use config::{Config, DisplayActive};
 pub use control::{
-    Control, EditMode, FlyMode, SystemState, TcrMode, VarioMode, VarioModeControl, MAX_PERS_IDS,
+    Control, EditMode, FlyMode, SystemState, TcrMode, VarioMode, VarioModeControl, 
 };
 use device::Device;
 pub use sensor::{GpsState, Sensor};
@@ -28,6 +23,7 @@ pub use sensor::{GpsState, Sensor};
 /// channels to the data sources like Larus, controls, sensors, inputs and time. The View
 /// modules display the data contents. The LCD display and the sound system are the most
 /// important ones.
+#[derive(Clone, Copy)]
 pub struct CoreModel {
     pub calculated: Calculated,
     pub config: Config,
@@ -35,14 +31,10 @@ pub struct CoreModel {
     pub device: Device,
     pub glider_data: GliderData,
     pub sensor: Sensor,
-    p_idle_events: PIdleEvents,
-    pub p_tx_frames: PTxFrames<MAX_TX_FRAMES>,
 }
 
 impl CoreModel {
     pub fn new(
-        p_idle_events: PIdleEvents,
-        p_tx_frames: PTxFrames<MAX_TX_FRAMES>,
         uuid: u32,
         hw_version: HwVersion,
         sw_version: SwVersion,
@@ -65,8 +57,6 @@ impl CoreModel {
             device,
             glider_data,
             sensor,
-            p_idle_events,
-            p_tx_frames,
         }
     }
 }

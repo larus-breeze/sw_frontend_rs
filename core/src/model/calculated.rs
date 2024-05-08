@@ -4,6 +4,7 @@ use crate::{
 };
 
 /// Metastructure for calculated or set values
+#[derive(Copy, Clone)]
 pub struct Calculated {
     pub speed_to_fly: AirSpeed,
     pub av_speed_to_fly: Speed, // ref. IAS

@@ -6,13 +6,10 @@ use super::{
 };
 use crate::{
     basic_config::*,
-    model::SystemState,
-    model::{CoreModel, FlyMode, VarioMode},
+    model::{CoreModel, FlyMode, SystemState, VarioMode},
     system_of_units::FloatToSpeed,
     tformat,
-    utils::themes::Palette,
-    utils::Colors,
-    utils::FONT_BIG,
+    utils::{themes::Palette, Colors, FONT_BIG},
     CoreError, DrawImage,
 };
 

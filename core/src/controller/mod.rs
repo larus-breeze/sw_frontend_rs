@@ -1,3 +1,6 @@
+mod can_rdr;
+mod can_wtr;
+
 mod demo;
 use demo::DemoController;
 
@@ -7,6 +10,12 @@ use vario::VarioController;
 mod sw_update;
 use sw_update::SwUpdateController;
 
+mod nmea_rdr;
+mod nmea_wtr;
+use nmea_wtr::NmeaHandler;
+
+mod persistence;
+
 use crate::{
     basic_config::CONTROLLER_TICK_RATE,
     flight_physics::Polar,
@@ -14,11 +23,14 @@ use crate::{
     system_of_units::{FloatToSpeed, Speed},
     themes::{BRIGHT_MODE, DARK_MODE},
     utils::{KeyEvent, Pt1},
-    CoreModel, DeviceEvent, FlyMode, Frame, IdleEvent, PersistenceId, VarioMode, POLARS,
+    CoreModel, DeviceEvent, FlyMode, IdleEvent, PersistenceId, VarioMode, POLARS, SdCardCmd,
+    basic_config::MAX_TX_FRAMES, common::PTxFrames, utils::PIdleEvents,
 };
 
 #[allow(unused_imports)]
 use micromath::F32Ext;
+
+use heapless::FnvIndexSet;
 
 #[repr(u8)]
 #[derive(Clone, Copy, PartialEq)]
@@ -46,6 +58,8 @@ pub enum Result {
     NextDisplay(Direction),
 }
 
+pub const MAX_PERS_IDS: usize = 8;
+
 pub struct CoreController {
     demo: DemoController,
     polar: Polar,
@@ -55,10 +69,14 @@ pub struct CoreController {
     last_vario_mode: VarioMode,
     av2_climb_rate: Pt1<Speed>,
     av_speed_to_fly: Pt1<Speed>,
+    pub nmea_handler: NmeaHandler,
+    pub pers_vals: FnvIndexSet<PersistenceId, MAX_PERS_IDS>,
+    p_idle_events: PIdleEvents,
+    p_tx_frames: PTxFrames<MAX_TX_FRAMES>,
 }
 
 impl CoreController {
-    pub fn new(core_model: &mut CoreModel) -> Self {
+    pub fn new(core_model: &mut CoreModel, p_idle_events: PIdleEvents, p_tx_frames: PTxFrames<MAX_TX_FRAMES>) -> Self {
         let polar_idx = core_model.config.glider_idx as usize;
         let polar = Polar::new(&POLARS[polar_idx], &mut core_model.glider_data);
         let av2_climb_rate = Pt1::new(
@@ -80,6 +98,10 @@ impl CoreController {
             sw_update: SwUpdateController::new(),
             av2_climb_rate,
             av_speed_to_fly,
+            nmea_handler: NmeaHandler::default(),
+            pers_vals: FnvIndexSet::new(),
+            p_idle_events,
+            p_tx_frames,
         }
     }
 
@@ -97,6 +119,7 @@ impl CoreController {
         }
         if core_model.config.display_active == DisplayActive::FirmwareUpdate {
             self.sw_update.device_action(core_model, device_event);
+            self.send_idle_event(IdleEvent::SdCardItem(SdCardCmd::SwUpdateAccepted))
         }
     }
 
@@ -117,7 +140,7 @@ impl CoreController {
                 } else {
                     core_model.config.theme = &DARK_MODE;
                 };
-                core_model.push_persistence_id(PersistenceId::DisplayMode);
+                self.push_persistence_id(core_model, PersistenceId::DisplayMode);
             }
             _ => (),
         }
@@ -126,7 +149,7 @@ impl CoreController {
             self.demo.key_action(core_model, key_event)
         } else {
             match core_model.config.display_active {
-                DisplayActive::Vario => self.vario.key_action(core_model, key_event),
+                DisplayActive::Vario => self.vario.key_action(core_model, &mut &mut self.p_tx_frames, key_event, &mut self.nmea_handler),
                 DisplayActive::FirmwareUpdate => self.sw_update.key_action(core_model, key_event),
             }
         };
@@ -149,7 +172,7 @@ impl CoreController {
     }
 
     pub fn time_action(&mut self, core_model: &mut CoreModel) {
-        core_model.pers_tick();
+        self.pers_tick(core_model);
         if core_model.control.vario_mode == VarioMode::Vario {
             self.av2_climb_rate.tick(core_model.sensor.climb_rate);
             core_model.calculated.av2_climb_rate = self.av2_climb_rate.value();
@@ -168,7 +191,7 @@ impl CoreController {
                     Editable::VarioModeControl => PersistenceId::VarioModeControl,
                     _ => PersistenceId::DoNotStore,
                 };
-                core_model.store_persistence_id(pers_id);
+                self.store_persistence_id(core_model, pers_id);
             }
         }
 
@@ -213,20 +236,20 @@ impl CoreController {
             let event = IdleEvent::SetGain(gain as u8);
 
             // send event to the idle loop, which handles the amplifier via i2c
-            core_model.send_idle_event(event);
+            self.send_idle_event(event);
         }
 
         // create CAN frame
         let can_frame = core_model.can_frame_sound();
         // add CAN frame to queue, ignore if the queue is full
-        let _ = core_model.p_tx_frames.enqueue(can_frame);
+        let _ = self.p_tx_frames.enqueue(can_frame);
 
         // initiate nmea if necessary
         if self.tick % 2 == 0 {
             if self.tick % 10 == 0 {
-                core_model.nmea_cyclic(false)
+                self.nmea_handler.nmea_cyclic(false)
             } else {
-                core_model.nmea_cyclic(true)
+                self.nmea_handler.nmea_cyclic(true)
             }
         }
 
@@ -315,7 +338,7 @@ impl CoreController {
             3 => {
                 // create CAN frame and add to queue
                 let can_frame = core_model.can_frame_heartbeat();
-                let _ = core_model.p_tx_frames.enqueue(can_frame);
+                let _ = self.p_tx_frames.enqueue(can_frame);
                 core_model.control.system_state = if core_model.control.can_devices != 0 {
                     match core_model.sensor.gps_state {
                         GpsState::PosAvail | GpsState::HeadingAvail => SystemState::CanAndGpsOk,
@@ -329,20 +352,15 @@ impl CoreController {
             }
             4 => {
                 let event = IdleEvent::DateTime(core_model.sensor.gps_date_time);
-                core_model.send_idle_event(event);
+                self.send_idle_event(event);
                 core_model.control.alive_ticks += 1;
             }
             5 => {
                 let can_frame = core_model.can_frame_volt_temp();
-                let _ = core_model.p_tx_frames.enqueue(can_frame);
+                let _ = self.p_tx_frames.enqueue(can_frame);
             }
             _ => (),
         }
-    }
-
-    /// Interprets a Can Frame and stores the results in the CoreModel
-    pub fn read_can_frame(&self, core_model: &mut CoreModel, frame: &Frame) {
-        core_model.can_frame_read(frame)
     }
 
     /// Executes instructions based on the user's input
