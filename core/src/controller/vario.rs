@@ -92,6 +92,7 @@ impl VarioController {
                 .kg();
                 if let Some(frame) = cm.can_frame_sys_config(SysConfigId::WaterBallast) {
                     let _ = p_tx_frames.enqueue(frame);
+                    nmea.nmea_config(SysConfigId::WaterBallast);
                 }
             }
             Editable::Glider => {
