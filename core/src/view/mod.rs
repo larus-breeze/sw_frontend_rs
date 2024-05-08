@@ -12,9 +12,8 @@ use crate::{
     model::{CoreModel, DisplayActive},
     utils::Colors,
     CoreError, DrawImage,
+    view::{edit::Edit, sw_update::SwUpdate, vario::Vario},
 };
-
-use self::sw_update::SwUpdate;
 
 #[allow(dead_code)]
 struct VarioSizes {
@@ -93,11 +92,22 @@ pub const RADIUS: u32 = DIAMETER / 2;
 pub const CENTER: Point = Point::new(RADIUS as i32 + MARGIN, RADIUS as i32 + MARGIN);
 pub const SCREEN_CENTER: Point = Point::new(DISPLAY_WIDTH as i32 / 2, DISPLAY_HEIGHT as i32 / 2);
 
+enum PrimaryView {
+    Vario(Vario),
+    SwUpade(SwUpdate),
+}
+
+enum SecondaryView {
+    Edit(Edit),
+}
+
 pub struct CoreView<D>
 where
     D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
 {
     pub display: D,
+    primary_view: Option<PrimaryView>,
+    secondary_view: Option<SecondaryView>,
 }
 
 impl<D> CoreView<D>
@@ -105,23 +115,34 @@ where
     D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
 {
     pub fn new(display: D) -> Self {
-        CoreView { display }
+        CoreView { display, primary_view: None, secondary_view: None }
     }
 
-    pub fn draw(&mut self, core_model: &mut CoreModel) -> Result<(), CoreError> {
-        match core_model.config.display_active {
-            DisplayActive::Vario => {
-                let vario = vario::Vario::new(core_model);
-                vario.draw(&mut self.display)?;
-            }
-            DisplayActive::FirmwareUpdate => {
-                let sw_update = SwUpdate::preapare(&core_model);
-                sw_update.draw(&mut self.display)?;
+    pub fn prepare(&mut self, core_model: &CoreModel) {
+        self.primary_view = match core_model.config.display_active {
+            DisplayActive::Vario => Some(PrimaryView::Vario(Vario::new(core_model))),
+            DisplayActive::FirmwareUpdate => Some(PrimaryView::SwUpade(SwUpdate::preapare(&core_model))),
+        };
+
+        self.secondary_view = if core_model.control.edit_ticks > 0 {
+            Some(SecondaryView::Edit(Edit::new(core_model)))
+        } else {
+            None
+        };
+    }
+
+    pub fn draw(&mut self) -> Result<(), CoreError> {
+        if let Some(primary_view) = &self.primary_view {
+            match primary_view {
+                PrimaryView::Vario(vario) => vario.draw(&mut self.display)?,
+                PrimaryView::SwUpade(sw_update) => sw_update.draw(&mut self.display)?,
             }
         }
 
-        if core_model.control.edit_ticks > 0 {
-            edit::draw(&mut self.display, core_model)?;
+        if let Some(secondary_view) = &self.secondary_view {
+            match secondary_view {
+                SecondaryView::Edit(edit) => edit.draw(&mut self.display)?,
+            } 
         }
 
         Ok(())

@@ -2,7 +2,7 @@ use core::cell::RefCell;
 
 use defmt::trace;
 
-use crate::{driver::*, install_and_restart, update_available};
+use crate::{driver::*, install_and_restart, update_available, DevController};
 use corelib::{CIdleEvents, CoreModel, DeviceEvent, Eeprom, Event, IdleEvent, SdCardCmd};
 use fugit::ExtU32;
 use stm32h7xx_hal::{
@@ -26,7 +26,8 @@ impl IdleLoop {
         mut watchdog: IndependentWatchdog,
         c_idle_events: CIdleEvents,
         q_events: &'static QEvents,
-        core_model: &mut CoreModel,
+        cm: &mut CoreModel,
+        dc: &mut DevController,
     ) -> Self {
         // I found no other solution
         let (mut eeprom, amplifier) = unsafe {
@@ -37,7 +38,7 @@ impl IdleLoop {
             )
         };
         for item in eeprom.iter_over(corelib::EepromTopic::ConfigValues) {
-            core_model.restore_persistent_item(item);
+            dc.core().restore_persistent_item(cm, item);
         }
 
         if let Some(version) = update_available() {

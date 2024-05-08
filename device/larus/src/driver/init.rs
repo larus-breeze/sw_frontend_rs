@@ -166,10 +166,10 @@ pub fn hw_init(
     };
 
     // Setup ----------> CoreModel
-    let mut core_model = CoreModel::new(p_idle_events, p_tx_frames, uuid(), HW_VERSION, SW_VERSION);
+    let mut core_model = CoreModel::new(uuid(), HW_VERSION, SW_VERSION);
 
     // Setup ----------> controller
-    let dev_controller = {
+    let mut dev_controller = {
         let mut adc1 = adc::Adc::adc1(
             dp.ADC1,
             4.MHz(),
@@ -182,6 +182,8 @@ pub fn hw_init(
         DevController::new(
             &mut core_model,
             &Q_EVENTS,
+            p_idle_events, 
+            p_tx_frames, 
             c_rx_frames,
             adc1.enable(),
             gpioa.pa6,
@@ -213,7 +215,7 @@ pub fn hw_init(
 
         let watchdog = IndependentWatchdog::new(dp.IWDG);
 
-        let idle_loop = IdleLoop::new(i2c, watchdog, c_idle_events, &Q_EVENTS, &mut core_model);
+        let idle_loop = IdleLoop::new(i2c, watchdog, c_idle_events, &Q_EVENTS, &mut core_model, &mut dev_controller);
 
         // switch LCD backlight on, after eventually firmware update (avoids flickering)
         backlight_control.set_low();

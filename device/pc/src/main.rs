@@ -153,7 +153,8 @@ fn main() -> Result<(), core::convert::Infallible> {
             controller.key_action(&mut core_model, &key_event);
         }
         controller.time_action(&mut core_model);
-        view.draw(&mut core_model).unwrap();
+        view.prepare(&core_model);
+        view.draw().unwrap();
 
         while c_tx_frames.len() > 0 {
             let frame = c_tx_frames.dequeue().unwrap();

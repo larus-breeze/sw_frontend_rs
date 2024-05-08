@@ -172,16 +172,16 @@ mod app {
         task_start!(cx, Task::Controller);
 
         task_controller::spawn_after(DevDuration::millis(100)).unwrap();
-        let controller = cx.local.controller;
         let all_alive = cx
             .shared
             .statistics
             .lock(|statistics| statistics.all_alive());
 
+        let controller = cx.local.controller;
         let (frequecy, continuous, gain) = cx.shared.core_model.lock(|core_model| {
             if all_alive {
                 // feed the watchdog, if all tasks are alive
-                core_model.send_idle_event(IdleEvent::FeedTheDog);
+                controller.core().send_idle_event(IdleEvent::FeedTheDog);
             }
             // do controller calculations
             controller.tick(core_model);
@@ -208,13 +208,17 @@ mod app {
 
         let view = cx.local.dev_view;
         cx.shared.core_model.lock(|core_model| {
-            let _ = view.tick(core_model);
+            view.core().prepare(core_model);
         });
+        let _ = view.core().draw();
+
         let wake_up_at = view.wake_up_at();
         task_view::spawn_at(wake_up_at).unwrap();
+
         cx.shared.frame_buffer.lock(|frame_buffer| {
             frame_buffer.flush();
         });
+
         task_end!(cx, Task::View);
     }
 

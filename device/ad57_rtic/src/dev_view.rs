@@ -27,7 +27,7 @@ impl DevView {
         self.next_wake_up = now;
     }
 
-    pub fn tick(&mut self, core_model: &mut CoreModel) -> Result<(), CoreError> {
-        self.core_view.draw(core_model)
+    pub fn core(&mut self) -> &mut CoreView<DevDisplay> {
+        &mut self.core_view
     }
 }
