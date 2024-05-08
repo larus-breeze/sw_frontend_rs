@@ -76,7 +76,7 @@ fn main() -> Result<(), core::convert::Infallible> {
         println!("Restored {:?}", item);
     }
 
-    let mut view = CoreView::new(display);
+    let mut view = CoreView::new(display, &core_model);
     let socket = UdpSocket::bind("127.0.0.1:5005").expect("Could not open UDP socket");
     socket
         .set_read_timeout(Some(Duration::from_millis(40)))

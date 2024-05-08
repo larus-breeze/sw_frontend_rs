@@ -22,7 +22,7 @@ impl SwUpdate {
         }
     }
 
-    pub fn draw<D>(&self, display: &mut D) -> Result<(), CoreError>
+    pub fn draw<D>(&self, display: &mut D, _cm: &CoreModel) -> Result<(), CoreError>
     where
         D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
     {

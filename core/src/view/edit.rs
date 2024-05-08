@@ -64,7 +64,7 @@ impl Edit {
         Edit { name_str, val_str: val_str.unwrap() }
     }
 
-    pub fn draw<D>(&self, display: &mut D) -> Result<(), CoreError>
+    pub fn draw<D>(&self, display: &mut D, _cm: &CoreModel) -> Result<(), CoreError>
     where
         D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
     {
