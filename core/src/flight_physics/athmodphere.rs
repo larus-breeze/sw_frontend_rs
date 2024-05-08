@@ -58,6 +58,7 @@ pub fn altitude(static_air_pressure: Pressure) -> Length {
     Length(horner(static_air_pressure.0, &COEFS))
 }
 
+#[derive(Clone, Copy)]
 pub struct PressureAltitude {
     qnh_ref: Pressure,
     qfe_ref: Pressure,

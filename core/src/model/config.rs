@@ -14,6 +14,7 @@ pub enum DisplayActive {
 }
 
 /// Metastructur for config variables
+#[derive(Clone, Copy)]
 pub struct Config {
     pub display_active: DisplayActive,
     pub last_display_active: DisplayActive,

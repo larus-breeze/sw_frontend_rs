@@ -61,6 +61,7 @@ impl F64ToCoord for f64 {
     }
 }
 
+#[derive(Clone, Copy)]
 pub struct Latitude(pub Coord);
 
 impl uDisplayFormatted for Latitude {
@@ -95,6 +96,7 @@ impl uDisplayFormatted for Latitude {
         }
     }
 }
+#[derive(Clone, Copy)]
 pub struct Longitude(pub Coord);
 
 impl uDisplayFormatted for Longitude {

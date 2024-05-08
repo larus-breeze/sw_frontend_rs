@@ -6,8 +6,11 @@ use crate::{
     system_of_units::{FloatToMass, FloatToSpeed},
     utils::{val_manip, KeyEvent},
     SysConfigId,
+    basic_config::MAX_TX_FRAMES, common::PTxFrames,
 };
 use num::clamp;
+
+use super::nmea_wtr::NmeaHandler;
 
 pub struct VarioController {
     edit_var: Editable,
@@ -20,7 +23,7 @@ impl VarioController {
         }
     }
 
-    pub fn key_action(&mut self, cm: &mut CoreModel, key_event: &KeyEvent) -> Result {
+    pub fn key_action(&mut self, cm: &mut CoreModel, p_tx_frames: &mut PTxFrames<MAX_TX_FRAMES>, key_event: &KeyEvent, nmea: &mut NmeaHandler) -> Result {
         if cm.control.edit_ticks == 0 {
             self.edit_var = Editable::Volume;
         }
@@ -61,7 +64,8 @@ impl VarioController {
                 cm.config.mc_cready =
                     val_manip(cm.config.mc_cready.to_m_s(), key_event, 0.1, 0.5, 0.0, 5.0).m_s();
                 if let Some(frame) = cm.can_frame_sys_config(SysConfigId::MacCready) {
-                    let _ = cm.p_tx_frames.enqueue(frame);
+                    let _ = p_tx_frames.enqueue(frame);
+                    nmea.nmea_config(SysConfigId::MacCready);
                 }
             }
             Editable::Volume => {
@@ -73,7 +77,7 @@ impl VarioController {
                     _ => return Result::Nothing,
                 };
                 if let Some(frame) = cm.can_frame_sys_config(SysConfigId::VolumeVario) {
-                    let _ = cm.p_tx_frames.enqueue(frame);
+                    let _ = p_tx_frames.enqueue(frame);
                 }
             }
             Editable::WaterBallast => {
@@ -87,7 +91,7 @@ impl VarioController {
                 )
                 .kg();
                 if let Some(frame) = cm.can_frame_sys_config(SysConfigId::WaterBallast) {
-                    let _ = cm.p_tx_frames.enqueue(frame);
+                    let _ = p_tx_frames.enqueue(frame);
                 }
             }
             Editable::Glider => {
@@ -111,7 +115,7 @@ impl VarioController {
                 )
                 .kg();
                 if let Some(frame) = cm.can_frame_sys_config(SysConfigId::PilotWeight) {
-                    let _ = cm.p_tx_frames.enqueue(frame);
+                    let _ = p_tx_frames.enqueue(frame);
                 }
             }
             Editable::VarioModeControl => {
@@ -129,7 +133,7 @@ impl VarioController {
                     _ => cm.control.vario_mode_control,
                 };
                 if let Some(frame) = cm.can_frame_sys_config(SysConfigId::VarioModeControl) {
-                    let _ = cm.p_tx_frames.enqueue(frame);
+                    let _ = p_tx_frames.enqueue(frame);
                 }
             }
             _ => (),

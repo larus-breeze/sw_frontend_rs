@@ -32,21 +32,17 @@ impl CoreModel {
         match config_id {
             SysConfigId::MacCready => {
                 LE::write_f32(&mut data[2..6], self.config.mc_cready.to_m_s());
-                self.nmea_config(config_id);
             }
             SysConfigId::PilotWeight => {
                 LE::write_f32(&mut data[2..6], self.glider_data.pilot_weight.to_kg());
-                self.nmea_config(config_id);
             }
             SysConfigId::VarioModeControl => data[0] = self.control.vario_mode_control as u8,
             SysConfigId::VolumeVario => data[0] = self.config.volume as u8,
             SysConfigId::WaterBallast => {
                 LE::write_f32(&mut data[2..6], self.glider_data.water_ballast.to_kg());
-                self.nmea_config(config_id);
             }
             SysConfigId::Qnh => {
-                self.nmea_config(config_id);
-                return None
+                return None;
             }
             _ => return None,
         }

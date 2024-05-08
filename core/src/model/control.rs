@@ -1,13 +1,9 @@
 use crate::{
     controller::Editable,
-    model::nmea_rdr::NmeaData,
     system_of_units::{FloatToLength, FloatToSpeed, Length, Speed},
     utils::DeviceEvent,
-    CanActive, PersistenceId,
+    CanActive, 
 };
-use heapless::FnvIndexSet;
-
-pub const MAX_PERS_IDS: usize = 8;
 
 /// Flymode display variants
 ///
@@ -17,6 +13,7 @@ pub const MAX_PERS_IDS: usize = 8;
 /// In Flymode::Gliding the mean climb is hidden and the speed command is displayed
 /// graphically and as a number. Flymode::Transition is treatet like Flymode::Gliding
 #[repr(u8)]
+#[derive(Clone, Copy)]
 pub enum FlyMode {
     Circling,
     StraightFlight,
@@ -55,6 +52,7 @@ impl From<u8> for VarioModeControl {
 /// Enum mode controls whether the background should be visible or not when editing a data
 /// point.
 #[repr(u8)]
+#[derive(Clone, Copy)]
 pub enum EditMode {
     Section,
     Fullscreen,
@@ -77,6 +75,7 @@ pub enum SystemState {
 }
 
 /// Metastructure for different control variables
+#[derive(Clone, Copy)]
 pub struct Control {
     /// Count secs the firmware is alive
     pub alive_ticks: u32,
@@ -102,8 +101,6 @@ pub struct Control {
     pub edit_ticks: u32, // Used by the editor for the timeout
     /// Timeout counter to save persistent data
     pub pers_ticks: u32,
-    /// These values have to be stored
-    pub pers_vals: FnvIndexSet<PersistenceId, MAX_PERS_IDS>,
     /// Activates the demo mode
     pub demo_acitve: bool,
     /// DeviceEvent::FwAvailable, PrepareFwUpload, ...
@@ -116,8 +113,6 @@ pub struct Control {
     pub tcr_1s_transient_ticks: u32,
     /// Height at the beginning of the climb
     pub tcr_start: Length,
-    /// Buffers and index for nmea in / output
-    pub nmea: NmeaData,
 }
 
 impl Default for Control {
@@ -135,14 +130,12 @@ impl Default for Control {
             edit_var: Editable::ClimbRate,
             edit_ticks: 0,
             pers_ticks: 0,
-            pers_vals: FnvIndexSet::new(),
             demo_acitve: false,
             firmware_update_state: DeviceEvent::UploadFinished,
             tcr_mode: TcrMode::StraightFlight,
             tcr_1s_climb_ticks: 0,
             tcr_1s_transient_ticks: 0,
             tcr_start: 0.0.m(),
-            nmea: NmeaData::default(),
         }
     }
 }

@@ -1,23 +1,38 @@
-use crate::{
-    model::nmea_wtr::NmeaTxBuffer,
-    {CoreError, CoreModel, FloatToPressure, FloatToSpeed, ParseSlice, SysConfigId},
-};
-use heapless::{Deque, Vec};
+use crate::CoreError;
 
-impl CoreModel {
-    pub fn nmea_recv_u8(&mut self, b: u8) {
-        if self.control.nmea.rx_data.recv_u8(b) {
-            let _ = self.nmea_parse();
+/*pub struct NmeaHandler {
+    rx_data: NmeaRxBuffer,
+    tx_data: NmeaTxBuffer,
+    readout_idx: u32,
+    pers_id: Deque<SysConfigId, 10>,
+}
+
+impl Default for NmeaHandler {
+    fn default() -> Self {
+        NmeaHandler {
+            rx_data: NmeaRxBuffer::new(),
+            tx_data: NmeaTxBuffer::new(),
+            readout_idx: 0,
+            pers_id: Deque::new(),
+        }
+    }
+}
+
+
+impl NmeaHandler {
+    pub fn recv_u8(&mut self, cm: &mut CoreModel, b: u8) {
+        if self.rx_data.recv_u8(b) {
+            let _ = self.nmea_parse(cm);
         }
     }
 
-    pub fn nmea_recv_slice(&mut self, bytes: &[u8]) {
+    pub fn nmea_recv_slice(&mut self, cm: &mut CoreModel, bytes: &[u8]) {
         for b in bytes {
-            self.nmea_recv_u8(*b);
+            self.recv_u8(cm, *b);
         }
     }
 
-    fn nmea_parse(&mut self) -> Result<(), CoreError> {
+    fn nmea_parse(&mut self, cm: &mut CoreModel) -> Result<(), CoreError> {
         fn in_range(val: f32, lower: f32, upper: f32) -> Result<f32, CoreError> {
             if val >= lower && val <= upper {
                 Ok(val)
@@ -27,31 +42,31 @@ impl CoreModel {
         }
 
         // check checksum
-        self.control.nmea.rx_data.check()?;
+        self.rx_data.check()?;
 
-        self.control.nmea.rx_data.compare_chunk(b"$PLARS")?;
-        self.control.nmea.rx_data.compare_chunk(b"H")?;
+        self.rx_data.compare_chunk(b"$PLARS")?;
+        self.rx_data.compare_chunk(b"H")?;
 
-        let cmd: Vec<u8, 10> = Vec::from_slice(self.control.nmea.rx_data.next_chunk()?)
+        let cmd: Vec<u8, 10> = Vec::from_slice(self.rx_data.next_chunk()?)
             .map_err(|_| CoreError::ParseError)?;
 
-        let s = self.control.nmea.rx_data.next_chunk()?;
+        let s = self.rx_data.next_chunk()?;
         let val = f32::from_slice(s)?;
 
         match cmd.as_slice() {
-            b"MC" => Ok(self.config.mc_cready = in_range(val, 0.0, 9.9)?.m_s()),
-            b"BAL" => Ok(self
+            b"MC" => Ok(cm.config.mc_cready = in_range(val, 0.0, 9.9)?.m_s()),
+            b"BAL" => Ok(cm
                 .glider_data
                 .set_ballast_ratio(in_range(val, 1.00, 1.60)?)),
-            b"BUGS" => Ok(self.glider_data.bugs = in_range(val, 0.0, 30.0)?),
-            b"QNH" => Ok(self
+            b"BUGS" => Ok(cm.glider_data.bugs = in_range(val, 0.0, 30.0)?),
+            b"QNH" => Ok(cm
                 .sensor
                 .pressure_altitude
                 .set_qnh(in_range(val, 900.0, 1100.0)?.hpa())),
             _ => Err(CoreError::ParseError),
         }
     }
-}
+}*/
 
 const HEX_TAB: &[u8; 16] = b"0123456789ABCDEF";
 
@@ -77,7 +92,7 @@ impl NmeaRxBuffer {
         }
     }
 
-    fn recv_u8(&mut self, b: u8) -> bool {
+    pub fn recv_u8(&mut self, b: u8) -> bool {
         match self.state {
             RxState::WaitForStart => {
                 if b == b'$' {
@@ -106,7 +121,7 @@ impl NmeaRxBuffer {
         false
     }
 
-    fn compare_chunk(&mut self, s: &[u8]) -> Result<(), CoreError> {
+    pub fn compare_chunk(&mut self, s: &[u8]) -> Result<(), CoreError> {
         let slice = self.next_chunk()?;
         if slice == s {
             return Ok(());
@@ -115,7 +130,7 @@ impl NmeaRxBuffer {
         }
     }
 
-    fn next_chunk(&mut self) -> Result<&[u8], CoreError> {
+    pub fn next_chunk(&mut self) -> Result<&[u8], CoreError> {
         let mut idx = self.chunk_idx;
         while idx < self.idx {
             let b = self.buf[idx];
@@ -129,7 +144,7 @@ impl NmeaRxBuffer {
         Err(CoreError::ParseError)
     }
 
-    fn check(&mut self) -> Result<(), CoreError> {
+    pub fn check(&mut self) -> Result<(), CoreError> {
         let mut cs = 0;
         let mut end_deteced = false;
         let mut idx = 1;
@@ -157,20 +172,3 @@ impl NmeaRxBuffer {
     }
 }
 
-pub struct NmeaData {
-    pub rx_data: NmeaRxBuffer,
-    pub tx_data: NmeaTxBuffer,
-    pub readout_idx: u32,
-    pub pers_id: Deque<SysConfigId, 10>,
-}
-
-impl Default for NmeaData {
-    fn default() -> Self {
-        NmeaData {
-            rx_data: NmeaRxBuffer::new(),
-            tx_data: NmeaTxBuffer::new(),
-            readout_idx: 0,
-            pers_id: Deque::new(),
-        }
-    }
-}

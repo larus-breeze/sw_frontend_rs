@@ -1,71 +1,67 @@
 use crate::{
-    model::{GpsState, VarioModeControl},
-    AirSpeed, Angle, CanActive, CanFrame, CoreModel, F64ToCoord, FloatToAcceleration,
-    FloatToAngularVelocity, FloatToDensity, FloatToLength, FloatToMass, FloatToPressure,
-    FloatToSpeed, FlyMode, Frame, GenericFrame, GenericId, Latitude, Longitude, SpecificFrame,
-    SysConfigId,
+    model::{GpsState, VarioModeControl}, AirSpeed, Angle, CanActive, CanFrame, CoreController, CoreModel, F64ToCoord, FloatToAcceleration, FloatToAngularVelocity, FloatToDensity, FloatToLength, FloatToMass, FloatToPressure, FloatToSpeed, FlyMode, Frame, GenericFrame, GenericId, Latitude, Longitude, SpecificFrame, SysConfigId
 };
 use byteorder::{ByteOrder, LittleEndian as LE};
 use embedded_graphics::prelude::AngleUnit;
 
 use crate::utils::{object_id, sensor_legacy};
 
-impl CoreModel {
-    pub fn can_frame_read(&mut self, frame: &Frame) {
+impl CoreController {
+    pub fn read_can_frame(&mut self, cm: &mut CoreModel, frame: &Frame) {
         match frame {
-            Frame::Generic(generic_frame) => self.can_frame_read_generic(generic_frame),
-            Frame::Specific(specific_frame) => self.can_frame_read_specific(specific_frame),
-            Frame::Legacy(can_frame) => self.can_frame_read_legacy(can_frame),
+            Frame::Generic(generic_frame) => self.can_frame_read_generic(cm, generic_frame),
+            Frame::Specific(specific_frame) => self.can_frame_read_specific(cm, specific_frame),
+            Frame::Legacy(can_frame) => self.can_frame_read_legacy(cm, can_frame),
         }
     }
 
-    fn can_frame_read_generic(&mut self, frame: &GenericFrame) {
+    fn can_frame_read_generic(&mut self, cm: &mut CoreModel, frame: &GenericFrame) {
         let mut rdr: Reader<'_> = Reader::new(frame.can_frame.data());
         #[allow(clippy::single_match)]
         match GenericId::from(frame.generic_id) {
             GenericId::SetSysSetting => {
                 let config_id = SysConfigId::from(rdr.pop_u16());
-                self.can_frame_read_sys_config_value(config_id, &frame.can_frame)
+                self.can_frame_read_sys_config_value(cm, config_id, &frame.can_frame)
             }
             _ => (),
         }
     }
 
-    fn can_frame_read_specific(&mut self, frame: &SpecificFrame) {
+    fn can_frame_read_specific(&mut self, cm: &mut CoreModel, frame: &SpecificFrame) {
         #[allow(clippy::single_match)]
         match frame.object_id {
-            object_id::SENSOR => self.can_frame_read_sensor_values(frame),
+            object_id::SENSOR => self.can_frame_read_sensor_values(cm, frame),
             _ => (),
         }
     }
 
-    fn can_frame_read_sys_config_value(&mut self, config_id: SysConfigId, frame: &CanFrame) {
+    fn can_frame_read_sys_config_value(&mut self, cm: &mut CoreModel, config_id: SysConfigId, frame: &CanFrame) {
         match config_id {
             SysConfigId::MacCready => {
-                self.config.mc_cready = frame.read_f32(4).m_s();
-                self.push_persistence_id(crate::PersistenceId::McCready);
+                cm.config.mc_cready = frame.read_f32(4).m_s();
+                self.push_persistence_id(cm, crate::PersistenceId::McCready);
             }
             SysConfigId::PilotWeight => {
-                self.glider_data.pilot_weight = frame.read_f32(4).kg();
-                self.push_persistence_id(crate::PersistenceId::PilotWeight);
+                cm.glider_data.pilot_weight = frame.read_f32(4).kg();
+                self.push_persistence_id(cm, crate::PersistenceId::PilotWeight);
             }
             SysConfigId::VolumeVario => {
-                self.config.volume = frame.read_u8(2) as i8;
-                self.push_persistence_id(crate::PersistenceId::Volume);
+                cm.config.volume = frame.read_u8(2) as i8;
+                self.push_persistence_id(cm, crate::PersistenceId::Volume);
             }
             SysConfigId::WaterBallast => {
-                self.glider_data.water_ballast = frame.read_f32(4).kg();
-                self.push_persistence_id(crate::PersistenceId::WaterBallast);
+                cm.glider_data.water_ballast = frame.read_f32(4).kg();
+                self.push_persistence_id(cm, crate::PersistenceId::WaterBallast);
             }
             SysConfigId::VarioModeControl => {
-                self.control.vario_mode_control = VarioModeControl::from(frame.read_u8(2));
-                self.push_persistence_id(crate::PersistenceId::VarioModeControl);
+                cm.control.vario_mode_control = VarioModeControl::from(frame.read_u8(2));
+                self.push_persistence_id(cm, crate::PersistenceId::VarioModeControl);
             }
             _ => (),
         }
     }
 
-    fn can_frame_read_legacy(&mut self, frame: &CanFrame) {
+    fn can_frame_read_legacy(&mut self, cm: &mut CoreModel, frame: &CanFrame) {
         fn norm_rad(mut r: i16) -> Angle {
             if r < 0 {
                 r += 6284
@@ -78,31 +74,31 @@ impl CoreModel {
 
         match id {
             sensor_legacy::EULER_ANGLES => {
-                self.sensor.euler_roll = norm_rad(rdr.pop_i16());
-                self.sensor.euler_nick = norm_rad(rdr.pop_i16());
-                self.sensor.euler_yaw = norm_rad(rdr.pop_i16());
+                cm.sensor.euler_roll = norm_rad(rdr.pop_i16());
+                cm.sensor.euler_nick = norm_rad(rdr.pop_i16());
+                cm.sensor.euler_yaw = norm_rad(rdr.pop_i16());
             }
             sensor_legacy::ACCELERATION => {
-                self.sensor.g_force = ((rdr.pop_i16() as f32) * 0.001).m_s2();
-                self.sensor.vertical_g_force = ((rdr.pop_i16() as f32) * 0.001).m_s2();
-                self.sensor.gps_climb_rate = ((rdr.pop_i16() as f32) * 0.001).m_s();
+                cm.sensor.g_force = ((rdr.pop_i16() as f32) * 0.001).m_s2();
+                cm.sensor.vertical_g_force = ((rdr.pop_i16() as f32) * 0.001).m_s2();
+                cm.sensor.gps_climb_rate = ((rdr.pop_i16() as f32) * 0.001).m_s();
                 match rdr.pop_u8() {
-                    0 => self.control.fly_mode = FlyMode::StraightFlight,
-                    2 => self.control.fly_mode = FlyMode::Circling,
+                    0 => cm.control.fly_mode = FlyMode::StraightFlight,
+                    2 => cm.control.fly_mode = FlyMode::Circling,
                     _ => (),
                 }
             }
             sensor_legacy::AIRSPEED => {
                 let tas = (rdr.pop_i16() as f32).km_h();
                 let ias = (rdr.pop_i16() as f32).km_h();
-                self.sensor.airspeed = AirSpeed::from_speeds(ias, tas);
+                cm.sensor.airspeed = AirSpeed::from_speeds(ias, tas);
             }
             sensor_legacy::ATHMOSPHERE => {
-                self.sensor.pressure = (rdr.pop_u32() as f32).n_m2();
-                self.sensor.density = (rdr.pop_u32() as f32).g_m3();
-                self.sensor
+                cm.sensor.pressure = (rdr.pop_u32() as f32).n_m2();
+                cm.sensor.density = (rdr.pop_u32() as f32).g_m3();
+                cm.sensor
                     .pressure_altitude
-                    .set_static_pressure(self.sensor.pressure);
+                    .set_static_pressure(cm.sensor.pressure);
             }
             sensor_legacy::GPS_DATE_TIME => {
                 let year = 2000 + rdr.pop_u8() as u16;
@@ -111,57 +107,57 @@ impl CoreModel {
                 let hour = rdr.pop_u8();
                 let min = rdr.pop_u8();
                 let sec = rdr.pop_u8();
-                self.sensor
+                cm.sensor
                     .gps_date_time
                     .set_date_time(year, month, day, hour, min, sec);
             }
             sensor_legacy::GPS_LAT_LON => {
-                self.sensor.gps_lat = Latitude(((rdr.pop_i32() as f64) * 1.0e-7).deg());
-                self.sensor.gps_lon = Longitude(((rdr.pop_i32() as f64) * 1.0e-7).deg());
+                cm.sensor.gps_lat = Latitude(((rdr.pop_i32() as f64) * 1.0e-7).deg());
+                cm.sensor.gps_lon = Longitude(((rdr.pop_i32() as f64) * 1.0e-7).deg());
             }
             sensor_legacy::GPS_ALT => {
-                self.sensor.gps_altitude = (rdr.pop_i32() as f32).mm();
-                self.sensor.gps_geo_seperation = (rdr.pop_i32() as f32 * 0.1).m();
+                cm.sensor.gps_altitude = (rdr.pop_i32() as f32).mm();
+                cm.sensor.gps_geo_seperation = (rdr.pop_i32() as f32 * 0.1).m();
             }
             sensor_legacy::GPS_TRK_SPD => {
-                self.sensor.gps_track = (rdr.pop_i16() as f32 * 0.001).rad();
-                self.sensor.gps_ground_speed = (rdr.pop_u16() as f32).km_h();
-                if self.sensor.gps_ground_speed < 1.0.km_h() {
-                    self.sensor.gps_track = 0.0_f32.rad();
+                cm.sensor.gps_track = (rdr.pop_i16() as f32 * 0.001).rad();
+                cm.sensor.gps_ground_speed = (rdr.pop_u16() as f32).km_h();
+                if cm.sensor.gps_ground_speed < 1.0.km_h() {
+                    cm.sensor.gps_track = 0.0_f32.rad();
                 }
-                if self.sensor.gps_track < 0.0_f32.rad() {
-                    self.sensor.gps_track += 360.0_f32.deg();
+                if cm.sensor.gps_track < 0.0_f32.rad() {
+                    cm.sensor.gps_track += 360.0_f32.deg();
                 }
             }
             sensor_legacy::GPS_SATS => {
-                self.sensor.gps_sats = rdr.pop_u8();
+                cm.sensor.gps_sats = rdr.pop_u8();
                 match rdr.pop_u8() {
-                    1 => self.sensor.gps_state = GpsState::PosAvail,
-                    3 => self.sensor.gps_state = GpsState::HeadingAvail,
-                    _ => self.sensor.gps_state = GpsState::NoGps,
+                    1 => cm.sensor.gps_state = GpsState::PosAvail,
+                    3 => cm.sensor.gps_state = GpsState::HeadingAvail,
+                    _ => cm.sensor.gps_state = GpsState::NoGps,
                 }
             }
             sensor_legacy::TURN_COORD => {
-                self.sensor.slip_angle = ((rdr.pop_i16() as f32) * 0.001).rad();
-                self.sensor.turn_rate = ((rdr.pop_i16() as f32) * 0.001).rad_s();
-                self.sensor.nick_angle = ((rdr.pop_i16() as f32) * 0.001).rad();
+                cm.sensor.slip_angle = ((rdr.pop_i16() as f32) * 0.001).rad();
+                cm.sensor.turn_rate = ((rdr.pop_i16() as f32) * 0.001).rad_s();
+                cm.sensor.nick_angle = ((rdr.pop_i16() as f32) * 0.001).rad();
             }
             sensor_legacy::VARIO => {
-                self.sensor.climb_rate = ((rdr.pop_i16() as f32) * 0.001).m_s();
-                self.sensor.average_climb_rate = ((rdr.pop_i16() as f32) * 0.001).m_s();
-                self.control.can_devices |= CanActive::SensorboxLegacy as u32;
+                cm.sensor.climb_rate = ((rdr.pop_i16() as f32) * 0.001).m_s();
+                cm.sensor.average_climb_rate = ((rdr.pop_i16() as f32) * 0.001).m_s();
+                cm.control.can_devices |= CanActive::SensorboxLegacy as u32;
             }
             sensor_legacy::WIND => {
-                self.sensor
+                cm.sensor
                     .wind_vector
                     .set_angle(((rdr.pop_i16() as f32) * 0.001).rad());
-                self.sensor
+                cm.sensor
                     .wind_vector
                     .set_speed((rdr.pop_i16() as f32).km_h());
-                self.sensor
+                cm.sensor
                     .average_wind
                     .set_angle(((rdr.pop_i16() as f32) * 0.001).rad());
-                self.sensor
+                cm.sensor
                     .average_wind
                     .set_speed((rdr.pop_i16() as f32).km_h());
             }
@@ -169,7 +165,7 @@ impl CoreModel {
         }
     }
 
-    fn can_frame_read_sensor_values(&mut self, _frame: &SpecificFrame) {
+    fn can_frame_read_sensor_values(&mut self, _cm: &mut CoreModel, _frame: &SpecificFrame) {
 
         /* FIXME: This is an unfinished fragment
         let mut rdr: Reader<'_> = Reader::new(frame.can_frame.data());
