@@ -1,5 +1,7 @@
 use crate::{driver::QEvents, CoreController};
-use corelib::{basic_config::MAX_RX_FRAMES, CRxFrames, CoreModel, Event}; // sensor
+use corelib::{
+    basic_config::{MAX_RX_FRAMES, MAX_TX_FRAMES}, CRxFrames, CoreModel, Event, PIdleEvents, PTxFrames
+};
 
 #[cfg(feature = "test-panic")]
 use corelib::FloatToMass;
@@ -16,14 +18,20 @@ impl DevController {
     pub fn new(
         core_model: &mut CoreModel,
         q_events: &'static QEvents,
+        p_idle_events: PIdleEvents,
+        p_tx_frames: PTxFrames<MAX_TX_FRAMES>,
         c_rx_frames: CRxFrames<MAX_RX_FRAMES>,
     ) -> Self {
-        let core_controller = CoreController::new(core_model);
+        let core_controller = CoreController::new(core_model, p_idle_events, p_tx_frames);
         DevController {
             core_controller,
             q_events,
             c_rx_frames,
         }
+    }
+
+    pub fn core(&mut self) -> &mut CoreController {
+        &mut self.core_controller
     }
 
     pub fn tick(&mut self, core_model: &mut CoreModel) {

@@ -1,6 +1,7 @@
 use crate::{driver::QEvents, CoreController};
-use corelib::{basic_config::MAX_RX_FRAMES, CRxFrames, CoreModel, Event};
-// sensor
+use corelib::{
+    basic_config::{MAX_RX_FRAMES, MAX_TX_FRAMES}, CRxFrames, CoreModel, Event, PIdleEvents, PTxFrames
+};
 use stm32h7xx_hal::{adc, gpio::Pin, pac::ADC1, prelude::*};
 
 type DevAdc = adc::Adc<ADC1, adc::Enabled>;
@@ -28,13 +29,15 @@ impl DevController {
     pub fn new(
         core_model: &mut CoreModel,
         q_events: &'static QEvents,
+        p_idle_events: PIdleEvents,
+        p_tx_frames: PTxFrames<MAX_TX_FRAMES>,
         c_rx_frames: CRxFrames<MAX_RX_FRAMES>,
         mut adc: DevAdc,
         supply_pin: SupplyPin,
         illumination_pin: IlluminationPin,
         temperature_pin: TemperutrePin,
     ) -> Self {
-        let core_controller = CoreController::new(core_model);
+        let core_controller = CoreController::new(core_model, p_idle_events, p_tx_frames);
         let supply_pin = supply_pin.into_analog();
         let illumination_pin = illumination_pin.into_analog();
         let temperature_pin = temperature_pin.into_analog();
@@ -49,6 +52,10 @@ impl DevController {
             temperature_pin,
             tick_cnt: 0,
         }
+    }
+
+    pub fn core(&mut self) -> &mut CoreController {
+        &mut self.core_controller
     }
 
     pub fn tick(&mut self, core_model: &mut CoreModel) {
