@@ -1,9 +1,6 @@
 mod can_rdr;
 mod can_wtr;
 
-mod demo;
-use demo::DemoController;
-
 mod vario;
 use vario::VarioController;
 
@@ -61,7 +58,6 @@ pub enum Result {
 pub const MAX_PERS_IDS: usize = 8;
 
 pub struct CoreController {
-    demo: DemoController,
     polar: Polar,
     vario: VarioController,
     sw_update: SwUpdateController,
@@ -90,7 +86,6 @@ impl CoreController {
             core_model.config.av_speed_to_fly_tc,
         );
         Self {
-            demo: DemoController::new(),
             polar,
             vario: VarioController::new(),
             tick: 0,
@@ -125,15 +120,6 @@ impl CoreController {
 
     pub fn key_action(&mut self, core_model: &mut CoreModel, key_event: &KeyEvent) {
         match key_event {
-            KeyEvent::Btn1EscS3 => {
-                if core_model.control.demo_acitve {
-                    core_model.control.demo_acitve = false;
-                    return;
-                } else {
-                    core_model.control.demo_acitve = true;
-                    return;
-                }
-            }
             KeyEvent::Btn2S3 => {
                 if core_model.config.theme == &DARK_MODE {
                     core_model.config.theme = &BRIGHT_MODE;
@@ -145,13 +131,9 @@ impl CoreController {
             _ => (),
         }
 
-        let result = if core_model.control.demo_acitve {
-            self.demo.key_action(core_model, key_event)
-        } else {
-            match core_model.config.display_active {
-                DisplayActive::Vario => self.vario.key_action(core_model, &mut &mut self.p_tx_frames, key_event, &mut self.nmea_handler),
-                DisplayActive::FirmwareUpdate => self.sw_update.key_action(core_model, key_event),
-            }
+        let result =  match core_model.config.display_active {
+            DisplayActive::Vario => self.vario.key_action(core_model, &mut &mut self.p_tx_frames, key_event, &mut self.nmea_handler),
+            DisplayActive::FirmwareUpdate => self.sw_update.key_action(core_model, key_event),
         };
 
         if *key_event == KeyEvent::BtnEnc && core_model.control.edit_ticks > 1 {
