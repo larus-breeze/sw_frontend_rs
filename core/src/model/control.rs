@@ -101,8 +101,6 @@ pub struct Control {
     pub edit_ticks: u32, // Used by the editor for the timeout
     /// Timeout counter to save persistent data
     pub pers_ticks: u32,
-    /// Activates the demo mode
-    pub demo_acitve: bool,
     /// DeviceEvent::FwAvailable, PrepareFwUpload, ...
     pub firmware_update_state: DeviceEvent,
     /// TcrMode::StraightFlight, TcrMode::Transition, TcrMode::Climbing
@@ -130,7 +128,6 @@ impl Default for Control {
             edit_var: Editable::ClimbRate,
             edit_ticks: 0,
             pers_ticks: 0,
-            demo_acitve: false,
             firmware_update_state: DeviceEvent::UploadFinished,
             tcr_mode: TcrMode::StraightFlight,
             tcr_1s_climb_ticks: 0,

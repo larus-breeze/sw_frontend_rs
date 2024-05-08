@@ -1,6 +1,5 @@
 use embedded_graphics::prelude::*;
 
-pub mod demo;
 pub mod edit;
 pub mod sw_update;
 
@@ -111,7 +110,10 @@ where
 
     pub fn draw(&mut self, core_model: &mut CoreModel) -> Result<(), CoreError> {
         match core_model.config.display_active {
-            DisplayActive::Vario => vario::draw(&mut self.display, core_model)?,
+            DisplayActive::Vario => {
+                let vario = vario::Vario::new(core_model);
+                vario.draw(&mut self.display)?;
+            }
             DisplayActive::FirmwareUpdate => {
                 let sw_update = SwUpdate::preapare(&core_model);
                 sw_update.draw(&mut self.display)?;
@@ -120,10 +122,6 @@ where
 
         if core_model.control.edit_ticks > 0 {
             edit::draw(&mut self.display, core_model)?;
-        }
-
-        if core_model.control.demo_acitve {
-            demo::draw(&mut self.display, core_model)?;
         }
 
         Ok(())
