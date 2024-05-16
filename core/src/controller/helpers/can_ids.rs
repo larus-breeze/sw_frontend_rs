@@ -38,35 +38,6 @@ impl From<u16> for GenericId {
     }
 }
 
-/// Definition of changeable values in SetSysSetting
-#[repr(u16)]
-#[derive(Clone, Copy)]
-pub enum SysConfigId {
-    VolumeVario = 0,
-    MacCready = 1,
-    WaterBallast = 2,
-    Bugs = 3,
-    Qnh = 4,
-    PilotWeight = 5,
-    VarioModeControl = 6,
-    Ignore = 7,
-}
-
-impl From<u16> for SysConfigId {
-    fn from(value: u16) -> Self {
-        if value > SysConfigId::Ignore as u16 {
-            SysConfigId::Ignore
-        } else {
-            // unsafe: values lower than ::Ignore are ok
-            unsafe { transmute::<u16, SysConfigId>(value) }
-        }
-    }
-}
-pub enum SysValueId {
-    U8(u8),
-    F32(f32),
-}
-
 #[rustfmt::skip]
 #[allow(unused)]
 pub mod object_id {

@@ -20,8 +20,18 @@ use eeprom::Storage;
 use embedded_graphics::prelude::*;
 use embedded_graphics_simulator::{sdl2::Keycode, OutputSettings, SimulatorEvent, Window};
 use heapless::spsc::Queue;
-use std::{net::UdpSocket, time::Duration};
+use std::{
+    net::UdpSocket,
+    time::{Duration, SystemTime, UNIX_EPOCH},
+};
 use tcp::TcpServer;
+
+fn millis() -> u16 {
+    let since_the_epoch = SystemTime::now()
+        .duration_since(UNIX_EPOCH)
+        .expect("Time went backwards");
+    since_the_epoch.as_millis() as u16
+}
 
 fn main() -> Result<(), core::convert::Infallible> {
     println!(
@@ -62,28 +72,25 @@ fn main() -> Result<(), core::convert::Infallible> {
         unsafe { Q_TX_FRAMES.split() }
     };
 
-    let mut core_model = CoreModel::new(
-        0x1234_5678,
-        HW_VERSION,
-        SW_VERSION,
-    );
+    let mut core_model = CoreModel::new(0x1234_5678, HW_VERSION, SW_VERSION);
     let mut eeprom = Storage::new().unwrap();
     let mut nmea_server = TcpServer::new("127.0.0.1:4353");
 
     let mut controller = CoreController::new(&mut core_model, p_idle_events, p_tx_frames);
     for item in eeprom.iter_over(EepromTopic::ConfigValues) {
-        controller.restore_persistent_item(&mut core_model, item);
+        controller.persist_restore_item(&mut core_model, item);
         println!("Restored {:?}", item);
     }
 
     let mut view = CoreView::new(display, &core_model);
     let socket = UdpSocket::bind("127.0.0.1:5005").expect("Could not open UDP socket");
     socket
-        .set_read_timeout(Some(Duration::from_millis(40)))
+        .set_read_timeout(Some(Duration::from_millis(10)))
         .expect("Could not set read timeout");
 
     let mut img_no = 0_u32;
     let mut sw_update_status = 0_u32;
+    controller.set_ms(millis());
 
     'running: loop {
         window.update(&view.display.display);
@@ -119,11 +126,11 @@ fn main() -> Result<(), core::convert::Infallible> {
                                 0 => {
                                     sw_update_status = 1;
                                     DeviceEvent::FwAvailable(SW_VERSION)
-                                },
+                                }
                                 _ => {
                                     sw_update_status = 0;
                                     DeviceEvent::UploadFinished
-                                },
+                                }
                             };
                             controller.device_action(&mut core_model, &device_event);
                             KeyEvent::NoEvent
@@ -152,7 +159,7 @@ fn main() -> Result<(), core::convert::Infallible> {
         if key_event != KeyEvent::NoEvent {
             controller.key_action(&mut core_model, &key_event);
         }
-        controller.time_action(&mut core_model);
+        controller.tick_1ms(millis(), &mut core_model);
         view.prepare(&core_model);
         view.draw().unwrap();
 
@@ -191,9 +198,11 @@ fn main() -> Result<(), core::convert::Infallible> {
             }
         }
 
-        while let Some(nmea_data) = controller.nmea_handler.nmea_next(&mut core_model) {
+        while let Some(nmea_data) = controller.nmea_next(&mut core_model) {
             nmea_server.send(nmea_data);
-            //print!("{}", std::str::from_utf8(nmea_data).unwrap());
+            if nmea_data.len() >= 6 && &nmea_data[0..6] == b"$PLARS" {
+                print!("{}", std::str::from_utf8(nmea_data).unwrap());
+            }
         }
 
         let mut buf = [0u8; 10];
@@ -205,7 +214,8 @@ fn main() -> Result<(), core::convert::Infallible> {
         }
 
         if let Some(rx_data) = nmea_server.recv() {
-            controller.nmea_handler.nmea_recv_slice(&mut core_model, rx_data.as_slice());
+            controller.nmea_recv_slice(&mut core_model, rx_data.as_slice());
+            print!("{}", std::str::from_utf8(&rx_data).unwrap());
         }
     }
     Ok(())

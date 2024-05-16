@@ -1,4 +1,4 @@
-use crate::{CanFrame, CoreModel, Frame, GenericId, SpecialId, SysConfigId};
+use crate::{CanFrame, CoreModel, Frame, GenericId, PersistenceId, SpecialId};
 use byteorder::{ByteOrder, LittleEndian as LE};
 
 const OBJECT_ID: u16 = 4;
@@ -27,21 +27,21 @@ impl CoreModel {
         )
     }
 
-    pub fn can_frame_sys_config(&mut self, config_id: SysConfigId) -> Option<Frame> {
+    pub fn can_frame_sys_config(&mut self, config_id: PersistenceId) -> Option<Frame> {
         let mut data = [0u8; 6];
         match config_id {
-            SysConfigId::MacCready => {
+            PersistenceId::McCready => {
                 LE::write_f32(&mut data[2..6], self.config.mc_cready.to_m_s());
             }
-            SysConfigId::PilotWeight => {
+            PersistenceId::PilotWeight => {
                 LE::write_f32(&mut data[2..6], self.glider_data.pilot_weight.to_kg());
             }
-            SysConfigId::VarioModeControl => data[0] = self.control.vario_mode_control as u8,
-            SysConfigId::VolumeVario => data[0] = self.config.volume as u8,
-            SysConfigId::WaterBallast => {
+            PersistenceId::VarioModeControl => data[0] = self.control.vario_mode_control as u8,
+            PersistenceId::Volume => data[0] = self.config.volume as u8,
+            PersistenceId::WaterBallast => {
                 LE::write_f32(&mut data[2..6], self.glider_data.water_ballast.to_kg());
             }
-            SysConfigId::Qnh => {
+            PersistenceId::Qnh => {
                 return None;
             }
             _ => return None,

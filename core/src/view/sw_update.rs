@@ -1,5 +1,6 @@
-use crate::view::dialog_box::DialogBox;
+use super::helpers::dialog_box::DialogBox;
 use crate::{model::CoreModel, tformat, utils::Colors, CoreError, DeviceEvent, DrawImage};
+
 use embedded_graphics::draw_target::DrawTarget;
 use heapless::String;
 
@@ -8,7 +9,7 @@ pub struct SwUpdate {
 }
 
 impl SwUpdate {
-    pub fn preapare(cm: &CoreModel) -> SwUpdate {
+    pub fn new(cm: &CoreModel) -> SwUpdate {
         let text = match cm.control.firmware_update_state {
             DeviceEvent::FwAvailable(_version) => tformat!(100, "Not used"),
             DeviceEvent::PrepareFwUpload => tformat!(100, "Preparing..."),

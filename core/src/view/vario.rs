@@ -1,5 +1,5 @@
 use super::{
-    elements::*, // inverted_scale_marker,
+    helpers::sprites::*, // inverted_scale_marker,
     CENTER,
     RADIUS,
     VARIO_SIZES,
@@ -25,12 +25,11 @@ use VARIO_SIZES as SZS;
 const WIND_MIN: f32 = 10.0; // 10 km/h
 const WIND_MAX: f32 = 30.0; // 30 km/h
 
-pub struct Vario {
-}
+pub struct Vario {}
 
 impl Vario {
     pub fn new(_cm: &CoreModel) -> Vario {
-        Vario {  }
+        Vario {}
     }
 
     pub fn draw<D>(&self, display: &mut D, cm: &CoreModel) -> Result<(), CoreError>
@@ -44,7 +43,7 @@ impl Vario {
             Some(cm.color(Palette::Scale)),
         )?;
         display.draw_img(M_S_IMG, SZS.unit_pos, Some(cm.color(Palette::Scale)))?;
-    
+
         for (pos_x, pos_y, txt) in WALLPAPER_SCALE {
             let pos = Point::new(pos_x, pos_y);
             FONT_BIG.render(
@@ -55,7 +54,7 @@ impl Vario {
                 display,
             )?;
         }
-    
+
         if cm.device.supply_voltage > cm.device.voltage_limit_good {
             display.draw_img(BAT_FULL_IMG, SZS.bat_pos, Some(cm.color(Palette::SignalGo)))?;
         } else if cm.device.supply_voltage < cm.device.voltage_limit_bad {
@@ -71,14 +70,14 @@ impl Vario {
                 Some(cm.color(Palette::SignalWarning)),
             )?;
         }
-    
+
         let color = match cm.control.system_state {
             SystemState::NoCom => cm.color(Palette::SignalStop),
             SystemState::CanOk => cm.color(Palette::SignalWarning),
             SystemState::CanAndGpsOk => cm.color(Palette::SignalGo),
         };
         display.draw_img(SAT_IMG, SZS.sat_pos, Some(color))?;
-    
+
         // draw mc_ready marker
         scale_marker(
             display,
@@ -89,7 +88,7 @@ impl Vario {
             SZS.mc_width,
             cm.color(Palette::Needle2),
         )?;
-    
+
         // draw average climb rate marker
         inverted_scale_marker(
             display,
@@ -100,7 +99,7 @@ impl Vario {
             SZS.tcr_width,
             cm.color(Palette::Needle3),
         )?;
-    
+
         // draw climb rate indicator
         let angle = (SZS.angle_m_s * num::clamp(cm.sensor.climb_rate.to_m_s(), -5.1, 5.1)).deg();
         classic_indicator(
@@ -112,7 +111,7 @@ impl Vario {
             RADIUS as i32,
             cm.color(Palette::Needle1),
         )?;
-    
+
         // draw wind arrow
         let wind_speed = cm.sensor.wind_vector.speed().to_km_h();
         let (mut angle, mut av_angle, fill_color, stroke_color) = match cm.control.fly_mode {
@@ -139,7 +138,7 @@ impl Vario {
                 )
             }
         };
-    
+
         // Patch: set wind to 0 when aircraft is on the ground. However, this should be realised in
         // the sensor box.
         let txt_angle = if cm.sensor.airspeed.ias() < 30.0.km_h() {
@@ -149,7 +148,7 @@ impl Vario {
         } else {
             cm.sensor.wind_vector.angle()
         };
-    
+
         let len = match wind_speed {
             x if x < WIND_MIN => SZS.wind_len_min, // Light wind is set to a minimum size
             x if x > WIND_MAX => SZS.wind_len,     // Strong wind is set to a maximum size
@@ -168,8 +167,8 @@ impl Vario {
             fill_color,
             stroke_color,
         )?;
-    
-        if cm.control.alive_ticks < 5 {
+
+        if cm.control.alive_secs < 10 {
             let s = cm.config.sw_version.as_string();
             FONT_BIG.render_aligned(
                 s.as_str(),
@@ -194,7 +193,7 @@ impl Vario {
                 display,
             )?;
         }
-    
+
         // dependend on vario_mode draw speed_to_fly or average_climb_rate
         match cm.control.vario_mode {
             VarioMode::Vario => {
@@ -240,221 +239,7 @@ impl Vario {
                 )?;
             }
         }
-    
+
         Ok(())
     }
 }
-
-
-/*/// draw the vario display on Screen
-pub fn draw<D>(display: &mut D, cm: &CoreModel) -> Result<(), CoreError>
-where
-    D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
-{
-    // draw wallpaper
-    display.clear(cm.color(Palette::Background))?;
-    display.draw_img(
-        WALLPAPER_IMG,
-        Point::new(0, 0),
-        Some(cm.color(Palette::Scale)),
-    )?;
-    display.draw_img(M_S_IMG, SZS.unit_pos, Some(cm.color(Palette::Scale)))?;
-
-    for (pos_x, pos_y, txt) in WALLPAPER_SCALE {
-        let pos = Point::new(pos_x, pos_y);
-        FONT_BIG.render(
-            txt,
-            pos,
-            VerticalPosition::Baseline,
-            FontColor::Transparent(cm.color(Palette::Scale)),
-            display,
-        )?;
-    }
-
-    if cm.device.supply_voltage > cm.device.voltage_limit_good {
-        display.draw_img(BAT_FULL_IMG, SZS.bat_pos, Some(cm.color(Palette::SignalGo)))?;
-    } else if cm.device.supply_voltage < cm.device.voltage_limit_bad {
-        display.draw_img(
-            BAT_EMPTY_IMG,
-            SZS.bat_pos,
-            Some(cm.color(Palette::SignalStop)),
-        )?;
-    } else {
-        display.draw_img(
-            BAT_HALF_IMG,
-            SZS.bat_pos,
-            Some(cm.color(Palette::SignalWarning)),
-        )?;
-    }
-
-    let color = match cm.control.system_state {
-        SystemState::NoCom => cm.color(Palette::SignalStop),
-        SystemState::CanOk => cm.color(Palette::SignalWarning),
-        SystemState::CanAndGpsOk => cm.color(Palette::SignalGo),
-    };
-    display.draw_img(SAT_IMG, SZS.sat_pos, Some(color))?;
-
-    // draw mc_ready marker
-    scale_marker(
-        display,
-        CENTER,
-        cm.config.mc_cready.to_m_s(),
-        RADIUS as i32,
-        SZS.mc_len as i32,
-        SZS.mc_width,
-        cm.color(Palette::Needle2),
-    )?;
-
-    // draw average climb rate marker
-    inverted_scale_marker(
-        display,
-        CENTER,
-        cm.calculated.av2_climb_rate.to_m_s(),
-        (RADIUS - SZS.indicator_len) as i32,
-        SZS.tcr_len as i32,
-        SZS.tcr_width,
-        cm.color(Palette::Needle3),
-    )?;
-
-    // draw climb rate indicator
-    let angle = (SZS.angle_m_s * num::clamp(cm.sensor.climb_rate.to_m_s(), -5.1, 5.1)).deg();
-    classic_indicator(
-        display,
-        CENTER,
-        angle,
-        SZS.indicator_width as i32,
-        (RADIUS - SZS.indicator_len) as i32,
-        RADIUS as i32,
-        cm.color(Palette::Needle1),
-    )?;
-
-    // draw wind arrow
-    let wind_speed = cm.sensor.wind_vector.speed().to_km_h();
-    let (mut angle, mut av_angle, fill_color, stroke_color) = match cm.control.fly_mode {
-        FlyMode::Circling => {
-            // draw noth symbol
-            display.draw_img(NORTH_IMG, Point::new(0, 0), Some(cm.color(Palette::Scale)))?;
-            // return absolut wind vector
-            (
-                cm.sensor.wind_vector.angle(),
-                cm.sensor.average_wind.angle(),
-                cm.color(Palette::Sprite2Fill),
-                cm.color(Palette::Sprite2Stroke),
-            )
-        }
-        FlyMode::StraightFlight => {
-            // draw glider symbol
-            display.draw_img(GLIDER_IMG, Point::new(0, 0), Some(cm.color(Palette::Scale)))?;
-            (
-                // return relativ wind vector
-                cm.sensor.wind_vector.angle() - cm.sensor.gps_track,
-                cm.sensor.average_wind.angle() - cm.sensor.gps_track,
-                cm.color(Palette::Sprite1Fill),
-                cm.color(Palette::Sprite1Stroke),
-            )
-        }
-    };
-
-    // Patch: set wind to 0 when aircraft is on the ground. However, this should be realised in
-    // the sensor box.
-    let txt_angle = if cm.sensor.airspeed.ias() < 30.0.km_h() {
-        angle = 180.0.deg();
-        av_angle = 180.0.deg();
-        cm.sensor.euler_yaw
-    } else {
-        cm.sensor.wind_vector.angle()
-    };
-
-    let len = match wind_speed {
-        x if x < WIND_MIN => SZS.wind_len_min, // Light wind is set to a minimum size
-        x if x > WIND_MAX => SZS.wind_len,     // Strong wind is set to a maximum size
-        _ => {
-            SZS.wind_len_min
-                + ((SZS.wind_len - SZS.wind_len_min) as f32 * (wind_speed - WIND_MIN)
-                    / (WIND_MAX - WIND_MIN)) as i32
-        }
-    };
-    wind_arrow(
-        display,
-        CENTER,
-        angle,
-        av_angle,
-        len,
-        fill_color,
-        stroke_color,
-    )?;
-
-    if cm.control.alive_ticks < 5 {
-        let s = cm.config.sw_version.as_string();
-        FONT_BIG.render_aligned(
-            s.as_str(),
-            SZS.version_pos,
-            VerticalPosition::Top,
-            HorizontalAlignment::Right,
-            FontColor::Transparent(cm.color(Palette::Scale)),
-            display,
-        )?;
-    } else {
-        // draw wind direction an speed text
-        display.draw_img(KM_H_IMG, SZS.wind_pos, Some(cm.color(Palette::Scale)))?;
-        let wind_deg = txt_angle.to_degrees();
-        let wind_speed = cm.sensor.wind_vector.speed().to_km_h();
-        let s = tformat!(25, "{:.0}° {:.0}", wind_deg, wind_speed).unwrap();
-        FONT_BIG.render_aligned(
-            s.as_str(),
-            SZS.wind_pos,
-            VerticalPosition::Top,
-            HorizontalAlignment::Right,
-            FontColor::Transparent(cm.color(Palette::Scale)),
-            display,
-        )?;
-    }
-
-    // dependend on vario_mode draw speed_to_fly or average_climb_rate
-    match cm.control.vario_mode {
-        VarioMode::Vario => {
-            display.draw_img(
-                SPIRAL_IMG,
-                SZS.pic_left_under_pos,
-                Some(cm.color(Palette::Scale)),
-            )?;
-            display.draw_img(M_S_IMG, SZS.left_under_pos, Some(cm.color(Palette::Scale)))?;
-            let acr = num::clamp(cm.calculated.thermal_climb_rate.to_m_s(), -9.9, 99.9);
-            let txt = tformat!(10, "{:.1}", acr).unwrap();
-            FONT_BIG.render_aligned(
-                txt.as_str(),
-                SZS.left_under_pos,
-                VerticalPosition::Top,
-                HorizontalAlignment::Right,
-                FontColor::Transparent(cm.color(Palette::Needle4)),
-                display,
-            )?;
-        }
-        VarioMode::SpeedToFly => {
-            display.draw_img(
-                STRAIGHT_IMG,
-                SZS.pic_left_under_pos,
-                Some(cm.color(Palette::Scale)),
-            )?;
-            display.draw_img(KM_H_IMG, SZS.left_under_pos, Some(cm.color(Palette::Scale)))?;
-            let stf = num::clamp(-cm.calculated.speed_to_fly_dif.to_km_h() / 10.0, -5.0, 5.0);
-            let angle_sweep = (VARIO_SIZES.angle_m_s * stf).deg();
-            let col = cm.color(Palette::Needle5);
-            Arc::with_center(CENTER, SZS.diameter_stf, 180.0.deg(), angle_sweep)
-                .into_styled(PrimitiveStyle::with_stroke(col, 6))
-                .draw(display)?;
-            let stf = num::clamp(cm.calculated.speed_to_fly_1s.to_km_h(), 0.0, 999.0);
-            let txt = tformat!(10, "{:.0}", stf).unwrap();
-            FONT_BIG.render_aligned(
-                txt.as_str(),
-                SZS.left_under_pos,
-                VerticalPosition::Top,
-                HorizontalAlignment::Right,
-                FontColor::Transparent(col),
-                display,
-            )?;
-        }
-    }
-
-    Ok(())
-}*/

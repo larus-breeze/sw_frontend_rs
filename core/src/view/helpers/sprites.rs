@@ -1,4 +1,3 @@
-use crate::CoreError;
 use embedded_graphics::{
     geometry::Angle,
     prelude::*,
@@ -7,8 +6,11 @@ use embedded_graphics::{
 #[allow(unused_imports)]
 use micromath::F32Ext;
 
-use super::{CENTER, VARIO_SIZES as SZS};
-use crate::utils::Colors;
+use crate::{
+    utils::Colors,
+    view::{CENTER, VARIO_SIZES as SZS},
+    CoreError,
+};
 
 /// Draw an indicator
 ///

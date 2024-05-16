@@ -1,8 +1,7 @@
 use crate::{
-    controller::Editable,
+    controller::{CanActive, Editable},
     system_of_units::{FloatToLength, FloatToSpeed, Length, Speed},
     utils::DeviceEvent,
-    CanActive, 
 };
 
 /// Flymode display variants
@@ -52,8 +51,9 @@ impl From<u8> for VarioModeControl {
 /// Enum mode controls whether the background should be visible or not when editing a data
 /// point.
 #[repr(u8)]
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq)]
 pub enum EditMode {
+    Off,
     Section,
     Fullscreen,
 }
@@ -78,7 +78,7 @@ pub enum SystemState {
 #[derive(Clone, Copy)]
 pub struct Control {
     /// Count secs the firmware is alive
-    pub alive_ticks: u32,
+    pub alive_secs: u32,
     /// State of the Larus system
     pub system_state: SystemState,
     /// Bit pattern of all can bus devices
@@ -98,8 +98,6 @@ pub struct Control {
     /// Editable::{ClimbRate, Glider, McCready, ...}
     pub edit_var: Editable,
     /// Timeout counter for editor
-    pub edit_ticks: u32, // Used by the editor for the timeout
-    /// Timeout counter to save persistent data
     pub pers_ticks: u32,
     /// DeviceEvent::FwAvailable, PrepareFwUpload, ...
     pub firmware_update_state: DeviceEvent,
@@ -116,7 +114,7 @@ pub struct Control {
 impl Default for Control {
     fn default() -> Self {
         Self {
-            alive_ticks: 0,
+            alive_secs: 0,
             system_state: SystemState::NoCom,
             can_devices: CanActive::None as u32,
             fly_mode: FlyMode::StraightFlight,
@@ -124,9 +122,8 @@ impl Default for Control {
             vario_mode_control: VarioModeControl::Auto,
             vario_mode_switch_ratio: 1.05,
             speed_to_fly_limit: 105.0.km_h(),
-            edit_mode: EditMode::Section,
+            edit_mode: EditMode::Off,
             edit_var: Editable::ClimbRate,
-            edit_ticks: 0,
             pers_ticks: 0,
             firmware_update_state: DeviceEvent::UploadFinished,
             tcr_mode: TcrMode::StraightFlight,

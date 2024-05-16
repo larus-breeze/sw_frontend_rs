@@ -28,7 +28,7 @@ mod utils;
 mod view;
 
 // The core components
-pub use controller::CoreController;
+pub use controller::*;
 pub use model::{CoreModel, FlyMode, VarioMode};
 pub use view::{CoreView, FRAME_RATE};
 
@@ -55,7 +55,7 @@ pub mod basic_config {
     pub const DISPLAY_WIDTH: u32 = 227;
     pub const DISPLAY_HEIGHT: u32 = 285;
     pub const CONTROLLER_TICK_RATE: u32 = 10;
-    pub const SECTION_EDITOR_TIMEOUT: u32 = 3;
+    pub const SECTION_EDITOR_TIMEOUT: u16 = 3;
     pub const PERSISTENCE_TIMEOUT: u32 = 3;
 
     pub const BAT_EMPTY_IMG: &[u8] = include_bytes!("../assets/size_227x285/bat_empty.lif");
@@ -93,7 +93,7 @@ pub mod basic_config {
     pub const DISPLAY_WIDTH: u32 = 240;
     pub const DISPLAY_HEIGHT: u32 = 320;
     pub const CONTROLLER_TICK_RATE: u32 = 10;
-    pub const SECTION_EDITOR_TIMEOUT: u32 = 3;
+    pub const SECTION_EDITOR_TIMEOUT: u16 = 3;
     pub const PERSISTENCE_TIMEOUT: u32 = 3;
 
     pub const BAT_EMPTY_IMG: &[u8] = include_bytes!("../assets/size_240x320/bat_empty.lif");
