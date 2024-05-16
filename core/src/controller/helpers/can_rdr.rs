@@ -1,10 +1,14 @@
 use crate::{
-    model::{GpsState, VarioModeControl}, AirSpeed, Angle, CanActive, CanFrame, CoreController, CoreModel, F64ToCoord, FloatToAcceleration, FloatToAngularVelocity, FloatToDensity, FloatToLength, FloatToMass, FloatToPressure, FloatToSpeed, FlyMode, Frame, GenericFrame, GenericId, Latitude, Longitude, SpecificFrame, SysConfigId
+    controller::helpers::{object_id, CanActive},
+    controller::Echo,
+    model::{GpsState, VarioModeControl},
+    sensor_legacy, AirSpeed, Angle, CanFrame, CoreController, CoreModel, F64ToCoord,
+    FloatToAcceleration, FloatToAngularVelocity, FloatToDensity, FloatToLength, FloatToMass,
+    FloatToPressure, FloatToSpeed, FlyMode, Frame, GenericFrame, GenericId, Latitude, Longitude,
+    PersistenceId, SpecificFrame,
 };
 use byteorder::{ByteOrder, LittleEndian as LE};
 use embedded_graphics::prelude::AngleUnit;
-
-use crate::utils::{object_id, sensor_legacy};
 
 impl CoreController {
     pub fn read_can_frame(&mut self, cm: &mut CoreModel, frame: &Frame) {
@@ -20,7 +24,7 @@ impl CoreController {
         #[allow(clippy::single_match)]
         match GenericId::from(frame.generic_id) {
             GenericId::SetSysSetting => {
-                let config_id = SysConfigId::from(rdr.pop_u16());
+                let config_id = PersistenceId::from(rdr.pop_u16());
                 self.can_frame_read_sys_config_value(cm, config_id, &frame.can_frame)
             }
             _ => (),
@@ -35,27 +39,32 @@ impl CoreController {
         }
     }
 
-    fn can_frame_read_sys_config_value(&mut self, cm: &mut CoreModel, config_id: SysConfigId, frame: &CanFrame) {
+    fn can_frame_read_sys_config_value(
+        &mut self,
+        cm: &mut CoreModel,
+        config_id: PersistenceId,
+        frame: &CanFrame,
+    ) {
         match config_id {
-            SysConfigId::MacCready => {
-                cm.config.mc_cready = frame.read_f32(4).m_s();
-                self.push_persistence_id(cm, crate::PersistenceId::McCready);
+            PersistenceId::McCready => {
+                let val = frame.read_f32(4).m_s();
+                self.persist_set_maccready(cm, val, Echo::Nmea);
             }
-            SysConfigId::PilotWeight => {
-                cm.glider_data.pilot_weight = frame.read_f32(4).kg();
-                self.push_persistence_id(cm, crate::PersistenceId::PilotWeight);
+            PersistenceId::PilotWeight => {
+                let val = frame.read_f32(4).kg();
+                self.persist_set_pilot_weight(cm, val, Echo::Nmea)
             }
-            SysConfigId::VolumeVario => {
-                cm.config.volume = frame.read_u8(2) as i8;
-                self.push_persistence_id(cm, crate::PersistenceId::Volume);
+            PersistenceId::Volume => {
+                let val = frame.read_u8(2) as i8;
+                self.persist_set_volume(cm, val, Echo::Nmea);
             }
-            SysConfigId::WaterBallast => {
-                cm.glider_data.water_ballast = frame.read_f32(4).kg();
-                self.push_persistence_id(cm, crate::PersistenceId::WaterBallast);
+            PersistenceId::WaterBallast => {
+                let val = frame.read_f32(4).kg();
+                self.persist_set_water_ballast(cm, val, Echo::Nmea);
             }
-            SysConfigId::VarioModeControl => {
-                cm.control.vario_mode_control = VarioModeControl::from(frame.read_u8(2));
-                self.push_persistence_id(cm, crate::PersistenceId::VarioModeControl);
+            PersistenceId::VarioModeControl => {
+                let val = VarioModeControl::from(frame.read_u8(2));
+                self.persist_set_vario_mode_control(cm, val, Echo::None);
             }
             _ => (),
         }

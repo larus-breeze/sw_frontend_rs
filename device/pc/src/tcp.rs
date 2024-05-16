@@ -20,7 +20,12 @@ impl TcpServer {
 
         let mut socket = Socket { listener };
         thread::spawn(move || socket.connect(tx));
-        TcpServer { rx: None, tx: None, com: rx, rec_str: Vec::new() }
+        TcpServer {
+            rx: None,
+            tx: None,
+            com: rx,
+            rec_str: Vec::new(),
+        }
     }
 
     fn check_connection(&mut self) {
@@ -28,7 +33,7 @@ impl TcpServer {
             Ok((rx, tx)) => {
                 self.rx = Some(rx);
                 self.tx = Some(tx);
-            },
+            }
             Err(_) => (),
         }
     }
@@ -36,18 +41,16 @@ impl TcpServer {
     pub fn recv(&mut self) -> Option<Vec<u8>> {
         self.check_connection();
         match &self.rx {
-            Some(rx) => {
-                match rx.try_recv() {
-                    Ok(s) => self.rec_str.extend(s),
-                    Err(_) => (),
-                }
-            }
+            Some(rx) => match rx.try_recv() {
+                Ok(s) => self.rec_str.extend(s),
+                Err(_) => (),
+            },
             None => (),
         }
 
-        if let Some(idx) = self.rec_str.iter().position(|&x| x==b'\n') {
+        if let Some(idx) = self.rec_str.iter().position(|&x| x == b'\n') {
             let mut r = self.rec_str.clone();
-            self.rec_str = r.split_off(idx+1);
+            self.rec_str = r.split_off(idx + 1);
 
             if r.len() > 0 {
                 Some(r)
@@ -65,7 +68,7 @@ impl TcpServer {
         match &self.tx {
             Some(tx) => {
                 let _ = tx.send(s);
-            },
+            }
             None => (),
         }
     }
@@ -88,8 +91,12 @@ impl Socket {
                     let tx_stream = stream.try_clone().unwrap();
 
                     // spawn rx and tx thread
-                    thread::spawn(move || { rx_handler(stream, tx);});
-                    thread::spawn(move || { tx_handler(tx_stream, rx2);});
+                    thread::spawn(move || {
+                        rx_handler(stream, tx);
+                    });
+                    thread::spawn(move || {
+                        tx_handler(tx_stream, rx2);
+                    });
 
                     // inform TcpServer of new connection
                     com.send((rx, tx2)).unwrap();
@@ -130,4 +137,3 @@ fn tx_handler(mut stream: TcpStream, rx: Receiver<Vec<u8>>) {
         }
     }
 }
-

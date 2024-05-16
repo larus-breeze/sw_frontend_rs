@@ -11,6 +11,7 @@ pub enum CoreError {
     SdCard,
     ConversionError,
     ParseError,
+    SchedulerQueueOverflow,
 }
 
 impl From<u8g2_fonts::Error<CoreError>> for CoreError {

@@ -1,5 +1,5 @@
 use crate::{
-    controller::Result,
+    controller::ControlResult,
     model::CoreModel,
     utils::{DeviceEvent, KeyEvent},
 };
@@ -15,7 +15,11 @@ impl SwUpdateController {
         core_model.control.firmware_update_state = DeviceEvent::UploadInProgress;
     }
 
-    pub fn key_action(&mut self, _core_model: &mut CoreModel, _key_event: &KeyEvent) -> Result {
-        Result::Nothing
+    pub fn key_action(
+        &mut self,
+        _core_model: &mut CoreModel,
+        _key_event: &KeyEvent,
+    ) -> ControlResult {
+        ControlResult::Nothing
     }
 }

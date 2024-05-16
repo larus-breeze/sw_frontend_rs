@@ -1,5 +1,4 @@
 mod can_frame;
-mod can_ids;
 mod colors16;
 mod colors8;
 mod crc;
@@ -17,7 +16,6 @@ mod version;
 mod version_check;
 
 pub use can_frame::*;
-pub use can_ids::*;
 #[cfg(feature = "larus_ad57")]
 pub use colors16::Colors;
 #[cfg(feature = "air_avionics_ad57")]
@@ -35,8 +33,6 @@ pub use persistence::*;
 pub use rgb565_colors::RGB565_COLORS;
 pub use version::*;
 pub use version_check::*;
-
-pub use can_ids::{audio_legacy, frontend_legacy, sensor_legacy};
 
 use u8g2_fonts::{fonts, FontRenderer};
 

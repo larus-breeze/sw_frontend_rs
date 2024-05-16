@@ -1,90 +1,42 @@
-use crate::CoreError;
+use crate::{CoreError, PersistenceId};
+use heapless::{Deque, Vec};
+use tfmt::{uWrite, uwrite};
 
-/*pub struct NmeaHandler {
-    rx_data: NmeaRxBuffer,
-    tx_data: NmeaTxBuffer,
-    readout_idx: u32,
-    pers_id: Deque<SysConfigId, 10>,
+const HEX_TAB: &[u8; 16] = b"0123456789ABCDEF";
+
+pub struct NmeaBuffer {
+    pub rx: RxBuffer,
+    pub tx: TxBuffer,
+    pub to_send: Vec<u8, 10>,
+    pub pers_id: Deque<PersistenceId, 16>,
 }
 
-impl Default for NmeaHandler {
-    fn default() -> Self {
-        NmeaHandler {
-            rx_data: NmeaRxBuffer::new(),
-            tx_data: NmeaTxBuffer::new(),
-            readout_idx: 0,
+impl NmeaBuffer {
+    pub const fn new() -> Self {
+        NmeaBuffer {
+            rx: RxBuffer::new(),
+            tx: TxBuffer::new(),
+            to_send: Vec::new(),
             pers_id: Deque::new(),
         }
     }
 }
-
-
-impl NmeaHandler {
-    pub fn recv_u8(&mut self, cm: &mut CoreModel, b: u8) {
-        if self.rx_data.recv_u8(b) {
-            let _ = self.nmea_parse(cm);
-        }
-    }
-
-    pub fn nmea_recv_slice(&mut self, cm: &mut CoreModel, bytes: &[u8]) {
-        for b in bytes {
-            self.recv_u8(cm, *b);
-        }
-    }
-
-    fn nmea_parse(&mut self, cm: &mut CoreModel) -> Result<(), CoreError> {
-        fn in_range(val: f32, lower: f32, upper: f32) -> Result<f32, CoreError> {
-            if val >= lower && val <= upper {
-                Ok(val)
-            } else {
-                Err(CoreError::ParseError)
-            }
-        }
-
-        // check checksum
-        self.rx_data.check()?;
-
-        self.rx_data.compare_chunk(b"$PLARS")?;
-        self.rx_data.compare_chunk(b"H")?;
-
-        let cmd: Vec<u8, 10> = Vec::from_slice(self.rx_data.next_chunk()?)
-            .map_err(|_| CoreError::ParseError)?;
-
-        let s = self.rx_data.next_chunk()?;
-        let val = f32::from_slice(s)?;
-
-        match cmd.as_slice() {
-            b"MC" => Ok(cm.config.mc_cready = in_range(val, 0.0, 9.9)?.m_s()),
-            b"BAL" => Ok(cm
-                .glider_data
-                .set_ballast_ratio(in_range(val, 1.00, 1.60)?)),
-            b"BUGS" => Ok(cm.glider_data.bugs = in_range(val, 0.0, 30.0)?),
-            b"QNH" => Ok(cm
-                .sensor
-                .pressure_altitude
-                .set_qnh(in_range(val, 900.0, 1100.0)?.hpa())),
-            _ => Err(CoreError::ParseError),
-        }
-    }
-}*/
-
-const HEX_TAB: &[u8; 16] = b"0123456789ABCDEF";
 
 enum RxState {
     WaitForStart,
     ReceiveData,
 }
 
-pub struct NmeaRxBuffer {
+pub struct RxBuffer {
     buf: [u8; 82],
     idx: usize,
     chunk_idx: usize,
     state: RxState,
 }
 
-impl NmeaRxBuffer {
+impl RxBuffer {
     pub const fn new() -> Self {
-        NmeaRxBuffer {
+        RxBuffer {
             buf: [0; 82],
             idx: 0,
             chunk_idx: 0,
@@ -172,3 +124,47 @@ impl NmeaRxBuffer {
     }
 }
 
+pub struct TxBuffer {
+    buf: [u8; 82],
+    idx: usize,
+}
+
+impl TxBuffer {
+    pub const fn new() -> Self {
+        TxBuffer {
+            buf: [0; 82],
+            idx: 0,
+        }
+    }
+
+    pub fn reset(&mut self) {
+        self.idx = 0;
+    }
+
+    pub fn finish(&mut self) -> &[u8] {
+        let mut cs = 0_u8;
+        for b in &self.buf[1..self.idx] {
+            cs ^= b;
+        }
+        let _ = uwrite!(self, "*{:02X}\r\n", cs);
+        &self.buf[..self.idx]
+    }
+}
+
+impl uWrite for TxBuffer {
+    type Error = ();
+
+    fn write_str(&mut self, s: &str) -> Result<(), ()> {
+        let bytes = s.as_bytes();
+        let len = bytes.len();
+        let start = self.idx;
+
+        // Silently ignore errors
+        if let Some(buf) = self.buf.get_mut(start..start + len) {
+            buf.copy_from_slice(bytes);
+            self.idx += len;
+        }
+
+        Ok(())
+    }
+}

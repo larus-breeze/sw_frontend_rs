@@ -1,4 +1,3 @@
-
 #[derive(Clone, Copy)]
 pub struct Device {
     pub supply_voltage: f32,

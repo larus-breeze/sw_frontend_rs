@@ -4,15 +4,10 @@ mod control;
 mod device;
 mod sensor;
 
-use crate::{
-    flight_physics::GliderData,
-    HwVersion, SwVersion,
-};
+use crate::{flight_physics::GliderData, HwVersion, SwVersion};
 use calculated::Calculated;
 pub use config::{Config, DisplayActive};
-pub use control::{
-    Control, EditMode, FlyMode, SystemState, TcrMode, VarioMode, VarioModeControl, 
-};
+pub use control::{Control, EditMode, FlyMode, SystemState, TcrMode, VarioMode, VarioModeControl};
 use device::Device;
 pub use sensor::{GpsState, Sensor};
 
@@ -34,11 +29,7 @@ pub struct CoreModel {
 }
 
 impl CoreModel {
-    pub fn new(
-        uuid: u32,
-        hw_version: HwVersion,
-        sw_version: SwVersion,
-    ) -> Self {
+    pub fn new(uuid: u32, hw_version: HwVersion, sw_version: SwVersion) -> Self {
         let calculated = Calculated::default();
         let config = Config {
             uuid,

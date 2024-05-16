@@ -1,18 +1,17 @@
 use embedded_graphics::prelude::*;
 
 pub mod edit;
+pub(crate) mod helpers;
 pub mod sw_update;
 
-pub(crate) mod dialog_box;
-pub(crate) mod elements;
 pub(crate) mod vario;
 
 use crate::{
     basic_config::{DISPLAY_HEIGHT, DISPLAY_WIDTH},
-    model::{CoreModel, DisplayActive},
+    model::{CoreModel, DisplayActive, EditMode},
     utils::Colors,
-    CoreError, DrawImage,
     view::{edit::Edit, sw_update::SwUpdate, vario::Vario},
+    CoreError, DrawImage,
 };
 
 #[allow(dead_code)]
@@ -118,7 +117,12 @@ where
     pub fn new(display: D, core_model: &CoreModel) -> Self {
         let primary_view = PrimaryView::Vario(Vario::new(core_model));
         let core_model = *core_model;
-        CoreView { display, primary_view, secondary_view: None, core_model }
+        CoreView {
+            display,
+            primary_view,
+            secondary_view: None,
+            core_model,
+        }
     }
 
     pub fn prepare(&mut self, core_model: &CoreModel) {
@@ -127,10 +131,10 @@ where
 
         self.primary_view = match core_model.config.display_active {
             DisplayActive::Vario => PrimaryView::Vario(Vario::new(core_model)),
-            DisplayActive::FirmwareUpdate => PrimaryView::SwUpade(SwUpdate::preapare(core_model)),
+            DisplayActive::FirmwareUpdate => PrimaryView::SwUpade(SwUpdate::new(core_model)),
         };
 
-        self.secondary_view = if core_model.control.edit_ticks > 0 {
+        self.secondary_view = if core_model.control.edit_mode == EditMode::Section {
             Some(SecondaryView::Edit(Edit::new(core_model)))
         } else {
             None
@@ -140,13 +144,15 @@ where
     pub fn draw(&mut self) -> Result<(), CoreError> {
         match &self.primary_view {
             PrimaryView::Vario(vario) => vario.draw(&mut self.display, &self.core_model)?,
-            PrimaryView::SwUpade(sw_update) => sw_update.draw(&mut self.display, &self.core_model)?,
+            PrimaryView::SwUpade(sw_update) => {
+                sw_update.draw(&mut self.display, &self.core_model)?
+            }
         }
 
         if let Some(secondary_view) = &self.secondary_view {
             match secondary_view {
                 SecondaryView::Edit(edit) => edit.draw(&mut self.display, &self.core_model)?,
-            } 
+            }
         }
 
         Ok(())

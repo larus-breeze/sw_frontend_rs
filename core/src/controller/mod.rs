@@ -1,28 +1,32 @@
-mod can_rdr;
-mod can_wtr;
+mod helpers;
+
+pub use helpers::{
+    can_ids::{audio_legacy, frontend_legacy, sensor_legacy, GenericId, SpecialId},
+    CanActive, IntToDuration, NmeaBuffer, Scheduler, Tim,
+};
 
 mod vario;
-use vario::VarioController;
 
 mod sw_update;
 use sw_update::SwUpdateController;
 
-mod nmea_rdr;
-mod nmea_wtr;
-use nmea_wtr::NmeaHandler;
+mod tick_1s;
+use tick_1s::*;
 
 mod persistence;
+use persistence::{store_persistence_ids, Echo};
 
 use crate::{
-    basic_config::CONTROLLER_TICK_RATE,
+    basic_config::{CONTROLLER_TICK_RATE, MAX_TX_FRAMES},
+    common::PTxFrames,
     flight_physics::Polar,
-    model::{DisplayActive, EditMode, GpsState, SystemState, TcrMode, VarioModeControl},
+    model::{DisplayActive, EditMode, VarioModeControl},
     system_of_units::{FloatToSpeed, Speed},
     themes::{BRIGHT_MODE, DARK_MODE},
-    utils::{KeyEvent, Pt1},
-    CoreModel, DeviceEvent, FlyMode, IdleEvent, PersistenceId, VarioMode, POLARS, SdCardCmd,
-    basic_config::MAX_TX_FRAMES, common::PTxFrames, utils::PIdleEvents,
+    utils::{KeyEvent, PIdleEvents, Pt1},
+    CoreModel, DeviceEvent, IdleEvent, PersistenceId, SdCardCmd, VarioMode, POLARS,
 };
+use helpers::nmea_cyclic_200ms;
 
 #[allow(unused_imports)]
 use micromath::F32Ext;
@@ -49,30 +53,43 @@ pub enum Direction {
     Backward,
 }
 
-pub enum Result {
+pub enum ControlResult {
     Nothing,
-    Edit(EditMode, Editable, u32),
+    Edit(EditMode, Editable),
     NextDisplay(Direction),
+}
+
+pub type Callback = fn(cm: &mut CoreModel, cc: &mut CoreController);
+
+pub enum Timer {
+    Ticker1Hz,
+    NmeaFast,
+    StoreEditVar,
 }
 
 pub const MAX_PERS_IDS: usize = 8;
 
 pub struct CoreController {
     polar: Polar,
-    vario: VarioController,
+    edit_var: Editable,
     sw_update: SwUpdateController,
-    tick: u32,
+    ms: u16,
     last_vario_mode: VarioMode,
     av2_climb_rate: Pt1<Speed>,
     av_speed_to_fly: Pt1<Speed>,
-    pub nmea_handler: NmeaHandler,
+    pub nmea_buffer: NmeaBuffer,
+    pub scheduler: Scheduler<3>,
     pub pers_vals: FnvIndexSet<PersistenceId, MAX_PERS_IDS>,
     p_idle_events: PIdleEvents,
     p_tx_frames: PTxFrames<MAX_TX_FRAMES>,
 }
 
 impl CoreController {
-    pub fn new(core_model: &mut CoreModel, p_idle_events: PIdleEvents, p_tx_frames: PTxFrames<MAX_TX_FRAMES>) -> Self {
+    pub fn new(
+        core_model: &mut CoreModel,
+        p_idle_events: PIdleEvents,
+        p_tx_frames: PTxFrames<MAX_TX_FRAMES>,
+    ) -> Self {
         let polar_idx = core_model.config.glider_idx as usize;
         let polar = Polar::new(&POLARS[polar_idx], &mut core_model.glider_data);
         let av2_climb_rate = Pt1::new(
@@ -85,15 +102,23 @@ impl CoreController {
             CONTROLLER_TICK_RATE,
             core_model.config.av_speed_to_fly_tc,
         );
+        let mut scheduler = Scheduler::new([
+            Tim::new(recalc_polar),
+            Tim::new(nmea_cyclic_200ms),
+            Tim::new(store_persistence_ids),
+        ]);
+        scheduler.every(Timer::Ticker1Hz, 1.secs());
+        scheduler.every(Timer::NmeaFast, 200.millis());
         Self {
             polar,
-            vario: VarioController::new(),
-            tick: 0,
+            edit_var: Editable::Volume,
+            ms: 0,
             last_vario_mode: VarioMode::Vario,
             sw_update: SwUpdateController::new(),
             av2_climb_rate,
             av_speed_to_fly,
-            nmea_handler: NmeaHandler::default(),
+            nmea_buffer: NmeaBuffer::new(),
+            scheduler,
             pers_vals: FnvIndexSet::new(),
             p_idle_events,
             p_tx_frames,
@@ -126,55 +151,61 @@ impl CoreController {
                 } else {
                     core_model.config.theme = &DARK_MODE;
                 };
-                self.push_persistence_id(core_model, PersistenceId::DisplayMode);
+                self.persist_push_id(PersistenceId::DisplayMode);
             }
             _ => (),
         }
 
-        let result =  match core_model.config.display_active {
-            DisplayActive::Vario => self.vario.key_action(core_model, &mut &mut self.p_tx_frames, key_event, &mut self.nmea_handler),
+        let result = match core_model.config.display_active {
+            DisplayActive::Vario => vario::key_action(core_model, self, key_event),
             DisplayActive::FirmwareUpdate => self.sw_update.key_action(core_model, key_event),
         };
 
-        if *key_event == KeyEvent::BtnEnc && core_model.control.edit_ticks > 1 {
-            core_model.control.edit_ticks = 1; // finish edit session
+        if *key_event == KeyEvent::BtnEnc {
+            let _ = self.scheduler.stop(Timer::StoreEditVar, true); // finish edit session
         } else {
             // activate editor, if desired
             match result {
-                Result::Edit(mode, var, timeout) => {
+                ControlResult::Edit(mode, var) => {
                     core_model.control.edit_mode = mode;
                     core_model.control.edit_var = var;
-                    core_model.control.edit_ticks = timeout * CONTROLLER_TICK_RATE;
                     self.check_edit_results(core_model)
                 }
-                Result::Nothing => (),
-                Result::NextDisplay(_) => (),
+                ControlResult::Nothing => (),
+                ControlResult::NextDisplay(_) => (),
             }
         }
     }
 
-    pub fn time_action(&mut self, core_model: &mut CoreModel) {
-        self.pers_tick(core_model);
+    /// Call this latest after 1 ms
+    ///
+    /// time_ms is the absolute time. The internal counter is updated tick by tick until the time
+    /// is caught up. A maximum of one callback routine is started in one call.
+    pub fn tick_1ms(&mut self, time_ms: u16, cm: &mut CoreModel) {
+        while self.ms != time_ms {
+            self.ms = self.ms.wrapping_add(1);
+            match self.ms % 100 {
+                0 => self.scheduler.tick_100ms().unwrap(), // call scheduler every 100ms
+                1 => self.tick_100ms(cm),                  // call 100ms tick routine
+                _ => {
+                    // alternatively: execute a callback every ms as long as available
+                    if let Some(callback) = self.scheduler.next_callback() {
+                        callback(cm, self);
+                        break; // max one call per ms
+                    }
+                }
+            }
+        }
+    }
+
+    pub fn set_ms(&mut self, time_ms: u16) {
+        self.ms = time_ms;
+    }
+
+    fn tick_100ms(&mut self, core_model: &mut CoreModel) {
         if core_model.control.vario_mode == VarioMode::Vario {
             self.av2_climb_rate.tick(core_model.sensor.climb_rate);
             core_model.calculated.av2_climb_rate = self.av2_climb_rate.value();
-        }
-
-        // Count edit_ticks down, to close editor if necessary
-        if core_model.control.edit_ticks > 0 {
-            core_model.control.edit_ticks -= 1;
-            if core_model.control.edit_ticks == 0 {
-                let pers_id = match core_model.control.edit_var {
-                    Editable::McCready => PersistenceId::McCready,
-                    Editable::Volume => PersistenceId::Volume,
-                    Editable::WaterBallast => PersistenceId::WaterBallast,
-                    Editable::Glider => PersistenceId::Glider,
-                    Editable::PilotWeight => PersistenceId::PilotWeight,
-                    Editable::VarioModeControl => PersistenceId::VarioModeControl,
-                    _ => PersistenceId::DoNotStore,
-                };
-                self.store_persistence_id(core_model, pers_id);
-            }
         }
 
         // Calculate speed_to_fly and speed_to_fly_dif
@@ -225,124 +256,6 @@ impl CoreController {
         let can_frame = core_model.can_frame_sound();
         // add CAN frame to queue, ignore if the queue is full
         let _ = self.p_tx_frames.enqueue(can_frame);
-
-        // initiate nmea if necessary
-        if self.tick % 2 == 0 {
-            if self.tick % 10 == 0 {
-                self.nmea_handler.nmea_cyclic(false)
-            } else {
-                self.nmea_handler.nmea_cyclic(true)
-            }
-        }
-
-        // The following actions are performed infrequently and alternately
-        self.tick = (self.tick + 1) % CONTROLLER_TICK_RATE; // every second from beginning
-        match self.tick {
-            // Recalculate the polar coefficients based on the current data
-            1 => self
-                .polar
-                .recalc(&core_model.glider_data, core_model.sensor.density),
-
-            // Calculate the SpeedToFly/Vario limit and set the mode accordingly if necessary.
-            2 => {
-                let stf = self.polar.speed_to_fly(0.0.m_s(), 0.0.m_s());
-                core_model.control.speed_to_fly_limit =
-                    stf.ias() * core_model.control.vario_mode_switch_ratio;
-
-                // In auto mode switch between Vario and SpeedToFly
-                core_model.control.vario_mode = match core_model.control.vario_mode_control {
-                    VarioModeControl::Auto => {
-                        if core_model.sensor.airspeed.ias() > core_model.control.speed_to_fly_limit
-                        {
-                            VarioMode::SpeedToFly
-                        } else {
-                            VarioMode::Vario
-                        }
-                    }
-                    VarioModeControl::SpeedToFly => VarioMode::SpeedToFly,
-                    VarioModeControl::Vario => VarioMode::Vario,
-                };
-
-                // Set 1-second-speed-to-fly value
-                core_model.calculated.speed_to_fly_1s = core_model.calculated.av_speed_to_fly;
-
-                if self.last_vario_mode != core_model.control.vario_mode {
-                    self.last_vario_mode = core_model.control.vario_mode;
-                    if core_model.control.vario_mode == VarioMode::Vario {
-                        // Set average climbrate to current climbrate
-                        self.av2_climb_rate.set_value(core_model.sensor.climb_rate);
-                    }
-                }
-                match core_model.control.fly_mode {
-                    FlyMode::Circling => {
-                        // Start measuring thermal climb rate
-                        match core_model.control.tcr_mode {
-                            TcrMode::StraightFlight => {
-                                core_model.control.tcr_start = core_model.sensor.gps_altitude;
-                                core_model.control.tcr_1s_climb_ticks = 1;
-                            }
-                            TcrMode::Transition => {
-                                core_model.control.tcr_1s_transient_ticks = 0;
-                                core_model.control.tcr_1s_climb_ticks += 1;
-                            }
-                            TcrMode::Climbing => {
-                                core_model.control.tcr_1s_climb_ticks += 1;
-                            }
-                        }
-                        core_model.control.tcr_mode = TcrMode::Climbing;
-                        // Calculate thermal climb rate
-                        let tcr = {
-                            let diff_h = (core_model.sensor.gps_altitude
-                                - core_model.control.tcr_start)
-                                .to_m();
-                            (diff_h / core_model.control.tcr_1s_climb_ticks as f32).m_s()
-                        };
-                        core_model.calculated.thermal_climb_rate = tcr;
-                    }
-                    FlyMode::StraightFlight => match core_model.control.tcr_mode {
-                        TcrMode::Climbing => {
-                            core_model.control.tcr_mode = TcrMode::Transition;
-                            core_model.control.tcr_1s_transient_ticks = 0;
-                        }
-                        TcrMode::Transition => {
-                            core_model.control.tcr_1s_transient_ticks += 1;
-                            if core_model.control.tcr_1s_transient_ticks > 30 {
-                                core_model.control.tcr_mode = TcrMode::StraightFlight;
-                                core_model.calculated.thermal_climb_rate = 0.0.m_s();
-                            }
-                        }
-                        TcrMode::StraightFlight => {
-                            core_model.control.tcr_start = core_model.sensor.gps_altitude
-                        }
-                    },
-                }
-            }
-            3 => {
-                // create CAN frame and add to queue
-                let can_frame = core_model.can_frame_heartbeat();
-                let _ = self.p_tx_frames.enqueue(can_frame);
-                core_model.control.system_state = if core_model.control.can_devices != 0 {
-                    match core_model.sensor.gps_state {
-                        GpsState::PosAvail | GpsState::HeadingAvail => SystemState::CanAndGpsOk,
-                        _ => SystemState::CanOk,
-                    }
-                } else {
-                    core_model.sensor.gps_state = GpsState::NoGps;
-                    SystemState::NoCom
-                };
-                core_model.control.can_devices = 0;
-            }
-            4 => {
-                let event = IdleEvent::DateTime(core_model.sensor.gps_date_time);
-                self.send_idle_event(event);
-                core_model.control.alive_ticks += 1;
-            }
-            5 => {
-                let can_frame = core_model.can_frame_volt_temp();
-                let _ = self.p_tx_frames.enqueue(can_frame);
-            }
-            _ => (),
-        }
     }
 
     /// Executes instructions based on the user's input
@@ -355,5 +268,9 @@ impl CoreController {
             }
             _ => (),
         }
+    }
+
+    pub fn send_idle_event(&mut self, idle_event: IdleEvent) {
+        let _ = self.p_idle_events.enqueue(idle_event);
     }
 }
