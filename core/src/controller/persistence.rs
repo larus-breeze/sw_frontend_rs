@@ -2,9 +2,8 @@ use heapless::Vec;
 
 use super::{VarioModeControl, MAX_PERS_IDS};
 use crate::{
-    basic_config::SECTION_EDITOR_TIMEOUT,
+    basic_config::{SECTION_EDITOR_TIMEOUT, PERSISTENCE_TIMEOUT},
     controller::helpers::IntToDuration,
-    model::EditMode,
     system_of_units::Speed,
     themes::{BRIGHT_MODE, DARK_MODE},
     CoreController, CoreModel, Mass, PersistenceId, PersistenceItem, Pressure,
@@ -51,7 +50,9 @@ impl CoreController {
 
     pub fn persist_push_id(&mut self, id: PersistenceId) {
         self.scheduler
-            .after(crate::Timer::StoreEditVar, SECTION_EDITOR_TIMEOUT.secs());
+            .after(crate::Timer::PersistSetting, PERSISTENCE_TIMEOUT.millis());
+        self.scheduler
+            .after(crate::Timer::CloseEditFrame, SECTION_EDITOR_TIMEOUT.secs());
         let _ = self.pers_vals.insert(id);
     }
 
@@ -85,6 +86,11 @@ impl CoreController {
     pub fn persist_set_bugs(&mut self, cm: &mut CoreModel, val: f32, echo: Echo) {
         cm.glider_data.bugs = val;
         self.persist_finish_push(cm, PersistenceId::Bugs, echo);
+    }
+
+    pub fn persist_set_glider_idx(&mut self, cm: &mut CoreModel, val: i32, echo: Echo) {
+        cm.config.glider_idx = val;
+        self.persist_finish_push(cm, PersistenceId::Glider, echo);
     }
 
     pub fn persist_set_maccready(&mut self, cm: &mut CoreModel, val: Speed, echo: Echo) {
@@ -124,7 +130,8 @@ impl CoreController {
 
     fn persist_finish_push(&mut self, cm: &mut CoreModel, id: PersistenceId, echo: Echo) {
         if echo == Echo::Nmea || echo == Echo::NmeaAndCan {
-            self.nmea_config(id)
+            let _ = self.nmea_vals.insert(id);
+
         }
         if echo == Echo::Can || echo == Echo::NmeaAndCan {
             if let Some(frame) = cm.can_frame_sys_config(id) {
@@ -132,23 +139,28 @@ impl CoreController {
             }
         }
         self.persist_push_id(id);
-        self.scheduler
-            .after(crate::Timer::StoreEditVar, SECTION_EDITOR_TIMEOUT.secs());
     }
 }
 
 pub fn store_persistence_ids(cm: &mut CoreModel, cc: &mut CoreController) {
-    let mut pids = Vec::<PersistenceId, MAX_PERS_IDS>::new();
+    let mut ids = Vec::<PersistenceId, MAX_PERS_IDS>::new();
 
     // We must first copy the ids into a Vec, because we can't borrow cc twice
     for id in cc.pers_vals.iter() {
-        let _ = pids.push(*id);
+        let _ = ids.push(*id);
     }
     cc.pers_vals.clear();
-    while let Some(id) = pids.pop() {
+    while let Some(id) = ids.pop() {
         cc.persist_store_id(cm, id);
     }
 
-    // Close Editor if open
-    cm.control.edit_mode = EditMode::Off;
+    ids.clear();
+    // We must first copy the ids into a Vec, because we can't borrow cc twice
+    for id in cc.nmea_vals.iter() {
+        let _ = ids.push(*id);
+    }
+    cc.nmea_vals.clear();
+    while let Some(id) = ids.pop() {
+        cc.nmea_config(id);
+    }
 }

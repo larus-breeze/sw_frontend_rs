@@ -5,6 +5,9 @@ pub use helpers::{
     CanActive, IntToDuration, NmeaBuffer, Scheduler, Tim,
 };
 
+mod edit;
+use edit::close_edit_frame;
+
 mod vario;
 
 mod sw_update;
@@ -64,7 +67,8 @@ pub type Callback = fn(cm: &mut CoreModel, cc: &mut CoreController);
 pub enum Timer {
     Ticker1Hz,
     NmeaFast,
-    StoreEditVar,
+    PersistSetting,
+    CloseEditFrame,
 }
 
 pub const MAX_PERS_IDS: usize = 8;
@@ -78,8 +82,9 @@ pub struct CoreController {
     av2_climb_rate: Pt1<Speed>,
     av_speed_to_fly: Pt1<Speed>,
     pub nmea_buffer: NmeaBuffer,
-    pub scheduler: Scheduler<3>,
+    pub scheduler: Scheduler<4>,
     pub pers_vals: FnvIndexSet<PersistenceId, MAX_PERS_IDS>,
+    pub nmea_vals: FnvIndexSet<PersistenceId, MAX_PERS_IDS>,
     p_idle_events: PIdleEvents,
     p_tx_frames: PTxFrames<MAX_TX_FRAMES>,
 }
@@ -106,6 +111,7 @@ impl CoreController {
             Tim::new(recalc_polar),
             Tim::new(nmea_cyclic_200ms),
             Tim::new(store_persistence_ids),
+            Tim::new(close_edit_frame),
         ]);
         scheduler.every(Timer::Ticker1Hz, 1.secs());
         scheduler.every(Timer::NmeaFast, 200.millis());
@@ -119,6 +125,7 @@ impl CoreController {
             av_speed_to_fly,
             nmea_buffer: NmeaBuffer::new(),
             scheduler,
+            nmea_vals: FnvIndexSet::new(),
             pers_vals: FnvIndexSet::new(),
             p_idle_events,
             p_tx_frames,
@@ -162,7 +169,7 @@ impl CoreController {
         };
 
         if *key_event == KeyEvent::BtnEnc {
-            let _ = self.scheduler.stop(Timer::StoreEditVar, true); // finish edit session
+            let _ = self.scheduler.stop(Timer::CloseEditFrame, true); // finish edit session
         } else {
             // activate editor, if desired
             match result {

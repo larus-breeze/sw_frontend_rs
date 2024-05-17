@@ -180,7 +180,7 @@ fn main() -> Result<(), core::convert::Infallible> {
         while c_idle_events.len() > 0 {
             let idle_event = c_idle_events.dequeue().unwrap();
             match idle_event {
-                IdleEvent::DateTime(_) => (),
+                IdleEvent::DateTime(_) | IdleEvent::SetGain(_) => (),
                 _ => println!("IdleEvent {:?}", &idle_event),
             }
             match idle_event {
