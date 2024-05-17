@@ -1,4 +1,4 @@
-use crate::{driver::timestamp, DevDuration, DevInstant};
+use crate::{driver::timestamp_us, DevDuration, DevInstant};
 use defmt::*;
 
 use crate::app;
@@ -91,7 +91,7 @@ impl Statistics {
     /// stored.
     pub fn start_task(&mut self, task: Task) {
         self.alive |= 1 << (task as u8);
-        let now = timestamp();
+        let now = timestamp_us();
 
         if self.stack_cnt > 0 {
             let low_prio_task = self.stack[self.stack_cnt - 1];
@@ -113,7 +113,7 @@ impl Statistics {
     /// checked whether the minimum time for an output has been reached and this is executed if
     /// necessary.
     pub fn end_task(&mut self, task: Task) {
-        let now = timestamp();
+        let now = timestamp_us();
 
         let task_idx = task as usize;
         let stats = &mut self.stats[task_idx];

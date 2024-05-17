@@ -90,7 +90,7 @@ mod app {
             statistics,
         ) = hw_init(cx.device, cx.core);
 
-        view.setup_timer(DevInstant::from_ticks(timestamp() as u64));
+        view.setup_timer(DevInstant::from_ticks(timestamp_us() as u64));
         task_view::spawn().unwrap();
         task_controller::spawn().unwrap();
         task_keyboard::spawn().unwrap();
@@ -166,23 +166,11 @@ mod app {
         task_end!(cx, Task::CanTimer);
     }
 
-    /// Scan the keyboard
-    #[task(local = [keyboard], shared = [statistics], priority=5)]
-    fn task_keyboard(mut cx: task_keyboard::Context) {
-        task_start!(cx, Task::Keyboard);
-
-        task_keyboard::spawn_after(DevDuration::millis(20)).unwrap();
-        cx.local.keyboard.tick();
-
-        task_end!(cx, Task::Keyboard);
-    }
-
     /// The controller contains the complete logic for processing the data and events
-    #[task(local = [controller], shared = [core_model, statistics], priority=3)]
+    #[task(local = [controller], shared = [core_model, statistics], priority=5)]
     fn task_controller(mut cx: task_controller::Context) {
         task_start!(cx, Task::Controller);
 
-        task_controller::spawn_after(DevDuration::millis(100)).unwrap();
         let all_alive = cx
             .shared
             .statistics
@@ -193,10 +181,22 @@ mod app {
             controller.core().send_idle_event(IdleEvent::FeedTheDog);
         }
         cx.shared.core_model.lock(|core_model| {
-            controller.tick(core_model)
+            controller.tick_1ms(core_model)
         });
 
+        task_controller::spawn_after(DevDuration::millis(1)).unwrap();
         task_end!(cx, Task::Controller);
+    }
+
+    /// Scan the keyboard
+    #[task(local = [keyboard], shared = [statistics], priority=4)]
+    fn task_keyboard(mut cx: task_keyboard::Context) {
+        task_start!(cx, Task::Keyboard);
+
+        task_keyboard::spawn_after(DevDuration::millis(20)).unwrap();
+        cx.local.keyboard.tick();
+
+        task_end!(cx, Task::Keyboard);
     }
 
     /// Prepares the display and passes the data to the appropriate output routines.

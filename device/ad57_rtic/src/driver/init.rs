@@ -151,7 +151,7 @@ pub fn hw_init(
     // Setup ----------> controller
     let mut dev_controller = DevController::new(&mut core_model, &Q_EVENTS, p_idle_events, p_tx_frames, c_rx_frames);
     for item in eeprom.iter_over(corelib::EepromTopic::ConfigValues) {
-        dev_controller.core().restore_persistent_item(&mut core_model, item);
+        dev_controller.core().persist_restore_item(&mut core_model, item);
     }
 
 
@@ -206,6 +206,7 @@ pub fn hw_init(
 
         IdleLoop::new(eeprom, c_idle_events, &Q_EVENTS, watchdog)
     };
+
     trace!("AD57 initialized");
 
     // Setup ----------> Backlight Port an switch on the lcd as a last action
@@ -213,6 +214,9 @@ pub fn hw_init(
     // the firmware update.
     let mut backlight = gpiob.pb4.into_push_pull_output();
     backlight.set_high(); // Is fixed at the moment, perhaps PWM in the future
+
+    // set time in core_controller, so that timing is done properly
+    dev_controller.set_ms(timestamp_ms());
     (
         can_dispatch,
         can_rx,
