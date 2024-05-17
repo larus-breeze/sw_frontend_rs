@@ -230,6 +230,10 @@ pub fn hw_init(
         let _ = ccdr.peripheral.TIM6.enable();
         Sound::new(dac, dp.TIM6, streams.0)
     };
+
+    // set time of controller to current time
+    dev_controller.set_ms(timestamp_ms());
+
     info!("Larus init finished");
 
     (

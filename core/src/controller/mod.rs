@@ -181,12 +181,16 @@ impl CoreController {
     ///
     /// time_ms is the absolute time. The internal counter is updated tick by tick until the time
     /// is caught up. A maximum of one callback routine is started in one call.
-    pub fn tick_1ms(&mut self, time_ms: u16, cm: &mut CoreModel) {
+    pub fn tick_1ms(&mut self, time_ms: u16, cm: &mut CoreModel) -> bool {
+        let mut recalc = false;
         while self.ms != time_ms {
             self.ms = self.ms.wrapping_add(1);
             match self.ms % 100 {
                 0 => self.scheduler.tick_100ms().unwrap(), // call scheduler every 100ms
-                1 => self.tick_100ms(cm),                  // call 100ms tick routine
+                1 => {
+                    self.tick_100ms(cm); // call 100ms tick routine
+                    recalc = true;
+                }
                 _ => {
                     // alternatively: execute a callback every ms as long as available
                     if let Some(callback) = self.scheduler.next_callback() {
@@ -196,6 +200,7 @@ impl CoreController {
                 }
             }
         }
+        recalc
     }
 
     pub fn set_ms(&mut self, time_ms: u16) {

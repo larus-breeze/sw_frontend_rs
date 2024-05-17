@@ -1,4 +1,4 @@
-use crate::{driver::QEvents, CoreController};
+use crate::{driver::QEvents, timestamp_ms, CoreController};
 use corelib::{
     basic_config::{MAX_RX_FRAMES, MAX_TX_FRAMES}, CRxFrames, CoreModel, Event, PIdleEvents, PTxFrames
 };
@@ -34,7 +34,11 @@ impl DevController {
         &mut self.core_controller
     }
 
-    pub fn tick(&mut self, core_model: &mut CoreModel) {
+    pub fn set_ms(&mut self, time_ms: u16) {
+        self.core_controller.set_ms(time_ms);
+    }
+
+    pub fn tick_1ms(&mut self, core_model: &mut CoreModel) {
         while let Some(event) = self.q_events.dequeue() {
             match event {
                 Event::KeyItem(key_event) => {
@@ -49,7 +53,7 @@ impl DevController {
             self.core_controller.read_can_frame(core_model, &frame);
         }
 
-        self.core_controller.time_action(core_model);
+        self.core_controller.tick_1ms(timestamp_ms(), core_model);
 
         #[cfg(feature = "test-panic")]
         {

@@ -65,7 +65,7 @@ mod app {
             statistics,
         ) = hw_init(cx.device, cx.core);
 
-        dev_view.setup_timer(DevInstant::from_ticks(timestamp() as u64));
+        dev_view.setup_timer(DevInstant::from_ticks(timestamp_us() as u64));
         task_view::spawn().unwrap();
         task_controller::spawn().unwrap();
         task_keyboard::spawn().unwrap();
@@ -145,6 +145,45 @@ mod app {
         task_end!(cx, Task::CanTimer);
     }
 
+    /// The controller contains the complete logic for processing the data and events
+    #[task(local = [controller], shared = [core_model, sound, statistics], priority=5)]
+    fn task_controller(mut cx: task_controller::Context) {
+        task_start!(cx, Task::Controller);
+
+        let all_alive = cx
+            .shared
+            .statistics
+            .lock(|statistics| statistics.all_alive());
+
+        let controller = cx.local.controller;
+        let recalc = cx.shared.core_model.lock(|core_model| {
+            if all_alive {
+                // feed the watchdog, if all tasks are alive
+                controller.core().send_idle_event(IdleEvent::FeedTheDog);
+            }
+            // do controller calculations
+            if controller.tick_1ms(core_model) {
+                Some((
+                    core_model.calculated.frequency,
+                    core_model.calculated.continuous,
+                    core_model.calculated.gain,
+                ))
+            } else {
+                None 
+            }
+        });
+
+        // set sound params
+        if let Some((frequecy, continuous, gain)) = recalc {
+            cx.shared.sound.lock(|sound| {
+                sound.set_params(frequecy, continuous, gain);
+            });
+        }
+
+        task_controller::spawn_after(DevDuration::millis(1)).unwrap();
+        task_end!(cx, Task::Controller);
+    }
+
     /// Support of M-DMA (isr to copy the data from the frame buffer to the LCD)
     #[task(binds = MDMA, shared = [frame_buffer, statistics], priority=4)]
     fn isr_mdma(mut cx: isr_mdma::Context) {
@@ -164,40 +203,6 @@ mod app {
         cx.local.keyboard.tick();
 
         task_end!(cx, Task::Keyboard);
-    }
-
-    /// The controller contains the complete logic for processing the data and events
-    #[task(local = [controller], shared = [core_model, sound, statistics], priority=3)]
-    fn task_controller(mut cx: task_controller::Context) {
-        task_start!(cx, Task::Controller);
-
-        task_controller::spawn_after(DevDuration::millis(100)).unwrap();
-        let all_alive = cx
-            .shared
-            .statistics
-            .lock(|statistics| statistics.all_alive());
-
-        let controller = cx.local.controller;
-        let (frequecy, continuous, gain) = cx.shared.core_model.lock(|core_model| {
-            if all_alive {
-                // feed the watchdog, if all tasks are alive
-                controller.core().send_idle_event(IdleEvent::FeedTheDog);
-            }
-            // do controller calculations
-            controller.tick(core_model);
-            (
-                core_model.calculated.frequency,
-                core_model.calculated.continuous,
-                core_model.calculated.gain,
-            )
-        });
-
-        // set sound params
-        cx.shared.sound.lock(|sound| {
-            sound.set_params(frequecy, continuous, gain);
-        });
-
-        task_end!(cx, Task::Controller);
     }
 
     /// Prepares the display and passes the data to the appropriate output routines.

@@ -38,7 +38,7 @@ impl IdleLoop {
             )
         };
         for item in eeprom.iter_over(corelib::EepromTopic::ConfigValues) {
-            dc.core().restore_persistent_item(cm, item);
+            dc.core().persist_restore_item(cm, item);
         }
 
         if let Some(version) = update_available() {
@@ -73,7 +73,6 @@ impl IdleLoop {
                     IdleEvent::FeedTheDog => self.watchdog.feed(),
                     IdleEvent::SetGain(gain) => {
                         self.amplifier.set_gain(gain);
-                        trace!("set_gain() {}", gain);
                     }
                     IdleEvent::SdCardItem(item) => {
                         match item {

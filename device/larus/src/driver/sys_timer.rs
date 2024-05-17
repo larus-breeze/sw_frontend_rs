@@ -25,18 +25,23 @@ pub type DevDuration = fugit::TimerDurationU64<1_000_000>;
 const TIM2_CNT: *const u32 = 0x4000_0024 as *const u32;
 
 /// Get timestamp with µs resolution from tim2
-pub fn timestamp() -> u32 {
+pub fn timestamp_us() -> u32 {
     // Safety: There is nothing wrong with reading a synchronized and aligned u32 number from the timer
     unsafe { core::ptr::read_volatile(TIM2_CNT) }
 }
 
-defmt::timestamp!("{=u32:us}", timestamp());
+/// Get timestamp in ms resolution
+pub fn timestamp_ms() -> u16 {
+    (timestamp_us() / 1000) as u16
+}
+
+defmt::timestamp!("{=u32:us}", timestamp_us());
 
 /// Busy wait based on timer, so (interrupt-) delays in between will ignored
 pub fn delay_ms(ms: u32) {
-    let target = timestamp().wrapping_add(ms * 1_000);
+    let target = timestamp_us().wrapping_add(ms * 1_000);
     loop {
-        let diff = target.wrapping_sub(timestamp()) as i32;
+        let diff = target.wrapping_sub(timestamp_us()) as i32;
         if diff <= 0 {
             break;
         }
@@ -45,9 +50,9 @@ pub fn delay_ms(ms: u32) {
 
 /// Busy wait based on timer, so (interrupt-) delays in between will ignored
 pub fn delay_us(us: u32) {
-    let target = timestamp().wrapping_add(us);
+    let target = timestamp_us().wrapping_add(us);
     loop {
-        let diff = target.wrapping_sub(timestamp()) as i32;
+        let diff = target.wrapping_sub(timestamp_us()) as i32;
         if diff <= 0 {
             break;
         }

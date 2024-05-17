@@ -5,8 +5,7 @@ mod driver;
 use defmt::trace;
 use defmt_rtt as _;
 
-use corelib::Event::KeyItem;
-use corelib::*;
+use corelib::{Event::KeyItem, KeyEvent};
 use cortex_m_rt::entry;
 use heapless::mpmc::MpMcQueue;
 use stm32h7xx_hal::{independent_watchdog::IndependentWatchdog, pac, prelude::*};
