@@ -78,16 +78,18 @@ pub fn key_action(
             .kg(),
             Echo::NmeaAndCan,
         ),
-        Editable::Glider => {
-            cm.config.glider_idx = val_manip(
+        Editable::Glider => cc.persist_set_glider_idx(
+            cm,
+            val_manip(
                 cm.config.glider_idx,
                 key_event,
                 1,
                 20,
                 0,
                 POLAR_COUNT as i32 - 1,
-            )
-        }
+            ),
+            Echo::None,
+        ),
         Editable::PilotWeight => cc.persist_set_pilot_weight(
             cm,
             val_manip(
