@@ -149,17 +149,12 @@ impl Sound {
             dma1.st[0].ndtr.write(|w| w.bits(SAMPLES_CNT as u32)); // cnt dma
             dma1.st[0].par.write(|w| w.bits(0x4000_7408)); // dst 12 Bit DAC register
             dma1.st[0].m0ar.write(|w| w.bits(wave_ptr as u32));
-            // dma1.s0cr 0x2    d    5    6
-            //           0b0010_1011_0101_0110
-            // Bit 1    direct mode interrupt enable
-            // Bit 2    transfer error ie
-            // Bit 4    transfer complete ie
-            // Bit 6    memory to peripheral
-            // Bit 8    circular mode
-            // Bit 9    periphel increment
-            // Bit 11   peripheral data size 16 Bit
-            // Bit 13   memory data size 16 Bit
-            //dma1.st[0].cr.write(|w| w.bits(0x2d5e));
+            // Bit 4     transfer complete ie
+            // Bit 7:6   0b01 memory to peripheral
+            // Bit 8     circular mode
+            // Bit 10    memory increment after transfer
+            // Bit 12:11 0b01 peripheral data size 16 Bit
+            // Bit 14:13 0b01 memory data size 16 Bit
             dma1.st[0].cr.write(|w| w.bits(0b0010_1101_0101_0000));
             dma1.st[0].cr.modify(|_, w| w.en().set_bit()); // start dma transfer
         }
