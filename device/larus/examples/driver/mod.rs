@@ -23,6 +23,8 @@ mod panic;
 mod sound;
 #[allow(unused)]
 mod sys_timer;
+#[allow(unused)]
+mod uart;
 
 #[allow(unused)]
 pub use amplifier::*;
@@ -50,6 +52,8 @@ pub use panic::*;
 pub use sound::*;
 #[allow(unused)]
 pub use sys_timer::*;
+#[allow(unused)]
+pub use uart::*;
 
 pub type QEvents = MpMcQueue<Event, 8>;
 
