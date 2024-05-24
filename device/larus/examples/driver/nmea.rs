@@ -1,13 +1,9 @@
-use defmt::*;
-use defmt_rtt as _;
-
 use stm32h7xx_hal::{
-    dma::dma::{Stream1, Stream2, StreamsTuple}, 
+    dma::dma::{Stream1, Stream2}, 
     gpio::Pin, 
     pac::{self, DMA1, USART1}, 
     prelude::*, 
     rcc::{rec::Usart1, CoreClocks},
-    interrupt,
 };
 
 const NMEA_BUF_SIZE: usize = 82;
@@ -63,7 +59,9 @@ impl NmeaTxRx {
             // Bit 10    memory increment after transfer
             // Bit 12:11 0b00 peripheral data size 8 Bit
             // Bit 14:13 0b00 memory data size 8 Bit
-            dma1.st[1].cr.write(|w| w.bits(0b0000_0100_0101_0000));
+            // Bit 20    Alternative DMA Channel protocol errata sheet
+            //           DMA stream locked when transferring data to/from USART
+            dma1.st[1].cr.write(|w| w.bits(0b_0001_0000_0000_0100_0101_0000));
 
             // configure dma1 stream 2
             dma1.st[2].par.write(|w| w.bits(0x4001_1024)); // rdr receive data register
@@ -74,43 +72,49 @@ impl NmeaTxRx {
             // Bit 10    memory increment after transfer
             // Bit 12:11 0b00 peripheral data size 8 Bit
             // Bit 14:13 0b00 memory data size 8 Bit
-            dma1.st[2].cr.write(|w| w.bits(0b0000_0101_0000_0000));
+            // Bit 20    Alternative DMA Channel protocol errata sheet
+            //           DMA stream locked when transferring data to/from USART
+            dma1.st[2].cr.write(|w| w.bits(0b_0001_0000_0000_0101_0000_0000));
             dma1.st[2].cr.modify(|_, w| w.en().set_bit()); // enable dma   
         }
         
-        (NmeaTx{}, NmeaRx{ head: 0, tail: 0 })
+        (NmeaTx{ is_ready: true }, NmeaRx{ head: 0, tail: 0 })
     }
 }
 
 pub struct NmeaTx {
+    is_ready: bool,
 }
 
 impl NmeaTx {
     /// Send NMEA data through serial interface
-    pub fn send(&self, src: &[u8]) {
-        unsafe {
-            TX_BUFFER[..src.len()].copy_from_slice(src);
-            let dma1 = &(*pac::DMA1::ptr());
+    pub fn send(&mut self, src: &[u8]) {
+        if src.len() > 0 && self.is_ready { 
+            unsafe {
+                TX_BUFFER[..src.len()].copy_from_slice(src);
+                let dma1 = &(*pac::DMA1::ptr());
 
-            dma1.st[1].cr.modify(|_, w| w.en().clear_bit()); // stop dma transfer   
-            dma1.st[1].m0ar.write(|w| w.bits(TX_BUFFER.as_ptr() as u32)); // src ptr
-            dma1.st[1].ndtr.write(|w| w.ndt().bits(src.len() as u16)); // cnt dma
-            dma1.lifcr.write(|w| w.ctcif1().set_bit()); // clear transfer complete interrupt flag
-            dma1.st[1].cr.modify(|_, w| w.en().set_bit()); // enable dma   
+                dma1.st[1].cr.modify(|_, w| w.en().clear_bit()); // stop dma transfer   
+                dma1.st[1].m0ar.write(|w| w.bits(TX_BUFFER.as_ptr() as u32)); // src ptr
+                dma1.st[1].ndtr.write(|w| w.ndt().bits(src.len() as u16)); // cnt dma
+                //dma1.lifcr.write(|w| w.ctcif1().set_bit()); // clear transfer complete interrupt flag
+                dma1.st[1].cr.modify(|_, w| w.en().set_bit()); // enable dma
+            }
+            self.is_ready = false;   
         }
     }
 
     /// Check if last transfer is complete always befor sending data 
-    pub fn ready(&self) -> bool {
+    pub fn ready(&mut self) -> bool {
         unsafe {
             let dma1 = &(*pac::DMA1::ptr());
             if dma1.lisr.read().tcif1().bit_is_set() {
                 // clear transfer complete interrupt flag
-                dma1.lifcr.write(|w| w.ctcif1().set_bit()); 
+                dma1.lifcr.write(|w| w.ctcif1().set_bit());
+                self.is_ready = true;
             }
-            // this works always
-            dma1.st[1].ndtr.read().ndt().bits() == 0 // no more data to write
         }
+        self.is_ready
     }
 }
 

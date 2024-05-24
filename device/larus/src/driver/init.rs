@@ -32,6 +32,8 @@ pub fn hw_init(
     IdleLoop,
     Keyboard,
     MonoTimer,
+    NmeaRx,
+    NmeaTx,
     Sound,
     Statistics,
 ) {
@@ -192,7 +194,7 @@ pub fn hw_init(
         )
     };
 
-    // Setup ----------> Idleloop (last, because of the dog)
+    // Setup ----------> Idleloop
     let idle_loop = {
         let mut wp = gpioc.pc5.into_push_pull_output();
         wp.set_low(); // Always enable writing to the eeprom
@@ -223,13 +225,26 @@ pub fn hw_init(
         idle_loop
     };
 
+    let streams = StreamsTuple::new(dp.DMA1, ccdr.peripheral.DMA1);
+
+    // Setup ----------> Idleloop
     let sound = {
         let dac = dp.DAC.dac(gpioa.pa4, ccdr.peripheral.DAC12);
         let dac = dac.calibrate_buffer(&mut delay);
-        let streams = StreamsTuple::new(dp.DMA1, ccdr.peripheral.DMA1);
         let _ = ccdr.peripheral.TIM6.enable();
         Sound::new(dac, dp.TIM6, streams.0)
     };
+
+    // Setup ----------> Idleloop
+    let (nmea_tx, nmea_rx) = NmeaTxRx::new(
+        streams.1, 
+        streams.2,
+        gpiob.pb14,
+        gpiob.pb15,
+        dp.USART1,
+        ccdr.peripheral.USART1,
+        &ccdr.clocks,
+    );
 
     // set time of controller to current time
     dev_controller.set_ms(timestamp_ms());
@@ -247,6 +262,8 @@ pub fn hw_init(
         idle_loop,
         keyboard,
         mono,
+        nmea_rx,
+        nmea_tx,
         sound,
         statistics,
     )

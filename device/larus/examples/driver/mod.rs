@@ -24,7 +24,7 @@ mod sound;
 #[allow(unused)]
 mod sys_timer;
 #[allow(unused)]
-mod uart;
+mod nmea;
 
 #[allow(unused)]
 pub use amplifier::*;
@@ -53,7 +53,7 @@ pub use sound::*;
 #[allow(unused)]
 pub use sys_timer::*;
 #[allow(unused)]
-pub use uart::*;
+pub use nmea::*;
 
 pub type QEvents = MpMcQueue<Event, 8>;
 

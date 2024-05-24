@@ -56,7 +56,7 @@ fn main() -> ! {
     let gpiob = dp.GPIOB.split(ccdr.peripheral.GPIOB);
     let streams = StreamsTuple::new(dp.DMA1, ccdr.peripheral.DMA1);
 
-    let (nmea_tx, nmea_rx) = NmeaTxRx::new(
+    let (mut nmea_tx, nmea_rx) = NmeaTxRx::new(
         streams.1,
         streams.2,
         gpiob.pb14,
