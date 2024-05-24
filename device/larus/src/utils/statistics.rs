@@ -10,17 +10,19 @@ pub enum Task {
     CanRx,
     CanTx,
     CanTimer,
+    //
     Mdma,
     Keyboard,
     Controller,
     View,
+    //
     NmeaRx,
     NmeaTx,
     None,
 }
 
-// Pattern defines, which taks must be active to feed the watchdog
-const ALL_ALIVE_PATTERN: u32 = 0b1111_1101;
+// Pattern defines, which tasks must be active to feed the watchdog
+const ALL_ALIVE_PATTERN: u32 = 0b_0010_1111_1101;
 
 impl Task {
     pub fn from_usize(u: usize) -> Self {
