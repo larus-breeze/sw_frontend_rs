@@ -149,11 +149,18 @@ pub fn hw_init(
     let mut core_model = CoreModel::new(uuid(), HW_VERSION, SW_VERSION);
 
     // Setup ----------> controller
-    let mut dev_controller = DevController::new(&mut core_model, &Q_EVENTS, p_idle_events, p_tx_frames, c_rx_frames);
+    let mut dev_controller = DevController::new(
+        &mut core_model,
+        &Q_EVENTS,
+        p_idle_events,
+        p_tx_frames,
+        c_rx_frames,
+    );
     for item in eeprom.iter_over(corelib::EepromTopic::ConfigValues) {
-        dev_controller.core().persist_restore_item(&mut core_model, item);
+        dev_controller
+            .core()
+            .persist_restore_item(&mut core_model, item);
     }
-
 
     // Setup ----------> LCD driver peripheral of STM32F407 and view component
     let (dev_view, frame_buffer) = {

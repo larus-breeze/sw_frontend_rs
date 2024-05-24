@@ -1,11 +1,11 @@
 use super::file_sys::get_filesys;
 use core::{mem::MaybeUninit, panic::PanicInfo, ptr::addr_of};
-use tfmt::uformat;
 use corelib::CoreError;
 use corelib::DateTime;
 use defmt::trace;
 use defmt_rtt as _;
 use embedded_sdmmc::{Mode, VolumeIdx};
+use tfmt::uformat;
 
 #[repr(C)]
 #[derive(Debug)]
@@ -91,7 +91,13 @@ fn panic(info: &PanicInfo) -> ! {
     cortex_m::interrupt::disable(); // Please not interrupts any more, we will reset device anyway
 
     let msg = if let Some(location) = info.location() {
-        uformat!(200, "Panic in  '{}' line {}", location.file(), location.line()).unwrap()
+        uformat!(
+            200,
+            "Panic in  '{}' line {}",
+            location.file(),
+            location.line()
+        )
+        .unwrap()
     } else {
         uformat!(200, "Panic without location info").unwrap()
     };
