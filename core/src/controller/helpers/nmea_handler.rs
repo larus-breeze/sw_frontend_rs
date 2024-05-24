@@ -80,11 +80,11 @@ impl CoreController {
         let _ = self
             .nmea_buffer
             .to_send
-            .extend_from_slice(&[0, 1, 2, 3, 4, 5]);
+            .extend_from_slice(&[0, 1, 2, 3, 4]);
     }
 
     pub fn nmea_cyclic_200ms(&mut self) {
-        let _ = self.nmea_buffer.to_send.extend_from_slice(&[6, 7, 8]);
+        let _ = self.nmea_buffer.to_send.extend_from_slice(&[5, 6, 7]);
     }
 
     pub fn nmea_next(&mut self, cm: &mut CoreModel) -> Option<&[u8]> {
@@ -97,15 +97,14 @@ impl CoreController {
                 // rarely sent
                 0 => Some(self.nmea_gprmc(cm)),
                 1 => Some(self.nmea_gpgga(cm)),
-                2 => Some(self.nmea_hchdt(cm)),
-                3 => Some(self.nmea_plarw(cm, true)),
-                4 => Some(self.nmea_plard(cm)),
-                5 => Some(self.nmea_plarb(cm)),
+                2 => Some(self.nmea_plarw(cm, true)),
+                3 => Some(self.nmea_plard(cm)),
+                4 => Some(self.nmea_plarb(cm)),
 
                 // often sent
-                6 => Some(self.nmea_plarw(cm, false)),
-                7 => Some(self.nmea_plara(cm)),
-                8 => Some(self.nmea_plarv(cm)),
+                5 => Some(self.nmea_plarw(cm, false)),
+                6 => Some(self.nmea_plara(cm)),
+                7 => Some(self.nmea_plarv(cm)),
 
                 // not known
                 _ => None,
@@ -147,16 +146,6 @@ impl CoreController {
             cm.sensor.gps_sats,
             cm.sensor.gps_altitude.to_m(),
             cm.sensor.gps_geo_seperation.to_m(),
-        );
-        self.nmea_buffer.tx.finish()
-    }
-
-    fn nmea_hchdt(&mut self, cm: &mut CoreModel) -> &[u8] {
-        self.nmea_buffer.tx.reset();
-        let _ = uwrite!(
-            self.nmea_buffer.tx,
-            "$HCHDT,{:.1},T",
-            cm.sensor.euler_yaw.to_degrees(),
         );
         self.nmea_buffer.tx.finish()
     }
