@@ -14,6 +14,8 @@ pub enum Task {
     Keyboard,
     Controller,
     View,
+    NmeaRx,
+    NmeaTx,
     None,
 }
 
@@ -41,6 +43,8 @@ const TASK_NAMES: [&str; TASK_CNT] = [
     "Keyboard",
     "Controller",
     "View",
+    "NmeaRx",
+    "NmeaTx",
 ];
 const TASK_CNT: usize = Task::None as usize;
 

@@ -33,6 +33,7 @@ mod app {
     struct Shared {
         can_dispatch: DevCanDispatch,
         can_tx: CanTx<MAX_TX_FRAMES>,
+        controller: DevController,
         core_model: CoreModel,
         frame_buffer: FrameBuffer,
         sound: Sound,
@@ -42,10 +43,11 @@ mod app {
     #[local]
     struct Local {
         can_rx: CanRx,
-        controller: DevController,
         dev_view: DevView,
         idle_loop: IdleLoop,
         keyboard: Keyboard,
+        nmea_rx: NmeaRx,
+        nmea_tx: NmeaTx,
     }
 
     #[init]
@@ -61,6 +63,8 @@ mod app {
             idle_loop,
             keyboard,
             mono,
+            nmea_rx,
+            nmea_tx,
             sound,
             statistics,
         ) = hw_init(cx.device, cx.core);
@@ -75,6 +79,7 @@ mod app {
             Shared {
                 can_dispatch,
                 can_tx,
+                controller,
                 core_model,
                 frame_buffer,
                 sound,
@@ -82,10 +87,11 @@ mod app {
             },
             Local {
                 can_rx,
-                controller,
                 dev_view,
                 idle_loop,
                 keyboard,
+                nmea_rx,
+                nmea_tx,
             },
             init::Monotonics(mono), // Give the monotonic to RTIC
         )
@@ -145,8 +151,43 @@ mod app {
         task_end!(cx, Task::CanTimer);
     }
 
+    /// Handle the reception of NMEA data
+    #[task(binds = USART1, local = [nmea_rx], shared = [controller, core_model, statistics], priority=5)]
+    fn isr_nmea_rx(mut cx: isr_nmea_rx::Context) {
+        task_start!(cx, Task::NmeaRx);
+        let nmea_rx = cx.local.nmea_rx;
+        nmea_rx.on_interrupt();
+        cx.shared.core_model.lock(|core_model| {
+            cx.shared.controller.lock(|controller| {
+                let cc = controller.core();
+                while let Some(chunk) = nmea_rx.read() {
+                    cc.nmea_recv_slice(core_model, chunk);
+                }
+            })
+        });
+        task_end!(cx, Task::NmeaRx);
+    }
+
+    /// Handle the transmission of NMEA data
+    #[task(binds = DMA1_STR1, local = [nmea_tx], shared = [controller, core_model, statistics], priority=5)]
+    fn isr_nmea_tx(mut cx: isr_nmea_tx::Context) {
+        task_start!(cx, Task::NmeaTx);
+        let nmea_tx = cx.local.nmea_tx;
+        if nmea_tx.ready() {
+            cx.shared.core_model.lock(|core_model| {
+                cx.shared.controller.lock(|controller| {
+                    let cc = controller.core();
+                    if let Some(chunk) = cc.nmea_next(core_model) {
+                        nmea_tx.send(chunk);
+                    }
+                })
+            });
+        }
+        task_end!(cx, Task::NmeaTx);
+    }
+
     /// The controller contains the complete logic for processing the data and events
-    #[task(local = [controller], shared = [core_model, sound, statistics], priority=5)]
+    #[task(shared = [controller, core_model, sound, statistics], priority=5)]
     fn task_controller(mut cx: task_controller::Context) {
         task_start!(cx, Task::Controller);
 
@@ -155,22 +196,24 @@ mod app {
             .statistics
             .lock(|statistics| statistics.all_alive());
 
-        let controller = cx.local.controller;
-        let recalc = cx.shared.core_model.lock(|core_model| {
-            if all_alive {
-                // feed the watchdog, if all tasks are alive
-                controller.core().send_idle_event(IdleEvent::FeedTheDog);
-            }
-            // do controller calculations
-            if controller.tick_1ms(core_model) {
-                Some((
-                    core_model.calculated.frequency,
-                    core_model.calculated.continuous,
-                    core_model.calculated.gain,
-                ))
-            } else {
-                None 
-            }
+        let recalc = cx.shared.controller.lock(|controller| {
+            cx.shared.core_model.lock(|core_model| {
+                if all_alive {
+                    // feed the watchdog, if all tasks are alive
+                    controller.core().send_idle_event(IdleEvent::FeedTheDog);
+                }
+                // do controller calculations
+                if controller.tick_1ms(core_model) {
+                    rtic::pend(interrupt::DMA1_STR1); // check if there is something to send
+                    Some((
+                        core_model.calculated.frequency,
+                        core_model.calculated.continuous,
+                        core_model.calculated.gain,
+                    ))
+                } else {
+                    None 
+                }
+            })        
         });
 
         // set sound params
