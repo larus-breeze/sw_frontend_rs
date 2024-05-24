@@ -2,7 +2,7 @@ use heapless::Vec;
 
 use super::{VarioModeControl, MAX_PERS_IDS};
 use crate::{
-    basic_config::{SECTION_EDITOR_TIMEOUT, PERSISTENCE_TIMEOUT},
+    basic_config::{PERSISTENCE_TIMEOUT, SECTION_EDITOR_TIMEOUT},
     controller::helpers::IntToDuration,
     system_of_units::Speed,
     themes::{BRIGHT_MODE, DARK_MODE},
@@ -131,7 +131,6 @@ impl CoreController {
     fn persist_finish_push(&mut self, cm: &mut CoreModel, id: PersistenceId, echo: Echo) {
         if echo == Echo::Nmea || echo == Echo::NmeaAndCan {
             let _ = self.nmea_vals.insert(id);
-
         }
         if echo == Echo::Can || echo == Echo::NmeaAndCan {
             if let Some(frame) = cm.can_frame_sys_config(id) {

@@ -18,13 +18,13 @@ mod i2c_mgr;
 #[allow(unused)]
 mod keyboard;
 #[allow(unused)]
+mod nmea;
+#[allow(unused)]
 mod panic;
 #[allow(unused)]
 mod sound;
 #[allow(unused)]
 mod sys_timer;
-#[allow(unused)]
-mod nmea;
 
 #[allow(unused)]
 pub use amplifier::*;
@@ -47,13 +47,13 @@ pub use i2c_mgr::*;
 #[allow(unused)]
 pub use keyboard::*;
 #[allow(unused)]
+pub use nmea::*;
+#[allow(unused)]
 pub use panic::*;
 #[allow(unused)]
 pub use sound::*;
 #[allow(unused)]
 pub use sys_timer::*;
-#[allow(unused)]
-pub use nmea::*;
 
 pub type QEvents = MpMcQueue<Event, 8>;
 

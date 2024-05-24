@@ -2,7 +2,7 @@
 #![no_std]
 
 mod driver;
-use driver::{NmeaTxRx, NmeaRx, NmeaTx};
+use driver::{NmeaRx, NmeaTx, NmeaTxRx};
 
 use defmt::*;
 use defmt_rtt as _;
@@ -10,11 +10,7 @@ use defmt_rtt as _;
 use core::cell::RefCell;
 use cortex_m::interrupt::Mutex;
 use cortex_m_rt::entry;
-use stm32h7xx_hal::{
-    dma::dma::StreamsTuple, 
-    prelude::*, 
-    interrupt, pac,
-};
+use stm32h7xx_hal::{dma::dma::StreamsTuple, interrupt, pac, prelude::*};
 
 const TEST_STREAM: &[u8] = b"Dies ist ein Test, der zeigen soll";
 
@@ -41,7 +37,7 @@ fn DMA1_STR1() {
     cortex_m::interrupt::free(|cs| {
         let mut rc = NMEA_TX.borrow(cs).borrow_mut();
         let tx = rc.as_mut().unwrap();
-        let _ =  tx.ready(); // Ack 
+        let _ = tx.ready(); // Ack
     })
 }
 

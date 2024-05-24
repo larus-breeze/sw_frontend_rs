@@ -184,8 +184,8 @@ pub fn hw_init(
         DevController::new(
             &mut core_model,
             &Q_EVENTS,
-            p_idle_events, 
-            p_tx_frames, 
+            p_idle_events,
+            p_tx_frames,
             c_rx_frames,
             adc1.enable(),
             gpioa.pa6,
@@ -217,7 +217,14 @@ pub fn hw_init(
 
         let watchdog = IndependentWatchdog::new(dp.IWDG);
 
-        let idle_loop = IdleLoop::new(i2c, watchdog, c_idle_events, &Q_EVENTS, &mut core_model, &mut dev_controller);
+        let idle_loop = IdleLoop::new(
+            i2c,
+            watchdog,
+            c_idle_events,
+            &Q_EVENTS,
+            &mut core_model,
+            &mut dev_controller,
+        );
 
         // switch LCD backlight on, after eventually firmware update (avoids flickering)
         backlight_control.set_low();
@@ -237,7 +244,7 @@ pub fn hw_init(
 
     // Setup ----------> Idleloop
     let (nmea_tx, nmea_rx) = NmeaTxRx::new(
-        streams.1, 
+        streams.1,
         streams.2,
         gpiob.pb14,
         gpiob.pb15,

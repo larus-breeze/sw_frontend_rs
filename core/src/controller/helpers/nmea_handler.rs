@@ -77,10 +77,7 @@ impl CoreController {
     }
 
     pub fn nmea_cyclic_1s(&mut self) {
-        let _ = self
-            .nmea_buffer
-            .to_send
-            .extend_from_slice(&[0, 1, 2, 3, 4]);
+        let _ = self.nmea_buffer.to_send.extend_from_slice(&[0, 1, 2, 3, 4]);
     }
 
     pub fn nmea_cyclic_200ms(&mut self) {

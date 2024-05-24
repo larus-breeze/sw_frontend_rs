@@ -4,7 +4,10 @@
 ///
 /// Both components access the same buffer memory. Decoupling is achieved by calling the copy
 /// routine after the image has been built up.
-use core::{mem::transmute, ptr::{addr_eq, addr_of}};
+use core::{
+    mem::transmute,
+    ptr::{addr_eq, addr_of},
+};
 use corelib::{
     basic_config::{DISPLAY_HEIGHT, DISPLAY_WIDTH},
     Colors, Colors8, CoreError, DrawImage, RGB565_COLORS,
@@ -66,12 +69,16 @@ impl FrameBuffer {
         // Note on safety: The frame buffer is used as a display and as a buffer for the DMA
         // transfer. This is ok, as these processes run one after the other and there are no
         // conflicts.
-        let buf = unsafe { transmute::<*const [u16; AVAIL_PIXELS], &'static mut [u16; AVAIL_PIXELS]>(addr_of!(
-            FRAME_BUFFER
-        )) };
-        let buf2 = unsafe { transmute::<*const [u16; AVAIL_PIXELS], &'static mut [u16; AVAIL_PIXELS]>(addr_of!(
-            FRAME_BUFFER
-        )) };
+        let buf = unsafe {
+            transmute::<*const [u16; AVAIL_PIXELS], &'static mut [u16; AVAIL_PIXELS]>(addr_of!(
+                FRAME_BUFFER
+            ))
+        };
+        let buf2 = unsafe {
+            transmute::<*const [u16; AVAIL_PIXELS], &'static mut [u16; AVAIL_PIXELS]>(addr_of!(
+                FRAME_BUFFER
+            ))
+        };
 
         let dma_state = DmaState::State1;
         let dma_transfer = Self::create_transfer(stream0, dma_state);

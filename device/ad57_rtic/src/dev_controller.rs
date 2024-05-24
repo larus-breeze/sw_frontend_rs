@@ -1,6 +1,7 @@
 use crate::{driver::QEvents, timestamp_ms, CoreController};
 use corelib::{
-    basic_config::{MAX_RX_FRAMES, MAX_TX_FRAMES}, CRxFrames, CoreModel, Event, PIdleEvents, PTxFrames
+    basic_config::{MAX_RX_FRAMES, MAX_TX_FRAMES},
+    CRxFrames, CoreModel, Event, PIdleEvents, PTxFrames,
 };
 
 #[cfg(feature = "test-panic")]

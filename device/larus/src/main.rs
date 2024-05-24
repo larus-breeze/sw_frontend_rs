@@ -211,9 +211,9 @@ mod app {
                         core_model.calculated.gain,
                     ))
                 } else {
-                    None 
+                    None
                 }
-            })        
+            })
         });
 
         // set sound params

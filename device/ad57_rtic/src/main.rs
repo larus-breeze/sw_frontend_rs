@@ -180,9 +180,9 @@ mod app {
         if all_alive {
             controller.core().send_idle_event(IdleEvent::FeedTheDog);
         }
-        cx.shared.core_model.lock(|core_model| {
-            controller.tick_1ms(core_model)
-        });
+        cx.shared
+            .core_model
+            .lock(|core_model| controller.tick_1ms(core_model));
 
         task_controller::spawn_after(DevDuration::millis(1)).unwrap();
         task_end!(cx, Task::Controller);

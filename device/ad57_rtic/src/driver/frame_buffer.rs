@@ -19,7 +19,7 @@ use st7789::ST7789;
 use stm32f4xx_hal::{
     fsmc_lcd::{AccessMode, DataPins16, FsmcLcd, Lcd, LcdPins, SubBank1, Timing},
     gpio::{alt::fsmc, Output, Pin},
-    pac::{interrupt, FSMC, NVIC, RCC, DMA2},
+    pac::{interrupt, DMA2, FSMC, NVIC, RCC},
     rcc::{Enable, Reset},
 };
 
@@ -73,9 +73,8 @@ impl FrameBuffer {
         };
 
         static mut LINE_BUFFER: [u16; 227] = [0xaaaa; 227];
-        let line_buf = unsafe { 
-            transmute::<*const [u16; 227], &mut [u16; 227]>(addr_of!(LINE_BUFFER))
-        };
+        let line_buf =
+            unsafe { transmute::<*const [u16; 227], &mut [u16; 227]>(addr_of!(LINE_BUFFER)) };
 
         let timing = Timing::default()
             .data(3)
@@ -156,19 +155,16 @@ impl FrameBuffer {
                     dma2.st[0].cr.modify(|_, w| w.en().clear_bit()); // disable stream0
                     dma2.lifcr.write(|w| w.ctcif0().set_bit()); // reset dma complete ir
                 }
-        
+
                 if self.line_y < PORTRAIT_AVAIL_HEIGHT {
                     let idx_y = (self.line_y * PORTRAIT_AVAIL_WIDTH) as usize;
                     for x in 0..PORTRAIT_AVAIL_WIDTH as usize {
                         let color = self.buf[x + idx_y] as usize;
                         self.line_buf[x] = RGB565_COLORS[color];
                     }
-                    lcd.set_pos(
-                        PORTRAIT_ORIGIN_X,
-                        PORTRAIT_ORIGIN_Y + self.line_y,
-                    );
+                    lcd.set_pos(PORTRAIT_ORIGIN_X, PORTRAIT_ORIGIN_Y + self.line_y);
                     self.line_y += 1;
-        
+
                     unsafe {
                         let dma2 = &*DMA2::ptr();
                         dma2.st[0].ndtr.write(|w| w.bits(227)); // count DMA moves
