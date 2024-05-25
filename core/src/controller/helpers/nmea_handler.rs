@@ -149,14 +149,10 @@ impl CoreController {
 
     fn nmea_plara(&mut self, cm: &mut CoreModel) -> &[u8] {
         self.nmea_buffer.tx.reset();
-        let mut roll = cm.sensor.euler_roll.to_degrees();
-        if roll > 180.0 {
-            roll -= 360.0
-        }
         let _ = uwrite!(
             self.nmea_buffer.tx,
             "$PLARA,{:.1},{:.1},{:.1}",
-            roll,
+            cm.sensor.euler_roll.to_degrees(),
             cm.sensor.euler_nick.to_degrees(),
             cm.sensor.euler_yaw.to_degrees(),
         );
