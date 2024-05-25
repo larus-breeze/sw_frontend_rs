@@ -71,9 +71,15 @@ impl CoreController {
     }
 
     fn can_frame_read_legacy(&mut self, cm: &mut CoreModel, frame: &CanFrame) {
-        fn norm_rad(mut r: i16) -> Angle {
-            if r < 0 {
-                r += 6284
+        fn norm_0_2pi(r: i16) -> Angle {
+            let r = r % 6284;
+            ((r as f32) * 0.001).rad()
+        }
+
+        fn norm_mpi_ppi(r: i16) -> Angle {
+            let mut r = r % 6284;
+            if r > 3142 {
+                r -= 6284
             }
             ((r as f32) * 0.001).rad()
         }
@@ -83,9 +89,9 @@ impl CoreController {
 
         match id {
             sensor_legacy::EULER_ANGLES => {
-                cm.sensor.euler_roll = norm_rad(rdr.pop_i16());
-                cm.sensor.euler_nick = norm_rad(rdr.pop_i16());
-                cm.sensor.euler_yaw = norm_rad(rdr.pop_i16());
+                cm.sensor.euler_roll = norm_mpi_ppi(rdr.pop_i16());
+                cm.sensor.euler_nick = norm_mpi_ppi(rdr.pop_i16());
+                cm.sensor.euler_yaw = norm_0_2pi(rdr.pop_i16());
             }
             sensor_legacy::ACCELERATION => {
                 cm.sensor.g_force = ((rdr.pop_i16() as f32) * 0.001).m_s2();
