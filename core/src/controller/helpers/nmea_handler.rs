@@ -153,7 +153,7 @@ impl CoreController {
             self.nmea_buffer.tx,
             "$PLARA,{:.1},{:.1},{:.1}",
             cm.sensor.euler_roll.to_degrees(),
-            cm.sensor.euler_nick.to_degrees(),
+            cm.sensor.euler_pitch.to_degrees(),
             cm.sensor.euler_yaw.to_degrees(),
         );
         self.nmea_buffer.tx.finish()
@@ -240,4 +240,146 @@ impl CoreController {
 
 pub fn nmea_cyclic_200ms(_cm: &mut CoreModel, cc: &mut CoreController) {
     cc.nmea_cyclic_200ms();
+}
+
+#[cfg(test)]
+mod tests {
+    use crate::{
+        model::GpsState, AirSpeed, Coord, FloatToDensity, FloatToLength, FloatToMass, FloatToPressure, FloatToSpeed, Latitude, Longitude, WindVector,
+        utils::tests::cores,
+    };
+    use embedded_graphics::geometry::AngleUnit;
+
+    #[test]
+    fn gpgga() {
+        let (mut cm, mut cc) = cores();
+        cm.sensor
+            .gps_date_time
+            .set_date_time(2023, 06, 23, 12, 05, 20);
+        cm.sensor.gps_lon = Longitude(Coord(-0.1498276674644056));
+        cm.sensor.gps_lat = Latitude(Coord(-0.8672530930250163));
+        cm.sensor.gps_state = GpsState::HeadingAvail;
+        cm.sensor.gps_sats = 23;
+        cm.sensor.gps_altitude = 2745.9.m();
+        cm.sensor.gps_geo_seperation = 12.3.m();
+
+        let s = cc.nmea_gpgga(&mut cm);
+        assert_eq!(
+            s,
+            b"$GPGGA,120520.00,4941.39652,S,835.06958,W,2,23,1.0,2745.9,M,12.3,M,,*56\r\n"
+        );
+    }
+
+    #[test]
+    fn gprmc() {
+        let (mut cm, mut cc) = cores();
+        cm.sensor
+            .gps_date_time
+            .set_date_time(2023, 06, 23, 12, 05, 20);
+        cm.sensor.gps_lon = Longitude(Coord(0.1498276674644056));
+        cm.sensor.gps_lat = Latitude(Coord(0.8672530930250163));
+        cm.sensor.gps_state = GpsState::HeadingAvail;
+        cm.sensor.gps_ground_speed = 123.4.kt();
+        cm.sensor.gps_track = 321.4_f32.deg();
+
+        let s = cc.nmea_gprmc(&mut cm);
+        assert_eq!(
+            s,
+            b"$GPRMC,120520.00,A,4941.39652,N,835.06958,E,123.4,321.4,230623,,,A*53\r\n"
+        );
+    }
+
+    #[test]
+    fn plara() {
+        let (mut cm, mut cc) = cores();
+        cm.sensor.euler_roll = 123.4_f32.deg();
+        cm.sensor.euler_pitch = 98.7_f32.deg();
+        cm.sensor.euler_yaw = 12.3_f32.deg();
+        let s = cc.nmea_plara(&mut cm);
+        assert_eq!(s, b"$PLARA,123.4,98.7,12.3*4E\r\n");
+    }
+
+    #[test]
+    fn plarb() {
+        let (mut cm, mut cc) = cores();
+        cm.device.supply_voltage = 13.12;
+        let s = cc.nmea_plarb(&mut cm);
+        assert_eq!(s, b"$PLARB,13.12*4E\r\n");
+    }
+
+    #[test]
+    fn plard() {
+        let (mut cm, mut cc) = cores();
+        cm.sensor.density = 922.54.g_m3();
+        let s = cc.nmea_plard(&mut cm);
+        assert_eq!(s, b"$PLARD,922.54,M*10\r\n");
+    }
+
+    #[test]
+    fn plars() {
+        let (mut cm, mut cc) = cores();
+        cm.config.mc_cready = 1.7.m_s();
+        cm.config.glider_idx = 105;
+        cm.glider_data.basic_glider_data.empty_mass = 295.0;
+        cm.glider_data.pilot_weight = 90.0.kg();
+        cm.glider_data.water_ballast = 100.0.kg();
+        cm.glider_data.bugs = 1.23;
+        cm.sensor.pressure_altitude.set_qnh(1031.37.hpa());
+
+        let s = cc.nmea_plars(&mut cm, crate::PersistenceId::McCready);
+        assert_eq!(s.unwrap(), b"$PLARS,L,MC,1.7*1A\r\n");
+
+        let s = cc.nmea_plars(&mut cm, crate::PersistenceId::WaterBallast);
+        assert_eq!(s.unwrap(), b"$PLARS,L,BAL,0.826*51\r\n");
+
+        let s = cc.nmea_plars(&mut cm, crate::PersistenceId::Bugs);
+        assert_eq!(s.unwrap(), b"$PLARS,L,BUGS,23*3E\r\n");
+
+        let s = cc.nmea_plars(&mut cm, crate::PersistenceId::Qnh);
+        assert_eq!(s.unwrap(), b"$PLARS,L,QNH,1031.4*72\r\n");
+    }
+
+    #[test]
+    fn plarv() {
+        let (mut cm, mut cc) = cores();
+        cm.sensor.climb_rate = 2.50.m_s();
+        cm.sensor.average_climb_rate = 1.25.m_s();
+        cm.sensor
+            .pressure_altitude
+            .set_static_pressure(97_717.0_f32.n_m2());
+        cm.sensor.airspeed = AirSpeed::from_tas_at_nn(111.1.km_h());
+        let s = cc.nmea_plarv(&mut cm);
+        assert_eq!(s, b"$PLARV,2.50,1.25,305,111*5F\r\n");
+    }
+
+    #[test]
+    fn plarw() {
+        let (mut cm, mut cc) = cores();
+        cm.sensor.average_wind = WindVector::new(45.6.km_h(), 321.0_f32.deg());
+        let s = cc.nmea_plarw(&mut cm, true);
+        assert_eq!(s, b"$PLARW,321,46,A,A*6A\r\n");
+
+        cm.sensor.wind_vector = WindVector::new(45.6.km_h(), 321.0_f32.deg());
+        let s = cc.nmea_plarw(&mut cm, false);
+        assert_eq!(s, b"$PLARW,321,46,I,A*62\r\n");
+    }
+
+    /*fn cores() -> (CoreModel, CoreController) {
+        let (p_tx_frames, _c_tx_frames) = {
+            static mut Q_TX_FRAMES: QTxFrames<MAX_TX_FRAMES> = Queue::new();
+            // Note: unsafe is ok here, because [heapless::spsc] queue protects against UB
+            unsafe { Q_TX_FRAMES.split() }
+        };
+
+        // This queue routes the StorageItems from the controller to the idle loop.
+        let (p_idle_events, _c_idle_events) = {
+            static mut Q_IDLE_EVENTS: QIdleEvents = Queue::new();
+            // Note: unsafe is ok here, because [heapless::spsc] queue protects against UB
+            unsafe { Q_IDLE_EVENTS.split() }
+        };
+
+        let mut model = CoreModel::new(1234_u32, HW_VERSION, SW_VERSION);
+        let controller = CoreController::new(&mut model, p_idle_events, p_tx_frames);
+        (model, controller)
+    }*/
 }
