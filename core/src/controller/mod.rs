@@ -3,6 +3,7 @@ mod helpers;
 pub use helpers::{
     can_ids::{audio_legacy, frontend_legacy, sensor_legacy, GenericId, SpecialId},
     CanActive, IntToDuration, NmeaBuffer, Scheduler, Tim,
+    Softkeys,
 };
 
 mod edit;
@@ -37,7 +38,7 @@ use micromath::F32Ext;
 use heapless::FnvIndexSet;
 
 #[repr(u8)]
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 pub enum Editable {
     ClimbRate,
     Glider,
@@ -47,8 +48,8 @@ pub enum Editable {
     Speed,
     Volume,
     WaterBallast,
-    WindDirection,
-    WindSpeed,
+    Theme,
+    None,
 }
 
 pub enum Direction {
@@ -95,6 +96,7 @@ impl CoreController {
         p_idle_events: PIdleEvents,
         p_tx_frames: PTxFrames<MAX_TX_FRAMES>,
     ) -> Self {
+        core_model.control.softkeys.set_editables(Editable::McCready, Editable::WaterBallast, Editable::PilotWeight, Editable::VarioModeControl);
         let polar_idx = core_model.config.glider_idx as usize;
         let polar = Polar::new(&POLARS[polar_idx], &mut core_model.glider_data);
         let av2_climb_rate = Pt1::new(
@@ -151,6 +153,7 @@ impl CoreController {
     }
 
     pub fn key_action(&mut self, core_model: &mut CoreModel, key_event: &KeyEvent) {
+        edit::key_action(core_model, self, key_event);
         match key_event {
             KeyEvent::Btn2S3 => {
                 if core_model.config.theme == &DARK_MODE {

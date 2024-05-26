@@ -38,8 +38,8 @@ impl Edit {
             Editable::Speed => "Airspeed (IAS)",
             Editable::Volume => "Volume",
             Editable::WaterBallast => "Water Ballast",
-            Editable::WindDirection => "Wind Direction",
-            Editable::WindSpeed => "Wind Speed",
+            Editable::Theme => "Theme",
+            Editable::None => "None",
         };
 
         let val_str = match cm.control.edit_var {
@@ -57,12 +57,7 @@ impl Edit {
             Editable::WaterBallast => {
                 tformat!(20, "{:.0} kg", cm.glider_data.water_ballast.to_kg())
             }
-            Editable::WindDirection => {
-                tformat!(20, "{:.0} °", cm.sensor.wind_vector.angle().to_degrees())
-            }
-            Editable::WindSpeed => {
-                tformat!(20, "{:.0} km/h", cm.sensor.wind_vector.speed().to_km_h())
-            }
+            _ => tformat!(20, "<--->"),
         };
         Edit {
             name_str,
