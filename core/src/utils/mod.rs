@@ -60,3 +60,36 @@ where
         _ => val,
     }
 }
+
+#[cfg(test)]
+pub(crate) mod tests {
+    use crate::{
+        basic_config::MAX_TX_FRAMES, 
+        CoreController, CoreModel, QIdleEvents, QTxFrames, HwVersion, SwVersion,
+    };
+    use heapless::spsc::Queue;
+    const HW_VERSION: HwVersion = HwVersion::from_bytes([1, 3, 1, 0]);
+    const SW_VERSION: SwVersion = SwVersion {
+        version: [0, 0, 0, 0],
+    };
+
+    #[allow(unused)]
+    pub(crate) fn cores() -> (CoreModel, CoreController) {
+        let (p_tx_frames, _c_tx_frames) = {
+            static mut Q_TX_FRAMES: QTxFrames<MAX_TX_FRAMES> = Queue::new();
+            // Note: unsafe is ok here, because [heapless::spsc] queue protects against UB
+            unsafe { Q_TX_FRAMES.split() }
+        };
+
+        // This queue routes the StorageItems from the controller to the idle loop.
+        let (p_idle_events, _c_idle_events) = {
+            static mut Q_IDLE_EVENTS: QIdleEvents = Queue::new();
+            // Note: unsafe is ok here, because [heapless::spsc] queue protects against UB
+            unsafe { Q_IDLE_EVENTS.split() }
+        };
+
+        let mut model = CoreModel::new(1234_u32, HW_VERSION, SW_VERSION);
+        let controller = CoreController::new(&mut model, p_idle_events, p_tx_frames);
+        (model, controller)
+    }
+}

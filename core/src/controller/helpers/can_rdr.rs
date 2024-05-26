@@ -90,7 +90,7 @@ impl CoreController {
         match id {
             sensor_legacy::EULER_ANGLES => {
                 cm.sensor.euler_roll = norm_mpi_ppi(rdr.pop_i16());
-                cm.sensor.euler_nick = norm_mpi_ppi(rdr.pop_i16());
+                cm.sensor.euler_pitch = norm_mpi_ppi(rdr.pop_i16());
                 cm.sensor.euler_yaw = norm_0_2pi(rdr.pop_i16());
             }
             sensor_legacy::ACCELERATION => {
