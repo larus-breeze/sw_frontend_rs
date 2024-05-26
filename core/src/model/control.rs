@@ -1,5 +1,5 @@
 use crate::{
-    controller::{CanActive, Editable},
+    controller::{CanActive, Editable, Softkeys},
     system_of_units::{FloatToLength, FloatToSpeed, Length, Speed},
     utils::DeviceEvent,
 };
@@ -109,6 +109,8 @@ pub struct Control {
     pub tcr_1s_transient_ticks: u32,
     /// Height at the beginning of the climb
     pub tcr_start: Length,
+    /// Handle Softkeys
+    pub softkeys: Softkeys,
 }
 
 impl Default for Control {
@@ -130,6 +132,7 @@ impl Default for Control {
             tcr_1s_climb_ticks: 0,
             tcr_1s_transient_ticks: 0,
             tcr_start: 0.0.m(),
+            softkeys: Softkeys::new(),
         }
     }
 }
