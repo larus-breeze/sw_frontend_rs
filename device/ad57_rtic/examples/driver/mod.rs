@@ -1,6 +1,8 @@
 #[allow(unused)]
 mod file_sys;
 #[allow(unused)]
+mod nmea;
+#[allow(unused)]
 mod panic;
 #[allow(unused)]
 mod r61580;
@@ -9,6 +11,8 @@ mod sys_timer;
 
 #[allow(unused)]
 pub use file_sys::*;
+#[allow(unused)]
+pub use nmea::*;
 #[allow(unused)]
 pub use panic::*;
 #[allow(unused)]

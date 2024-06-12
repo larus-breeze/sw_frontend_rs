@@ -1,16 +1,21 @@
 #![no_main]
 #![no_std]
 
-use cortex_m_rt::entry;
+mod driver;
+use defmt::*;
 use defmt_rtt as _;
-use stm32f4xx_hal::pac::{CorePeripherals, Peripherals};
-use stm32f4xx_hal::prelude::*;
+
+use cortex_m_rt::entry;
+use stm32f4xx_hal::{
+    pac, prelude::*,
+};
+
 
 #[entry]
 fn main() -> ! {
     // Setup clocks
-    let cp = CorePeripherals::take().unwrap();
-    let dp = Peripherals::take().unwrap();
+    let cp = pac::CorePeripherals::take().unwrap();
+    let dp = pac::Peripherals::take().unwrap();
     let rcc = dp.RCC.constrain();
 
     let clocks = rcc
@@ -21,6 +26,8 @@ fn main() -> ! {
         .pclk1(42.MHz())
         .pclk2(84.MHz())
         .freeze();
+
+    info!("init");
 
     // Setup LED
     let gpiob = dp.GPIOB.split();
