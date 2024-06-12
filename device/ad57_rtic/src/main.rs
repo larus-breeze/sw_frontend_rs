@@ -42,7 +42,7 @@ use driver::*;
 use idle_loop::*;
 use utils::*;
 
-#[app(device = stm32f4xx_hal::pac, peripherals = true, dispatchers = [SPI1, SPI2, DMA2_STREAM2, DMA2_STREAM1])]
+#[app(device = stm32f4xx_hal::pac, peripherals = true, dispatchers = [SPI1, SPI2, SPI3, DMA2_STREAM2, DMA2_STREAM1])]
 mod app {
     use super::*;
 
@@ -54,6 +54,7 @@ mod app {
     struct Shared {
         can_dispatch: DevCanDispatch, // Dispatcher for CAN frames
         can_tx: CanTx<MAX_TX_FRAMES>, // transmit can pakets
+        controller: DevController, // control the application
         core_model: CoreModel,        // holds the application data
         frame_buffer: FrameBuffer,    // between view component and the LCD
         statistics: Statistics,       // track the task runtimes
@@ -63,10 +64,11 @@ mod app {
     #[local]
     struct Local {
         can_rx: CanRx,             // receive can pakets
-        controller: DevController, // control the application
         idle_loop: IdleLoop,       // Idle loop and persistence layer
         view: DevView,             // bring application data to the user
         keyboard: Keyboard,        // capture the user input
+        nmea_rx: NmeaRx,
+        nmea_tx: NmeaTx,
     }
 
     /// Time base for the real-time system
@@ -87,6 +89,8 @@ mod app {
             idle_loop,
             frame_buffer,
             keyboard,
+            nmea_rx,
+            nmea_tx,
             statistics,
         ) = hw_init(cx.device, cx.core);
 
@@ -95,22 +99,25 @@ mod app {
         task_controller::spawn().unwrap();
         task_keyboard::spawn().unwrap();
         task_can_timer::spawn().unwrap();
+        task_nmea_rx::spawn().unwrap();
 
         // return the initialized components to RTIC
         (
             Shared {
                 can_dispatch,
                 can_tx,
+                controller,
                 core_model,
                 frame_buffer,
                 statistics,
             },
             Local {
                 can_rx,
-                controller,
                 idle_loop,
                 view,
                 keyboard,
+                nmea_rx,
+                nmea_tx,
             },
             init::Monotonics(mono_timer),
         )
@@ -166,8 +173,43 @@ mod app {
         task_end!(cx, Task::CanTimer);
     }
 
+    /// Handle the reception of NMEA data
+    #[task(local = [nmea_rx], shared = [controller, core_model, statistics], priority=5)]
+    fn task_nmea_rx(mut cx: task_nmea_rx::Context) {
+        task_start!(cx, Task::NmeaRx);
+        let nmea_rx = cx.local.nmea_rx;
+        let controller = cx.shared.controller;
+        let core_model = cx.shared.core_model;
+        (controller, core_model).lock (|controller, core_model| {
+            let cc = controller.core();
+            while let Some(chunk) = nmea_rx.read() {
+                cc.nmea_recv_slice(core_model, chunk);
+            }
+        });
+        task_nmea_rx::spawn_after(DevDuration::millis(20)).unwrap();
+        task_end!(cx, Task::NmeaRx);
+    }
+
+    /// Handle the transmission of NMEA data
+    #[task(binds = DMA2_STREAM7, local = [nmea_tx], shared = [controller, core_model, statistics], priority=5)]
+    fn isr_nmea_tx(mut cx: isr_nmea_tx::Context) {
+        task_start!(cx, Task::NmeaTx);
+        let nmea_tx = cx.local.nmea_tx;
+        let controller = cx.shared.controller;
+        let core_model = cx.shared.core_model;
+        if nmea_tx.ready() {
+            (controller, core_model).lock (|controller, core_model| {
+                let cc = controller.core();
+                if let Some(chunk) = cc.nmea_next(core_model) {
+                    nmea_tx.send(chunk);
+                }
+            });
+        }
+        task_end!(cx, Task::NmeaTx);
+    }
+
     /// The controller contains the complete logic for processing the data and events
-    #[task(local = [controller], shared = [core_model, statistics], priority=5)]
+    #[task(shared = [controller, core_model, statistics], priority=5)]
     fn task_controller(mut cx: task_controller::Context) {
         task_start!(cx, Task::Controller);
 
@@ -176,13 +218,17 @@ mod app {
             .statistics
             .lock(|statistics| statistics.all_alive());
 
-        let controller = cx.local.controller;
-        if all_alive {
-            controller.core().send_idle_event(IdleEvent::FeedTheDog);
-        }
-        cx.shared
-            .core_model
-            .lock(|core_model| controller.tick_1ms(core_model));
+        let controller = cx.shared.controller;
+        let core_model = cx.shared.core_model;
+
+        (controller, core_model).lock(|controller, core_model| {
+            if all_alive {
+                controller.core().send_idle_event(IdleEvent::FeedTheDog);
+            }
+            if controller.tick_1ms(core_model) {
+                rtic::pend(interrupt::DMA2_STREAM7); // check if there is something to send
+            }
+        });
 
         task_controller::spawn_after(DevDuration::millis(1)).unwrap();
         task_end!(cx, Task::Controller);

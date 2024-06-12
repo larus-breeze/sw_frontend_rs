@@ -4,6 +4,7 @@ mod file_sys;
 mod frame_buffer;
 mod init;
 mod keyboard;
+mod nmea;
 mod panic;
 mod r61580;
 mod rng_uuid;
@@ -15,6 +16,7 @@ pub use file_sys::*;
 pub use frame_buffer::*;
 pub use init::*;
 pub use keyboard::*;
+pub use nmea::*;
 #[allow(unused)]
 pub use panic::*;
 pub use rng_uuid::*;
