@@ -245,8 +245,8 @@ pub fn nmea_cyclic_200ms(_cm: &mut CoreModel, cc: &mut CoreController) {
 #[cfg(test)]
 mod tests {
     use crate::{
-        model::GpsState, AirSpeed, Coord, FloatToDensity, FloatToLength, FloatToMass, FloatToPressure, FloatToSpeed, Latitude, Longitude, WindVector,
-        utils::tests::cores,
+        model::GpsState, utils::tests::cores, AirSpeed, Coord, FloatToDensity, FloatToLength,
+        FloatToMass, FloatToPressure, FloatToSpeed, Latitude, Longitude, WindVector,
     };
     use embedded_graphics::geometry::AngleUnit;
 

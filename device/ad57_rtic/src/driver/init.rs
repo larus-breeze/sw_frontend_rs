@@ -1,4 +1,6 @@
-use crate::driver::{frame_buffer::*, init_can, keyboard::*, CanRx, CanTx, MonoTimer, nmea::*, Storage};
+use crate::driver::{
+    frame_buffer::*, init_can, keyboard::*, nmea::*, CanRx, CanTx, MonoTimer, Storage,
+};
 use crate::utils::{HW_VERSION, SW_VERSION};
 use crate::{
     dev_controller::DevController, dev_view::DevView, driver::*, idle_loop::IdleLoop, Statistics,
@@ -165,7 +167,6 @@ pub fn hw_init(
             .persist_restore_item(&mut core_model, item);
     }
 
-
     let rcc_ = unsafe { &*pac::RCC::ptr() };
     rcc_.ahb1enr.modify(|_, w| w.dma2en().set_bit()); // enable ahb1 clock for dma2
     let dma2_streams = StreamsTuple::new(device.DMA2);
@@ -188,13 +189,7 @@ pub fn hw_init(
         let mut delay = core.SYST.delay(&clocks);
 
         let (display, frame_buffer) =
-            FrameBuffer::new(
-                device.FSMC, 
-                dma2_streams.0, 
-                lcd_pins, 
-                lcd_reset, 
-                &mut delay
-        );
+            FrameBuffer::new(device.FSMC, dma2_streams.0, lcd_pins, lcd_reset, &mut delay);
 
         unsafe {
             core.NVIC.set_priority(interrupt::DMA2_STREAM0, 3);
@@ -235,7 +230,7 @@ pub fn hw_init(
             dma2_streams.7,
             gpioa.pa9,
             gpioa.pa10,
-            &clocks
+            &clocks,
         )
     };
     trace!("AD57 initialized");

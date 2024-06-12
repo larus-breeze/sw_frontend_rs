@@ -1,9 +1,10 @@
 use stm32f4xx_hal::{
-    dma::{Stream5, Stream7}, 
-    gpio::Pin, pac::{self, DMA2, USART1}, 
-    prelude::*, 
-    rcc::Clocks, 
-    serial::{config::Config, Serial}
+    dma::{Stream5, Stream7},
+    gpio::Pin,
+    pac::{self, DMA2, USART1},
+    prelude::*,
+    rcc::Clocks,
+    serial::{config::Config, Serial},
 };
 
 const NMEA_BUF_SIZE: usize = 82;
@@ -22,15 +23,11 @@ impl NmeaTxRx {
         tx: Pin<'A', 9>,
         rx: Pin<'A', 10>,
         clocks: &Clocks,
-    ) -> (NmeaTx, NmeaRx)
-    {
+    ) -> (NmeaTx, NmeaRx) {
         let _serial: Serial<USART1> = usart1
-            .serial(
-                (tx, rx), 
-                Config::default().baudrate(38400.bps()), 
-                &clocks)
+            .serial((tx, rx), Config::default().baudrate(38400.bps()), &clocks)
             .unwrap();
-            
+
         unsafe {
             let usart1 = &(*pac::USART1::ptr());
             usart1.cr1.modify(|_, w| w.ue().disabled());
@@ -44,12 +41,12 @@ impl NmeaTxRx {
             dma2.st[7]
                 .cr
                 .write(|w| w.bits(0b_0000_1000_0000_0000__0000_0100_0101_0000));
-                    // Bit 4     transfer complete ie
-                    // Bit 7:6   0b01 memory to peripheral
-                    // Bit 10    memory increment after transfer
-                    // Bit 12:11 0b00 peripheral data size 8 Bit
-                    // Bit 14:13 0b00 memory data size 8 Bit
-                    // Bit 27:25 channel select 0b100 (4)
+            // Bit 4     transfer complete ie
+            // Bit 7:6   0b01 memory to peripheral
+            // Bit 10    memory increment after transfer
+            // Bit 12:11 0b00 peripheral data size 8 Bit
+            // Bit 14:13 0b00 memory data size 8 Bit
+            // Bit 27:25 channel select 0b100 (4)
 
             // configure stream 1: USART3_RX
             dma2.st[5].par.write(|w| w.bits(0x4001_1004)); // dr data register
@@ -60,12 +57,12 @@ impl NmeaTxRx {
             dma2.st[5]
                 .cr
                 .write(|w| w.bits(0b_0000_1000_0000_0000__0000_0101_0000_0000));
-                    // Bit 7:6   0b00 peripheral to memory
-                    // Bit 8     circular mode
-                    // Bit 10    memory increment after transfer
-                    // Bit 12:11 0b00 peripheral data size 8 Bit
-                    // Bit 14:13 0b00 memory data size 8 Bit
-                    // Bit 27:25 channel select 0b100 (4)
+            // Bit 7:6   0b00 peripheral to memory
+            // Bit 8     circular mode
+            // Bit 10    memory increment after transfer
+            // Bit 12:11 0b00 peripheral data size 8 Bit
+            // Bit 14:13 0b00 memory data size 8 Bit
+            // Bit 27:25 channel select 0b100 (4)
             dma2.st[5].cr.modify(|_, w| w.en().set_bit()); // enable dma
         }
 
@@ -81,7 +78,6 @@ impl NmeaTx {
     /// Send NMEA data through serial interface
     pub fn send(&mut self, src: &[u8]) {
         if src.len() > 0 && self.is_ready {
-
             unsafe {
                 TX_BUFFER[..src.len()].copy_from_slice(src);
 
@@ -115,7 +111,7 @@ pub struct NmeaRx {
 
 impl NmeaRx {
     /// Read data from rx buffer if available
-    /// 
+    ///
     /// This routine has to be called every 20 ms @ buffer size is 82 Bytes and bps is 38400.
     /// Calculation: 82 * 11 * 1s/38400 = 23.5 ms. The stm32f407 uart can not match a received
     /// byte, so we use polling to get the data.

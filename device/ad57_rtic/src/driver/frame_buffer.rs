@@ -17,11 +17,11 @@ use embedded_graphics::{
 use embedded_hal::blocking::delay::DelayUs;
 use st7789::ST7789;
 use stm32f4xx_hal::{
+    dma::Stream0,
     fsmc_lcd::{AccessMode, DataPins16, FsmcLcd, Lcd, LcdPins, SubBank1, Timing},
     gpio::{alt::fsmc, Output, Pin},
     pac::{interrupt, DMA2, FSMC, NVIC},
     rcc::{Enable, Reset},
-    dma::Stream0,
 };
 
 pub trait SetRow {

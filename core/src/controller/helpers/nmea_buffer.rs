@@ -168,4 +168,3 @@ impl uWrite for TxBuffer {
         Ok(())
     }
 }
-

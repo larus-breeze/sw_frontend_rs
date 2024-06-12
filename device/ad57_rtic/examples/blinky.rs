@@ -6,10 +6,7 @@ use defmt::*;
 use defmt_rtt as _;
 
 use cortex_m_rt::entry;
-use stm32f4xx_hal::{
-    pac, prelude::*,
-};
-
+use stm32f4xx_hal::{pac, prelude::*};
 
 #[entry]
 fn main() -> ! {

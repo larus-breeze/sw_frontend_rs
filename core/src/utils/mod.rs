@@ -64,8 +64,8 @@ where
 #[cfg(test)]
 pub(crate) mod tests {
     use crate::{
-        basic_config::MAX_TX_FRAMES, 
-        CoreController, CoreModel, QIdleEvents, QTxFrames, HwVersion, SwVersion,
+        basic_config::MAX_TX_FRAMES, CoreController, CoreModel, HwVersion, QIdleEvents, QTxFrames,
+        SwVersion,
     };
     use heapless::spsc::Queue;
     const HW_VERSION: HwVersion = HwVersion::from_bytes([1, 3, 1, 0]);
