@@ -2,13 +2,16 @@
 #![no_std]
 use core::convert::From;
 
-use cortex_m_rt::entry;
-use defmt::trace;
+mod driver;
+use defmt::*;
 use defmt_rtt as _;
+
+use cortex_m_rt::entry;
+use stm32f4xx_hal::{
+    pac, prelude::*,
+};
 use eeprom24x::{addr_size::TwoBytes, page_size::B32, Eeprom24x, SlaveAddr};
 use stm32f4xx_hal::{
-    pac::{CorePeripherals, Peripherals},
-    prelude::*,
     {i2c::I2c, pac::I2C1},
 };
 
@@ -292,8 +295,8 @@ impl Iterator for PersistenceIterator<'_> {
 #[entry]
 fn main() -> ! {
     // Setup clocks
-    let _cp = CorePeripherals::take().unwrap();
-    let dp = Peripherals::take().unwrap();
+    let _cp = pac::CorePeripherals::take().unwrap();
+    let dp = pac::Peripherals::take().unwrap();
     let rcc = dp.RCC.constrain();
 
     trace!("init");
