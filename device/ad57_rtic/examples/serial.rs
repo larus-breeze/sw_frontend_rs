@@ -8,7 +8,7 @@ use defmt_rtt as _;
 use cortex_m_rt::entry;
 use stm32f4xx_hal::{
     block,
-    {pac, prelude::*, serial::config::Config}
+    {pac, prelude::*, serial::config::Config},
 };
 
 #[entry]
@@ -39,15 +39,10 @@ fn main() -> ! {
     // let tx = gpiob.pb10;
     // let rx = gpiob.pb11;
 
-
-
     let serial = dp
         // .USART3
         .USART1
-        .serial(
-            (tx, rx), 
-            Config::default().baudrate(38400.bps()), 
-            &clocks)
+        .serial((tx, rx), Config::default().baudrate(38400.bps()), &clocks)
         .unwrap();
 
     let (mut tx, mut rx) = serial.split();

@@ -54,7 +54,7 @@ mod app {
     struct Shared {
         can_dispatch: DevCanDispatch, // Dispatcher for CAN frames
         can_tx: CanTx<MAX_TX_FRAMES>, // transmit can pakets
-        controller: DevController, // control the application
+        controller: DevController,    // control the application
         core_model: CoreModel,        // holds the application data
         frame_buffer: FrameBuffer,    // between view component and the LCD
         statistics: Statistics,       // track the task runtimes
@@ -63,10 +63,10 @@ mod app {
     /// Data required by single tasks
     #[local]
     struct Local {
-        can_rx: CanRx,             // receive can pakets
-        idle_loop: IdleLoop,       // Idle loop and persistence layer
-        view: DevView,             // bring application data to the user
-        keyboard: Keyboard,        // capture the user input
+        can_rx: CanRx,       // receive can pakets
+        idle_loop: IdleLoop, // Idle loop and persistence layer
+        view: DevView,       // bring application data to the user
+        keyboard: Keyboard,  // capture the user input
         nmea_rx: NmeaRx,
         nmea_tx: NmeaTx,
     }
@@ -178,14 +178,14 @@ mod app {
     fn task_nmea_rx(mut cx: task_nmea_rx::Context) {
         task_start!(cx, Task::NmeaRx);
         let nmea_rx = cx.local.nmea_rx;
-        let controller = cx.shared.controller;
-        let core_model = cx.shared.core_model;
-        (controller, core_model).lock (|controller, core_model| {
+        (cx.shared.controller, cx.shared.core_model).lock(|controller, core_model| {
             let cc = controller.core();
             while let Some(chunk) = nmea_rx.read() {
+                // new data received?
                 cc.nmea_recv_slice(core_model, chunk);
             }
         });
+        // Poll rx chanel every 20ms it there is new data available
         task_nmea_rx::spawn_after(DevDuration::millis(20)).unwrap();
         task_end!(cx, Task::NmeaRx);
     }
@@ -195,12 +195,12 @@ mod app {
     fn isr_nmea_tx(mut cx: isr_nmea_tx::Context) {
         task_start!(cx, Task::NmeaTx);
         let nmea_tx = cx.local.nmea_tx;
-        let controller = cx.shared.controller;
-        let core_model = cx.shared.core_model;
+        // tx buffer empty?
         if nmea_tx.ready() {
-            (controller, core_model).lock (|controller, core_model| {
+            (cx.shared.controller, cx.shared.core_model).lock(|controller, core_model| {
                 let cc = controller.core();
                 if let Some(chunk) = cc.nmea_next(core_model) {
+                    // new data to send?
                     nmea_tx.send(chunk);
                 }
             });
@@ -218,10 +218,7 @@ mod app {
             .statistics
             .lock(|statistics| statistics.all_alive());
 
-        let controller = cx.shared.controller;
-        let core_model = cx.shared.core_model;
-
-        (controller, core_model).lock(|controller, core_model| {
+        (cx.shared.controller, cx.shared.core_model).lock(|controller, core_model| {
             if all_alive {
                 controller.core().send_idle_event(IdleEvent::FeedTheDog);
             }

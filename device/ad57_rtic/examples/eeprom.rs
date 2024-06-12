@@ -7,13 +7,9 @@ use defmt::*;
 use defmt_rtt as _;
 
 use cortex_m_rt::entry;
-use stm32f4xx_hal::{
-    pac, prelude::*,
-};
 use eeprom24x::{addr_size::TwoBytes, page_size::B32, Eeprom24x, SlaveAddr};
-use stm32f4xx_hal::{
-    {i2c::I2c, pac::I2C1},
-};
+use stm32f4xx_hal::{i2c::I2c, pac::I2C1};
+use stm32f4xx_hal::{pac, prelude::*};
 
 pub fn delay_ms(millis: u32) {
     let cycles = millis * 168_000;

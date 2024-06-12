@@ -11,11 +11,7 @@ use cortex_m::interrupt::Mutex;
 use cortex_m_rt::entry;
 use driver::*;
 
-use stm32f4xx_hal::{
-    interrupt, pac, dma::StreamsTuple,
-    prelude::*,
-};
-
+use stm32f4xx_hal::{dma::StreamsTuple, interrupt, pac, prelude::*};
 
 const TEST_STREAM: &[u8] = b"Dies ist ein Test, der zeigen soll";
 
@@ -61,12 +57,7 @@ fn main() -> ! {
     let streams = StreamsTuple::new(dp.DMA2);
 
     let (mut nmea_tx, mut nmea_rx) = NmeaTxRx::new(
-        dp.USART1,
-        streams.5,
-        streams.7,
-        gpioa.pa9,
-        gpioa.pa10,
-        &clocks
+        dp.USART1, streams.5, streams.7, gpioa.pa9, gpioa.pa10, &clocks,
     );
 
     nmea_tx.send(TEST_STREAM);
