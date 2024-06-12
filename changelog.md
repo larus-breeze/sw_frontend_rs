@@ -1,5 +1,11 @@
 Changelog
 =
+v.0.2.0 Enable NMEA interface
+- $GPRMC, $GPGGA sentences (GPS)
+- $PLARV, $PLARA, $PLARW, $PLARB, $PLARD sentences(Sensorbox)
+- $PLARS sentences (Settings mac_cready, waterballast, ...)
+- Reorganise the time handling and introduce 1 ms time slices
+- Remove flickering during firmware update (Larus hardware)
 
 v.0.1.5 Bug fix release
 - fix color half/empty bat symbol
