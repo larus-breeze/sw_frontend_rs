@@ -19,8 +19,9 @@ use st7789::ST7789;
 use stm32f4xx_hal::{
     fsmc_lcd::{AccessMode, DataPins16, FsmcLcd, Lcd, LcdPins, SubBank1, Timing},
     gpio::{alt::fsmc, Output, Pin},
-    pac::{interrupt, DMA2, FSMC, NVIC, RCC},
+    pac::{interrupt, DMA2, FSMC, NVIC},
     rcc::{Enable, Reset},
+    dma::Stream0,
 };
 
 pub trait SetRow {
@@ -59,6 +60,7 @@ pub struct FrameBuffer {
 impl FrameBuffer {
     pub fn new(
         fsmc: FSMC,
+        _stream0: Stream0<DMA2>, // just to show, that this resource is used
         lcd_pins: DevLcdPins,
         mut lcd_reset: LcdReset,
         delay: &mut impl DelayUs<u32>,
@@ -88,9 +90,6 @@ impl FrameBuffer {
             FSMC::enable_unchecked();
             FSMC::reset_unchecked();
         }
-
-        let rcc = unsafe { &*RCC::ptr() };
-        rcc.ahb1enr.modify(|_, w| w.dma2en().set_bit()); // enable ahb1 clock for dma2
 
         unsafe {
             let dma2 = &*DMA2::ptr();

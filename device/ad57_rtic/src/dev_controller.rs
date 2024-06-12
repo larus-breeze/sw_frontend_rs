@@ -39,7 +39,7 @@ impl DevController {
         self.core_controller.set_ms(time_ms);
     }
 
-    pub fn tick_1ms(&mut self, core_model: &mut CoreModel) {
+    pub fn tick_1ms(&mut self, core_model: &mut CoreModel) -> bool {
         while let Some(event) = self.q_events.dequeue() {
             match event {
                 Event::KeyItem(key_event) => {
@@ -54,7 +54,7 @@ impl DevController {
             self.core_controller.read_can_frame(core_model, &frame);
         }
 
-        self.core_controller.tick_1ms(timestamp_ms(), core_model);
+        let recalc = self.core_controller.tick_1ms(timestamp_ms(), core_model);
 
         #[cfg(feature = "test-panic")]
         {
@@ -70,5 +70,6 @@ impl DevController {
                 loop {}
             }
         }
+        recalc
     }
 }

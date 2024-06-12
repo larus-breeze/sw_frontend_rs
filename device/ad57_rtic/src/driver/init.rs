@@ -1,4 +1,4 @@
-use crate::driver::{frame_buffer::*, init_can, keyboard::*, CanRx, CanTx, MonoTimer, Storage};
+use crate::driver::{frame_buffer::*, init_can, keyboard::*, CanRx, CanTx, MonoTimer, nmea::*, Storage};
 use crate::utils::{HW_VERSION, SW_VERSION};
 use crate::{
     dev_controller::DevController, dev_view::DevView, driver::*, idle_loop::IdleLoop, Statistics,
@@ -23,6 +23,7 @@ use defmt::*;
 use defmt_rtt as _;
 use heapless::{mpmc::MpMcQueue, spsc::Queue};
 use stm32f4xx_hal::{
+    dma::StreamsTuple,
     fsmc_lcd::{DataPins16, LcdPins},
     gpio::alt::fsmc,
     pac,
@@ -59,6 +60,8 @@ pub fn hw_init(
     IdleLoop,
     FrameBuffer,
     Keyboard,
+    NmeaRx,
+    NmeaTx,
     Statistics,
 ) {
     // Setup clocks
@@ -162,6 +165,11 @@ pub fn hw_init(
             .persist_restore_item(&mut core_model, item);
     }
 
+
+    let rcc_ = unsafe { &*pac::RCC::ptr() };
+    rcc_.ahb1enr.modify(|_, w| w.dma2en().set_bit()); // enable ahb1 clock for dma2
+    let dma2_streams = StreamsTuple::new(device.DMA2);
+
     // Setup ----------> LCD driver peripheral of STM32F407 and view component
     let (dev_view, frame_buffer) = {
         //use stm32f4xx_hal::gpio::alt::fsmc as alt;
@@ -180,7 +188,13 @@ pub fn hw_init(
         let mut delay = core.SYST.delay(&clocks);
 
         let (display, frame_buffer) =
-            FrameBuffer::new(device.FSMC, lcd_pins, lcd_reset, &mut delay);
+            FrameBuffer::new(
+                device.FSMC, 
+                dma2_streams.0, 
+                lcd_pins, 
+                lcd_reset, 
+                &mut delay
+        );
 
         unsafe {
             core.NVIC.set_priority(interrupt::DMA2_STREAM0, 3);
@@ -214,6 +228,16 @@ pub fn hw_init(
         IdleLoop::new(eeprom, c_idle_events, &Q_EVENTS, watchdog)
     };
 
+    let (nmea_tx, nmea_rx) = {
+        NmeaTxRx::new(
+            device.USART1,
+            dma2_streams.5,
+            dma2_streams.7,
+            gpioa.pa9,
+            gpioa.pa10,
+            &clocks
+        )
+    };
     trace!("AD57 initialized");
 
     // Setup ----------> Backlight Port an switch on the lcd as a last action
@@ -235,6 +259,8 @@ pub fn hw_init(
         idle_loop,
         frame_buffer,
         keyboard,
+        nmea_rx,
+        nmea_tx,
         statistics,
     )
 }

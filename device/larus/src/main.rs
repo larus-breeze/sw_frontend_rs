@@ -197,11 +197,11 @@ mod app {
             .lock(|statistics| statistics.all_alive());
 
         let recalc = cx.shared.controller.lock(|controller| {
+            if all_alive {
+                // feed the watchdog, if all tasks are alive
+                controller.core().send_idle_event(IdleEvent::FeedTheDog);
+            }
             cx.shared.core_model.lock(|core_model| {
-                if all_alive {
-                    // feed the watchdog, if all tasks are alive
-                    controller.core().send_idle_event(IdleEvent::FeedTheDog);
-                }
                 // do controller calculations
                 if controller.tick_1ms(core_model) {
                     rtic::pend(interrupt::DMA1_STR1); // check if there is something to send

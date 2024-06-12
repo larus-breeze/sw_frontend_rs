@@ -234,7 +234,7 @@ pub fn hw_init(
 
     let streams = StreamsTuple::new(dp.DMA1, ccdr.peripheral.DMA1);
 
-    // Setup ----------> Idleloop
+    // Setup ----------> Sound
     let sound = {
         let dac = dp.DAC.dac(gpioa.pa4, ccdr.peripheral.DAC12);
         let dac = dac.calibrate_buffer(&mut delay);
@@ -242,7 +242,7 @@ pub fn hw_init(
         Sound::new(dac, dp.TIM6, streams.0)
     };
 
-    // Setup ----------> Idleloop
+    // Setup ----------> Nmea
     let (nmea_tx, nmea_rx) = NmeaTxRx::new(
         streams.1,
         streams.2,

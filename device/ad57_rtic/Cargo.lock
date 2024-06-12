@@ -501,16 +501,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "panic-probe"
-version = "0.3.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "aa6fa5645ef5a760cd340eaa92af9c1ce131c8c09e7f8926d8a24b59d26652b9"
-dependencies = [
- "cortex-m",
- "defmt",
-]
-
-[[package]]
 name = "proc-macro-error"
 version = "1.0.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -836,13 +826,11 @@ dependencies = [
  "heapless 0.8.0",
  "micromath",
  "nb 1.1.0",
- "panic-probe",
  "rand_core",
  "rtic-monotonic",
  "st7789",
  "static_cell",
  "stm32f4xx-hal",
- "systick-monotonic",
  "tfmt",
 ]
 
