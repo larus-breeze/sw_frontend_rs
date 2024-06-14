@@ -155,7 +155,7 @@ fn main() -> Result<(), core::convert::Infallible> {
                 }
                 _ => {}
             }
-            println!("{:?}", core_model.control.softkeys);
+            //println!("{:?}", core_model.control.softkeys);
         }
         if key_event != KeyEvent::NoEvent {
             controller.key_action(&mut core_model, &key_event);
