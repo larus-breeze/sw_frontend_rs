@@ -25,6 +25,10 @@ impl Softkeys {
       }
     }
 
+    pub fn current(&self) -> Editable {
+        self.current
+    }
+
     pub fn set_editables(
         &mut self,
         key1: Editable,
@@ -48,8 +52,10 @@ impl Softkeys {
         self.current = self.fallback;
     }
 
-    pub fn key_action(&mut self, event: KeyEvent) -> Editable {
-        let mut set_new = true;
+    /// Interpret keyboard event
+    /// 
+    /// The result is true, if the editor has to show the edit window or refresh the timer for it
+    pub fn key_action(&mut self, event: KeyEvent) -> bool {
         let editable = match event {
             KeyEvent::Btn1 => {
                 if self.current == Editable::Volume {
@@ -57,7 +63,7 @@ impl Softkeys {
                 } else {
                     self.curr_idx = (self.curr_idx.wrapping_add(3)) % 4; 
                 }
-                None
+                self.primary[self.curr_idx as usize]
             }
             KeyEvent::Btn2 => {
                 if self.current == Editable::Volume {
@@ -65,37 +71,39 @@ impl Softkeys {
                 } else {
                     self.curr_idx = (self.curr_idx.wrapping_add(1)) % 4; 
                 }
-                None
+                self.primary[self.curr_idx as usize]
             }
             KeyEvent::Btn3 => {
                 self.curr_idx = 2; 
-                None
+                self.primary[self.curr_idx as usize]
             }
             KeyEvent::BtnEsc => {
                 self.curr_idx = 3; 
-                None
+                self.primary[self.curr_idx as usize]
             }
             KeyEvent::Btn1S3 => {
-                Some(self.key1_3s)
+                self.key1_3s
             }
             KeyEvent::Btn2S3 => {
-                Some(self.key2_3s)
+                self.key2_3s
+            }
+            KeyEvent::Rotary1Left | KeyEvent::Rotary1Right => {
+                if self.current == Editable::Volume {
+                    Editable::None
+                } else {
+                    self.current
+                }
             }
             _ => {
-                set_new = false;
-                Some(self.current)
+                self.current
             }
         };
-        self.current = if set_new {
-            if editable == None {
-                self.primary[self.curr_idx as usize]
-            } else {
-                editable.unwrap()
-            }
+        if editable != Editable::None {
+            self.current = editable;
+            true
         } else {
-            self.current
-        };
-        self.current
+            false
+        }
     }
 
 
