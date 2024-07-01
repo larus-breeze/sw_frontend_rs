@@ -75,7 +75,7 @@ impl DrawImage for MockDisplay {
         }
         if img_vers == 2 {
             let img32 =
-                unsafe { core::slice::from_raw_parts(img.as_ptr() as *const u32, img.len() / 2) };
+                unsafe { core::slice::from_raw_parts(img.as_ptr() as *const u32, img.len() / 4) };
 
             // The image is really built for our display?
             assert!(img32[1] == DISPLAY_WIDTH);
