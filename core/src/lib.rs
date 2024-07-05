@@ -70,17 +70,22 @@ pub mod basic_config {
     pub const SECTION_EDITOR_TIMEOUT: u16 = 3;
     pub const PERSISTENCE_TIMEOUT: u16 = 500;
 
-    pub const BAT_EMPTY_IMG: &[u8] = include_bytes_aligned!(8, "../assets/size_227x285/bat_empty.lif");
-    pub const BAT_FULL_IMG: &[u8] = include_bytes_aligned!(8, "../assets/size_227x285/bat_full.lif");
-    pub const BAT_HALF_IMG: &[u8] = include_bytes_aligned!(8, "../assets/size_227x285/bat_half.lif");
-    pub const GLIDER_IMG: &[u8] = include_bytes_aligned!(8, "../assets/size_227x285/glider.lif");
-    pub const NORTH_IMG: &[u8] = include_bytes_aligned!(8, "../assets/size_227x285/north.lif");
-    pub const WALLPAPER_IMG: &[u8] = include_bytes_aligned!(8, "../assets/size_227x285/vario_wallpaper.lif");
-    pub const SPIRAL_IMG: &[u8] = include_bytes_aligned!(8, "../assets/size_227x285/spiral.lif");
-    pub const STRAIGHT_IMG: &[u8] = include_bytes_aligned!(8, "../assets/size_227x285/straight.lif");
-    pub const KM_H_IMG: &[u8] = include_bytes_aligned!(8, "../assets/size_227x285/km_h.lif");
-    pub const M_S_IMG: &[u8] = include_bytes_aligned!(8, "../assets/size_227x285/m_s.lif");
-    pub const SAT_IMG: &[u8] = include_bytes_aligned!(8, "../assets/size_227x285/sat.lif");
+    pub const BAT_EMPTY_IMG: &[u8] =
+        include_bytes_aligned!(4, "../assets/size_227x285/bat_empty.lif");
+    pub const BAT_FULL_IMG: &[u8] =
+        include_bytes_aligned!(4, "../assets/size_227x285/bat_full.lif");
+    pub const BAT_HALF_IMG: &[u8] =
+        include_bytes_aligned!(4, "../assets/size_227x285/bat_half.lif");
+    pub const GLIDER_IMG: &[u8] = include_bytes_aligned!(4, "../assets/size_227x285/glider.lif");
+    pub const NORTH_IMG: &[u8] = include_bytes_aligned!(4, "../assets/size_227x285/north.lif");
+    pub const WALLPAPER_IMG: &[u8] =
+        include_bytes_aligned!(4, "../assets/size_227x285/vario_wallpaper.lif");
+    pub const SPIRAL_IMG: &[u8] = include_bytes_aligned!(4, "../assets/size_227x285/spiral.lif");
+    pub const STRAIGHT_IMG: &[u8] =
+        include_bytes_aligned!(4, "../assets/size_227x285/straight.lif");
+    pub const KM_H_IMG: &[u8] = include_bytes_aligned!(4, "../assets/size_227x285/km_h.lif");
+    pub const M_S_IMG: &[u8] = include_bytes_aligned!(4, "../assets/size_227x285/m_s.lif");
+    pub const SAT_IMG: &[u8] = include_bytes_aligned!(4, "../assets/size_227x285/sat.lif");
     pub const WALLPAPER_SCALE: [(i32, i32, &str); 11] = [
         (194, 238, "5"),
         (152, 255, "4"),
@@ -108,17 +113,22 @@ pub mod basic_config {
     pub const SECTION_EDITOR_TIMEOUT: u16 = 3;
     pub const PERSISTENCE_TIMEOUT: u16 = 500;
 
-    pub const BAT_EMPTY_IMG: &[u8] = include_bytes_aligned!(8, "../assets/size_240x320/bat_empty.lif");
-    pub const BAT_FULL_IMG: &[u8] = include_bytes_aligned!(8, "../assets/size_240x320/bat_full.lif");
-    pub const BAT_HALF_IMG: &[u8] = include_bytes_aligned!(8, "../assets/size_240x320/bat_half.lif");
-    pub const GLIDER_IMG: &[u8] = include_bytes_aligned!(8, "../assets/size_240x320/glider.lif");
-    pub const NORTH_IMG: &[u8] = include_bytes_aligned!(8, "../assets/size_240x320/north.lif");
-    pub const WALLPAPER_IMG: &[u8] = include_bytes_aligned!(8, "../assets/size_240x320/vario_wallpaper.lif");
-    pub const SPIRAL_IMG: &[u8] = include_bytes_aligned!(8, "../assets/size_240x320/spiral.lif");
-    pub const STRAIGHT_IMG: &[u8] = include_bytes_aligned!(8, "../assets/size_240x320/straight.lif");
-    pub const KM_H_IMG: &[u8] = include_bytes_aligned!(8, "../assets/size_240x320/km_h.lif");
-    pub const M_S_IMG: &[u8] = include_bytes_aligned!(8, "../assets/size_240x320/m_s.lif");
-    pub const SAT_IMG: &[u8] = include_bytes_aligned!(8, "../assets/size_240x320/sat.lif");
+    pub const BAT_EMPTY_IMG: &[u8] =
+        include_bytes_aligned!(4, "../assets/size_240x320/bat_empty.lif");
+    pub const BAT_FULL_IMG: &[u8] =
+        include_bytes_aligned!(4, "../assets/size_240x320/bat_full.lif");
+    pub const BAT_HALF_IMG: &[u8] =
+        include_bytes_aligned!(4, "../assets/size_240x320/bat_half.lif");
+    pub const GLIDER_IMG: &[u8] = include_bytes_aligned!(4, "../assets/size_240x320/glider.lif");
+    pub const NORTH_IMG: &[u8] = include_bytes_aligned!(4, "../assets/size_240x320/north.lif");
+    pub const WALLPAPER_IMG: &[u8] =
+        include_bytes_aligned!(4, "../assets/size_240x320/vario_wallpaper.lif");
+    pub const SPIRAL_IMG: &[u8] = include_bytes_aligned!(4, "../assets/size_240x320/spiral.lif");
+    pub const STRAIGHT_IMG: &[u8] =
+        include_bytes_aligned!(4, "../assets/size_240x320/straight.lif");
+    pub const KM_H_IMG: &[u8] = include_bytes_aligned!(4, "../assets/size_240x320/km_h.lif");
+    pub const M_S_IMG: &[u8] = include_bytes_aligned!(4, "../assets/size_240x320/m_s.lif");
+    pub const SAT_IMG: &[u8] = include_bytes_aligned!(4, "../assets/size_240x320/sat.lif");
     pub const WALLPAPER_SCALE: [(i32, i32, &str); 11] = [
         (211, 274, "5"),
         (163, 290, "4"),

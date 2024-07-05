@@ -2,6 +2,7 @@ mod calculated;
 mod config;
 mod control;
 mod device;
+pub mod editable;
 mod sensor;
 
 use crate::{flight_physics::GliderData, HwVersion, SwVersion};

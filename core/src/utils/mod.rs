@@ -12,6 +12,7 @@ mod parse;
 mod persistence;
 mod rgb565_colors;
 pub mod themes;
+mod tstring;
 mod version;
 mod version_check;
 
@@ -31,6 +32,7 @@ pub use metadata::*;
 pub use parse::*;
 pub use persistence::*;
 pub use rgb565_colors::RGB565_COLORS;
+pub use tstring::*;
 pub use version::*;
 pub use version_check::*;
 

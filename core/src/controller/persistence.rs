@@ -2,7 +2,7 @@ use heapless::Vec;
 
 use super::{VarioModeControl, MAX_PERS_IDS};
 use crate::{
-    basic_config::{PERSISTENCE_TIMEOUT, SECTION_EDITOR_TIMEOUT},
+    basic_config::PERSISTENCE_TIMEOUT,
     controller::helpers::IntToDuration,
     system_of_units::Speed,
     themes::{BRIGHT_MODE, DARK_MODE},
@@ -51,8 +51,6 @@ impl CoreController {
     pub fn persist_push_id(&mut self, id: PersistenceId) {
         self.scheduler
             .after(crate::Timer::PersistSetting, PERSISTENCE_TIMEOUT.millis());
-        self.scheduler
-            .after(crate::Timer::CloseEditFrame, SECTION_EDITOR_TIMEOUT.secs());
         let _ = self.pers_vals.insert(id);
     }
 

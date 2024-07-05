@@ -134,7 +134,7 @@ where
             DisplayActive::FirmwareUpdate => PrimaryView::SwUpade(SwUpdate::new(core_model)),
         };
 
-        self.secondary_view = if core_model.control.edit_mode == EditMode::Section {
+        self.secondary_view = if core_model.control.editor.mode == EditMode::Section {
             Some(SecondaryView::Edit(Edit::new(core_model)))
         } else {
             None

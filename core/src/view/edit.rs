@@ -1,17 +1,15 @@
 use crate::{
     basic_config::{DISPLAY_HEIGHT, DISPLAY_WIDTH},
-    controller::Editable,
-    model::{CoreModel, VarioModeControl},
-    tformat,
-    utils::{Colors, FONT_BIG, FONT_SMALL},
+    model::CoreModel,
+    utils::{Colors, TString, FONT_BIG, FONT_SMALL},
     view::SCREEN_CENTER,
-    CoreError, DrawImage, POLARS,
+    CoreError, DrawImage,
 };
 use embedded_graphics::{
     prelude::*,
     primitives::{PrimitiveStyleBuilder, Rectangle},
 };
-use heapless::String;
+use tfmt::Convert;
 use u8g2_fonts::types::{FontColor, HorizontalAlignment, VerticalPosition};
 
 const VALUE_COLOR: Colors = Colors::White;
@@ -23,45 +21,15 @@ const WIDTH: u32 = DISPLAY_WIDTH * 90 / 100;
 const HEIGHT: u32 = DISPLAY_HEIGHT * 32 / 100;
 
 pub struct Edit {
-    name_str: &'static str,
-    val_str: String<20>,
+    name_str: TString<16>,
+    val_str: Convert<20>,
 }
 
 impl Edit {
     pub fn new(cm: &CoreModel) -> Edit {
-        let name_str = match cm.control.edit_var {
-            Editable::ClimbRate => "Climb Rate",
-            Editable::Glider => "Glider",
-            Editable::McCready => "MC Cready",
-            Editable::PilotWeight => "Pilot Weight",
-            Editable::VarioModeControl => "Vario Control",
-            Editable::Speed => "Airspeed (IAS)",
-            Editable::Volume => "Volume",
-            Editable::WaterBallast => "Water Ballast",
-            Editable::Theme => "Theme",
-            Editable::None => "None",
-        };
-
-        let val_str = match cm.control.edit_var {
-            Editable::ClimbRate => tformat!(20, "{:.1} m/s", cm.sensor.climb_rate.to_m_s()),
-            Editable::Glider => tformat!(20, "{}", POLARS[cm.config.glider_idx as usize].name),
-            Editable::McCready => tformat!(20, "{:.1} m/s", cm.config.mc_cready.to_m_s()),
-            Editable::PilotWeight => tformat!(20, "{:.0} kg", cm.glider_data.pilot_weight.to_kg()),
-            Editable::VarioModeControl => match cm.control.vario_mode_control {
-                VarioModeControl::Auto => tformat!(20, "Auto"),
-                VarioModeControl::Vario => tformat!(20, "Vario"),
-                VarioModeControl::SpeedToFly => tformat!(20, "SpeedToFly"),
-            },
-            Editable::Speed => tformat!(20, "{:.0} km/h", cm.sensor.airspeed.ias().to_km_h()),
-            Editable::Volume => tformat!(20, "{}", cm.config.volume),
-            Editable::WaterBallast => {
-                tformat!(20, "{:.0} kg", cm.glider_data.water_ballast.to_kg())
-            }
-            _ => tformat!(20, "<--->"),
-        };
         Edit {
-            name_str,
-            val_str: val_str.unwrap(),
+            name_str: cm.control.editor.get_head_line(),
+            val_str: cm.control.editor.get_value_line(),
         }
     }
 
@@ -80,7 +48,7 @@ impl Edit {
             .draw(display)?;
 
         FONT_SMALL.render_aligned(
-            self.name_str,
+            self.name_str.as_str(),
             SCREEN_CENTER + Point::new(0, -13),
             VerticalPosition::Baseline,
             HorizontalAlignment::Center,

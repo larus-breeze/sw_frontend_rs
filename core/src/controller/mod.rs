@@ -2,12 +2,11 @@ mod helpers;
 
 pub use helpers::{
     can_ids::{audio_legacy, frontend_legacy, sensor_legacy, GenericId, SpecialId},
-    CanActive, IntToDuration, NmeaBuffer, Scheduler, Tim,
-    Softkeys,
+    CanActive, IntToDuration, NmeaBuffer, Scheduler, Softkeys, Tim,
 };
 
-mod edit;
-use edit::close_edit_frame;
+mod editor;
+pub use editor::{close_edit_frame, Editor};
 
 mod vario;
 
@@ -18,7 +17,7 @@ mod tick_1s;
 use tick_1s::*;
 
 mod persistence;
-use persistence::{store_persistence_ids, Echo};
+pub use persistence::{store_persistence_ids, Echo};
 
 use crate::{
     basic_config::{CONTROLLER_TICK_RATE, MAX_TX_FRAMES},
@@ -26,7 +25,6 @@ use crate::{
     flight_physics::Polar,
     model::{DisplayActive, EditMode, VarioModeControl},
     system_of_units::{FloatToSpeed, Speed},
-    themes::{BRIGHT_MODE, DARK_MODE},
     utils::{KeyEvent, PIdleEvents, Pt1},
     CoreModel, DeviceEvent, IdleEvent, PersistenceId, SdCardCmd, VarioMode, POLARS,
 };
@@ -40,15 +38,14 @@ use heapless::FnvIndexSet;
 #[repr(u8)]
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub enum Editable {
-    ClimbRate,
     Glider,
     McCready,
     PilotWeight,
     VarioModeControl,
-    Speed,
     Volume,
     WaterBallast,
     Theme,
+    Display,
     None,
 }
 
@@ -75,8 +72,7 @@ pub enum Timer {
 pub const MAX_PERS_IDS: usize = 8;
 
 pub struct CoreController {
-    polar: Polar,
-    edit_var: Editable,
+    pub polar: Polar,
     sw_update: SwUpdateController,
     ms: u16,
     last_vario_mode: VarioMode,
@@ -96,7 +92,12 @@ impl CoreController {
         p_idle_events: PIdleEvents,
         p_tx_frames: PTxFrames<MAX_TX_FRAMES>,
     ) -> Self {
-        core_model.control.softkeys.set_editables(Editable::McCready, Editable::WaterBallast, Editable::PilotWeight, Editable::VarioModeControl);
+        core_model.control.softkeys.set_editables(
+            Editable::McCready,
+            Editable::WaterBallast,
+            Editable::PilotWeight,
+            Editable::VarioModeControl,
+        );
         let polar_idx = core_model.config.glider_idx as usize;
         let polar = Polar::new(&POLARS[polar_idx], &mut core_model.glider_data);
         let av2_climb_rate = Pt1::new(
@@ -119,7 +120,6 @@ impl CoreController {
         scheduler.every(Timer::NmeaFast, 200.millis());
         Self {
             polar,
-            edit_var: Editable::Volume,
             ms: 0,
             last_vario_mode: VarioMode::Vario,
             sw_update: SwUpdateController::new(),
@@ -153,38 +153,14 @@ impl CoreController {
     }
 
     pub fn key_action(&mut self, core_model: &mut CoreModel, key_event: &KeyEvent) {
-        edit::key_action(core_model, self, key_event);
-        match key_event {
-            KeyEvent::Btn2S3 => {
-                if core_model.config.theme == &DARK_MODE {
-                    core_model.config.theme = &BRIGHT_MODE;
-                } else {
-                    core_model.config.theme = &DARK_MODE;
-                };
-                self.persist_push_id(PersistenceId::DisplayMode);
-            }
-            _ => (),
-        }
+        // call softkey and edit actions
+        let target_changed = core_model.control.softkeys.key_action(key_event);
+        editor::key_action(key_event, target_changed, core_model, self);
 
-        let result = match core_model.config.display_active {
+        match core_model.config.display_active {
             DisplayActive::Vario => vario::key_action(core_model, self, key_event),
             DisplayActive::FirmwareUpdate => self.sw_update.key_action(core_model, key_event),
         };
-
-        if *key_event == KeyEvent::BtnEnc {
-            let _ = self.scheduler.stop(Timer::CloseEditFrame, true); // finish edit session
-        } else {
-            // activate editor, if desired
-            match result {
-                ControlResult::Edit(mode, var) => {
-                    core_model.control.edit_mode = mode;
-                    core_model.control.edit_var = var;
-                    self.check_edit_results(core_model)
-                }
-                ControlResult::Nothing => (),
-                ControlResult::NextDisplay(_) => (),
-            }
-        }
     }
 
     /// Call this latest after 1 ms
@@ -271,18 +247,6 @@ impl CoreController {
         let can_frame = core_model.can_frame_sound();
         // add CAN frame to queue, ignore if the queue is full
         let _ = self.p_tx_frames.enqueue(can_frame);
-    }
-
-    /// Executes instructions based on the user's input
-    fn check_edit_results(&mut self, core_model: &mut CoreModel) {
-        #[allow(clippy::single_match)]
-        match core_model.control.edit_var {
-            Editable::Glider => {
-                let polar_idx = core_model.config.glider_idx as usize;
-                self.polar = Polar::new(&POLARS[polar_idx], &mut core_model.glider_data)
-            }
-            _ => (),
-        }
     }
 
     pub fn send_idle_event(&mut self, idle_event: IdleEvent) {
