@@ -24,6 +24,7 @@ use stm32f4xx_hal::{
     rcc::{Enable, Reset},
 };
 
+#[allow(unused)]
 pub trait SetRow {
     fn set_pos(&mut self, pos_x: u16, pos_y: u16);
     fn set_row(&mut self, pos_x: u16, pos_y: u16, buf: &mut [u16]);
@@ -135,20 +136,6 @@ impl FrameBuffer {
     pub fn on_interrupt(&mut self) {
         match &mut self.lcd {
             DisplayDriver::R61580(lcd) => {
-                /*while self.line_y < PORTRAIT_AVAIL_HEIGHT {
-                    let idx_y = (self.line_y * PORTRAIT_AVAIL_WIDTH) as usize;
-                    for x in 0..PORTRAIT_AVAIL_WIDTH as usize {
-                        let color_idx = self.buf[x + idx_y] as usize;
-                        let color = RGB565_COLORS[color_idx];
-                        self.line_buf[x] = color;
-                    }
-                    lcd.set_row(
-                        PORTRAIT_ORIGIN_X,
-                        PORTRAIT_ORIGIN_Y + self.line_y,
-                        self.line_buf,
-                    );
-                    self.line_y += 1;
-                }*/
                 unsafe {
                     let dma2 = &*DMA2::ptr();
                     dma2.st[0].cr.modify(|_, w| w.en().clear_bit()); // disable stream0

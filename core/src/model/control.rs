@@ -1,5 +1,5 @@
 use crate::{
-    controller::{CanActive, Editable, Softkeys},
+    controller::{CanActive, Editor, Softkeys},
     system_of_units::{FloatToLength, FloatToSpeed, Length, Speed},
     utils::DeviceEvent,
 };
@@ -94,10 +94,6 @@ pub struct Control {
     /// Speed limit above which SpeedToFly is activated
     pub speed_to_fly_limit: Speed,
     /// EditMode::Section, EditMode::Fullscreen
-    pub edit_mode: EditMode,
-    /// Editable::{ClimbRate, Glider, McCready, ...}
-    pub edit_var: Editable,
-    /// Timeout counter for editor
     pub pers_ticks: u32,
     /// DeviceEvent::FwAvailable, PrepareFwUpload, ...
     pub firmware_update_state: DeviceEvent,
@@ -111,6 +107,8 @@ pub struct Control {
     pub tcr_start: Length,
     /// Handle Softkeys
     pub softkeys: Softkeys,
+    /// General Editor
+    pub editor: Editor,
 }
 
 impl Default for Control {
@@ -124,8 +122,6 @@ impl Default for Control {
             vario_mode_control: VarioModeControl::Auto,
             vario_mode_switch_ratio: 1.05,
             speed_to_fly_limit: 105.0.km_h(),
-            edit_mode: EditMode::Off,
-            edit_var: Editable::ClimbRate,
             pers_ticks: 0,
             firmware_update_state: DeviceEvent::UploadFinished,
             tcr_mode: TcrMode::StraightFlight,
@@ -133,6 +129,7 @@ impl Default for Control {
             tcr_1s_transient_ticks: 0,
             tcr_start: 0.0.m(),
             softkeys: Softkeys::new(),
+            editor: Editor::new(),
         }
     }
 }

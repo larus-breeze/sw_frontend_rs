@@ -41,6 +41,7 @@ pub fn delay_ms(ms: u32) {
 }
 
 /// Busy wait based on timer, so (interrupt-) delays in between will ignored
+#[allow(dead_code)]
 pub fn delay_us(us: u32) {
     let target = timestamp_us().wrapping_add(us);
     loop {
@@ -52,6 +53,7 @@ pub fn delay_us(us: u32) {
 }
 
 /// Busy wait delays as definied in embedded hal traits
+#[allow(dead_code)]
 struct Delay {}
 
 impl DelayMs<u32> for Delay {
