@@ -32,7 +32,7 @@ impl CoreController {
             PersistenceId::VarioModeControl => {
                 cm.control.vario_mode_control = VarioModeControl::from(item.to_u8())
             }
-            PersistenceId::DisplayMode => {
+            PersistenceId::DisplayTheme => {
                 cm.config.theme = if item.to_i32() == 0 {
                     &DARK_MODE
                 } else {
@@ -68,7 +68,7 @@ impl CoreController {
             PersistenceId::VarioModeControl => {
                 PersistenceItem::from_u8(id, cm.control.vario_mode_control as u8)
             }
-            PersistenceId::DisplayMode => {
+            PersistenceId::DisplayTheme => {
                 let mode = if cm.config.theme == &DARK_MODE { 0 } else { 1 };
                 PersistenceItem::from_i32(id, mode)
             }

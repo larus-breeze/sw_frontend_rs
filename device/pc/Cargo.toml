@@ -1,5 +1,5 @@
 [package]
-name = "eg-examples"
+name = "frontend-simu"
 version = "0.1.0"
 edition = "2018"
 publish = false
@@ -31,6 +31,7 @@ features = ["larus_ad57", "eeprom_size_8192"]
 
 [features]
 default = ["larus_ad57", "eeprom_size_8192"]
+# default = ["air_avionics_ad57", "eeprom_size_8192"]
 air_avionics_ad57 = []
 larus_ad57 = []
 eeprom_size_8192 = []

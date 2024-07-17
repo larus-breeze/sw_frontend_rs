@@ -8,7 +8,11 @@ pub use helpers::{
 mod editor;
 pub use editor::{close_edit_frame, Editor};
 
+mod horizon;
+pub use horizon::set_horizon_active;
+
 mod vario;
+pub use vario::set_vario_active;
 
 mod sw_update;
 use sw_update::SwUpdateController;
@@ -92,12 +96,7 @@ impl CoreController {
         p_idle_events: PIdleEvents,
         p_tx_frames: PTxFrames<MAX_TX_FRAMES>,
     ) -> Self {
-        core_model.control.softkeys.set_editables(
-            Editable::McCready,
-            Editable::WaterBallast,
-            Editable::PilotWeight,
-            Editable::VarioModeControl,
-        );
+        set_vario_active(core_model);
         let polar_idx = core_model.config.glider_idx as usize;
         let polar = Polar::new(&POLARS[polar_idx], &mut core_model.glider_data);
         let av2_climb_rate = Pt1::new(
@@ -156,11 +155,6 @@ impl CoreController {
         // call softkey and edit actions
         let target_changed = core_model.control.softkeys.key_action(key_event);
         editor::key_action(key_event, target_changed, core_model, self);
-
-        match core_model.config.display_active {
-            DisplayActive::Vario => vario::key_action(core_model, self, key_event),
-            DisplayActive::FirmwareUpdate => self.sw_update.key_action(core_model, key_event),
-        };
     }
 
     /// Call this latest after 1 ms

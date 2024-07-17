@@ -3,7 +3,7 @@ use crate::{
     Editable,
 };
 
-pub fn set_vario_active(cm: &mut CoreModel) {
+pub fn set_horizon_active(cm: &mut CoreModel) {
     cm.control.softkeys.set_editables(
         Editable::McCready,
         Editable::WaterBallast,
@@ -13,5 +13,5 @@ pub fn set_vario_active(cm: &mut CoreModel) {
     cm.control
         .softkeys
         .set_3s_keys(Editable::Glider, Editable::Theme);
-    cm.config.display_active = DisplayActive::Vario;
+    cm.config.display_active = DisplayActive::Horizon;
 }

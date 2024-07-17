@@ -38,13 +38,13 @@ impl Vario {
     {
         display.clear(cm.color(Palette::Background))?;
         display.draw_img(
-            WALLPAPER_IMG,
+            WP_VARIO_IMG,
             Point::new(0, 0),
             Some(cm.color(Palette::Scale)),
         )?;
         display.draw_img(M_S_IMG, SZS.unit_pos, Some(cm.color(Palette::Scale)))?;
 
-        for (pos_x, pos_y, txt) in WALLPAPER_SCALE {
+        for (pos_x, pos_y, txt) in WP_VARIO_SCALE {
             let pos = Point::new(pos_x, pos_y);
             FONT_BIG.render(
                 txt,

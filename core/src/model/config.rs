@@ -10,6 +10,7 @@ use crate::{
 #[derive(Clone, Copy, PartialEq)]
 pub enum DisplayActive {
     Vario,
+    Horizon,
     FirmwareUpdate,
 }
 
