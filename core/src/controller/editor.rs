@@ -31,6 +31,16 @@ fn edit_enum_content(
         match key_event {
             KeyEvent::Rotary2Left => idx -= 1,
             KeyEvent::Rotary2Right => idx += 1,
+            KeyEvent::Rotary1Left => {
+                if target == Editable::Display {
+                    idx -= 1
+                }
+            }
+            KeyEvent::Rotary1Right => {
+                if target == Editable::Display {
+                    idx += 1
+                }
+            }
             _ => (),
         }
         let idx = clamp(idx, 0, max) as usize;

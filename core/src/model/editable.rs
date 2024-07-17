@@ -1,10 +1,13 @@
 use crate::{
+    controller,
     model::VarioModeControl,
     themes::{BRIGHT_MODE, DARK_MODE},
     utils::TString,
     CoreController, CoreModel, Echo, Editable, FloatToMass, FloatToSpeed, PersistenceId,
     POLAR_COUNT,
 };
+
+use super::DisplayActive;
 
 #[derive(Clone, Copy)]
 pub struct F32Params {
@@ -118,7 +121,7 @@ pub fn get_params(cm: &mut CoreModel, target: Editable) {
             text: TString::<16>::from_str("Display"),
             variants: [
                 TString::<12>::from_str("Vario"),
-                TString::<12>::from_str(""),
+                TString::<12>::from_str("Horizon"),
                 TString::<12>::from_str(""),
                 TString::<12>::from_str(""),
                 TString::<12>::from_str(""),
@@ -149,7 +152,10 @@ pub fn get_content(cm: &mut CoreModel, target: Editable) {
                 Content::Enum(TString::<12>::from_str("Bright"))
             }
         }
-        Editable::Display => Content::Enum(TString::<12>::from_str("Vario")),
+        Editable::Display => match cm.config.display_active {
+            DisplayActive::Horizon => Content::Enum(TString::<12>::from_str("Horizon")),
+            _ => Content::Enum(TString::<12>::from_str("Vario")),
+        },
         Editable::None => Content::String(TString::<12>::from_str("")),
     };
 }
@@ -174,8 +180,12 @@ pub fn set_enum_content(
                 "Bright" => &BRIGHT_MODE,
                 _ => &DARK_MODE,
             };
-            cc.persist_push_id(PersistenceId::DisplayMode);
+            cc.persist_push_id(PersistenceId::DisplayTheme);
         }
+        Editable::Display => match val.as_str() {
+            "Horizon" => controller::set_horizon_active(cm),
+            _ => controller::set_vario_active(cm),
+        },
         _ => (),
     }
 }

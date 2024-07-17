@@ -205,20 +205,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "eg-examples"
-version = "0.1.0"
-dependencies = [
- "byteorder",
- "corelib",
- "eeprom24x",
- "embedded-graphics",
- "embedded-graphics-simulator",
- "embedded-hal",
- "heapless",
- "micromath 1.1.1",
-]
-
-[[package]]
 name = "either"
 version = "1.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -283,6 +269,20 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "98de4bbd547a563b716d8dfa9aad1cb19bfab00f4fa09a6a4ed21dbcf44ce9c4"
 dependencies = [
  "num-traits",
+]
+
+[[package]]
+name = "frontend-simu"
+version = "0.1.0"
+dependencies = [
+ "byteorder",
+ "corelib",
+ "eeprom24x",
+ "embedded-graphics",
+ "embedded-graphics-simulator",
+ "embedded-hal",
+ "heapless",
+ "micromath 1.1.1",
 ]
 
 [[package]]

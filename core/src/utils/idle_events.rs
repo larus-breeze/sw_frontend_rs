@@ -25,7 +25,7 @@ pub enum PersistenceId {
     PilotWeight = 3,
     Glider = 4,
     VarioModeControl = 5,
-    DisplayMode = 6, // Dark = 0, Bright = 1
+    DisplayTheme = 6, // Dark = 0, Bright = 1
     Qnh = 7,
     Bugs = 8,
     LastItem,

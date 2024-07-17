@@ -72,7 +72,10 @@ impl CoreController {
 
     fn can_frame_read_legacy(&mut self, cm: &mut CoreModel, frame: &CanFrame) {
         fn norm_0_2pi(r: i16) -> Angle {
-            let r = r % 6284;
+            let mut r = r % 6284;
+            if r < 0 {
+                r += 6284;
+            }
             ((r as f32) * 0.001).rad()
         }
 

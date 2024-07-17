@@ -15,8 +15,8 @@ impl Softkeys {
     pub fn new() -> Self {
         Softkeys {
             primary: [Editable::None; 4],
-            key1_3s: Editable::Glider,
-            key2_3s: Editable::Theme,
+            key1_3s: Editable::None,
+            key2_3s: Editable::None,
             fallback: Editable::Volume,
             fallback_activated: true,
             current: Editable::Volume,

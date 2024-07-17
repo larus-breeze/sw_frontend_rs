@@ -1,7 +1,4 @@
-use crate::{
-    model::CoreModel,
-    utils::{DeviceEvent, KeyEvent},
-};
+use crate::{model::CoreModel, utils::DeviceEvent};
 
 pub struct SwUpdateController {}
 
@@ -13,6 +10,4 @@ impl SwUpdateController {
     pub fn device_action(&mut self, core_model: &mut CoreModel, _device_event: &DeviceEvent) {
         core_model.control.firmware_update_state = DeviceEvent::UploadInProgress;
     }
-
-    pub fn key_action(&mut self, _core_model: &mut CoreModel, _key_event: &KeyEvent) {}
 }

@@ -4,13 +4,14 @@ pub mod edit;
 pub(crate) mod helpers;
 pub mod sw_update;
 
+pub(crate) mod horizon;
 pub(crate) mod vario;
 
 use crate::{
     basic_config::{DISPLAY_HEIGHT, DISPLAY_WIDTH},
     model::{CoreModel, DisplayActive, EditMode},
     utils::Colors,
-    view::{edit::Edit, sw_update::SwUpdate, vario::Vario},
+    view::{edit::Edit, horizon::Horizon, sw_update::SwUpdate, vario::Vario},
     CoreError, DrawImage,
 };
 
@@ -93,6 +94,7 @@ pub const SCREEN_CENTER: Point = Point::new(DISPLAY_WIDTH as i32 / 2, DISPLAY_HE
 
 enum PrimaryView {
     Vario(Vario),
+    Horizon(Horizon),
     SwUpade(SwUpdate),
 }
 
@@ -131,6 +133,7 @@ where
 
         self.primary_view = match core_model.config.display_active {
             DisplayActive::Vario => PrimaryView::Vario(Vario::new(core_model)),
+            DisplayActive::Horizon => PrimaryView::Horizon(Horizon::new(core_model)),
             DisplayActive::FirmwareUpdate => PrimaryView::SwUpade(SwUpdate::new(core_model)),
         };
 
@@ -144,6 +147,7 @@ where
     pub fn draw(&mut self) -> Result<(), CoreError> {
         match &self.primary_view {
             PrimaryView::Vario(vario) => vario.draw(&mut self.display, &self.core_model)?,
+            PrimaryView::Horizon(horizon) => horizon.draw(&mut self.display, &self.core_model)?,
             PrimaryView::SwUpade(sw_update) => {
                 sw_update.draw(&mut self.display, &self.core_model)?
             }
