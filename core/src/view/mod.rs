@@ -132,9 +132,9 @@ where
         self.core_model = *core_model;
 
         self.primary_view = match core_model.config.display_active {
-            DisplayActive::Vario => PrimaryView::Vario(Vario::new(core_model)),
             DisplayActive::Horizon => PrimaryView::Horizon(Horizon::new(core_model)),
             DisplayActive::FirmwareUpdate => PrimaryView::SwUpade(SwUpdate::new(core_model)),
+            _ => PrimaryView::Vario(Vario::new(core_model)),
         };
 
         self.secondary_view = if core_model.control.editor.mode == EditMode::Section {

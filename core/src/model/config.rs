@@ -4,6 +4,7 @@ use crate::{
     utils::themes::{Palette, PaletteColors, DARK_MODE},
     Colors, HwVersion, SwVersion,
 };
+use core::{convert::From, mem::transmute};
 
 /// Possible displays
 #[repr(u8)]
@@ -12,6 +13,17 @@ pub enum DisplayActive {
     Vario,
     Horizon,
     FirmwareUpdate,
+    TheEnd,
+}
+
+impl From<u8> for DisplayActive {
+    fn from(value: u8) -> Self {
+        if value < DisplayActive::TheEnd as u8 {
+            unsafe { transmute::<u8, DisplayActive>(value) }
+        } else {
+            panic!()
+        }
+    }
 }
 
 /// Metastructur for config variables
