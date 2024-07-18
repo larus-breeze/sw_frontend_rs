@@ -4,6 +4,7 @@ use super::{VarioModeControl, MAX_PERS_IDS};
 use crate::{
     basic_config::PERSISTENCE_TIMEOUT,
     controller::helpers::IntToDuration,
+    model::DisplayActive,
     system_of_units::Speed,
     themes::{BRIGHT_MODE, DARK_MODE},
     CoreController, CoreModel, Mass, PersistenceId, PersistenceItem, Pressure,
@@ -44,6 +45,7 @@ impl CoreController {
                 let qnh = Pressure::from_hpa(item.to_f32());
                 cm.sensor.pressure_altitude.set_qnh(qnh)
             }
+            PersistenceId::Display => cm.config.display_active = item.to_u8().into(),
             _ => (),
         }
     }
@@ -76,6 +78,7 @@ impl CoreController {
             PersistenceId::Qnh => {
                 PersistenceItem::from_f32(id, cm.sensor.pressure_altitude.qnh().to_hpa())
             }
+            PersistenceId::Display => PersistenceItem::from_u8(id, cm.config.display_active as u8),
             _ => PersistenceItem::do_not_store(),
         };
         self.send_idle_event(crate::IdleEvent::EepromItem(p_item));
@@ -84,6 +87,12 @@ impl CoreController {
     pub fn persist_set_bugs(&mut self, cm: &mut CoreModel, val: f32, echo: Echo) {
         cm.glider_data.bugs = val;
         self.persist_finish_push(cm, PersistenceId::Bugs, echo);
+    }
+
+    pub fn persist_set_display(&mut self, cm: &mut CoreModel, display: DisplayActive, echo: Echo) {
+        cm.config.display_active = display;
+        super::activate_display(cm);
+        self.persist_finish_push(cm, PersistenceId::Display, echo);
     }
 
     pub fn persist_set_glider_idx(&mut self, cm: &mut CoreModel, val: i32, echo: Echo) {

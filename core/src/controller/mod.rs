@@ -75,6 +75,13 @@ pub enum Timer {
 
 pub const MAX_PERS_IDS: usize = 8;
 
+pub fn activate_display(cm: &mut CoreModel) {
+    match cm.config.display_active {
+        DisplayActive::Horizon => set_horizon_active(cm),
+        _ => set_vario_active(cm),
+    }
+}
+
 pub struct CoreController {
     pub polar: Polar,
     sw_update: SwUpdateController,
@@ -96,7 +103,7 @@ impl CoreController {
         p_idle_events: PIdleEvents,
         p_tx_frames: PTxFrames<MAX_TX_FRAMES>,
     ) -> Self {
-        set_vario_active(core_model);
+        activate_display(core_model);
         let polar_idx = core_model.config.glider_idx as usize;
         let polar = Polar::new(&POLARS[polar_idx], &mut core_model.glider_data);
         let av2_climb_rate = Pt1::new(

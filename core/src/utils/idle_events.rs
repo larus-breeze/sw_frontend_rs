@@ -28,6 +28,7 @@ pub enum PersistenceId {
     DisplayTheme = 6, // Dark = 0, Bright = 1
     Qnh = 7,
     Bugs = 8,
+    Display = 9,
     LastItem,
 }
 

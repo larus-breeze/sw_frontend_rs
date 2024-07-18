@@ -1,5 +1,4 @@
 use crate::{
-    controller,
     model::VarioModeControl,
     themes::{BRIGHT_MODE, DARK_MODE},
     utils::TString,
@@ -183,8 +182,8 @@ pub fn set_enum_content(
             cc.persist_push_id(PersistenceId::DisplayTheme);
         }
         Editable::Display => match val.as_str() {
-            "Horizon" => controller::set_horizon_active(cm),
-            _ => controller::set_vario_active(cm),
+            "Horizon" => cc.persist_set_display(cm, DisplayActive::Horizon, Echo::None),
+            _ => cc.persist_set_display(cm, DisplayActive::Vario, Echo::None),
         },
         _ => (),
     }
