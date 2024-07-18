@@ -1,5 +1,11 @@
 Changelog
 =
+
+v.0.2.1 Artificial horizon
+- Keyboard is now individual per display
+- Editor as independent component
+- Additional display: Artificial horizon
+
 v.0.2.0 Enable NMEA interface
 - $GPRMC, $GPGGA sentences (GPS)
 - $PLARV, $PLARA, $PLARW, $PLARB, $PLARD sentences(Sensorbox)
