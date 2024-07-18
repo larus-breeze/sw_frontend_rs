@@ -44,7 +44,7 @@ pub const DARK_MODE: PaletteColors = [
 #[cfg(feature = "air_avionics_ad57")]
 pub const DARK_MODE: PaletteColors = [
     Colors::Black,        // BackGround
-    Colors::DarkGray,     // Scale,
+    Colors::White,        // Scale,
     Colors::White,        // Needle1,
     Colors::Red,          // Needle2,
     Colors::LimeGreen,    // Needle3,
@@ -57,7 +57,7 @@ pub const DARK_MODE: PaletteColors = [
     Colors::Red,          // SignalStop,
     Colors::Yellow,       // SignalWarning,
     Colors::LimeGreen,    // SignalGo,
-    Colors::LightSkyBlue, // HorizonSky,
+    Colors::DodgerBlue,   // HorizonSky,
     Colors::Sienna,       // HorizonEarth,
 ];
 

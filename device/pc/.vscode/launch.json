@@ -7,15 +7,15 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug executable 'eg-examples'",
+            "name": "Debug 'frontend-simu'",
             "cargo": {
                 "args": [
                     "build",
-                    "--bin=eg-examples",
-                    "--package=eg-examples"
+                    "--bin=frontend-simu",
+                    "--package=frontend-simu"
                 ],
                 "filter": {
-                    "name": "eg-examples",
+                    "name": "frontend-simu",
                     "kind": "bin"
                 }
             },
@@ -25,16 +25,16 @@
         {
             "type": "lldb",
             "request": "launch",
-            "name": "Debug unit tests in executable 'eg-examples'",
+            "name": "Debug unit tests 'frontend-simu'",
             "cargo": {
                 "args": [
                     "test",
                     "--no-run",
-                    "--bin=eg-examples",
-                    "--package=eg-examples"
+                    "--bin=frontend-simu",
+                    "--package=frontend-simu"
                 ],
                 "filter": {
-                    "name": "eg-examples",
+                    "name": "frontend-simu",
                     "kind": "bin"
                 }
             },

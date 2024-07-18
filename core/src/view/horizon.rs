@@ -32,6 +32,7 @@ mod c {
     pub const STROKE_WIDTH: i32 = 2;
     pub const BOX_HEIGHT: i32 = 30;
     pub const TC_POS_Y: i32 = super::DISPLAY_HEIGHT as i32 - 16;
+    pub const PITCH_SCALE_LEN: i32 = 18;
 }
 
 #[cfg(feature = "larus_ad57")]
@@ -42,6 +43,7 @@ mod c {
     pub const STROKE_WIDTH: i32 = 2;
     pub const BOX_HEIGHT: i32 = 32;
     pub const TC_POS_Y: i32 = super::DISPLAY_HEIGHT as i32 - 30;
+    pub const PITCH_SCALE_LEN: i32 = 20;
 }
 
 pub struct Horizon {}
@@ -109,6 +111,27 @@ impl Horizon {
             .into_styled(PrimitiveStyle::with_fill(Colors::Red))
             .draw(display)?;
 
+        // draw pitch scale
+        //
+        let sin_alpha = angle.to_radians().sin();
+        let cos_alpha = angle.to_radians().cos();
+        let dx = (sin_alpha * c::PITCH_SCALE_LEN as f32) as i32;
+        let dy = (cos_alpha * c::PITCH_SCALE_LEN as f32) as i32;
+        let dcx = cos_alpha * (DISPLAY_WIDTH / 9) as f32;
+        let dcy = sin_alpha * (DISPLAY_WIDTH / 9) as f32;
+
+        let style = PrimitiveStyle::with_stroke(cm.color(Palette::Scale), 2);
+        for mul in 1_i32..4 {
+            let mul_dcx = (mul as f32 * dcx) as i32;
+            let mul_dcy = (mul as f32 * dcy) as i32;
+            let p1 = Point::new(AH_CENTER_X - dx - mul_dcx, AH_CENTER_Y - mul_dcy + dy);
+            let p2 = Point::new(AH_CENTER_X + dx - mul_dcx, AH_CENTER_Y - mul_dcy - dy);
+            Line::new(p1, p2).into_styled(style).draw(display)?;
+            let p1 = Point::new(AH_CENTER_X - dx + mul_dcx, AH_CENTER_Y + mul_dcy + dy);
+            let p2 = Point::new(AH_CENTER_X + dx + mul_dcx, AH_CENTER_Y + mul_dcy - dy);
+            Line::new(p1, p2).into_styled(style).draw(display)?;
+        }
+
         // draw true heading
         //
         let th = cm.sensor.euler_yaw.to_degrees();
@@ -136,7 +159,7 @@ impl Horizon {
             diff += 360.0;
         }
         let t_col = cm.color(Palette::Needle5);
-        let x = (diff as i32 * SCALE_INC) / 10 + AH_CENTER_X;
+        let x = ((diff * SCALE_INC as f32) / 10.0) as i32 + AH_CENTER_X;
         let p1 = Point::new(x, DISPLAY_WIDTH as i32);
         let p2 = Point::new(x + 10, DISPLAY_WIDTH as i32 + 18);
         let p3 = Point::new(x - 10, DISPLAY_WIDTH as i32 + 18);
