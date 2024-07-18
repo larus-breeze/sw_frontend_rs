@@ -62,7 +62,6 @@ class ArtificialHorizonWallpaper():
 
         self.draw.line((cx - x2, cy, cx - x2 - x3, cy - y1), width=self.ah_glider_width)
         self.draw.line((cx + x2, cy, cx + x2 + x3, cy - y1), width=self.ah_glider_width)
-        self.draw.arc((cx - x4, cy - x4, cx + x4, cy + x4), 0, 180, width=self.ah_glider_width)
 
 
     def generate(self, path):
