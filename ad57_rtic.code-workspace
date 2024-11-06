@@ -1,7 +1,7 @@
 {
 	"folders": [
 		{
-			"path": "device/ad57_rtic"
+			"path": "device/air_avionics_ad57"
 		},
 		{
 			"path": "."

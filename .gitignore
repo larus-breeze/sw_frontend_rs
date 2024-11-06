@@ -1,6 +1,6 @@
 /core/target
 /core/Cargo.lock
-/device/ad57_rtic/target
+/device/air_avionics_ad57/target
 /device/larus/target
 /device/pc/target
 /device/pc/simulator-0.5.0/target
