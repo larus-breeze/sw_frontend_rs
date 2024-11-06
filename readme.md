@@ -11,7 +11,7 @@ The Larus Sensorbox uses a new method which calculates the actual climb rate fro
 The following target systems are currently supported. Installation instructions for the development environment can be found there:
 - [A PC simulation](https://github.com/larus-breeze/sw_frontend_rs/tree/master/device/pc) (Linux, Windows) for development and testing
 - [Ad57 from Air Avionics](https://github.com/larus-breeze/sw_frontend_rs/tree/master/device/air_avionics_ad57) (commercial 57mm built-in instrument)
-- [Larus 57mm Display Unit](https://github.com/larus-breeze/sw_frontend_rs/tree/master/device/larus) Newly developed, cost-effective display with an STM32H7 processor, a reflective display and a housing that can be manufactured using standard 3D printers.
+- [Larus 57mm Display Unit](https://github.com/larus-breeze/sw_frontend_rs/tree/master/device/larus_frontend_v1) Newly developed, cost-effective display with an STM32H7 processor, a reflective display and a housing that can be manufactured using standard 3D printers.
 
 ![tools](https://github.com/larus-breeze/sw_frontend_rs/assets/3678273/74c01117-cf99-40b7-b68e-ff5c3c36fc2b)
 The figure shows the simulation environment of the solution.
