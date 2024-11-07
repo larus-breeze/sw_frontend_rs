@@ -17,7 +17,7 @@ class ArtificialHorizonWallpaper():
         s_width = self.comp_stroke_width
         cx = self.radius
         dx = self.width // 10
-        y = self.width
+        y = self.bottom_line
 
         self.draw.line((0, y, self.width, y), width=s_width)
         self.draw.line((cx, y, cx, y + self.comp_stroke_len), width=s_width)
@@ -77,6 +77,7 @@ class ArtificialHorizonWallpaper():
 DIMS_227_285 = {
     "width": 227,
     "height": 285,
+    "bottom_line": 227,
     "ah_stroke_len": 16,
     "ah_stroke_width": 2,
     "ah_point_width": 5,
@@ -88,6 +89,7 @@ DIMS_227_285 = {
 DIMS_240_320 = {
     "width": 240,
     "height": 320,
+    "bottom_line": 240,
     "ah_stroke_len": 18,
     "ah_stroke_width": 2,
     "ah_point_width": 5,
@@ -96,7 +98,21 @@ DIMS_240_320 = {
     "comp_stroke_width": 2,
 }
 
+DIMS_480_480 = {
+    "width": 480,
+    "height": 480,
+    "bottom_line": 400,
+    "ah_stroke_len": 27,
+    "ah_stroke_width": 3,
+    "ah_point_width": 7,
+    "ah_glider_width": 6,
+    "comp_stroke_len": 27,
+    "comp_stroke_width": 3,
+}
+
 wp = ArtificialHorizonWallpaper(DIMS_227_285)
 wp.generate("assets/arthorizon_wp_227x285.png")
 wp = ArtificialHorizonWallpaper(DIMS_240_320)
 wp.generate("assets/arthorizon_wp_240x320.png")
+wp = ArtificialHorizonWallpaper(DIMS_480_480)
+wp.generate("assets/arthorizon_wp_480x480.png")
