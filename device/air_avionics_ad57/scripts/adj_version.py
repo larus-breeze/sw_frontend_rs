@@ -1,4 +1,4 @@
-#!/bin/python3
+#!../../.venv/bin/python
 
 import subprocess
 import re
