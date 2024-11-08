@@ -74,12 +74,12 @@ DIMS_480_480 = {
     "margin": 0,
     "stroke_len": 27,
     "stroke_width": 7,
-    "stroke_text_pos": 35,
+    "stroke_text_pos": 53,
     "font_off_x": -12,
     "font_off_y": 15,
     "angle": 25,
-    "min_arc": 55,
-    "max_arc": 305,
+    "min_arc": 0,
+    "max_arc": 360,
 }
 
 wp = VarioWallpaper(DIMS_227_285)

@@ -28,7 +28,10 @@ class ArtificialHorizonWallpaper():
 
     def ah_wallpaper(self):
         y_ofs = self.ah_y_ofs
-        self.draw.arc((0, y_ofs, self.width, self.width + y_ofs), 210, 330, width=self.ah_stroke_width)
+        if self.full_circle:
+            self.draw.arc((0, y_ofs, self.width, self.width + y_ofs), 0, 360, width=self.ah_stroke_width)
+        else:
+            self.draw.arc((0, y_ofs, self.width, self.width + y_ofs), 210, 330, width=self.ah_stroke_width)
 
         r1 = self.radius - self.ah_stroke_len
         r2 = self.radius
@@ -75,6 +78,7 @@ class ArtificialHorizonWallpaper():
         self.img.show()
 
 DIMS_227_285 = {
+    "full_circle": False,
     "width": 227,
     "height": 285,
     "bottom_line": 227,
@@ -87,6 +91,7 @@ DIMS_227_285 = {
 }
 
 DIMS_240_320 = {
+    "full_circle": False,
     "width": 240,
     "height": 320,
     "bottom_line": 240,
@@ -99,14 +104,15 @@ DIMS_240_320 = {
 }
 
 DIMS_480_480 = {
+    "full_circle": True,
     "width": 480,
     "height": 480,
-    "bottom_line": 400,
+    "bottom_line": 430,
     "ah_stroke_len": 27,
     "ah_stroke_width": 3,
     "ah_point_width": 7,
     "ah_glider_width": 6,
-    "comp_stroke_len": 27,
+    "comp_stroke_len": -27,
     "comp_stroke_width": 3,
 }
 

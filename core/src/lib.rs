@@ -148,6 +148,51 @@ pub mod basic_config {
     ];
 }
 
+#[cfg(feature = "larus_frontend_v2")]
+pub mod basic_config {
+    pub const MAX_TX_FRAMES: usize = 10;
+    pub const MAX_RX_FRAMES: usize = 30;
+    pub const VDA: u16 = 40; // heartbeat at 0x680
+
+    pub const DISPLAY_WIDTH: u32 = 480;
+    pub const DISPLAY_HEIGHT: u32 = 480;
+    pub const CONTROLLER_TICK_RATE: u32 = 10;
+    pub const SECTION_EDITOR_TIMEOUT: u16 = 3;
+    pub const PERSISTENCE_TIMEOUT: u16 = 500;
+
+    pub const BAT_EMPTY_IMG: &[u8] =
+        include_bytes_aligned!(4, "../assets/size_480x480/bat_empty.lif");
+    pub const BAT_FULL_IMG: &[u8] =
+        include_bytes_aligned!(4, "../assets/size_480x480/bat_full.lif");
+    pub const BAT_HALF_IMG: &[u8] =
+        include_bytes_aligned!(4, "../assets/size_480x480/bat_half.lif");
+    pub const GLIDER_IMG: &[u8] = include_bytes_aligned!(4, "../assets/size_480x480/glider.lif");
+    pub const NORTH_IMG: &[u8] = include_bytes_aligned!(4, "../assets/size_480x480/north.lif");
+    pub const SPIRAL_IMG: &[u8] = include_bytes_aligned!(4, "../assets/size_480x480/spiral.lif");
+    pub const STRAIGHT_IMG: &[u8] =
+        include_bytes_aligned!(4, "../assets/size_480x480/straight.lif");
+    pub const KM_H_IMG: &[u8] = include_bytes_aligned!(4, "../assets/size_480x480/km_h.lif");
+    pub const M_S_IMG: &[u8] = include_bytes_aligned!(4, "../assets/size_480x480/m_s.lif");
+    pub const SAT_IMG: &[u8] = include_bytes_aligned!(4, "../assets/size_480x480/sat.lif");
+    pub const WP_HORIZON_IMG: &[u8] =
+        include_bytes_aligned!(4, "../assets/size_480x480/wp_horizon.lif");
+    pub const WP_VARIO_IMG: &[u8] =
+        include_bytes_aligned!(4, "../assets/size_480x480/wp_vario.lif");
+    pub const WP_VARIO_SCALE: [(i32, i32, &str); 11] = [
+        (334, 407, "5"),
+        (259, 438, "4"),
+        (179, 434, "3"),
+        (107, 397, "2"),
+        (58, 333, "1"),
+        (41, 254, "0"),
+        (58, 175, "1"),
+        (107, 111, "2"),
+        (179, 74, "3"),
+        (259, 70, "4"),
+        (334, 101, "5"),
+    ];
+}
+
 /// Trait of a function to bring an image to the screen. The format of the image files is
 /// specifically designed to be ultra-fast. It is defined in the Python script
 /// assets/convert_pictures.py and is described there.

@@ -26,6 +26,8 @@ struct VarioSizes {
     mc_len: u32,
     tcr_width: f32,
     tcr_len: u32,
+    glider_pos: Point,
+    north_pos: Point,
     bat_pos: Point,
     sat_pos: Point,
     unit_pos: Point,
@@ -47,6 +49,8 @@ const VARIO_SIZES: VarioSizes = VarioSizes {
     mc_len: 22,
     tcr_width: 0.25,
     tcr_len: 22,
+    glider_pos: Point::new(67, 118),
+    north_pos: Point::new(71, 53),
     bat_pos: Point::new(207, 70),
     sat_pos: Point::new(5, 40),
     unit_pos: Point::new(122, 255),
@@ -68,6 +72,8 @@ const VARIO_SIZES: VarioSizes = VarioSizes {
     mc_len: 22,
     tcr_width: 0.25,
     tcr_len: 22,
+    glider_pos: Point::new(85, 136),
+    north_pos: Point::new(85, 58),
     bat_pos: Point::new(215, 70),
     sat_pos: Point::new(5, 33),
     unit_pos: Point::new(130, 285),
@@ -75,7 +81,30 @@ const VARIO_SIZES: VarioSizes = VarioSizes {
     version_pos: Point::new(200, 217),
     wind_len: 105,
     wind_len_min: 50,
-    angle_m_s: 24.0,
+    angle_m_s: 25.0,
+};
+
+#[cfg(feature = "larus_frontend_v2")]
+const VARIO_SIZES: VarioSizes = VarioSizes {
+    diameter_stf: DIAMETER - 162,
+    indicator_len: 75,
+    indicator_width: 12,
+    left_under_pos: Point::new(410, 185),
+    pic_left_under_pos: Point::new(390, 120),
+    mc_width: 0.14,
+    mc_len: 33,
+    tcr_width: 0.25,
+    tcr_len: 33,
+    glider_pos: Point::new(129, 205),
+    north_pos: Point::new(125, 15),
+    bat_pos: Point::new(410, 280),
+    sat_pos: Point::new(380, 340),
+    unit_pos: Point::new(208, 432),
+    wind_pos: Point::new(280, 140),
+    version_pos: Point::new(280, 140),
+    wind_len: 157,
+    wind_len_min: 75,
+    angle_m_s: 25.0,
 };
 
 // Debug build runs at 10 Hz
