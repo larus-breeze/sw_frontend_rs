@@ -83,7 +83,7 @@ impl Vario {
             display,
             CENTER,
             cm.config.mc_cready.to_m_s(),
-            RADIUS as i32,
+            RADIUS as i32 + 1,
             SZS.mc_len as i32,
             SZS.mc_width,
             cm.color(Palette::Needle2),
@@ -117,7 +117,7 @@ impl Vario {
         let (mut angle, mut av_angle, fill_color, stroke_color) = match cm.control.fly_mode {
             FlyMode::Circling => {
                 // draw noth symbol
-                display.draw_img(NORTH_IMG, Point::new(0, 0), Some(cm.color(Palette::Scale)))?;
+                display.draw_img(NORTH_IMG, SZS.north_pos, Some(cm.color(Palette::Scale)))?;
                 // return absolut wind vector
                 (
                     cm.sensor.wind_vector.angle(),
@@ -128,7 +128,7 @@ impl Vario {
             }
             FlyMode::StraightFlight => {
                 // draw glider symbol
-                display.draw_img(GLIDER_IMG, Point::new(0, 0), Some(cm.color(Palette::Scale)))?;
+                display.draw_img(GLIDER_IMG, SZS.glider_pos, Some(cm.color(Palette::Scale)))?;
                 (
                     // return relativ wind vector
                     cm.sensor.wind_vector.angle() - cm.sensor.gps_track,
@@ -223,7 +223,7 @@ impl Vario {
                 display.draw_img(KM_H_IMG, SZS.left_under_pos, Some(cm.color(Palette::Scale)))?;
                 let stf = num::clamp(-cm.calculated.speed_to_fly_dif.to_km_h() / 10.0, -5.0, 5.0);
                 let angle_sweep = (VARIO_SIZES.angle_m_s * stf).deg();
-                let col = cm.color(Palette::Needle5);
+                let col = cm.color(Palette::VarioSpeedToFly);
                 Arc::with_center(CENTER, SZS.diameter_stf, 180.0.deg(), angle_sweep)
                     .into_styled(PrimitiveStyle::with_stroke(col, 6))
                     .draw(display)?;

@@ -25,4 +25,5 @@ libc-print = "0.1.12"
 default = ["larus_frontend_v1", "eeprom_size_8192"]
 air_avionics_ad57 = []
 larus_frontend_v1 = []
+larus_frontend_v2 = []
 eeprom_size_8192 = []

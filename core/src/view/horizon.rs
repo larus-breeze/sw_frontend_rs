@@ -32,6 +32,8 @@ mod c {
     pub const STROKE_WIDTH: i32 = 2;
     pub const BOX_HEIGHT: i32 = 30;
     pub const TC_POS_Y: i32 = super::DISPLAY_HEIGHT as i32 - 16;
+    pub const TC_NEEDLE_Y: i32 = super::DISPLAY_WIDTH as i32;
+    pub const TC_NEEDLE_DELTA: i32 = 18;
     pub const PITCH_SCALE_LEN: i32 = 18;
 }
 
@@ -43,6 +45,21 @@ mod c {
     pub const STROKE_WIDTH: i32 = 2;
     pub const BOX_HEIGHT: i32 = 32;
     pub const TC_POS_Y: i32 = super::DISPLAY_HEIGHT as i32 - 30;
+    pub const TC_NEEDLE_Y: i32 = super::DISPLAY_WIDTH as i32;
+    pub const TC_NEEDLE_DELTA: i32 = 18;
+    pub const PITCH_SCALE_LEN: i32 = 20;
+}
+
+#[cfg(feature = "larus_frontend_v2")]
+mod c {
+    pub const T_WIDTH: i32 = 160;
+    pub const RM_LEN: i32 = 45;
+    pub const RM_WIDTH: f32 = 6.0;
+    pub const STROKE_WIDTH: i32 = 3;
+    pub const BOX_HEIGHT: i32 = 50;
+    pub const TC_POS_Y: i32 = super::DISPLAY_HEIGHT as i32 - 105;
+    pub const TC_NEEDLE_Y: i32 = super::DISPLAY_WIDTH as i32 - 50;
+    pub const TC_NEEDLE_DELTA: i32 = - 30;
     pub const PITCH_SCALE_LEN: i32 = 20;
 }
 
@@ -160,9 +177,9 @@ impl Horizon {
         }
         let t_col = cm.color(Palette::Needle5);
         let x = ((diff * SCALE_INC as f32) / 10.0) as i32 + AH_CENTER_X;
-        let p1 = Point::new(x, DISPLAY_WIDTH as i32);
-        let p2 = Point::new(x + 10, DISPLAY_WIDTH as i32 + 18);
-        let p3 = Point::new(x - 10, DISPLAY_WIDTH as i32 + 18);
+        let p1 = Point::new(x, c::TC_NEEDLE_Y);
+        let p2 = Point::new(x + 10, c::TC_NEEDLE_Y + c::TC_NEEDLE_DELTA);
+        let p3 = Point::new(x - 10, c::TC_NEEDLE_Y + c::TC_NEEDLE_DELTA);
         Triangle::new(p1, p2, p3)
             .into_styled(PrimitiveStyle::with_fill(t_col))
             .draw(display)?;
@@ -175,7 +192,7 @@ impl Horizon {
             c::T_WIDTH,
             c::STROKE_WIDTH,
             cm.color(Palette::Scale),
-            t_col,
+            cm.color(Palette::Scale),
             cm.color(Palette::Background),
         )?;
 

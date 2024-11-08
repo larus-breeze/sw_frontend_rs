@@ -57,8 +57,12 @@ impl DrawImage for MockDisplay {
                     #[cfg(feature = "larus_frontend_v1")]
                     let color = Colors::from(u16_col);
 
+                    #[cfg(feature = "larus_frontend_v2")]
+                    let color = Colors::from(img16[idx] as u8);
+
                     #[cfg(feature = "air_avionics_ad57")]
                     let color = Colors::from(img16[idx] as u8);
+                    
                     color
                 };
 
@@ -92,6 +96,9 @@ impl DrawImage for MockDisplay {
                     let u16_col = RGB565_COLORS[img32[idx] as usize];
                     #[cfg(feature = "larus_frontend_v1")]
                     let color = Colors::from(u16_col);
+
+                    #[cfg(feature = "larus_frontend_v2")]
+                    let color = Colors::from(img32[idx] as u8);
 
                     #[cfg(feature = "air_avionics_ad57")]
                     let color = Colors::from(img32[idx] as u8);
