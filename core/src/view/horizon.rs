@@ -35,7 +35,7 @@ mod c {
     pub const PITCH_SCALE_LEN: i32 = 18;
 }
 
-#[cfg(feature = "larus_ad57")]
+#[cfg(feature = "larus_frontend_v1")]
 mod c {
     pub const T_WIDTH: i32 = 100;
     pub const RM_LEN: i32 = 30;

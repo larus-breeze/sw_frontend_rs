@@ -103,7 +103,7 @@ pub mod basic_config {
     ];
 }
 
-#[cfg(feature = "larus_ad57")]
+#[cfg(feature = "larus_frontend_v1")]
 pub mod basic_config {
     pub const MAX_TX_FRAMES: usize = 10;
     pub const MAX_RX_FRAMES: usize = 30;
