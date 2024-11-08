@@ -22,7 +22,7 @@ libc-print = "0.1.12"
 # local
 
 [features]
-default = ["larus_ad57", "eeprom_size_8192"]
+default = ["larus_frontend_v1", "eeprom_size_8192"]
 air_avionics_ad57 = []
-larus_ad57 = []
+larus_frontend_v1 = []
 eeprom_size_8192 = []

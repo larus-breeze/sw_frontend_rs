@@ -21,7 +21,7 @@ pub enum Palette {
     HorizonEarth,
 }
 
-#[cfg(feature = "larus_ad57")]
+#[cfg(feature = "larus_frontend_v1")]
 pub const DARK_MODE: PaletteColors = [
     Colors::Black,        // BackGround
     Colors::White,        // Scale,
@@ -61,7 +61,7 @@ pub const DARK_MODE: PaletteColors = [
     Colors::Sienna,       // HorizonEarth,
 ];
 
-#[cfg(feature = "larus_ad57")]
+#[cfg(feature = "larus_frontend_v1")]
 pub const BRIGHT_MODE: PaletteColors = [
     Colors::White,     // BackGround
     Colors::Black,     // Scale,

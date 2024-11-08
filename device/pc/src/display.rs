@@ -52,9 +52,9 @@ impl DrawImage for MockDisplay {
                 let color = if let Some(color) = cover_up {
                     Colors::from(color)
                 } else {
-                    #[cfg(feature = "larus_ad57")]
+                    #[cfg(feature = "larus_frontend_v1")]
                     let u16_col = RGB565_COLORS[img16[idx] as usize];
-                    #[cfg(feature = "larus_ad57")]
+                    #[cfg(feature = "larus_frontend_v1")]
                     let color = Colors::from(u16_col);
 
                     #[cfg(feature = "air_avionics_ad57")]
@@ -88,9 +88,9 @@ impl DrawImage for MockDisplay {
                 let color = if let Some(color) = cover_up {
                     Colors::from(color)
                 } else {
-                    #[cfg(feature = "larus_ad57")]
+                    #[cfg(feature = "larus_frontend_v1")]
                     let u16_col = RGB565_COLORS[img32[idx] as usize];
-                    #[cfg(feature = "larus_ad57")]
+                    #[cfg(feature = "larus_frontend_v1")]
                     let color = Colors::from(u16_col);
 
                     #[cfg(feature = "air_avionics_ad57")]

@@ -57,7 +57,7 @@ const VARIO_SIZES: VarioSizes = VarioSizes {
     angle_m_s: 25.0,
 };
 
-#[cfg(feature = "larus_ad57")]
+#[cfg(feature = "larus_frontend_v1")]
 const VARIO_SIZES: VarioSizes = VarioSizes {
     diameter_stf: DIAMETER - 108,
     indicator_len: 50,
