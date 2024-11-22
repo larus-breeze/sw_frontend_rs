@@ -17,6 +17,7 @@ fn horner(x: Float, coefs: &[Float]) -> Float {
 }
 
 // Error below 0.01% between 0..10_000m
+#[allow(clippy::excessive_precision)]
 pub fn pressure(altitude: Length) -> Pressure {
     const COEFS: [Float; 4] = [
         -1.08815563e-08,
@@ -28,6 +29,7 @@ pub fn pressure(altitude: Length) -> Pressure {
 }
 
 // Error below 0.02% between 0..10_000m
+#[allow(clippy::excessive_precision)]
 pub fn density(altitude: Length) -> Density {
     const COEFS: [Float; 4] = [
         -6.38071857e-14,
@@ -46,6 +48,7 @@ pub fn temperature(altitude: Length) -> Temperature {
 }*/
 
 // Error below 4m between 0..10_000m
+#[allow(clippy::excessive_precision)]
 pub fn altitude(static_air_pressure: Pressure) -> Length {
     const COEFS: [Float; 6] = [
         -1.56145960e-21,
@@ -84,7 +87,7 @@ impl PressureAltitude {
 
     /// returns QNH
     pub fn qnh(&self) -> Pressure {
-        return self.qnh_ref;
+        self.qnh_ref
     }
 
     /// set QNH
@@ -100,7 +103,7 @@ impl PressureAltitude {
 
     /// returns QFE
     pub fn qfe(&self) -> Pressure {
-        return self.qfe_ref;
+        self.qfe_ref
     }
 
     /// set QFE

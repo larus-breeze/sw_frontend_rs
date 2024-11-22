@@ -1,8 +1,11 @@
-use corelib::{
-    basic_config::{DISPLAY_HEIGHT, DISPLAY_WIDTH},
-    *,
+use basic_config::DISPLAY_WIDTH;
+use corelib::*;
+use embedded_graphics::{
+    draw_target::DrawTarget,
+    geometry::{OriginDimensions, Point, Size},
+    primitives::Rectangle,
+    Pixel,
 };
-use embedded_graphics::prelude::*;
 use embedded_graphics_simulator::{OutputSettingsBuilder, SimulatorDisplay};
 
 pub struct MockDisplay {
@@ -26,99 +29,13 @@ impl MockDisplay {
 }
 
 impl DrawImage for MockDisplay {
-    fn draw_img(
-        &mut self,
-        img: &[u8],
-        offset: Point,
-        cover_up: Option<Colors>,
-    ) -> Result<(), CoreError> {
-        // Safety: the img format has been defined in terms of compatibility, so the conversion is ok here
-        // At the moment we only know format 1
-        let img_vers = img[0];
-        assert!((img_vers == 1) || img_vers == 2);
-
-        if img_vers == 1 {
-            let img16 =
-                unsafe { core::slice::from_raw_parts(img.as_ptr() as *const u16, img.len() / 2) };
-
-            // The image is really built for our display?
-            assert!(img16[1] == DISPLAY_WIDTH as u16);
-            assert!(img16[2] + offset.y as u16 <= DISPLAY_HEIGHT as u16);
-
-            // Let's write the pixels
-            let color_cnt = img16[3];
-            let mut idx = 4;
-            for _ in 0..color_cnt {
-                let color = if let Some(color) = cover_up {
-                    Colors::from(color)
-                } else {
-                    #[cfg(feature = "larus_frontend_v1")]
-                    let u16_col = RGB565_COLORS[img16[idx] as usize];
-                    #[cfg(feature = "larus_frontend_v1")]
-                    let color = Colors::from(u16_col);
-
-                    #[cfg(feature = "larus_frontend_v2")]
-                    let color = Colors::from(img16[idx] as u8);
-
-                    #[cfg(feature = "air_avionics_ad57")]
-                    let color = Colors::from(img16[idx] as u8);
-                    
-                    color
-                };
-
-                let px_cnt = img16[idx + 1] as usize;
-                idx += 2;
-                for i_idx in img16.iter().skip(idx).take(px_cnt) {
-                    let y = *i_idx / (DISPLAY_WIDTH as u16);
-                    let x = *i_idx - y * DISPLAY_WIDTH as u16;
-                    let p = Point::new(offset.x + x as i32, offset.y + y as i32);
-                    let _ = Pixel(p, color).draw(self);
-                }
-                idx += px_cnt;
-            }
-        }
-        if img_vers == 2 {
-            let img32 =
-                unsafe { core::slice::from_raw_parts(img.as_ptr() as *const u32, img.len() / 4) };
-
-            // The image is really built for our display?
-            assert!(img32[1] == DISPLAY_WIDTH);
-            assert!(img32[2] + offset.y as u32 <= DISPLAY_HEIGHT);
-
-            // Let's write the pixels
-            let color_cnt = img32[3];
-            let mut idx = 4;
-            for _ in 0..color_cnt {
-                let color = if let Some(color) = cover_up {
-                    Colors::from(color)
-                } else {
-                    #[cfg(feature = "larus_frontend_v1")]
-                    let u16_col = RGB565_COLORS[img32[idx] as usize];
-                    #[cfg(feature = "larus_frontend_v1")]
-                    let color = Colors::from(u16_col);
-
-                    #[cfg(feature = "larus_frontend_v2")]
-                    let color = Colors::from(img32[idx] as u8);
-
-                    #[cfg(feature = "air_avionics_ad57")]
-                    let color = Colors::from(img32[idx] as u8);
-
-                    color
-                };
-
-                let px_cnt = img32[idx + 1] as usize;
-                idx += 2;
-                for i_idx in img32.iter().skip(idx).take(px_cnt) {
-                    let y = *i_idx / DISPLAY_WIDTH;
-                    let x = *i_idx - y * DISPLAY_WIDTH;
-                    let p = Point::new(offset.x + x as i32, offset.y + y as i32);
-                    let _ = Pixel(p, color).draw(self);
-                }
-                idx += px_cnt;
-            }
-        }
-
-        Ok(())
+    fn draw_line_unchecked(&mut self, idx: usize, len: usize, color: Colors) {
+        let x = (idx % (DISPLAY_WIDTH as usize)) as i32;
+        let y = (idx / (DISPLAY_WIDTH as usize)) as i32;
+        let top_left = Point::new(x, y);
+        let size = Size::new(len as u32, 1);
+        let area = Rectangle::new(top_left, size);
+        let _ = self.fill_solid(&area, color);
     }
 }
 

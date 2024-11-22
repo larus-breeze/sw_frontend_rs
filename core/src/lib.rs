@@ -39,7 +39,7 @@ pub use system_of_units::*;
 pub use utils::*;
 
 // Re-exports to be used by the hal
-use embedded_graphics::prelude::*;
+use embedded_graphics::{draw_target::DrawTarget, geometry::Point, Drawable, Pixel};
 
 // Only for no_std usage
 #[allow(unused_imports)]
@@ -89,17 +89,17 @@ pub mod basic_config {
     pub const WP_VARIO_IMG: &[u8] =
         include_bytes_aligned!(4, "../assets/size_227x285/wp_vario.lif");
     pub const WP_VARIO_SCALE: [(i32, i32, &str); 11] = [
-        (194, 238, "5"),
-        (152, 255, "4"),
-        (106, 253, "3"),
-        (66, 232, "2"),
-        (38, 196, "1"),
-        (29, 152, "0"),
-        (38, 107, "1"),
-        (66, 71, "2"),
-        (106, 50, "3"),
-        (152, 48, "4"),
-        (194, 65, "5"),
+        (202, 248, "5"),
+        (156, 267, "4"),
+        (105, 265, "3"),
+        (61, 241, "2"),
+        (30, 202, "1"),
+        (20, 153, "0"),
+        (30, 103, "1"),
+        (61, 64, "2"),
+        (105, 40, "3"),
+        (156, 38, "4"),
+        (202, 57, "5"),
     ];
 }
 
@@ -134,17 +134,17 @@ pub mod basic_config {
     pub const WP_VARIO_IMG: &[u8] =
         include_bytes_aligned!(4, "../assets/size_240x320/wp_vario.lif");
     pub const WP_VARIO_SCALE: [(i32, i32, &str); 11] = [
-        (211, 274, "5"),
-        (163, 290, "4"),
-        (113, 285, "3"),
-        (69, 259, "2"),
-        (39, 218, "1"),
-        (29, 169, "0"),
-        (39, 119, "1"),
-        (69, 78, "2"),
-        (113, 52, "3"),
-        (163, 47, "4"),
-        (211, 63, "5"),
+        (217, 282, "5"),
+        (166, 299, "4"),
+        (112, 293, "3"),
+        (65, 266, "2"),
+        (34, 223, "1"),
+        (23, 170, "0"),
+        (34, 117, "1"),
+        (65, 74, "2"),
+        (112, 47, "3"),
+        (166, 41, "4"),
+        (217, 58, "5"),
     ];
 }
 
@@ -179,17 +179,17 @@ pub mod basic_config {
     pub const WP_VARIO_IMG: &[u8] =
         include_bytes_aligned!(4, "../assets/size_480x480/wp_vario.lif");
     pub const WP_VARIO_SCALE: [(i32, i32, &str); 11] = [
-        (334, 407, "5"),
-        (259, 438, "4"),
-        (179, 434, "3"),
-        (107, 397, "2"),
-        (58, 333, "1"),
-        (41, 254, "0"),
-        (58, 175, "1"),
-        (107, 111, "2"),
-        (179, 74, "3"),
-        (259, 70, "4"),
-        (334, 101, "5"),
+        (338, 413, "5"),
+        (261, 445, "4"),
+        (178, 441, "3"),
+        (104, 402, "2"),
+        (54, 336, "1"),
+        (36, 255, "0"),
+        (54, 174, "1"),
+        (104, 108, "2"),
+        (178, 69, "3"),
+        (261, 65, "4"),
+        (338, 97, "5"),
     ];
 }
 
@@ -197,10 +197,151 @@ pub mod basic_config {
 /// specifically designed to be ultra-fast. It is defined in the Python script
 /// assets/convert_pictures.py and is described there.
 pub trait DrawImage {
+    fn draw_line_unchecked(&mut self, idx: usize, len: usize, color: Colors);
+
     fn draw_img(
         &mut self,
         img: &[u8],
         offset: Point,
         cover_up: Option<Colors>,
-    ) -> Result<(), CoreError>;
+    ) -> Result<(), CoreError>
+    where
+        Self: DrawTarget<Color = Colors>,
+        Self: Sized,
+    {
+        let img_vers = img[0];
+        assert!((img_vers == 1) || img_vers == 2 || img_vers == 3);
+
+        if img_vers == 1 {
+            // Safety: the img format has been defined in terms of compatibility, so the conversion is ok here
+            let img16 =
+                unsafe { core::slice::from_raw_parts(img.as_ptr() as *const u16, img.len() / 2) };
+
+            // The image is really built for our display?
+            assert!(img16[1] == basic_config::DISPLAY_WIDTH as u16);
+            assert!(img16[2] + offset.y as u16 <= basic_config::DISPLAY_HEIGHT as u16);
+
+            // Let's write the pixels
+            let color_cnt = img16[3];
+            let mut idx = 4;
+            for _ in 0..color_cnt {
+                let color = if let Some(color) = cover_up {
+                    color
+                } else {
+                    #[cfg(feature = "larus_frontend_v1")]
+                    let u16_col = RGB565_COLORS[img16[idx] as usize];
+                    #[cfg(feature = "larus_frontend_v1")]
+                    let color = Colors::from(u16_col);
+
+                    #[cfg(feature = "larus_frontend_v2")]
+                    let color = Colors::from(img16[idx] as u8);
+
+                    #[cfg(feature = "air_avionics_ad57")]
+                    let color = Colors::from(img16[idx] as u8);
+
+                    color
+                };
+
+                let px_cnt = img16[idx + 1] as usize;
+                idx += 2;
+                for i_idx in img16.iter().skip(idx).take(px_cnt) {
+                    let y = *i_idx / (basic_config::DISPLAY_WIDTH as u16);
+                    let x = *i_idx - y * basic_config::DISPLAY_WIDTH as u16;
+                    let p = Point::new(offset.x + x as i32, offset.y + y as i32);
+                    let _ = Pixel(p, color).draw(self);
+                }
+                idx += px_cnt;
+            }
+        }
+        if img_vers == 2 {
+            // Safety: the img format has been defined in terms of compatibility, so the conversion is ok here
+            let img32 =
+                unsafe { core::slice::from_raw_parts(img.as_ptr() as *const u32, img.len() / 4) };
+
+            // The image is really built for our display?
+            assert!(img32[1] == basic_config::DISPLAY_WIDTH);
+            assert!(img32[2] + offset.y as u32 <= basic_config::DISPLAY_HEIGHT);
+
+            // Let's write the pixels
+            let color_cnt = img32[3];
+            let mut idx = 4;
+            for _ in 0..color_cnt {
+                let color = if let Some(color) = cover_up {
+                    color
+                } else {
+                    #[cfg(feature = "larus_frontend_v1")]
+                    let u16_col = RGB565_COLORS[img32[idx] as usize];
+                    #[cfg(feature = "larus_frontend_v1")]
+                    let color = Colors::from(u16_col);
+
+                    #[cfg(feature = "larus_frontend_v2")]
+                    let color = Colors::from(img32[idx] as u8);
+
+                    #[cfg(feature = "air_avionics_ad57")]
+                    let color = Colors::from(img32[idx] as u8);
+
+                    color
+                };
+
+                let px_cnt = img32[idx + 1] as usize;
+                idx += 2;
+                for i_idx in img32.iter().skip(idx).take(px_cnt) {
+                    let y = *i_idx / basic_config::DISPLAY_WIDTH;
+                    let x = *i_idx - y * basic_config::DISPLAY_WIDTH;
+                    let p = Point::new(offset.x + x as i32, offset.y + y as i32);
+                    let _ = Pixel(p, color).draw(self);
+                }
+                idx += px_cnt;
+            }
+        }
+        if img_vers == 3 {
+            // The image is really built for our display?
+            assert!(img[2] as u32 + (img[3] as u32) * 256 == basic_config::DISPLAY_WIDTH);
+            assert!(
+                img[4] as u32 + (img[5] as u32) * 256 + offset.y as u32
+                    <= basic_config::DISPLAY_HEIGHT
+            );
+
+            // Let's write the pixels
+            let idx_col_arr: usize = 7;
+            let mut idx = img[6] as usize + 7;
+            let mut img_idx = (offset.x + offset.y * basic_config::DISPLAY_WIDTH as i32) as usize;
+            let mut color = Colors::from(0);
+            while idx < img.len() {
+                let n = img[idx] & 0b0011_1111;
+                match img[idx] & 0b1100_0000 {
+                    0b0000_0000 => {
+                        self.draw_line_unchecked(img_idx, n as usize, color);
+                        img_idx += n as usize;
+                    }
+                    0b0100_0000 => img_idx += n as usize,
+                    0b1000_0000 => img_idx += 64 * n as usize,
+                    0b1100_0000 => {
+                        color = if let Some(color) = cover_up {
+                            color
+                        } else {
+                            let u8_col = img[idx_col_arr + n as usize];
+
+                            #[cfg(feature = "larus_frontend_v1")]
+                            let u16_col = RGB565_COLORS[u8_col as usize];
+                            #[cfg(feature = "larus_frontend_v1")]
+                            let stroke_color = Colors::from(u16_col);
+
+                            #[cfg(feature = "larus_frontend_v2")]
+                            let stroke_color = Colors::from(u8_col);
+
+                            #[cfg(feature = "air_avionics_ad57")]
+                            let stroke_color = Colors::from(u8_col);
+
+                            stroke_color
+                        };
+                    }
+                    _ => (),
+                }
+                idx += 1;
+            }
+        }
+
+        Ok(())
+    }
 }

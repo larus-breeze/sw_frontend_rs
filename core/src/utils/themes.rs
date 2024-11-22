@@ -1,6 +1,6 @@
 use crate::utils::Colors;
 
-pub type PaletteColors = [Colors; 17];
+pub type PaletteColors = [Colors; 20];
 
 pub enum Palette {
     Background,
@@ -20,97 +20,88 @@ pub enum Palette {
     HorizonSky,
     HorizonEarth,
     VarioSpeedToFly,
+    PicInfo1,
+    WindPlus,
+    WindMinus,
 }
 
 #[cfg(feature = "larus_frontend_v1")]
 pub const DARK_MODE: PaletteColors = [
     Colors::Black,        // BackGround
     Colors::White,        // Scale,
-    Colors::White,        // Needle1,
+    Colors::Black,        // Needle1,
     Colors::Red,          // Needle2,
-    Colors::LimeGreen,    // Needle3,
+    Colors::Green,        // Needle3,
     Colors::Yellow,       // Needle4,
-    Colors::Coral,        // Needle5,
-    Colors::LightSkyBlue, // Sprite1Stroke,
-    Colors::Blue,         // Sprite1Fill,
+    Colors::Red,          // Needle5,
+    Colors::White,        // Sprite1Stroke,
+    Colors::DodgerBlue,   // Sprite1Fill,
     Colors::White,        // Sprite2Stroke,
-    Colors::Magenta,      // Sprite2Fill,
+    Colors::DodgerBlue,   // Sprite2Fill,
     Colors::Red,          // SignalStop,
     Colors::Yellow,       // SignalWarning,
     Colors::LimeGreen,    // SignalGo,
     Colors::LightSkyBlue, // HorizonSky,
     Colors::Sienna,       // HorizonEarth,
-    Colors::Coral,        // VarioSpeedToFly
+    Colors::Orange,       // VarioSpeedToFly
+    Colors::Orange,       // PicInfo1
+    Colors::Orange,       // WindPlus
+    Colors::LightPink,    // WindMinus
 ];
 
 #[cfg(feature = "larus_frontend_v2")]
 pub const DARK_MODE: PaletteColors = [
     Colors::Black,        // BackGround
     Colors::White,        // Scale,
-    Colors::White,        // Needle1,
+    Colors::Black,        // Needle1,
     Colors::Red,          // Needle2,
-    Colors::LimeGreen,    // Needle3,
+    Colors::Green,        // Needle3,
     Colors::Yellow,       // Needle4,
     Colors::Red,          // Needle5,
-    Colors::LightSkyBlue, // Sprite1Stroke,
-    Colors::Blue,         // Sprite1Fill,
+    Colors::White,        // Sprite1Stroke,
+    Colors::DodgerBlue,   // Sprite1Fill,
     Colors::White,        // Sprite2Stroke,
-    Colors::Magenta,      // Sprite2Fill,
+    Colors::DodgerBlue,   // Sprite2Fill,
     Colors::Red,          // SignalStop,
     Colors::Yellow,       // SignalWarning,
     Colors::LimeGreen,    // SignalGo,
     Colors::LightSkyBlue, // HorizonSky,
     Colors::Sienna,       // HorizonEarth,
-    Colors::Coral,        // VarioSpeedToFly
+    Colors::Orange,       // VarioSpeedToFly
+    Colors::Orange,       // PicInfo1
+    Colors::Orange,       // WindPlus
+    Colors::LightPink,    // WindMinus
 ];
 
 #[cfg(feature = "air_avionics_ad57")]
 pub const DARK_MODE: PaletteColors = [
     Colors::Black,        // BackGround
     Colors::White,        // Scale,
-    Colors::White,        // Needle1,
+    Colors::Black,        // Needle1,
     Colors::Red,          // Needle2,
-    Colors::LimeGreen,    // Needle3,
+    Colors::Green,        // Needle3,
     Colors::Yellow,       // Needle4,
-    Colors::Coral,        // Needle5,
-    Colors::LightSkyBlue, // Sprite1Stroke,
-    Colors::Blue,         // Sprite1Fill,
+    Colors::Red,          // Needle5,
+    Colors::White,        // Sprite1Stroke,
+    Colors::DodgerBlue,   // Sprite1Fill,
     Colors::White,        // Sprite2Stroke,
-    Colors::Magenta,      // Sprite2Fill,
+    Colors::DodgerBlue,   // Sprite2Fill,
     Colors::Red,          // SignalStop,
     Colors::Yellow,       // SignalWarning,
     Colors::LimeGreen,    // SignalGo,
-    Colors::DodgerBlue,   // HorizonSky,
+    Colors::LightSkyBlue, // HorizonSky,
     Colors::Sienna,       // HorizonEarth,
-    Colors::Coral,        // VarioSpeedToFly
+    Colors::Orange,       // VarioSpeedToFly
+    Colors::Orange,       // PicInfo1
+    Colors::Orange,       // WindPlus
+    Colors::LightPink,    // WindMinus
 ];
 
 #[cfg(feature = "larus_frontend_v1")]
 pub const BRIGHT_MODE: PaletteColors = [
     Colors::White,     // BackGround
     Colors::Black,     // Scale,
-    Colors::Black,     // Needle1,
-    Colors::Red,       // Needle2,
-    Colors::Green,     // Needle3,
-    Colors::Green,     // Needle4,
-    Colors::Sienna,    // Needle5,
-    Colors::Black,     // Sprite1Stroke,
-    Colors::Blue,      // Sprite1Fill,
-    Colors::Black,     // Sprite2Stroke,
-    Colors::Magenta,   // Sprite2Fill,
-    Colors::Red,       // SignalStop,
-    Colors::Gold,      // SignalWarning,
-    Colors::LimeGreen, // SignalGo,
-    Colors::Azure,     // HorizonSky,
-    Colors::Sienna,    // HorizonEarth,
-    Colors::Sienna,    // VarioSpeedToFly
-];
-
-#[cfg(feature = "larus_frontend_v2")]
-pub const BRIGHT_MODE: PaletteColors = [
-    Colors::White,     // BackGround
-    Colors::Black,     // Scale,
-    Colors::Black,     // Needle1,
+    Colors::Yellow,    // Needle1,
     Colors::Red,       // Needle2,
     Colors::Green,     // Needle3,
     Colors::Green,     // Needle4,
@@ -125,25 +116,55 @@ pub const BRIGHT_MODE: PaletteColors = [
     Colors::Azure,     // HorizonSky,
     Colors::Sienna,    // HorizonEarth,
     Colors::Coral,     // VarioSpeedToFly
+    Colors::Coral,     // PicInfo1
+    Colors::Orange,    // WindPlus
+    Colors::Red,       // WindMinus
+];
+
+#[cfg(feature = "larus_frontend_v2")]
+pub const BRIGHT_MODE: PaletteColors = [
+    Colors::White,     // BackGround
+    Colors::Black,     // Scale,
+    Colors::Yellow,    // Needle1,
+    Colors::Red,       // Needle2,
+    Colors::Green,     // Needle3,
+    Colors::Green,     // Needle4,
+    Colors::Red,       // Needle5,
+    Colors::Black,     // Sprite1Stroke,
+    Colors::Blue,      // Sprite1Fill,
+    Colors::Black,     // Sprite2Stroke,
+    Colors::Magenta,   // Sprite2Fill,
+    Colors::Red,       // SignalStop,
+    Colors::Gold,      // SignalWarning,
+    Colors::LimeGreen, // SignalGo,
+    Colors::Azure,     // HorizonSky,
+    Colors::Sienna,    // HorizonEarth,
+    Colors::Coral,     // VarioSpeedToFly
+    Colors::Coral,     // PicInfo1
+    Colors::Orange,    // WindPlus
+    Colors::Red,       // WindMinus
 ];
 
 #[cfg(feature = "air_avionics_ad57")]
 pub const BRIGHT_MODE: PaletteColors = [
-    Colors::White,        // BackGround
-    Colors::Black,        // Scale,
-    Colors::Black,        // Needle1,
-    Colors::Red,          // Needle2,
-    Colors::Green,        // Needle3,
-    Colors::Green,        // Needle4,
-    Colors::LimeGreen,    // Needle5,
-    Colors::Black,        // Sprite1Stroke,
-    Colors::Blue,         // Sprite1Fill,
-    Colors::Black,        // Sprite2Stroke,
-    Colors::Magenta,      // Sprite2Fill,
-    Colors::Red,          // SignalStop,
-    Colors::Gold,         // SignalWarning,
-    Colors::LimeGreen,    // SignalGo,
-    Colors::LightSkyBlue, // HorizonSky,
-    Colors::Sienna,       // HorizonEarth,
-    Colors::LimeGreen,    // VarioSpeedToFly
+    Colors::White,     // BackGround
+    Colors::Black,     // Scale,
+    Colors::Yellow,    // Needle1,
+    Colors::Red,       // Needle2,
+    Colors::Green,     // Needle3,
+    Colors::Green,     // Needle4,
+    Colors::Red,       // Needle5,
+    Colors::Black,     // Sprite1Stroke,
+    Colors::Blue,      // Sprite1Fill,
+    Colors::Black,     // Sprite2Stroke,
+    Colors::Magenta,   // Sprite2Fill,
+    Colors::Red,       // SignalStop,
+    Colors::Gold,      // SignalWarning,
+    Colors::LimeGreen, // SignalGo,
+    Colors::Azure,     // HorizonSky,
+    Colors::Sienna,    // HorizonEarth,
+    Colors::Coral,     // VarioSpeedToFly
+    Colors::Coral,     // PicInfo1
+    Colors::Orange,    // WindPlus
+    Colors::Red,       // WindMinus
 ];
