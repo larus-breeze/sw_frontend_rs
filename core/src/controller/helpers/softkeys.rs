@@ -11,6 +11,12 @@ pub struct Softkeys {
     curr_idx: u8,
 }
 
+impl Default for Softkeys {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl Softkeys {
     pub fn new() -> Self {
         Softkeys {

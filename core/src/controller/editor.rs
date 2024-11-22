@@ -21,7 +21,7 @@ fn edit_enum_content(
         let mut max = 0_isize;
         while idx > 0 {
             idx -= 1;
-            if max == 0 && params.variants[idx as usize].len() > 0 {
+            if max == 0 && !params.variants[idx as usize].is_empty() {
                 max = idx;
             }
             if val == params.variants[idx as usize] {
@@ -135,6 +135,13 @@ pub struct Editor {
     pub params: Params,
     pub content: Content,
 }
+
+impl Default for Editor {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 
 impl Editor {
     pub fn new() -> Self {

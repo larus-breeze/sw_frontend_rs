@@ -59,7 +59,7 @@ mod c {
     pub const BOX_HEIGHT: i32 = 50;
     pub const TC_POS_Y: i32 = super::DISPLAY_HEIGHT as i32 - 105;
     pub const TC_NEEDLE_Y: i32 = super::DISPLAY_WIDTH as i32 - 50;
-    pub const TC_NEEDLE_DELTA: i32 = - 30;
+    pub const TC_NEEDLE_DELTA: i32 = -30;
     pub const PITCH_SCALE_LEN: i32 = 20;
 }
 
@@ -200,6 +200,7 @@ impl Horizon {
     }
 }
 
+#[allow(clippy::too_many_arguments)]
 pub fn boxed_text<D>(
     display: &mut D,
     content: &str,

@@ -28,9 +28,7 @@ class ArtificialHorizonWallpaper():
 
     def ah_wallpaper(self):
         y_ofs = self.ah_y_ofs
-        if self.full_circle:
-            self.draw.arc((0, y_ofs, self.width, self.width + y_ofs), 0, 360, width=self.ah_stroke_width)
-        else:
+        if self.show_arc:
             self.draw.arc((0, y_ofs, self.width, self.width + y_ofs), 210, 330, width=self.ah_stroke_width)
 
         r1 = self.radius - self.ah_stroke_len
@@ -60,11 +58,11 @@ class ArtificialHorizonWallpaper():
         x3 = int(self.radius*0.05)
         x4 = x1 + self.ah_glider_width / 2
         y1 = int(self.radius*0.15)
-        self.draw.line((cx - x1, cy, cx - x2, cy), width=self.ah_glider_width)
-        self.draw.line((cx + x1, cy, cx + x2, cy), width=self.ah_glider_width)
+        self.draw.line((cx - x1, cy, cx - x2 - 1, cy), width=self.ah_glider_width)
+        self.draw.line((cx + x1, cy, cx + x2 + 1, cy), width=self.ah_glider_width)
 
-        self.draw.line((cx - x2, cy, cx - x2 - x3, cy - y1), width=self.ah_glider_width)
-        self.draw.line((cx + x2, cy, cx + x2 + x3, cy - y1), width=self.ah_glider_width)
+        self.draw.line((cx - x2, cy + 1, cx - x2 - x3, cy - y1), width=self.ah_glider_width)
+        self.draw.line((cx + x2, cy + 1, cx + x2 + x3, cy - y1), width=self.ah_glider_width)
 
 
     def generate(self, path):
@@ -78,7 +76,7 @@ class ArtificialHorizonWallpaper():
         self.img.show()
 
 DIMS_227_285 = {
-    "full_circle": False,
+    "show_arc": True,
     "width": 227,
     "height": 285,
     "bottom_line": 227,
@@ -91,7 +89,7 @@ DIMS_227_285 = {
 }
 
 DIMS_240_320 = {
-    "full_circle": False,
+    "show_arc": True,
     "width": 240,
     "height": 320,
     "bottom_line": 240,
@@ -104,12 +102,12 @@ DIMS_240_320 = {
 }
 
 DIMS_480_480 = {
-    "full_circle": True,
+    "show_arc": False,
     "width": 480,
     "height": 480,
     "bottom_line": 430,
     "ah_stroke_len": 27,
-    "ah_stroke_width": 3,
+    "ah_stroke_width": 5,
     "ah_point_width": 7,
     "ah_glider_width": 6,
     "comp_stroke_len": -27,
