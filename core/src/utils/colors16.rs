@@ -320,6 +320,6 @@ impl From<Colors> for Rgb888 {
             Colors::WhiteSmoke => Rgb888::CSS_WHITE_SMOKE,
             Colors::Yellow => Rgb888::CSS_YELLOW,
             Colors::YellowGreen => Rgb888::CSS_YELLOW_GREEN,
-        }
+}
     }
 }

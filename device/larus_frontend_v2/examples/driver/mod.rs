@@ -2,11 +2,15 @@
 #![allow(unused_macros)]
 
 #[allow(unused)]
+mod clut_colors;
+#[allow(unused)]
 mod ltdc;
 mod panic;
 #[allow(unused)]
 mod st7701s;
 
+#[allow(unused)]
+pub use clut_colors::*;
 #[allow(unused)]
 pub use ltdc::*;
 #[allow(unused)]
