@@ -11,12 +11,12 @@ use stm32h7xx_hal::{pac, prelude::*};
 
 #[entry]
 fn main() -> ! {
-    let cp = cortex_m::Peripherals::take().unwrap();
+    let mut cp = cortex_m::Peripherals::take().unwrap();
     let dp = pac::Peripherals::take().unwrap();
 
     info!("init");
 
-    let ccdr = set_clocksys!(dp);
+    let ccdr = set_clocksys!(dp, cp);
 
     // Get the delay provider.
     let mut delay = cp.SYST.delay(ccdr.clocks);

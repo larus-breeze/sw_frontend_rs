@@ -55,13 +55,13 @@
       {
         "type": "cortex-debug",
         "request": "launch",
-        "name": "Deb example panic",
+        "name": "Deb example lcd",
         "servertype": "openocd",
         "gdbPath": "/usr/bin/gdb-multiarch",
         "cwd": "${workspaceRoot}",
         "preLaunchTask": "Cargo Build Examples (debug)",
         "runToEntryPoint": "main",
-        "executable": "./target/thumbv7em-none-eabihf/debug/examples/panic",
+        "executable": "./target/thumbv7em-none-eabihf/debug/examples/lcd",
         "device": "STM32H743VGTx",
         "configFiles": [
           "interface/stlink.cfg",
