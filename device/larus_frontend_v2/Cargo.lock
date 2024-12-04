@@ -795,6 +795,7 @@ dependencies = [
  "st7789",
  "stm32h7xx-hal",
  "tfmt",
+ "u8g2-fonts",
 ]
 
 [[package]]

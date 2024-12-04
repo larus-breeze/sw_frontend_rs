@@ -1,13 +1,16 @@
 #![no_main]
 #![no_std]
 
+use corelib::{basic_config, Colors, DrawImage, FONT_BIG};
+use embedded_graphics::{draw_target::DrawTarget, geometry::Point};
+use u8g2_fonts::types::{FontColor, HorizontalAlignment, VerticalPosition};
 use stm32h7xx_hal::{pac, prelude::*};
 
 mod driver;
 
 use defmt::*;
 use defmt_rtt as _;
-use driver::{FrameBuffer, LcdPins, Ltdc, LtdcPins, St7701s};
+use driver::{Display, FrameBuffer, LcdPins, Ltdc, LtdcPins, St7701s};
 
 use cortex_m_rt::entry;
 
@@ -54,34 +57,30 @@ fn main() -> ! {
         &mut delay,
     );
 
-    let mut frame_buffer = FrameBuffer::new(ltdc);
-    let mut buf = frame_buffer.swap_buffers();
-
-    fn fill_fb(color: u8, buf: &mut[u8]) {
-        for idx in 0..buf.len() {
-            buf[idx] = color;
-        }
-    }
+    let frame_buffer = FrameBuffer::new(ltdc);
+    let mut display = Display::new(frame_buffer);
 
     loop {
-        fill_fb(137, buf);
-        buf = frame_buffer.swap_buffers();
-        info!("yellow");
+        display.clear(Colors::Black).unwrap();
+        display.draw_img(
+            basic_config::WP_VARIO_IMG, 
+            Point::new(0, 0), 
+            Some(Colors::White),
+        ).unwrap();
+        display.show();
         delay.delay_ms(2000_u16);
 
-        fill_fb(112, buf); // red
-        buf = frame_buffer.swap_buffers();
-        info!("red");
+        display.clear(Colors::Blue).unwrap();
+        FONT_BIG.render_aligned(
+            "Hello",
+            Point::new(240, 240),
+            VerticalPosition::Center,
+            HorizontalAlignment::Center,
+            FontColor::Transparent(Colors::White),
+            &mut display,
+        ).unwrap();
+        display.show();
         delay.delay_ms(2000_u16);
 
-        fill_fb(9, buf); // blue
-        buf = frame_buffer.swap_buffers();
-        info!("blue");
-        delay.delay_ms(2000_u16);
-
-        fill_fb(50, buf); // green
-        buf = frame_buffer.swap_buffers();
-        info!("green");
-        delay.delay_ms(2000_u16);
     }
 }
