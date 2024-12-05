@@ -35,7 +35,6 @@ mod app {
         can_tx: CanTx<MAX_TX_FRAMES>,
         controller: DevController,
         core_model: CoreModel,
-        frame_buffer: FrameBuffer,
         sound: Sound,
         statistics: Statistics,
     }
@@ -59,7 +58,6 @@ mod app {
             core_model,
             controller,
             mut dev_view,
-            frame_buffer,
             idle_loop,
             keyboard,
             mono,
@@ -81,7 +79,6 @@ mod app {
                 can_tx,
                 controller,
                 core_model,
-                frame_buffer,
                 sound,
                 statistics,
             },
@@ -227,16 +224,6 @@ mod app {
         task_end!(cx, Task::Controller);
     }
 
-    /// Support of M-DMA (isr to copy the data from the frame buffer to the LCD)
-    #[task(binds = MDMA, shared = [frame_buffer, statistics], priority=4)]
-    fn isr_mdma(mut cx: isr_mdma::Context) {
-        task_start!(cx, Task::Mdma);
-        cx.shared.frame_buffer.lock(|frame_buffer| {
-            frame_buffer.on_interrupt();
-        });
-        task_end!(cx, Task::Mdma);
-    }
-
     /// Scan the keyboard
     #[task(local = [keyboard], shared = [statistics], priority=4)]
     fn task_keyboard(mut cx: task_keyboard::Context) {
@@ -250,7 +237,7 @@ mod app {
 
     /// Prepares the display and passes the data to the appropriate output routines.
     /// This mainly concerns the LCD but also the sound output.
-    #[task(local = [dev_view], shared = [core_model, frame_buffer, statistics], priority=3)]
+    #[task(local = [dev_view], shared = [core_model, statistics], priority=3)]
     fn task_view(mut cx: task_view::Context) {
         task_start!(cx, Task::View);
 
@@ -259,13 +246,10 @@ mod app {
             view.core().prepare(core_model);
         });
         let _ = view.core().draw();
+        view.core().display.show();
 
         let wake_up_at = view.wake_up_at();
         task_view::spawn_at(wake_up_at).unwrap();
-
-        cx.shared.frame_buffer.lock(|frame_buffer| {
-            frame_buffer.flush();
-        });
 
         task_end!(cx, Task::View);
     }
