@@ -10,8 +10,9 @@ use crate::{
     model::{CoreModel, FlyMode, SystemState, VarioMode},
     system_of_units::FloatToSpeed,
     tformat,
-    utils::{Colors, FONT_BIG},
+    utils::Colors,
     CoreError, DrawImage,
+    view::helpers::themes::FONT_BIG, 
 };
 
 use embedded_graphics::{

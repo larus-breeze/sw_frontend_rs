@@ -1,6 +1,7 @@
+use super::themes::FONT_BIG;
 use crate::{
     basic_config::DISPLAY_WIDTH,
-    utils::{Colors, FONT_BIG},
+    utils::Colors,
     CoreError, DrawImage,
 };
 use embedded_graphics::{
