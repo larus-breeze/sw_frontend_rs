@@ -1,8 +1,8 @@
 use crate::{
     basic_config::{DISPLAY_HEIGHT, DISPLAY_WIDTH},
     model::CoreModel,
-    utils::{Colors, TString, FONT_BIG, FONT_SMALL},
-    view::SCREEN_CENTER,
+    utils::{Colors, TString},
+    view::{SCREEN_CENTER, helpers::themes::{FONT_BIG, FONT_SMALL}}, 
     CoreError, DrawImage,
 };
 use embedded_graphics::{

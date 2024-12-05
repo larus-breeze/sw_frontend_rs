@@ -6,8 +6,9 @@ use crate::{
     basic_config::*,
     model::CoreModel,
     tformat,
-    utils::{Colors, FONT_BIG},
+    utils::Colors,
     CoreError, DrawImage,
+    view::helpers::themes::FONT_BIG
 };
 
 #[allow(unused_imports)]

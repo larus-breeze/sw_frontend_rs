@@ -1,4 +1,19 @@
 use crate::utils::Colors;
+use u8g2_fonts::{fonts, FontRenderer};
+
+#[cfg(feature = "air_avionics_ad57")]
+pub const FONT_SMALL: FontRenderer = FontRenderer::new::<fonts::u8g2_font_helvB14_tf>();
+#[cfg(feature = "larus_frontend_v1")]
+pub const FONT_SMALL: FontRenderer = FontRenderer::new::<fonts::u8g2_font_helvB14_tf>();
+#[cfg(feature = "larus_frontend_v2")]
+pub const FONT_SMALL: FontRenderer = FontRenderer::new::<fonts::u8g2_font_fub17_tf>();
+
+#[cfg(feature = "air_avionics_ad57")]
+pub const FONT_BIG: FontRenderer = FontRenderer::new::<fonts::u8g2_font_fub17_tf>();
+#[cfg(feature = "larus_frontend_v1")]
+pub const FONT_BIG: FontRenderer = FontRenderer::new::<fonts::u8g2_font_fub20_tf>();
+#[cfg(feature = "larus_frontend_v2")]
+pub const FONT_BIG: FontRenderer = FontRenderer::new::<fonts::u8g2_font_fub30_tf>();
 
 pub type PaletteColors = [Colors; 20];
 
