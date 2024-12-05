@@ -214,6 +214,7 @@ impl Vario {
             RADIUS as i32 + 1,
             DIMS.mc_len as i32,
             DIMS.mc_width,
+            DIMS.angle_m_s,
             cm.color(Palette::Needle2),
         )?;
 
@@ -371,6 +372,7 @@ impl Vario {
             (RADIUS - DIMS.indicator_len) as i32,
             DIMS.tcr_len as i32,
             DIMS.tcr_width,
+            DIMS.angle_m_s,
             cm.color(Palette::Needle3),
         )?;
 
