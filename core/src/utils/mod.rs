@@ -10,7 +10,6 @@ mod metadata;
 mod parse;
 mod persistence;
 mod rgb565_colors;
-pub mod themes;
 mod tstring;
 mod version;
 mod version_check;

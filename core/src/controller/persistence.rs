@@ -6,7 +6,7 @@ use crate::{
     controller::helpers::IntToDuration,
     model::DisplayActive,
     system_of_units::Speed,
-    themes::{BRIGHT_MODE, DARK_MODE},
+    view::helpers::themes::{BRIGHT_MODE, DARK_MODE},
     CoreController, CoreModel, Mass, PersistenceId, PersistenceItem, Pressure,
 };
 
