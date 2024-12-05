@@ -6,14 +6,13 @@ use corelib::{
 use cortex_m::peripheral::Peripherals as CorePeripherals;
 use defmt::*;
 use heapless::{mpmc::MpMcQueue, spsc::Queue};
-use st7789::ST7789;
 use stm32h7xx_hal::{
     adc,
     dma::dma::StreamsTuple,
     independent_watchdog::IndependentWatchdog,
     pac::Peripherals as DevicePeripherals,
     prelude::*,
-    rcc::{rec, rec::AdcClkSel, rec::FmcClkSel, ResetEnable},
+    rcc::{rec, rec::AdcClkSel, ResetEnable},
 };
 
 pub type DevCanDispatch = CanDispatch<VDA, 8, MAX_TX_FRAMES, MAX_RX_FRAMES, DevRng>;
@@ -28,7 +27,6 @@ pub fn hw_init(
     CoreModel,
     DevController,
     DevView,
-    FrameBuffer,
     IdleLoop,
     Keyboard,
     MonoTimer,
@@ -102,7 +100,11 @@ pub fn hw_init(
     let gpiob = dp.GPIOB.split(ccdr.peripheral.GPIOB);
     let gpioc = dp.GPIOC.split(ccdr.peripheral.GPIOC);
     let gpiod = dp.GPIOD.split(ccdr.peripheral.GPIOD);
-    let gpioe = dp.GPIOE.split(ccdr.peripheral.GPIOE);
+    let gpiog = dp.GPIOG.split(ccdr.peripheral.GPIOG);
+    let gpioh = dp.GPIOH.split(ccdr.peripheral.GPIOH);
+    let gpioi = dp.GPIOI.split(ccdr.peripheral.GPIOI);
+    let gpioj = dp.GPIOJ.split(ccdr.peripheral.GPIOJ);
+    let gpiok = dp.GPIOK.split(ccdr.peripheral.GPIOK);
 
     // Switch LCD Backlight off
     let mut backlight_control = gpioc.pc6.into_push_pull_output();
@@ -110,9 +112,9 @@ pub fn hw_init(
 
     // Setup ----------> The front key interface
     let keyboard = {
-        let keyboard_pins = KeyboardPins::new(gpioe.pe5, gpioe.pe6, gpioe.pe4);
+        let keyboard_pins = KeyboardPins::new(gpioa.pa3);
         let enc1_res = Enc1Res::new(ccdr.peripheral.TIM5, dp.TIM5, gpioa.pa0, gpioa.pa1);
-        let enc2_res = Enc2Res::new(ccdr.peripheral.TIM3, dp.TIM3, gpiob.pb4.into(), gpioa.pa7);
+        let enc2_res = Enc2Res::new(ccdr.peripheral.TIM3, dp.TIM3, gpiob.pb4.into(), gpioc.pc7);
         Keyboard::new(keyboard_pins, enc1_res, enc2_res, &Q_EVENTS)
     };
 
@@ -139,35 +141,34 @@ pub fn hw_init(
     let mut core_model = CoreModel::new(uuid(), HW_VERSION, SW_VERSION);
 
     // Setup ----------> Frame buffer, Display
-    let (frame_buffer, dev_view) = {
-        let lcd_pins = LcdPins::new(
-            DataPins16::new(
-                gpiod.pd14, gpiod.pd15, gpiod.pd0, gpiod.pd1, gpioe.pe7, gpioe.pe8, gpioe.pe9,
-                gpioe.pe10, gpioe.pe11, gpioe.pe12, gpioe.pe13, gpioe.pe14, gpioe.pe15, gpiod.pd8,
-                gpiod.pd9, gpiod.pd10,
-            ),
-            gpiod.pd11,
-            gpiod.pd4,
-            gpiod.pd5,
-            gpiod.pd7,
+    let dev_view = {
+        let lcd_pins = LcdPins(gpiob.pb5, gpiog.pg11, gpioh.ph4, gpioh.ph3);
+        St7701s::init(
+            dp.SPI2,
+            ccdr.peripheral.SPI2,
+            lcd_pins,
+            &ccdr.clocks,
+            &mut delay,
         );
-        let pfmc = ccdr.peripheral.FMC;
-        let pfmc = pfmc.kernel_clk_mux(FmcClkSel::Pll2R);
-        let interface = LcdInterface::new(pfmc, dp.FMC, lcd_pins);
+    
+        let ltdc_pins = LtdcPins(
+            gpioa.pa5, gpioa.pa8, gpioc.pc0, gpiod.pd3, gpiog.pg6, gpiog.pg7, gpiog.pg10,
+            gpioi.pi11, gpioi.pi12, gpioi.pi13, 
+            gpioj.pj1, gpioj.pj2, gpioj.pj9, gpioj.pj11, gpioj.pj12, gpioj.pj15,
+            gpiok.pk0, gpiok.pk3, gpiok.pk4, gpiok.pk5, gpiok.pk6, gpiok.pk7,  
+        );
+        let ltdc = Ltdc::init(
+            dp.LTDC, 
+            ltdc_pins, 
+            ccdr.peripheral.LTDC, 
+            &ccdr.clocks, 
+        );
+    
+        let frame_buffer = FrameBuffer::new(ltdc);
+        let display = Display::new(frame_buffer);
 
-        let lcd_reset = gpioc.pc0.into_push_pull_output();
 
-        // Add LCD controller driver
-        let mut lcd = ST7789::new(interface, Some(lcd_reset), None, 320, 240);
-        // Initialise the display and clear the screen
-        lcd.init(&mut delay).unwrap();
-        lcd.set_orientation(st7789::Orientation::PortraitSwapped)
-            .unwrap();
-
-        let stream0 = stm32h7xx_hal::dma::mdma::StreamsTuple::new(dp.MDMA, ccdr.peripheral.MDMA).0;
-
-        let (frame_buffer, display) = FrameBuffer::new(lcd, stream0);
-        (frame_buffer, DevView::new(display, &core_model))
+        DevView::new(display, &core_model)
     };
 
     // Setup ----------> controller
@@ -189,7 +190,6 @@ pub fn hw_init(
             c_rx_frames,
             adc1.enable(),
             gpioa.pa6,
-            gpioc.pc4,
             gpiob.pb1,
         )
     };
@@ -205,8 +205,8 @@ pub fn hw_init(
             .I2C1
             .i2c((scl, sda), 400.kHz(), ccdr.peripheral.I2C1, &ccdr.clocks);
 
-        let pins = SdcardPins::new(
-            gpioc.pc12, gpiod.pd2, gpioc.pc8, gpioc.pc9, gpioc.pc10, gpioc.pc11, gpioe.pe3,
+        let pins = SdcardPins (
+            gpioc.pc12, gpiod.pd2, gpioc.pc8, gpioc.pc9, gpioc.pc10, gpioc.pc11, gpioa.pa15.into(),
         );
 
         // Init filesystem if sdcard available
@@ -246,7 +246,7 @@ pub fn hw_init(
     let (nmea_tx, nmea_rx) = NmeaTxRx::new(
         streams.1,
         streams.2,
-        gpiob.pb14,
+        gpioa.pa9,
         gpiob.pb15,
         dp.USART1,
         ccdr.peripheral.USART1,
@@ -265,7 +265,6 @@ pub fn hw_init(
         core_model,
         dev_controller,
         dev_view,
-        frame_buffer,
         idle_loop,
         keyboard,
         mono,

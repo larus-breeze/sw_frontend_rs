@@ -1,0 +1,219 @@
+use super::CLUT_COLORS;
+use stm32h7xx_hal::{
+    gpio::{self, Speed},
+    pac,
+    rcc::{rec, CoreClocks, ResetEnable},
+};
+
+pub struct LtdcPins(
+    pub gpio::Pin<'A', 5>,  // R4
+    pub gpio::Pin<'A', 8>,  // R6
+    pub gpio::Pin<'C', 0>,  // R5
+    pub gpio::Pin<'D', 3>,  // G7
+    pub gpio::Pin<'G', 6>,  // R7
+    pub gpio::Pin<'G', 7>,  // PCLK
+    pub gpio::Pin<'G', 10>, // B2
+    pub gpio::Pin<'I', 11>, // G6
+    pub gpio::Pin<'I', 12>, // HSYNC
+    pub gpio::Pin<'I', 13>, // VSYNC
+    pub gpio::Pin<'J', 1>,  // R2
+    pub gpio::Pin<'J', 2>,  // R3
+    pub gpio::Pin<'J', 9>,  // G2
+    pub gpio::Pin<'J', 11>, // G4
+    pub gpio::Pin<'J', 12>, // G3
+    pub gpio::Pin<'J', 15>, // B3
+    pub gpio::Pin<'K', 0>,  // G5
+    pub gpio::Pin<'K', 3>,  // B4
+    pub gpio::Pin<'K', 4>,  // B5
+    pub gpio::Pin<'K', 5>,  // B6
+    pub gpio::Pin<'K', 6>,  // B7
+    pub gpio::Pin<'K', 7>,  // DE
+);
+
+pub struct Ltdc {}
+
+impl Ltdc {
+    pub fn init(
+        _ltdc: pac::LTDC,
+        ltdc_pins: LtdcPins,
+        prec: rec::Ltdc,
+        clocks: &CoreClocks,
+    ) -> Self {
+        // The pll3_r_ck (== pixel clock) of 9 Mhz leads to a frame rate of slightly more 
+        // than 30 Hz
+        let _ = clocks.pll3_r_ck().unwrap(); // pll3 must run
+        prec.enable().reset(); // enable peripheral
+
+        ltdc_pins
+            .0
+            .into_alternate::<14>()
+            .speed(Speed::High)
+            .internal_pull_up(true);
+        ltdc_pins
+            .1
+            .into_alternate::<14>()
+            .speed(Speed::High)
+            .internal_pull_up(true);
+        ltdc_pins
+            .2
+            .into_alternate::<14>()
+            .speed(Speed::High)
+            .internal_pull_up(true);
+        ltdc_pins
+            .3
+            .into_alternate::<14>()
+            .speed(Speed::High)
+            .internal_pull_up(true);
+        ltdc_pins
+            .4
+            .into_alternate::<14>()
+            .speed(Speed::High)
+            .internal_pull_up(true);
+        ltdc_pins
+            .5
+            .into_alternate::<14>()
+            .speed(Speed::High)
+            .internal_pull_up(true);
+        ltdc_pins
+            .6
+            .into_alternate::<14>()
+            .speed(Speed::High)
+            .internal_pull_up(true);
+        ltdc_pins
+            .7
+            .into_alternate::<9>()
+            .speed(Speed::High)
+            .internal_pull_up(true);
+        ltdc_pins
+            .8
+            .into_alternate::<14>()
+            .speed(Speed::High)
+            .internal_pull_up(true);
+        ltdc_pins
+            .9
+            .into_alternate::<14>()
+            .speed(Speed::High)
+            .internal_pull_up(true);
+        ltdc_pins
+            .10
+            .into_alternate::<14>()
+            .speed(Speed::High)
+            .internal_pull_up(true);
+        ltdc_pins
+            .11
+            .into_alternate::<14>()
+            .speed(Speed::High)
+            .internal_pull_up(true);
+        ltdc_pins
+            .12
+            .into_alternate::<14>()
+            .speed(Speed::High)
+            .internal_pull_up(true);
+        ltdc_pins
+            .13
+            .into_alternate::<14>()
+            .speed(Speed::High)
+            .internal_pull_up(true);
+        ltdc_pins
+            .14
+            .into_alternate::<9>()
+            .speed(Speed::High)
+            .internal_pull_up(true);
+        ltdc_pins
+            .15
+            .into_alternate::<14>()
+            .speed(Speed::High)
+            .internal_pull_up(true);
+        ltdc_pins
+            .16
+            .into_alternate::<14>()
+            .speed(Speed::High)
+            .internal_pull_up(true);
+        ltdc_pins
+            .17
+            .into_alternate::<14>()
+            .speed(Speed::High)
+            .internal_pull_up(true);
+        ltdc_pins
+            .18
+            .into_alternate::<14>()
+            .speed(Speed::High)
+            .internal_pull_up(true);
+        ltdc_pins
+            .19
+            .into_alternate::<14>()
+            .speed(Speed::High)
+            .internal_pull_up(true);
+        ltdc_pins
+            .20
+            .into_alternate::<14>()
+            .speed(Speed::High)
+            .internal_pull_up(true);
+        ltdc_pins
+            .21
+            .into_alternate::<14>()
+            .speed(Speed::High)
+            .internal_pull_up(true);
+
+        // unsafe is unavoidable and ok during initialization of the hardware
+        //
+        // the details are taken from
+        // https://github.com/larus-breeze/sw_frontend/tree/hw_frontend_stm32h743_hal_lqfp100_rgb18_st7701
+        unsafe {
+            // configure ltdc peripheral
+            let ltdc = &(*pac::LTDC::ptr());
+            ltdc.sscr.write(|w| w.vsh().bits(3));
+            ltdc.sscr.modify(|_, w| w.hsw().bits(5));
+
+            ltdc.bpcr.write(|w| w.avbp().bits(0x0d));
+            ltdc.bpcr.modify(|_, w| w.ahbp().bits(0x17));
+
+            ltdc.awcr.write(|w| w.aah().bits(0x01ed));
+            ltdc.awcr.modify(|_, w| w.aaw().bits(0x01f7));
+
+            ltdc.twcr.write(|w| w.totalh().bits(0x01fd));
+            ltdc.twcr.modify(|_, w| w.totalw().bits(0x020f));
+
+            ltdc.ier.modify(|_, w| w.terrie().set_bit().fuie().set_bit());
+
+            ltdc.gcr.write(|w| w.pcpol().set_bit());
+
+            Ltdc {}
+        }
+    }
+
+    pub fn init_layer(&mut self, frame_bauffer: *const u8) {
+        unsafe {
+            // write color lookup table
+            let ltdc = &(*pac::LTDC::ptr());
+            for clut_entry in CLUT_COLORS {
+                ltdc.layer1.clutwr.write(|w| w.bits(clut_entry));
+            }
+            ltdc.layer1.cr.modify(|_, w| w.cluten().enabled()); // enable clut
+            ltdc.srcr.write(|w| w.imr().set_bit());
+
+            // configure the layer used
+            ltdc.layer1.whpcr.write(|w| w.bits(0x01f7_0018));
+            ltdc.layer1.wvpcr.write(|w| w.bits(0x01ed_000e));
+            ltdc.layer1.pfcr.write(|w| w.bits(0x05));
+            ltdc.layer1.bfcr.write(|w| w.bits(0x0000_0405));
+            ltdc.layer1.cfblr.write(|w| w.bits(0x01e0_01e7));
+            ltdc.layer1.cfblnr.write(|w| w.bits(0x0000_01e0));
+
+            ltdc.layer1.cfbar.write(|w| w.cfbadd().bits(frame_bauffer as u32));
+            ltdc.layer1.cr.modify(|_, w| w.len().enabled()); // enable layer 1
+            ltdc.srcr.write(|w| w.imr().set_bit());
+
+            // activate ltdc peripheral
+            ltdc.gcr.modify(|_, w| w.ltdcen().set_bit()); // enable ltdc
+        }
+    }
+
+    pub fn set_frame_buffer(&mut self, frame_bauffer: *const u8) {
+        unsafe {
+            let ltdc = &(*pac::LTDC::ptr());
+            ltdc.layer1.cfbar.write(|w| w.cfbadd().bits(frame_bauffer as u32));
+            ltdc.srcr.write(|w| w.vbr().set_bit());
+        }
+    }
+}

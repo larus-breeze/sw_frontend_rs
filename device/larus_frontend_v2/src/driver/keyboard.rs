@@ -32,16 +32,12 @@ pub struct Keyboard {
 }
 
 pub struct KeyboardPins {
-    pub btn1: Pin<'E', 5, Input>,
-    pub btn2: Pin<'E', 6, Input>,
-    pub btn_enc: Pin<'E', 4, Input>,
+    pub btn_enc: Pin<'A', 3, Input>,
 }
 
 impl KeyboardPins {
-    pub fn new(btn1: Pin<'E', 5>, btn2: Pin<'E', 6>, btn_enc: Pin<'E', 4>) -> Self {
+    pub fn new(btn_enc: Pin<'A', 3>) -> Self {
         KeyboardPins {
-            btn1: btn1.into_input(),
-            btn2: btn2.into_input(),
             btn_enc: btn_enc.into_input(),
         }
     }
@@ -69,11 +65,11 @@ pub struct Enc2Res {
     tim_p_2: Tim3,
     tim_enc_2: TIM3,
     enc_2a: Pin<'B', 4>,
-    enc_2b: Pin<'A', 7>,
+    enc_2b: Pin<'C', 7>,
 }
 
 impl Enc2Res {
-    pub fn new(tim_p_2: Tim3, tim_enc_2: TIM3, enc_2a: Pin<'B', 4>, enc_2b: Pin<'A', 7>) -> Self {
+    pub fn new(tim_p_2: Tim3, tim_enc_2: TIM3, enc_2a: Pin<'B', 4>, enc_2b: Pin<'C', 7>) -> Self {
         Enc2Res {
             tim_p_2,
             tim_enc_2,
@@ -161,12 +157,6 @@ impl Keyboard {
         // used in the same way as button patterns.
         let mut btn_state = 0u8;
 
-        if self.kbd_pins.btn1.is_low() {
-            btn_state |= BTN_1
-        }
-        if self.kbd_pins.btn2.is_low() {
-            btn_state |= BTN_2
-        }
         if self.kbd_pins.btn_enc.is_low() {
             btn_state |= BTN_ENC
         }

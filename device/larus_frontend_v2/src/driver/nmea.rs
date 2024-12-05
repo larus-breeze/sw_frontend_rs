@@ -21,7 +21,7 @@ impl NmeaTxRx {
     pub fn new(
         _dma1_stream1: Stream1<DMA1>,
         _dma1_stream2: Stream2<DMA1>,
-        tx: Pin<'B', 14>,
+        tx: Pin<'A', 9>,
         rx: Pin<'B', 15>,
         usart1: USART1,
         prec: Usart1,
