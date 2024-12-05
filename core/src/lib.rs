@@ -45,18 +45,6 @@ use embedded_graphics::{draw_target::DrawTarget, geometry::Point, Drawable, Pixe
 #[allow(unused_imports)]
 use micromath::F32Ext;
 
-#[macro_export]
-macro_rules! include_bytes_aligned {
-    ($align_to:expr, $path:expr) => {{
-        #[repr(C, align($align_to))]
-        struct __Aligned<T: ?Sized>(T);
-
-        const __DATA: &'static __Aligned<[u8]> = &__Aligned(*include_bytes!($path));
-
-        &__DATA.0
-    }};
-}
-
 // Basic config
 #[cfg(feature = "air_avionics_ad57")]
 pub mod basic_config {
@@ -69,38 +57,6 @@ pub mod basic_config {
     pub const CONTROLLER_TICK_RATE: u32 = 10;
     pub const SECTION_EDITOR_TIMEOUT: u16 = 3;
     pub const PERSISTENCE_TIMEOUT: u16 = 500;
-
-    pub const BAT_EMPTY_IMG: &[u8] =
-        include_bytes_aligned!(4, "../assets/size_227x285/bat_empty.lif");
-    pub const BAT_FULL_IMG: &[u8] =
-        include_bytes_aligned!(4, "../assets/size_227x285/bat_full.lif");
-    pub const BAT_HALF_IMG: &[u8] =
-        include_bytes_aligned!(4, "../assets/size_227x285/bat_half.lif");
-    pub const GLIDER_IMG: &[u8] = include_bytes_aligned!(4, "../assets/size_227x285/glider.lif");
-    pub const NORTH_IMG: &[u8] = include_bytes_aligned!(4, "../assets/size_227x285/north.lif");
-    pub const SPIRAL_IMG: &[u8] = include_bytes_aligned!(4, "../assets/size_227x285/spiral.lif");
-    pub const STRAIGHT_IMG: &[u8] =
-        include_bytes_aligned!(4, "../assets/size_227x285/straight.lif");
-    pub const KM_H_IMG: &[u8] = include_bytes_aligned!(4, "../assets/size_227x285/km_h.lif");
-    pub const M_S_IMG: &[u8] = include_bytes_aligned!(4, "../assets/size_227x285/m_s.lif");
-    pub const SAT_IMG: &[u8] = include_bytes_aligned!(4, "../assets/size_227x285/sat.lif");
-    pub const WP_HORIZON_IMG: &[u8] =
-        include_bytes_aligned!(4, "../assets/size_227x285/wp_horizon.lif");
-    pub const WP_VARIO_IMG: &[u8] =
-        include_bytes_aligned!(4, "../assets/size_227x285/wp_vario.lif");
-    pub const WP_VARIO_SCALE: [(i32, i32, &str); 11] = [
-        (202, 248, "5"),
-        (156, 267, "4"),
-        (105, 265, "3"),
-        (61, 241, "2"),
-        (30, 202, "1"),
-        (20, 153, "0"),
-        (30, 103, "1"),
-        (61, 64, "2"),
-        (105, 40, "3"),
-        (156, 38, "4"),
-        (202, 57, "5"),
-    ];
 }
 
 #[cfg(feature = "larus_frontend_v1")]
@@ -114,38 +70,6 @@ pub mod basic_config {
     pub const CONTROLLER_TICK_RATE: u32 = 10;
     pub const SECTION_EDITOR_TIMEOUT: u16 = 3;
     pub const PERSISTENCE_TIMEOUT: u16 = 500;
-
-    pub const BAT_EMPTY_IMG: &[u8] =
-        include_bytes_aligned!(4, "../assets/size_240x320/bat_empty.lif");
-    pub const BAT_FULL_IMG: &[u8] =
-        include_bytes_aligned!(4, "../assets/size_240x320/bat_full.lif");
-    pub const BAT_HALF_IMG: &[u8] =
-        include_bytes_aligned!(4, "../assets/size_240x320/bat_half.lif");
-    pub const GLIDER_IMG: &[u8] = include_bytes_aligned!(4, "../assets/size_240x320/glider.lif");
-    pub const NORTH_IMG: &[u8] = include_bytes_aligned!(4, "../assets/size_240x320/north.lif");
-    pub const SPIRAL_IMG: &[u8] = include_bytes_aligned!(4, "../assets/size_240x320/spiral.lif");
-    pub const STRAIGHT_IMG: &[u8] =
-        include_bytes_aligned!(4, "../assets/size_240x320/straight.lif");
-    pub const KM_H_IMG: &[u8] = include_bytes_aligned!(4, "../assets/size_240x320/km_h.lif");
-    pub const M_S_IMG: &[u8] = include_bytes_aligned!(4, "../assets/size_240x320/m_s.lif");
-    pub const SAT_IMG: &[u8] = include_bytes_aligned!(4, "../assets/size_240x320/sat.lif");
-    pub const WP_HORIZON_IMG: &[u8] =
-        include_bytes_aligned!(4, "../assets/size_240x320/wp_horizon.lif");
-    pub const WP_VARIO_IMG: &[u8] =
-        include_bytes_aligned!(4, "../assets/size_240x320/wp_vario.lif");
-    pub const WP_VARIO_SCALE: [(i32, i32, &str); 11] = [
-        (217, 282, "5"),
-        (166, 299, "4"),
-        (112, 293, "3"),
-        (65, 266, "2"),
-        (34, 223, "1"),
-        (23, 170, "0"),
-        (34, 117, "1"),
-        (65, 74, "2"),
-        (112, 47, "3"),
-        (166, 41, "4"),
-        (217, 58, "5"),
-    ];
 }
 
 #[cfg(feature = "larus_frontend_v2")]
@@ -159,38 +83,6 @@ pub mod basic_config {
     pub const CONTROLLER_TICK_RATE: u32 = 10;
     pub const SECTION_EDITOR_TIMEOUT: u16 = 3;
     pub const PERSISTENCE_TIMEOUT: u16 = 500;
-
-    pub const BAT_EMPTY_IMG: &[u8] =
-        include_bytes_aligned!(4, "../assets/size_480x480/bat_empty.lif");
-    pub const BAT_FULL_IMG: &[u8] =
-        include_bytes_aligned!(4, "../assets/size_480x480/bat_full.lif");
-    pub const BAT_HALF_IMG: &[u8] =
-        include_bytes_aligned!(4, "../assets/size_480x480/bat_half.lif");
-    pub const GLIDER_IMG: &[u8] = include_bytes_aligned!(4, "../assets/size_480x480/glider.lif");
-    pub const NORTH_IMG: &[u8] = include_bytes_aligned!(4, "../assets/size_480x480/north.lif");
-    pub const SPIRAL_IMG: &[u8] = include_bytes_aligned!(4, "../assets/size_480x480/spiral.lif");
-    pub const STRAIGHT_IMG: &[u8] =
-        include_bytes_aligned!(4, "../assets/size_480x480/straight.lif");
-    pub const KM_H_IMG: &[u8] = include_bytes_aligned!(4, "../assets/size_480x480/km_h.lif");
-    pub const M_S_IMG: &[u8] = include_bytes_aligned!(4, "../assets/size_480x480/m_s.lif");
-    pub const SAT_IMG: &[u8] = include_bytes_aligned!(4, "../assets/size_480x480/sat.lif");
-    pub const WP_HORIZON_IMG: &[u8] =
-        include_bytes_aligned!(4, "../assets/size_480x480/wp_horizon.lif");
-    pub const WP_VARIO_IMG: &[u8] =
-        include_bytes_aligned!(4, "../assets/size_480x480/wp_vario.lif");
-    pub const WP_VARIO_SCALE: [(i32, i32, &str); 11] = [
-        (338, 413, "5"),
-        (261, 445, "4"),
-        (178, 441, "3"),
-        (104, 402, "2"),
-        (54, 336, "1"),
-        (36, 255, "0"),
-        (54, 174, "1"),
-        (104, 108, "2"),
-        (178, 69, "3"),
-        (261, 65, "4"),
-        (338, 97, "5"),
-    ];
 }
 
 /// Trait of a function to bring an image to the screen. The format of the image files is

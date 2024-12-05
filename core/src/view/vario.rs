@@ -1,10 +1,10 @@
 use super::{
     helpers::sprites::*,
+    helpers::images::images::*,
     helpers::themes::Palette,
     CENTER, DIAMETER, RADIUS,
 };
 use crate::{
-    basic_config::*,
     model::{CoreModel, FlyMode, SystemState, VarioMode},
     system_of_units::FloatToSpeed,
     tformat,
@@ -43,6 +43,7 @@ struct VarioSizes {
     wind_len: i32,
     wind_len_min: i32,
     angle_m_s: f32,
+    wp_vario_scale: [(i32, i32, &'static str); 11],
 }
 
 #[cfg(feature = "air_avionics_ad57")]
@@ -69,6 +70,19 @@ const DIMS: VarioSizes = VarioSizes {
     wind_len: 105,
     wind_len_min: 50,
     angle_m_s: 25.0,
+    wp_vario_scale:[
+        (202, 248, "5"),
+        (156, 267, "4"),
+        (105, 265, "3"),
+        (61, 241, "2"),
+        (30, 202, "1"),
+        (20, 153, "0"),
+        (30, 103, "1"),
+        (61, 64, "2"),
+        (105, 40, "3"),
+        (156, 38, "4"),
+        (202, 57, "5"),
+    ],
 };
 
 #[cfg(feature = "larus_frontend_v1")]
@@ -95,6 +109,19 @@ const DIMS: VarioSizes = VarioSizes {
     wind_len: 105,
     wind_len_min: 50,
     angle_m_s: 24.0,
+    wp_vario_scale: [
+        (217, 282, "5"),
+        (166, 299, "4"),
+        (112, 293, "3"),
+        (65, 266, "2"),
+        (34, 223, "1"),
+        (23, 170, "0"),
+        (34, 117, "1"),
+        (65, 74, "2"),
+        (112, 47, "3"),
+        (166, 41, "4"),
+        (217, 58, "5"),
+    ],
 };
 
 #[cfg(feature = "larus_frontend_v2")]
@@ -121,6 +148,19 @@ const DIMS: VarioSizes = VarioSizes {
     wind_len: 120,
     wind_len_min: 80,
     angle_m_s: 25.0,
+    wp_vario_scale: [
+        (338, 413, "5"),
+        (261, 445, "4"),
+        (178, 441, "3"),
+        (104, 402, "2"),
+        (54, 336, "1"),
+        (36, 255, "0"),
+        (54, 174, "1"),
+        (104, 108, "2"),
+        (178, 69, "3"),
+        (261, 65, "4"),
+        (338, 97, "5"),
+    ],
 };
 
 // Limits of the wind arrow
@@ -170,7 +210,7 @@ impl Vario {
         )?;
         display.draw_img(M_S_IMG, DIMS.unit_pos, Some(cm.color(Palette::Background)))?;
 
-        for (pos_x, pos_y, txt) in WP_VARIO_SCALE {
+        for (pos_x, pos_y, txt) in DIMS.wp_vario_scale {
             let pos = Point::new(pos_x, pos_y);
             FONT_BIG.render(
                 txt,

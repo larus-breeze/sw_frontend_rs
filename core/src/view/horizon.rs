@@ -1,9 +1,9 @@
 use super::{
     DISPLAY_HEIGHT, DISPLAY_WIDTH,
     helpers::themes::Palette,
+    helpers::images::images::*,
 };
 use crate::{
-    basic_config::*,
     model::CoreModel,
     tformat,
     utils::Colors,
