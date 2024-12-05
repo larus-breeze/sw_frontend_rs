@@ -1,4 +1,3 @@
-mod can_frame;
 mod colors16;
 mod colors8;
 mod crc;
@@ -16,7 +15,6 @@ mod tstring;
 mod version;
 mod version_check;
 
-pub use can_frame::*;
 #[cfg(feature = "larus_frontend_v1")]
 pub use colors16::Colors;
 #[cfg(feature = "larus_frontend_v2")]

@@ -1,3 +1,4 @@
+pub mod can_frame;
 pub mod can_ids;
 mod can_rdr;
 mod can_wtr;
