@@ -1520,9 +1520,9 @@ pub const POLARS: [BasicGliderData; POLAR_COUNT] = [
         max_speed: 250.0,
         empty_mass: 272.0,
         max_ballast: 0.0,
-        reference_weight: 470.0,
+        reference_weight: 472.0,
         handicap: 54,
-        polar_values: [[82.3, -0.960], [130.0, -1.740], [170.0, -3.440]],
+        polar_values: [[71.5, -0.960], [113.0, -1.740], [147.7, -3.440]],
     },
     BasicGliderData {
         // No 138,  imported from XCSoar

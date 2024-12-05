@@ -7,6 +7,8 @@ This section contains the sources for the hardware adaptation to the Air Avionic
 - You must first [install the Rust environment](https://www.rust-lang.org/tools/install). 
 - Then you will [enable support for the embedded hardware](https://docs.rust-embedded.org/book/intro/install.html). You will need the Cortex M4F and Cortex M7F architecture ($ rustup target add thumbv7em-none-eabihf).
 - It is recommended to use [Visual Studio Code](https://code.visualstudio.com/) as a development environment. You will also need the plugins CodeLLDB, Cortex-Debug, rust-analyzer.
+- If you want to use the make_image.sh script, you must first create a virtual Python environment under .venv  in the project root directory. Install the Python libraries `pyelftools` and `toml` here. 
+
 
 Install Firmware from SdCard
 ---

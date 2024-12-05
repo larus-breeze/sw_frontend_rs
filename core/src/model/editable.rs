@@ -199,6 +199,7 @@ pub fn set_f32_content(cm: &mut CoreModel, cc: &mut CoreController, val: f32, ta
     }
 }
 
+#[allow(clippy::single_match)]
 pub fn set_polar_content(cm: &mut CoreModel, cc: &mut CoreController, val: i32, target: Editable) {
     match target {
         Editable::Glider => cc.persist_set_glider_idx(cm, val, Echo::None),
