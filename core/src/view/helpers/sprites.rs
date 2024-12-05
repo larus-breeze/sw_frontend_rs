@@ -8,7 +8,7 @@ use micromath::F32Ext;
 
 use crate::{
     utils::Colors,
-    view::{CENTER, VARIO_SIZES as SZS},
+    view::CENTER,
     CoreError,
 };
 
@@ -136,13 +136,14 @@ pub fn scale_marker<D>(
     radius: i32,
     len: i32,
     width: f32,
+    angle_m_s: f32,
     color: Colors,
 ) -> Result<(), CoreError>
 where
     D: DrawTarget<Color = Colors, Error = CoreError>,
 {
-    fn scale_coord(center: Point, value: f32, radius: i32) -> Point {
-        let angle = (SZS.angle_m_s * value).deg();
+    fn scale_coord(center: Point, value: f32, radius: i32, angle_m_s: f32) -> Point {
+        let angle = (angle_m_s * value).deg();
         center
             + Point::new(
                 -(angle.to_radians().cos() * (radius + 3) as f32) as i32,
@@ -150,9 +151,9 @@ where
             )
     }
 
-    let p1 = scale_coord(center, value + width, radius);
-    let p2 = scale_coord(center, value - width, radius);
-    let p3 = scale_coord(center, value, radius - len);
+    let p1 = scale_coord(center, value + width, radius, angle_m_s);
+    let p2 = scale_coord(center, value - width, radius, angle_m_s);
+    let p3 = scale_coord(center, value, radius - len, angle_m_s);
     Triangle::new(p1, p2, p3)
         .into_styled(PrimitiveStyle::with_fill(color))
         .draw(display)?;
@@ -170,13 +171,14 @@ pub fn inverted_scale_marker<D>(
     radius: i32,
     len: i32,
     width: f32,
+    angle_m_s: f32,
     color: Colors,
 ) -> Result<(), CoreError>
 where
     D: DrawTarget<Color = Colors, Error = CoreError>,
 {
-    fn scale_coord(center: Point, value: f32, radius: i32) -> Point {
-        let angle = (25.0 * value).deg();
+    fn scale_coord(center: Point, value: f32, radius: i32, angle_m_s: f32) -> Point {
+        let angle = (angle_m_s * value).deg();
         center
             + Point::new(
                 -(angle.to_radians().cos() * (radius + 3) as f32) as i32,
@@ -184,9 +186,9 @@ where
             )
     }
 
-    let p1 = scale_coord(center, value + width, radius - 2);
-    let p2 = scale_coord(center, value - width, radius - 2);
-    let p3 = scale_coord(center, value, radius + len);
+    let p1 = scale_coord(center, value + width, radius - 2, angle_m_s);
+    let p2 = scale_coord(center, value - width, radius - 2, angle_m_s);
+    let p3 = scale_coord(center, value, radius + len, angle_m_s);
     Triangle::new(p1, p2, p3)
         .into_styled(PrimitiveStyle::with_fill(color))
         .draw(display)?;
