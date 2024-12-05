@@ -1,0 +1,13 @@
+{
+	"folders": [
+		{
+			"path": "device/larus_frontend_v1"
+		},
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"cortex-debug.variableUseNaturalFormat": true
+	}
+}

@@ -11,6 +11,12 @@ pub struct NmeaBuffer {
     pub pers_id: Deque<PersistenceId, 16>,
 }
 
+impl Default for NmeaBuffer {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl NmeaBuffer {
     pub const fn new() -> Self {
         NmeaBuffer {
@@ -32,6 +38,12 @@ pub struct RxBuffer {
     idx: usize,
     chunk_idx: usize,
     state: RxState,
+}
+
+impl Default for RxBuffer {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl RxBuffer {
@@ -76,9 +88,9 @@ impl RxBuffer {
     pub fn compare_chunk(&mut self, s: &[u8]) -> Result<(), CoreError> {
         let slice = self.next_chunk()?;
         if slice == s {
-            return Ok(());
+            Ok(())
         } else {
-            return Err(CoreError::ParseError);
+            Err(CoreError::ParseError)
         }
     }
 
@@ -127,6 +139,12 @@ impl RxBuffer {
 pub struct TxBuffer {
     buf: [u8; 82],
     idx: usize,
+}
+
+impl Default for TxBuffer {
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl TxBuffer {

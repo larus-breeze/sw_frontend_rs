@@ -6,12 +6,19 @@ pub struct TString<const CAP: usize> {
     content: [u8; CAP],
 }
 
+impl<const CAP: usize> Default for TString<CAP> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl<const CAP: usize> TString<CAP> {
     pub fn new() -> Self {
         let content = [0_u8; CAP];
         Self { content, length: 0 }
     }
 
+    #[allow(clippy::should_implement_trait)]
     pub fn from_str(s: &str) -> Self {
         let mut content = [0_u8; CAP];
         content[0..s.len()].copy_from_slice(s.as_bytes());
@@ -23,6 +30,10 @@ impl<const CAP: usize> TString<CAP> {
 
     pub fn len(&self) -> usize {
         self.length
+    }
+
+    pub fn is_empty(&self) -> bool {
+        self.length == 0
     }
 
     pub fn to_string(&self) -> String<CAP> {

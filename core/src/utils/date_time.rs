@@ -21,6 +21,12 @@ pub struct DateTime {
     time: Time,
 }
 
+impl Default for DateTime {
+     fn default() -> Self {
+         Self::new()
+     }
+}
+
 impl DateTime {
     pub const fn new() -> Self {
         DateTime {

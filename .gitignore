@@ -6,10 +6,8 @@
 /device/larus_frontend_v2/target
 /device/pc/target
 /device/pc/simulator-0.5.0/target
+/device/pc/simulator-0.5.0/Cargo.lock
 *.f110
 *.pyc
 *.bin
 *.elf
-/device/pc/simulator-0.5.0/Cargo.lock
-/device/common/fmc_lcd/target
-/device/common/fmc_lcd/Cargo.lock

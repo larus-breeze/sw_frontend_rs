@@ -44,6 +44,7 @@ pub struct Config {
     pub sw_version: SwVersion,
     pub av2_climb_rate_tc: f32,
     pub av_speed_to_fly_tc: f32,
+    pub alt_stf_thermal_climb: bool,
     pub theme: &'static PaletteColors,
 }
 
@@ -65,6 +66,7 @@ impl Default for Config {
             sw_version: SwVersion::default(),
             av2_climb_rate_tc: 30.0,
             av_speed_to_fly_tc: 5.0,
+            alt_stf_thermal_climb: false,
             theme: &DARK_MODE,
         }
     }

@@ -3,16 +3,9 @@ use crate::driver::r61580::{
     PORTRAIT_ORIGIN_X, PORTRAIT_ORIGIN_Y, R61580,
 };
 use core::{convert::TryInto, mem::transmute, ptr::addr_of};
-use corelib::{
-    basic_config::{DISPLAY_HEIGHT, DISPLAY_WIDTH},
-    Colors, CoreError, DrawImage, RGB565_COLORS,
-};
+use corelib::{basic_config::DISPLAY_WIDTH, Colors, CoreError, DrawImage, RGB565_COLORS};
 use embedded_graphics::{
-    draw_target::DrawTarget,
-    geometry::{OriginDimensions, Point},
-    prelude::*,
-    primitives::Rectangle,
-    Pixel,
+    draw_target::DrawTarget, geometry::OriginDimensions, prelude::*, primitives::Rectangle, Pixel,
 };
 use embedded_hal::blocking::delay::DelayUs;
 use st7789::ST7789;
@@ -236,39 +229,9 @@ impl OriginDimensions for Display {
 }
 
 impl DrawImage for Display {
-    fn draw_img(
-        &mut self,
-        img: &[u8],
-        offset: Point,
-        cover_up: Option<Colors>,
-    ) -> Result<(), CoreError> {
-        // Safety: the img format has been defined in terms of compatibility,(_fsmc,  so the conversion is ok here
-        let img16 =
-            unsafe { core::slice::from_raw_parts(img.as_ptr() as *const u16, img.len() / 2) };
-        // At the moment we only know format 1
-        assert!(img16[0] == 1);
-
-        // The image is really built for our display?
-        assert!(img16[1] == DISPLAY_WIDTH as u16);
-        assert!(img16[2] + offset.y as u16 <= DISPLAY_HEIGHT as u16);
-
-        // Let's write the pixels
-        let color_cnt = img16[3];
-        let mut idx = 4;
-        let ofs = offset.x as usize + offset.y as usize * DISPLAY_WIDTH as usize;
-        for _ in 0..color_cnt {
-            let color = if let Some(color) = cover_up {
-                color as u8
-            } else {
-                img16[idx] as u8
-            };
-            let px_cnt = img16[idx + 1] as usize;
-            idx += 2;
-            for b_idx in img16.iter().skip(idx).take(px_cnt) {
-                self.buf[*b_idx as usize + ofs] = color;
-            }
-            idx += px_cnt;
+    fn draw_line_unchecked(&mut self, idx: usize, len: usize, color: Colors) {
+        for dx in 0..len {
+            self.buf[idx + dx] = color.into_storage();
         }
-        Ok(())
     }
 }

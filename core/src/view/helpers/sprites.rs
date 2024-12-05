@@ -55,6 +55,7 @@ where
 ///
 /// The wind arrow is pointed at the front and open at the back. It has a length and a width. An angle of 0 means that the
 /// arrow points upwards.
+#[allow(clippy::too_many_arguments)]
 pub fn wind_arrow<D>(
     display: &mut D,
     center: Point,
@@ -63,6 +64,8 @@ pub fn wind_arrow<D>(
     len: i32,
     fill_color: Colors,
     stroke_color: Colors,
+    tail_thick: u32,
+    tail_color: Colors,
 ) -> Result<(), CoreError>
 where
     D: DrawTarget<Color = Colors, Error = CoreError>,
@@ -116,6 +119,8 @@ where
         (w2, w1)
     };
 
+    // Draw wind tail
+    let style = PrimitiveStyle::with_stroke(tail_color, tail_thick);
     Arc::with_center(CENTER, (2.0 * l1) as u32, 90.0.deg() + w1, w2 - w1)
         .into_styled(style)
         .draw(display)

@@ -120,7 +120,7 @@ impl Default for Control {
             fly_mode: FlyMode::StraightFlight,
             vario_mode: VarioMode::SpeedToFly,
             vario_mode_control: VarioModeControl::Auto,
-            vario_mode_switch_ratio: 1.05,
+            vario_mode_switch_ratio: 1.10,
             speed_to_fly_limit: 105.0.km_h(),
             pers_ticks: 0,
             firmware_update_state: DeviceEvent::UploadFinished,

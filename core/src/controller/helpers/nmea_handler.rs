@@ -85,7 +85,7 @@ impl CoreController {
     }
 
     pub fn nmea_next(&mut self, cm: &mut CoreModel) -> Option<&[u8]> {
-        if self.nmea_buffer.pers_id.len() > 0 {
+        if !self.nmea_buffer.pers_id.is_empty() {
             let id = self.nmea_buffer.pers_id.pop_front().unwrap();
             return self.nmea_plars(cm, id);
         }

@@ -8,7 +8,7 @@ pub trait ParseSlice {
 
 impl ParseSlice for u32 {
     fn from_slice(slice: &[u8]) -> Result<Self, CoreError> {
-        if slice.len() == 0 {
+        if slice.is_empty() {
             return Err(CoreError::ParseError);
         }
 
@@ -18,7 +18,7 @@ impl ParseSlice for u32 {
                 b'0'..=b'9' => *c as u32 - 48,
                 _ => return Err(CoreError::ParseError),
             };
-            if u > (u32::max_value() - add) / 10 {
+            if u > (u32::MAX - add) / 10 {
                 return Err(CoreError::ParseError);
             }
             u = u * 10 + add;
@@ -29,7 +29,7 @@ impl ParseSlice for u32 {
 
 impl ParseSlice for i32 {
     fn from_slice(slice: &[u8]) -> Result<Self, CoreError> {
-        if slice.len() == 0 {
+        if slice.is_empty() {
             return Err(CoreError::ParseError);
         }
 
@@ -45,7 +45,7 @@ impl ParseSlice for i32 {
                 b'0'..=b'9' => *c as i32 - 48,
                 _ => return Err(CoreError::ParseError),
             };
-            if u > (i32::max_value() - add) / 10 {
+            if u > (i32::MAX - add) / 10 {
                 return Err(CoreError::ParseError);
             }
             u = u * 10 + add;
@@ -60,7 +60,7 @@ impl ParseSlice for i32 {
 
 impl ParseSlice for f32 {
     fn from_slice(slice: &[u8]) -> Result<Self, CoreError> {
-        if slice.len() == 0 {
+        if slice.is_empty() {
             return Err(CoreError::ParseError);
         }
 
@@ -80,7 +80,7 @@ impl ParseSlice for f32 {
             match c {
                 b'0'..=b'9' => {
                     let add = *c as i32 - 48;
-                    if u > (i32::max_value() - add) / 10 {
+                    if u > (i32::MAX - add) / 10 {
                         return Err(CoreError::ParseError);
                     }
                     u = u * 10 + add;
