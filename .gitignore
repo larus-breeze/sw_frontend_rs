@@ -3,6 +3,7 @@
 /core/Cargo.lock
 /device/air_avionics_ad57/target
 /device/larus_frontend_v1/target
+/device/larus_frontend_v2/target
 /device/pc/target
 /device/pc/simulator-0.5.0/target
 *.f110
