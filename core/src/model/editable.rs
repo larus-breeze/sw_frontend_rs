@@ -1,6 +1,6 @@
 use crate::{
     model::VarioModeControl,
-    themes::{BRIGHT_MODE, DARK_MODE},
+    view::helpers::themes::{BRIGHT_MODE, DARK_MODE},
     utils::TString,
     CoreController, CoreModel, Echo, Editable, FloatToMass, FloatToSpeed, PersistenceId,
     POLAR_COUNT,

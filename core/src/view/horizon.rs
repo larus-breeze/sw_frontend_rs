@@ -1,9 +1,12 @@
-use super::{DISPLAY_HEIGHT, DISPLAY_WIDTH};
+use super::{
+    DISPLAY_HEIGHT, DISPLAY_WIDTH,
+    helpers::themes::Palette,
+};
 use crate::{
     basic_config::*,
     model::CoreModel,
     tformat,
-    utils::{themes::Palette, Colors, FONT_BIG},
+    utils::{Colors, FONT_BIG},
     CoreError, DrawImage,
 };
 

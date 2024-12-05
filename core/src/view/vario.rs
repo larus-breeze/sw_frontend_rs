@@ -1,5 +1,6 @@
 use super::{
-    helpers::sprites::*, // inverted_scale_marker,
+    helpers::sprites::*,
+    helpers::themes::Palette,
     CENTER,
     RADIUS,
     VARIO_SIZES,
@@ -9,7 +10,7 @@ use crate::{
     model::{CoreModel, FlyMode, SystemState, VarioMode},
     system_of_units::FloatToSpeed,
     tformat,
-    utils::{themes::Palette, Colors, FONT_BIG},
+    utils::{Colors, FONT_BIG},
     CoreError, DrawImage,
 };
 
