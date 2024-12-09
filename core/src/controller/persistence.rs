@@ -78,7 +78,7 @@ impl CoreController {
             PersistenceId::Qnh => {
                 PersistenceItem::from_f32(id, cm.sensor.pressure_altitude.qnh().to_hpa())
             }
-            PersistenceId::Display => PersistenceItem::from_u8(id, cm.config.display_active as u8),
+            PersistenceId::Display => PersistenceItem::from_u8(id, cm.config.last_display_active as u8),
             _ => PersistenceItem::do_not_store(),
         };
         self.send_idle_event(crate::IdleEvent::EepromItem(p_item));
@@ -90,8 +90,7 @@ impl CoreController {
     }
 
     pub fn persist_set_display(&mut self, cm: &mut CoreModel, display: DisplayActive, echo: Echo) {
-        cm.config.display_active = display;
-        super::activate_display(cm);
+        cm.config.last_display_active = display;
         self.persist_finish_push(cm, PersistenceId::Display, echo);
     }
 

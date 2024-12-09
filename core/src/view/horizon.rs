@@ -70,7 +70,7 @@ mod c {
 pub struct Horizon {}
 
 impl Horizon {
-    pub fn new(_cm: &CoreModel) -> Horizon {
+    pub fn new() -> Horizon {
         Horizon {}
     }
 

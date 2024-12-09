@@ -1,18 +1,16 @@
 use crate::{
     basic_config::SECTION_EDITOR_TIMEOUT,
     controller::{helpers::IntToDuration, KeyEvent, Timer},
-    model::{editable::*, EditMode},
+    model::{editable::*, DisplayActive, EditMode},
     utils::TString,
-    CoreController, CoreModel, Editable, Polar, POLARS,
+    CoreController, CoreModel, Editable,
 };
 use num::clamp;
-
-use tfmt::Convert;
 
 fn edit_enum_content(
     cm: &mut CoreModel,
     cc: &mut CoreController,
-    key_event: &KeyEvent,
+    key_event: &mut KeyEvent,
     target: Editable,
     params: &EnumParams,
 ) {
@@ -41,19 +39,20 @@ fn edit_enum_content(
                     idx += 1
                 }
             }
-            _ => (),
+            _ => return,
         }
         let idx = clamp(idx, 0, max) as usize;
         let val = params.variants[idx];
-        set_enum_content(cm, cc, &val, target);
+        target.set_enum_content(cm, cc, &val);
         cm.control.editor.content = Content::Enum(val);
+        *key_event = KeyEvent::NoEvent
     }
 }
 
 fn edit_f32_content(
     cm: &mut CoreModel,
     cc: &mut CoreController,
-    key_event: &KeyEvent,
+    key_event: &mut KeyEvent,
     target: Editable,
     params: &F32Params,
 ) {
@@ -63,18 +62,19 @@ fn edit_f32_content(
             KeyEvent::Rotary2Right => val += params.small_inc,
             KeyEvent::Rotary1Left => val -= params.big_inc,
             KeyEvent::Rotary1Right => val += params.big_inc,
-            _ => (),
+            _ => return,
         }
         let val = clamp(val, params.min, params.max);
-        set_f32_content(cm, cc, val, target);
+        target.set_f32_content(cm, cc, val);
         cm.control.editor.content = Content::F32(val);
+        *key_event = KeyEvent::NoEvent
     }
 }
 
 fn edit_polar_content(
     cm: &mut CoreModel,
     cc: &mut CoreController,
-    key_event: &KeyEvent,
+    key_event: &mut KeyEvent,
     target: Editable,
     params: &PolarParams,
 ) {
@@ -84,49 +84,67 @@ fn edit_polar_content(
             KeyEvent::Rotary2Right => val += 1,
             KeyEvent::Rotary1Left => val -= 10,
             KeyEvent::Rotary1Right => val += 10,
-            _ => (),
+            _ => return,
         }
         let val = clamp(val, 0, params.max);
-        set_polar_content(cm, cc, val, target);
-        cc.polar = Polar::new(&POLARS[val as usize], &mut cm.glider_data);
+        target.set_polar_content(cm, cc, val);
         cm.control.editor.content = Content::Polar(val);
+        *key_event = KeyEvent::NoEvent
     }
 }
 
 pub fn key_action(
-    key_event: &KeyEvent,
-    target_changed: bool,
+    key_event: &mut KeyEvent,
     cm: &mut CoreModel,
     cc: &mut CoreController,
 ) {
-    let target = cm.control.softkeys.current();
-    cm.control.editor.target = target;
-    if target_changed {
-        get_params(cm, target);
-        get_content(cm, target);
-        cm.control.editor.mode = EditMode::Section;
+    if cm.control.editor.mode == EditMode::Section {
+        if *key_event == KeyEvent::BtnEnc {
+            let _ = cc.scheduler.stop(Timer::CloseEditFrame, true); // finish edit session
+        } else {
+            cc.scheduler
+                .after(crate::Timer::CloseEditFrame, SECTION_EDITOR_TIMEOUT.secs());
+        }
+    
+        let target =  cm.control.editor.target;
+        cm.control.editor.params = target.params();
+        cm.control.editor.content = target.content(cm);
+    
+        match cm.control.editor.params {
+            Params::Enum(params) => edit_enum_content(cm, cc, key_event, target, &params),
+            Params::String(_) => (),
+            Params::Polar(params) => edit_polar_content(cm, cc, key_event, target, &params),
+            Params::F32(params) => edit_f32_content(cm, cc, key_event, target, &params),
+        }
     }
+    if cm.config.display_active != DisplayActive::Menu {
+        match key_event {
+            KeyEvent::Rotary1Left | KeyEvent::Rotary1Right | 
+            KeyEvent::Rotary2Left | KeyEvent::Rotary2Right => activate_editable(Editable::Volume, cm, cc),
+            KeyEvent::Btn1 => activate_editable(Editable::McCready, cm, cc),
+            KeyEvent::Btn2 => activate_editable(Editable::WaterBallast, cm, cc),
+            KeyEvent::Btn3 => activate_editable(Editable::PilotWeight, cm, cc),
+            KeyEvent::BtnEsc => activate_editable(Editable::VarioModeControl, cm, cc),
+            _ => return,
+        }
+        *key_event = KeyEvent::NoEvent;
+    }
+}
 
-    if *key_event == KeyEvent::BtnEnc {
-        let _ = cc.scheduler.stop(Timer::CloseEditFrame, true); // finish edit session
-    } else {
-        cc.scheduler
-            .after(crate::Timer::CloseEditFrame, SECTION_EDITOR_TIMEOUT.secs());
-    }
-
-    match cm.control.editor.params {
-        Params::Enum(params) => edit_enum_content(cm, cc, key_event, target, &params),
-        Params::String(_) => (),
-        Params::Polar(params) => edit_polar_content(cm, cc, key_event, target, &params),
-        Params::F32(params) => edit_f32_content(cm, cc, key_event, target, &params),
-    }
+pub fn activate_editable(editable: Editable, cm: &mut CoreModel, cc: &mut CoreController) {
+    cm.control.editor.target = editable;
+    cm.control.editor.params = editable.params();
+    cm.control.editor.content = editable.content(cm);
+    cm.control.editor.mode = EditMode::Section;
+    cc.scheduler
+        .after(crate::Timer::CloseEditFrame, SECTION_EDITOR_TIMEOUT.secs());
 }
 
 pub fn close_edit_frame(cm: &mut CoreModel, _cc: &mut CoreController) {
     // Close Editor if open
     cm.control.editor.mode = EditMode::Off;
-    cm.control.softkeys.to_fallback();
 }
+
 
 #[derive(Clone, Copy)]
 pub struct Editor {
@@ -148,48 +166,16 @@ impl Editor {
         Editor {
             target: Editable::None,
             mode: EditMode::Off,
-            params: Params::String(StringParams {
-                text: TString::new(),
-            }),
+            params: Editable::None.params(),
             content: Content::String(TString::new()),
         }
     }
 
     pub fn get_head_line(&self) -> TString<16> {
-        match self.params {
-            Params::Enum(params) => params.text,
-            Params::F32(params) => params.text,
-            Params::Polar(params) => params.text,
-            Params::String(params) => params.text,
-        }
+        self.target.name()
     }
 
-    pub fn get_value_line(&self) -> Convert<20> {
-        let mut conv = Convert::<20>::new(b' ');
-        match self.params {
-            Params::Enum(_params) => {
-                if let Content::Enum(val) = self.content {
-                    conv.write_str(val.as_str()).unwrap();
-                }
-            }
-            Params::F32(params) => {
-                if let Content::F32(val) = self.content {
-                    conv.write_str(params.unit.as_str()).unwrap();
-                    conv.write_u8(b' ').unwrap();
-                    conv.f32(val, params.dec_places as usize).unwrap();
-                }
-            }
-            Params::Polar(_params) => {
-                if let Content::Polar(val) = self.content {
-                    conv.write_str(POLARS[val as usize].name).unwrap();
-                }
-            }
-            Params::String(_params) => {
-                if let Content::String(val) = self.content {
-                    conv.write_str(val.as_str()).unwrap();
-                }
-            }
-        }
-        conv
+    pub fn get_value_line(&self) -> TString<20> {
+        self.target.value_as_str(self.content)
     }
 }

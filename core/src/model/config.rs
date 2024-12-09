@@ -12,6 +12,7 @@ use core::{convert::From, mem::transmute};
 pub enum DisplayActive {
     Vario,
     Horizon,
+    Menu,
     FirmwareUpdate,
     TheEnd,
 }

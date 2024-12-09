@@ -6,12 +6,13 @@ pub mod sw_update;
 
 pub(crate) mod horizon;
 pub(crate) mod vario;
+pub(crate) mod menu_view;
 
 use crate::{
     basic_config::{DISPLAY_HEIGHT, DISPLAY_WIDTH},
     model::{CoreModel, DisplayActive, EditMode},
     utils::Colors,
-    view::{edit::Edit, horizon::Horizon, sw_update::SwUpdate, vario::Vario},
+    view::{edit::Edit, horizon::Horizon, sw_update::SwUpdate, vario::Vario, menu_view::MenuView},
     CoreError, DrawImage,
 };
 
@@ -33,6 +34,7 @@ enum PrimaryView {
     Vario(Vario),
     Horizon(Horizon),
     SwUpade(SwUpdate),
+    MenuView(MenuView),
 }
 
 enum SecondaryView {
@@ -54,7 +56,7 @@ where
     D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
 {
     pub fn new(display: D, core_model: &CoreModel) -> Self {
-        let primary_view = PrimaryView::Vario(Vario::new(core_model));
+        let primary_view = PrimaryView::Vario(Vario::new());
         let core_model = *core_model;
         CoreView {
             display,
@@ -69,9 +71,13 @@ where
         self.core_model = *core_model;
 
         self.primary_view = match core_model.config.display_active {
-            DisplayActive::Horizon => PrimaryView::Horizon(Horizon::new(core_model)),
-            DisplayActive::FirmwareUpdate => PrimaryView::SwUpade(SwUpdate::new(core_model)),
-            _ => PrimaryView::Vario(Vario::new(core_model)),
+            DisplayActive::Horizon => PrimaryView::Horizon(Horizon::new()),
+            DisplayActive::FirmwareUpdate => {
+                let update_state = core_model.control.firmware_update_state;
+                PrimaryView::SwUpade(SwUpdate::new(update_state))
+            },
+            DisplayActive::Menu => PrimaryView::MenuView(MenuView::new()),
+            _ => PrimaryView::Vario(Vario::new()),
         };
 
         self.secondary_view = if core_model.control.editor.mode == EditMode::Section {
@@ -85,6 +91,7 @@ where
         match &self.primary_view {
             PrimaryView::Vario(vario) => vario.draw(&mut self.display, &self.core_model)?,
             PrimaryView::Horizon(horizon) => horizon.draw(&mut self.display, &self.core_model)?,
+            PrimaryView::MenuView(menu_view) => menu_view.draw(&mut self.display, &self.core_model)?,
             PrimaryView::SwUpade(sw_update) => {
                 sw_update.draw(&mut self.display, &self.core_model)?
             }
