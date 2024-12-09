@@ -1,9 +1,9 @@
+use super::{FrameBuffer, TBuffer, AVAIL_PIXELS};
+use corelib::basic_config::{DISPLAY_HEIGHT, DISPLAY_WIDTH};
+use corelib::{Colors, CoreError, DrawImage};
 use embedded_graphics::{
     draw_target::DrawTarget, geometry::OriginDimensions, prelude::*, primitives::Rectangle, Pixel,
 };
-use corelib::{Colors, CoreError, DrawImage};
-use corelib::basic_config::{DISPLAY_HEIGHT, DISPLAY_WIDTH};
-use super::{FrameBuffer, TBuffer, AVAIL_PIXELS};
 
 const PORT_AVAIL_HEI_M1: u32 = DISPLAY_HEIGHT - 1;
 const PORT_AVAIL_WID_M1: u32 = DISPLAY_WIDTH - 1;

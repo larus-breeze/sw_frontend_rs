@@ -30,12 +30,10 @@ fn main() -> ! {
 
     let lcd_pins = LcdPins(gpioc.pc1, gpioc.pc2, gpioa.pa12, gpiod.pd14, gpioe.pe8);
 
-    let ltdc_pins = LtdcPins (
-        gpioc.pc0, gpioa.pa3, gpioa.pa4, gpioa.pa6, gpiob.pb0,
-        gpioe.pe11, gpioe.pe12, gpioe.pe13, gpioe.pe14, gpioe.pe15,
-        gpiob.pb10, gpiob.pb11, gpiod.pd10, gpioc.pc6, gpioc.pc7, 
-        gpioc.pc9, gpioa.pa8, gpioa.pa11, gpioc.pc10, gpiod.pd3, 
-        gpiob.pb8, gpiob.pb9, 
+    let ltdc_pins = LtdcPins(
+        gpioc.pc0, gpioa.pa3, gpioa.pa4, gpioa.pa6, gpiob.pb0, gpioe.pe11, gpioe.pe12, gpioe.pe13,
+        gpioe.pe14, gpioe.pe15, gpiob.pb10, gpiob.pb11, gpiod.pd10, gpioc.pc6, gpioc.pc7,
+        gpioc.pc9, gpioa.pa8, gpioa.pa11, gpioc.pc10, gpiod.pd3, gpiob.pb8, gpiob.pb9,
     );
 
     St7701s::init(
@@ -47,17 +45,17 @@ fn main() -> ! {
     );
 
     let ltdc = Ltdc::init(
-        dp.LTDC, 
-        ltdc_pins, 
-        ccdr.peripheral.LTDC, 
-        &ccdr.clocks, 
+        dp.LTDC,
+        ltdc_pins,
+        ccdr.peripheral.LTDC,
+        &ccdr.clocks,
         &mut delay,
     );
 
     let mut frame_buffer = FrameBuffer::new(ltdc);
     let mut buf = frame_buffer.swap_buffers();
 
-    fn fill_fb(color: u8, buf: &mut[u8]) {
+    fn fill_fb(color: u8, buf: &mut [u8]) {
         for idx in 0..buf.len() {
             buf[idx] = color;
         }

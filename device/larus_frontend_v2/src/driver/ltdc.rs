@@ -39,7 +39,7 @@ impl Ltdc {
         prec: rec::Ltdc,
         clocks: &CoreClocks,
     ) -> Self {
-        // The pll3_r_ck (== pixel clock) of 9 Mhz leads to a frame rate of slightly more 
+        // The pll3_r_ck (== pixel clock) of 9 Mhz leads to a frame rate of slightly more
         // than 30 Hz
         let _ = clocks.pll3_r_ck().unwrap(); // pll3 must run
         prec.enable().reset(); // enable peripheral
@@ -174,7 +174,8 @@ impl Ltdc {
             ltdc.twcr.write(|w| w.totalh().bits(0x01fd));
             ltdc.twcr.modify(|_, w| w.totalw().bits(0x020f));
 
-            ltdc.ier.modify(|_, w| w.terrie().set_bit().fuie().set_bit());
+            ltdc.ier
+                .modify(|_, w| w.terrie().set_bit().fuie().set_bit());
 
             ltdc.gcr.write(|w| w.pcpol().set_bit());
 
@@ -200,7 +201,9 @@ impl Ltdc {
             ltdc.layer1.cfblr.write(|w| w.bits(0x01e0_01e7));
             ltdc.layer1.cfblnr.write(|w| w.bits(0x0000_01e0));
 
-            ltdc.layer1.cfbar.write(|w| w.cfbadd().bits(frame_bauffer as u32));
+            ltdc.layer1
+                .cfbar
+                .write(|w| w.cfbadd().bits(frame_bauffer as u32));
             ltdc.layer1.cr.modify(|_, w| w.len().enabled()); // enable layer 1
             ltdc.srcr.write(|w| w.imr().set_bit());
 
@@ -212,7 +215,9 @@ impl Ltdc {
     pub fn set_frame_buffer(&mut self, frame_bauffer: *const u8) {
         unsafe {
             let ltdc = &(*pac::LTDC::ptr());
-            ltdc.layer1.cfbar.write(|w| w.cfbadd().bits(frame_bauffer as u32));
+            ltdc.layer1
+                .cfbar
+                .write(|w| w.cfbadd().bits(frame_bauffer as u32));
             ltdc.srcr.write(|w| w.vbr().set_bit());
         }
     }

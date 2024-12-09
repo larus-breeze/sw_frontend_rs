@@ -1,18 +1,18 @@
 use embedded_graphics::{draw_target::DrawTarget, geometry::Point};
 
-pub mod edit;
+pub mod editor;
 pub(crate) mod helpers;
-pub mod sw_update;
+pub mod fw_update;
 
 pub(crate) mod horizon;
 pub(crate) mod vario;
-pub(crate) mod menu_view;
+pub(crate) mod menu;
 
 use crate::{
     basic_config::{DISPLAY_HEIGHT, DISPLAY_WIDTH},
     model::{CoreModel, DisplayActive, EditMode},
     utils::Colors,
-    view::{edit::Edit, horizon::Horizon, sw_update::SwUpdate, vario::Vario, menu_view::MenuView},
+    view::{editor::Edit, horizon::Horizon, fw_update::SwUpdate, vario::Vario, menu::MenuView},
     CoreError, DrawImage,
 };
 
