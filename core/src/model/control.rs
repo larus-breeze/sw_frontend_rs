@@ -1,7 +1,7 @@
 use crate::{
-    controller::{CanActive, Editor, Softkeys},
+    controller::{CanActive, Editor},
     system_of_units::{FloatToLength, FloatToSpeed, Length, Speed},
-    utils::DeviceEvent,
+    utils::DeviceEvent, MenuControl,
 };
 
 /// Flymode display variants
@@ -105,10 +105,10 @@ pub struct Control {
     pub tcr_1s_transient_ticks: u32,
     /// Height at the beginning of the climb
     pub tcr_start: Length,
-    /// Handle Softkeys
-    pub softkeys: Softkeys,
     /// General Editor
     pub editor: Editor,
+    /// Menu Control
+    pub menu_control: MenuControl,
 }
 
 impl Default for Control {
@@ -128,8 +128,8 @@ impl Default for Control {
             tcr_1s_climb_ticks: 0,
             tcr_1s_transient_ticks: 0,
             tcr_start: 0.0.m(),
-            softkeys: Softkeys::new(),
             editor: Editor::new(),
+            menu_control: MenuControl::new(),
         }
     }
 }

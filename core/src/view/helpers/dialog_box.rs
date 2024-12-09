@@ -1,6 +1,6 @@
 use super::themes::FONT_BIG;
 use crate::{
-    basic_config::DISPLAY_WIDTH,
+    basic_config::{DISPLAY_HEIGHT, DISPLAY_WIDTH},
     utils::Colors,
     CoreError, DrawImage,
 };
@@ -43,18 +43,21 @@ impl<'a> DialogBox<'a> {
 
         FONT_BIG.render_aligned(
             self.header,
-            Point::new(DISPLAY_WIDTH as i32 / 2, 20),
+            Point::new(DISPLAY_WIDTH as i32 / 2, DISPLAY_HEIGHT as i32 / 14),
             VerticalPosition::Top,
             HorizontalAlignment::Center,
             FontColor::Transparent(self.header_color),
             display,
         )?;
 
-        Line::new(Point::new(0, 60), Point::new(DISPLAY_WIDTH as i32, 60))
+        let y = DISPLAY_HEIGHT as i32 / 5;
+
+        Line::new(Point::new(0, y), Point::new(DISPLAY_WIDTH as i32, y))
             .into_styled(PrimitiveStyle::with_stroke(self.underline_color, 1))
             .draw(display)?;
 
-        let mut y_pos = 80;
+        let mut y_pos = DISPLAY_HEIGHT as i32 / 4;
+        let delty_y = DISPLAY_HEIGHT as i32 / 7;
         for line in text.lines() {
             FONT_BIG.render_aligned(
                 line,
@@ -64,7 +67,7 @@ impl<'a> DialogBox<'a> {
                 FontColor::Transparent(self.text_color),
                 display,
             )?;
-            y_pos += 40;
+            y_pos += delty_y;
         }
 
         Ok(())

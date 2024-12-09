@@ -2,18 +2,15 @@ mod helpers;
 
 pub use helpers::{
     can_ids::{audio_legacy, frontend_legacy, sensor_legacy, GenericId, SpecialId},
-    CanActive, IntToDuration, NmeaBuffer, Scheduler, Softkeys, Tim,
+    CanActive, IntToDuration, NmeaBuffer, Scheduler, Tim,
     can_frame::*,
 };
 
 mod editor;
 pub use editor::{close_edit_frame, Editor};
 
-mod horizon;
-pub use horizon::set_horizon_active;
-
-mod vario;
-pub use vario::set_vario_active;
+mod menu_control;
+pub use menu_control::{MenuControl, close_menu_display};
 
 mod sw_update;
 use sw_update::SwUpdateController;
@@ -32,6 +29,7 @@ use crate::{
     system_of_units::{FloatToSpeed, Speed},
     utils::{KeyEvent, PIdleEvents, Pt1},
     CoreModel, DeviceEvent, IdleEvent, PersistenceId, SdCardCmd, VarioMode, POLARS,
+    Editable,
 };
 use helpers::nmea_cyclic_200ms;
 
@@ -39,20 +37,6 @@ use helpers::nmea_cyclic_200ms;
 use micromath::F32Ext;
 
 use heapless::FnvIndexSet;
-
-#[repr(u8)]
-#[derive(Clone, Copy, PartialEq, Debug)]
-pub enum Editable {
-    Glider,
-    McCready,
-    PilotWeight,
-    VarioModeControl,
-    Volume,
-    WaterBallast,
-    Theme,
-    Display,
-    None,
-}
 
 pub enum Direction {
     Forward,
@@ -72,16 +56,10 @@ pub enum Timer {
     NmeaFast,
     PersistSetting,
     CloseEditFrame,
+    CloseMenu,
 }
 
 pub const MAX_PERS_IDS: usize = 8;
-
-pub fn activate_display(cm: &mut CoreModel) {
-    match cm.config.display_active {
-        DisplayActive::Horizon => set_horizon_active(cm),
-        _ => set_vario_active(cm),
-    }
-}
 
 pub struct CoreController {
     pub polar: Polar,
@@ -91,7 +69,7 @@ pub struct CoreController {
     av2_climb_rate: Pt1<Speed>,
     av_speed_to_fly: Pt1<Speed>,
     pub nmea_buffer: NmeaBuffer,
-    pub scheduler: Scheduler<4>,
+    pub scheduler: Scheduler<5>,
     pub pers_vals: FnvIndexSet<PersistenceId, MAX_PERS_IDS>,
     pub nmea_vals: FnvIndexSet<PersistenceId, MAX_PERS_IDS>,
     p_idle_events: PIdleEvents,
@@ -104,7 +82,6 @@ impl CoreController {
         p_idle_events: PIdleEvents,
         p_tx_frames: PTxFrames<MAX_TX_FRAMES>,
     ) -> Self {
-        activate_display(core_model);
         let polar_idx = core_model.config.glider_idx as usize;
         let polar = Polar::new(&POLARS[polar_idx], &mut core_model.glider_data);
         let av2_climb_rate = Pt1::new(
@@ -122,6 +99,7 @@ impl CoreController {
             Tim::new(nmea_cyclic_200ms),
             Tim::new(store_persistence_ids),
             Tim::new(close_edit_frame),
+            Tim::new(close_menu_display),
         ]);
         scheduler.every(Timer::Ticker1Hz, 1.secs());
         scheduler.every(Timer::NmeaFast, 200.millis());
@@ -159,10 +137,9 @@ impl CoreController {
         }
     }
 
-    pub fn key_action(&mut self, core_model: &mut CoreModel, key_event: &KeyEvent) {
-        // call softkey and edit actions
-        let target_changed = core_model.control.softkeys.key_action(key_event);
-        editor::key_action(key_event, target_changed, core_model, self);
+    pub fn key_action(&mut self, cm: &mut CoreModel, mut key_event: KeyEvent) {
+        editor::key_action(&mut key_event, cm, self); 
+        menu_control::key_action(&mut key_event, cm, self);
     }
 
     /// Call this latest after 1 ms

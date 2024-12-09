@@ -39,17 +39,15 @@ fn main() -> Result<(), core::convert::Infallible> {
     F1 Button 1\n\
     F2 Button 2\n\
     F3 Button 3\n\
-    F4 Button Escape\n\
-    F5 Button Encoder\n\n\
+    F4 Button 4\n\
+\
+    F5 Button Encoder\n
+    F5 Button Encoder 3 seconds\n\n\
 \
     ⇒ Small Encoder right\n\
     ⇐ Small Encoder left\n\
     ⇑  Big Encoder right\n\
     ⇓  Big Encoder left\n\n\
-\
-    F8 Button 1 and Esc fro 3 secs (Domo Mode)\n\
-    F9 Button 1 for 3 secs (Glider)\n\
-    F10 Button 2 for 3 secs (Dark/Bright Mode)\n\n\
 \
     S Key to save image as png file\n\
     U Key to simulate Firmware Update\n\
@@ -79,7 +77,7 @@ fn main() -> Result<(), core::convert::Infallible> {
     let mut controller = CoreController::new(&mut core_model, p_idle_events, p_tx_frames);
     for item in eeprom.iter_over(EepromTopic::ConfigValues) {
         controller.persist_restore_item(&mut core_model, item);
-        println!("Restored {:?}", item);
+        // println!("Restored {:?}", item);
     }
 
     let mut view = CoreView::new(display, &core_model);
@@ -109,10 +107,9 @@ fn main() -> Result<(), core::convert::Infallible> {
                         Keycode::F2 => KeyEvent::Btn2,
                         Keycode::F3 => KeyEvent::Btn3,
                         Keycode::F4 => KeyEvent::BtnEsc,
+
                         Keycode::F5 => KeyEvent::BtnEnc,
-                        Keycode::F8 => KeyEvent::Btn1EscS3,
-                        Keycode::F9 => KeyEvent::Btn1S3,
-                        Keycode::F10 => KeyEvent::Btn2S3,
+                        Keycode::F6 => KeyEvent::BtnEncS3,
 
                         Keycode::S => {
                             img_no += 1;
@@ -155,10 +152,9 @@ fn main() -> Result<(), core::convert::Infallible> {
                 }
                 _ => {}
             }
-            //println!("{:?}", core_model.control.softkeys);
         }
         if key_event != KeyEvent::NoEvent {
-            controller.key_action(&mut core_model, &key_event);
+            controller.key_action(&mut core_model, key_event);
         }
         controller.tick_1ms(millis(), &mut core_model);
         view.prepare(&core_model);
@@ -182,7 +178,7 @@ fn main() -> Result<(), core::convert::Infallible> {
             let idle_event = c_idle_events.dequeue().unwrap();
             match idle_event {
                 IdleEvent::DateTime(_) | IdleEvent::SetGain(_) => (),
-                _ => println!("IdleEvent {:?}", &idle_event),
+                _ => (), // println!("IdleEvent {:?}", &idle_event),
             }
             match idle_event {
                 IdleEvent::EepromItem(item) => {

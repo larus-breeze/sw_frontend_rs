@@ -1,4 +1,4 @@
-use super::helpers::dialog_box::DialogBox;
+use super::helpers::{dialog_box::DialogBox, themes::Palette};
 use crate::{model::CoreModel, tformat, utils::Colors, CoreError, DeviceEvent, DrawImage};
 
 use embedded_graphics::draw_target::DrawTarget;
@@ -9,8 +9,8 @@ pub struct SwUpdate {
 }
 
 impl SwUpdate {
-    pub fn new(cm: &CoreModel) -> SwUpdate {
-        let text = match cm.control.firmware_update_state {
+    pub fn new(update_state: DeviceEvent) -> SwUpdate {
+        let text = match update_state {
             DeviceEvent::FwAvailable(_version) => tformat!(100, "Not used"),
             DeviceEvent::PrepareFwUpload => tformat!(100, "Preparing..."),
             DeviceEvent::UploadInProgress => {
@@ -23,16 +23,16 @@ impl SwUpdate {
         }
     }
 
-    pub fn draw<D>(&self, display: &mut D, _cm: &CoreModel) -> Result<(), CoreError>
+    pub fn draw<D>(&self, display: &mut D, cm: &CoreModel) -> Result<(), CoreError>
     where
         D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
     {
         let mut dialog_box = DialogBox::new(
-            "Firmware Update",
-            Colors::Black,
-            Colors::White,
-            Colors::Gray,
-            Colors::Coral,
+            "FW Update",
+            cm.color(Palette::Background),
+            cm.color(Palette::Scale),
+            cm.color(Palette::Scale),
+            cm.color(Palette::Text1),
         );
         dialog_box.draw(display, self.text.as_str())
     }

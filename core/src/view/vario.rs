@@ -174,7 +174,7 @@ where
     display.draw_img(
         SPIRAL_IMG,
         DIMS.pic_info_1_pos,
-        Some(cm.color(Palette::PicInfo1)),
+        Some(cm.color(Palette::VarioPicInfo1)),
     )?;
     display.draw_img(M_S_IMG, DIMS.info_1_pos, Some(cm.color(Palette::Scale)))?;
     let acr = num::clamp(cm.calculated.thermal_climb_rate.to_m_s(), -9.9, 99.9);
@@ -193,7 +193,7 @@ where
 pub struct Vario {}
 
 impl Vario {
-    pub fn new(_cm: &CoreModel) -> Vario {
+    pub fn new() -> Vario {
         Vario {}
     }
 
@@ -312,12 +312,12 @@ impl Vario {
         let (delta_txt, delta_color) = if delta_speed < 0.0 {
             (
                 tformat!(5, "{:.0}", delta_speed).unwrap(),
-                cm.color(Palette::WindMinus),
+                cm.color(Palette::VarioWindMinus),
             )
         } else {
             (
                 tformat!(5, "+{:.0}", delta_speed).unwrap(),
-                cm.color(Palette::WindPlus),
+                cm.color(Palette::VarioWindPlus),
             )
         };
         let tail_thick = (num::clamp(num::abs(delta_speed), 1.0, 10.0)) as u32;

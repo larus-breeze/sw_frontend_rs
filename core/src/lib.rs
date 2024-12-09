@@ -29,7 +29,7 @@ mod view;
 
 // The core components
 pub use controller::*;
-pub use model::{CoreModel, FlyMode, VarioMode};
+pub use model::{CoreModel, FlyMode, VarioMode, Editable};
 pub use view::{CoreView, FRAME_RATE};
 
 // Some helper functionality
@@ -56,6 +56,7 @@ pub mod basic_config {
     pub const DISPLAY_HEIGHT: u32 = 285;
     pub const CONTROLLER_TICK_RATE: u32 = 10;
     pub const SECTION_EDITOR_TIMEOUT: u16 = 3;
+    pub const MENU_TIMEOUT: u16 = 30;
     pub const PERSISTENCE_TIMEOUT: u16 = 500;
 }
 
@@ -69,6 +70,7 @@ pub mod basic_config {
     pub const DISPLAY_HEIGHT: u32 = 320;
     pub const CONTROLLER_TICK_RATE: u32 = 10;
     pub const SECTION_EDITOR_TIMEOUT: u16 = 3;
+    pub const MENU_TIMEOUT: u16 = 30;
     pub const PERSISTENCE_TIMEOUT: u16 = 500;
 }
 
@@ -82,6 +84,7 @@ pub mod basic_config {
     pub const DISPLAY_HEIGHT: u32 = 480;
     pub const CONTROLLER_TICK_RATE: u32 = 10;
     pub const SECTION_EDITOR_TIMEOUT: u16 = 3;
+    pub const MENU_TIMEOUT: u16 = 30;
     pub const PERSISTENCE_TIMEOUT: u16 = 500;
 }
 

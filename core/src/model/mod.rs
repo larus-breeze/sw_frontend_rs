@@ -3,6 +3,7 @@ mod config;
 mod control;
 mod device;
 pub mod editable;
+pub mod menu;
 mod sensor;
 
 use crate::{flight_physics::GliderData, HwVersion, SwVersion};
@@ -11,6 +12,7 @@ pub use config::{Config, DisplayActive};
 pub use control::{Control, EditMode, FlyMode, SystemState, TcrMode, VarioMode, VarioModeControl};
 use device::Device;
 pub use sensor::{GpsState, Sensor};
+pub use editable::Editable;
 
 /// Data model for the entire device
 ///

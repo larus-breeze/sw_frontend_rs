@@ -9,7 +9,6 @@ use embedded_graphics::{
     prelude::*,
     primitives::{PrimitiveStyleBuilder, Rectangle},
 };
-use tfmt::Convert;
 use u8g2_fonts::types::{FontColor, HorizontalAlignment, VerticalPosition};
 
 const VALUE_COLOR: Colors = Colors::White;
@@ -22,7 +21,7 @@ const HEIGHT: u32 = DISPLAY_HEIGHT * 32 / 100;
 
 pub struct Edit {
     name_str: TString<16>,
-    val_str: Convert<20>,
+    val_str: TString<20>,
 }
 
 impl Edit {
