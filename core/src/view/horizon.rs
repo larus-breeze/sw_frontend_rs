@@ -1,14 +1,6 @@
-use super::{
-    DISPLAY_HEIGHT, DISPLAY_WIDTH,
-    helpers::themes::Palette,
-    helpers::images::images::*,
-};
+use super::{helpers::images::images::*, helpers::themes::Palette, DISPLAY_HEIGHT, DISPLAY_WIDTH};
 use crate::{
-    model::CoreModel,
-    tformat,
-    utils::Colors,
-    CoreError, DrawImage,
-    view::helpers::themes::FONT_BIG
+    model::CoreModel, tformat, utils::Colors, view::helpers::themes::FONT_BIG, CoreError, DrawImage,
 };
 
 #[allow(unused_imports)]

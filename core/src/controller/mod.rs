@@ -1,16 +1,16 @@
 mod helpers;
 
 pub use helpers::{
+    can_frame::*,
     can_ids::{audio_legacy, frontend_legacy, sensor_legacy, GenericId, SpecialId},
     CanActive, IntToDuration, NmeaBuffer, Scheduler, Tim,
-    can_frame::*,
 };
 
 mod editor;
 pub use editor::{close_edit_frame, Editor};
 
 mod menu;
-pub use menu::{MenuControl, close_menu_display};
+pub use menu::{close_menu_display, MenuControl};
 
 mod fw_update;
 use fw_update::SwUpdateController;
@@ -28,8 +28,7 @@ use crate::{
     model::{DisplayActive, EditMode, VarioModeControl},
     system_of_units::{FloatToSpeed, Speed},
     utils::{KeyEvent, PIdleEvents, Pt1},
-    CoreModel, DeviceEvent, IdleEvent, SdCardCmd, VarioMode, POLARS,
-    Editable,
+    CoreModel, DeviceEvent, Editable, IdleEvent, SdCardCmd, VarioMode, POLARS,
 };
 use helpers::nmea_cyclic_200ms;
 
@@ -138,7 +137,7 @@ impl CoreController {
     }
 
     pub fn key_action(&mut self, cm: &mut CoreModel, mut key_event: KeyEvent) {
-        editor::key_action(&mut key_event, cm, self); 
+        editor::key_action(&mut key_event, cm, self);
         menu::key_action(&mut key_event, cm, self);
     }
 

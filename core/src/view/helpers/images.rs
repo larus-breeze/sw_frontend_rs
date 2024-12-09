@@ -1,4 +1,3 @@
-
 #[macro_export]
 macro_rules! include_bytes_aligned {
     ($align_to:expr, $path:expr) => {{
@@ -19,9 +18,12 @@ pub mod images {
         include_bytes_aligned!(4, "../../../assets/size_227x285/bat_full.lif");
     pub const BAT_HALF_IMG: &[u8] =
         include_bytes_aligned!(4, "../../../assets/size_227x285/bat_half.lif");
-    pub const GLIDER_IMG: &[u8] = include_bytes_aligned!(4, "../../../assets/size_227x285/glider.lif");
-    pub const NORTH_IMG: &[u8] = include_bytes_aligned!(4, "../../../assets/size_227x285/north.lif");
-    pub const SPIRAL_IMG: &[u8] = include_bytes_aligned!(4, "../../../assets/size_227x285/spiral.lif");
+    pub const GLIDER_IMG: &[u8] =
+        include_bytes_aligned!(4, "../../../assets/size_227x285/glider.lif");
+    pub const NORTH_IMG: &[u8] =
+        include_bytes_aligned!(4, "../../../assets/size_227x285/north.lif");
+    pub const SPIRAL_IMG: &[u8] =
+        include_bytes_aligned!(4, "../../../assets/size_227x285/spiral.lif");
     pub const STRAIGHT_IMG: &[u8] =
         include_bytes_aligned!(4, "../../../assets/size_227x285/straight.lif");
     pub const KM_H_IMG: &[u8] = include_bytes_aligned!(4, "../../../assets/size_227x285/km_h.lif");
@@ -42,9 +44,12 @@ pub mod images {
         include_bytes_aligned!(4, "../../../assets/size_240x320/bat_full.lif");
     pub const BAT_HALF_IMG: &[u8] =
         include_bytes_aligned!(4, "../../../assets/size_240x320/bat_half.lif");
-    pub const GLIDER_IMG: &[u8] = include_bytes_aligned!(4, "../../../assets/size_240x320/glider.lif");
-    pub const NORTH_IMG: &[u8] = include_bytes_aligned!(4, "../../../assets/size_240x320/north.lif");
-    pub const SPIRAL_IMG: &[u8] = include_bytes_aligned!(4, "../../../assets/size_240x320/spiral.lif");
+    pub const GLIDER_IMG: &[u8] =
+        include_bytes_aligned!(4, "../../../assets/size_240x320/glider.lif");
+    pub const NORTH_IMG: &[u8] =
+        include_bytes_aligned!(4, "../../../assets/size_240x320/north.lif");
+    pub const SPIRAL_IMG: &[u8] =
+        include_bytes_aligned!(4, "../../../assets/size_240x320/spiral.lif");
     pub const STRAIGHT_IMG: &[u8] =
         include_bytes_aligned!(4, "../../../assets/size_240x320/straight.lif");
     pub const KM_H_IMG: &[u8] = include_bytes_aligned!(4, "../../../assets/size_240x320/km_h.lif");
@@ -65,9 +70,12 @@ pub mod images {
         include_bytes_aligned!(4, "../../../assets/size_480x480/bat_full.lif");
     pub const BAT_HALF_IMG: &[u8] =
         include_bytes_aligned!(4, "../../../assets/size_480x480/bat_half.lif");
-    pub const GLIDER_IMG: &[u8] = include_bytes_aligned!(4, "../../../assets/size_480x480/glider.lif");
-    pub const NORTH_IMG: &[u8] = include_bytes_aligned!(4, "../../../assets/size_480x480/north.lif");
-    pub const SPIRAL_IMG: &[u8] = include_bytes_aligned!(4, "../../../assets/size_480x480/spiral.lif");
+    pub const GLIDER_IMG: &[u8] =
+        include_bytes_aligned!(4, "../../../assets/size_480x480/glider.lif");
+    pub const NORTH_IMG: &[u8] =
+        include_bytes_aligned!(4, "../../../assets/size_480x480/north.lif");
+    pub const SPIRAL_IMG: &[u8] =
+        include_bytes_aligned!(4, "../../../assets/size_480x480/spiral.lif");
     pub const STRAIGHT_IMG: &[u8] =
         include_bytes_aligned!(4, "../../../assets/size_480x480/straight.lif");
     pub const KM_H_IMG: &[u8] = include_bytes_aligned!(4, "../../../assets/size_480x480/km_h.lif");

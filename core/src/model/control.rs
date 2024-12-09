@@ -1,7 +1,8 @@
 use crate::{
     controller::{CanActive, Editor},
     system_of_units::{FloatToLength, FloatToSpeed, Length, Speed},
-    utils::DeviceEvent, MenuControl,
+    utils::DeviceEvent,
+    MenuControl,
 };
 
 /// Flymode display variants

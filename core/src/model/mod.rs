@@ -11,8 +11,8 @@ use calculated::Calculated;
 pub use config::{Config, DisplayActive};
 pub use control::{Control, EditMode, FlyMode, SystemState, TcrMode, VarioMode, VarioModeControl};
 use device::Device;
-pub use sensor::{GpsState, Sensor};
 pub use editable::Editable;
+pub use sensor::{GpsState, Sensor};
 
 /// Data model for the entire device
 ///

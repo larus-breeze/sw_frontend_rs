@@ -93,11 +93,7 @@ fn edit_polar_content(
     }
 }
 
-pub fn key_action(
-    key_event: &mut KeyEvent,
-    cm: &mut CoreModel,
-    cc: &mut CoreController,
-) {
+pub fn key_action(key_event: &mut KeyEvent, cm: &mut CoreModel, cc: &mut CoreController) {
     if cm.control.editor.mode == EditMode::Section {
         if *key_event == KeyEvent::BtnEnc {
             let _ = cc.scheduler.stop(Timer::CloseEditFrame, true); // finish edit session
@@ -105,11 +101,11 @@ pub fn key_action(
             cc.scheduler
                 .after(crate::Timer::CloseEditFrame, SECTION_EDITOR_TIMEOUT.secs());
         }
-    
-        let target =  cm.control.editor.target;
+
+        let target = cm.control.editor.target;
         cm.control.editor.params = target.params();
         cm.control.editor.content = target.content(cm);
-    
+
         match cm.control.editor.params {
             Params::Enum(params) => edit_enum_content(cm, cc, key_event, target, &params),
             Params::String(_) => (),
@@ -119,8 +115,10 @@ pub fn key_action(
     }
     if cm.config.display_active != DisplayActive::Menu {
         match key_event {
-            KeyEvent::Rotary1Left | KeyEvent::Rotary1Right | 
-            KeyEvent::Rotary2Left | KeyEvent::Rotary2Right => activate_editable(Editable::Volume, cm, cc),
+            KeyEvent::Rotary1Left
+            | KeyEvent::Rotary1Right
+            | KeyEvent::Rotary2Left
+            | KeyEvent::Rotary2Right => activate_editable(Editable::Volume, cm, cc),
             KeyEvent::Btn1 => activate_editable(Editable::McCready, cm, cc),
             KeyEvent::Btn2 => activate_editable(Editable::WaterBallast, cm, cc),
             KeyEvent::Btn3 => activate_editable(Editable::PilotWeight, cm, cc),
@@ -145,7 +143,6 @@ pub fn close_edit_frame(cm: &mut CoreModel, _cc: &mut CoreController) {
     cm.control.editor.mode = EditMode::Off;
 }
 
-
 #[derive(Clone, Copy)]
 pub struct Editor {
     pub target: Editable,
@@ -159,7 +156,6 @@ impl Default for Editor {
         Self::new()
     }
 }
-
 
 impl Editor {
     pub fn new() -> Self {

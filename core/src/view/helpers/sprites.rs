@@ -6,11 +6,7 @@ use embedded_graphics::{
 #[allow(unused_imports)]
 use micromath::F32Ext;
 
-use crate::{
-    utils::Colors,
-    view::CENTER,
-    CoreError,
-};
+use crate::{utils::Colors, view::CENTER, CoreError};
 
 /// Draw an indicator
 ///

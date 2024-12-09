@@ -1,18 +1,18 @@
 use embedded_graphics::{draw_target::DrawTarget, geometry::Point};
 
 pub mod editor;
-pub(crate) mod helpers;
 pub mod fw_update;
+pub(crate) mod helpers;
 
 pub(crate) mod horizon;
-pub(crate) mod vario;
 pub(crate) mod menu;
+pub(crate) mod vario;
 
 use crate::{
     basic_config::{DISPLAY_HEIGHT, DISPLAY_WIDTH},
     model::{CoreModel, DisplayActive, EditMode},
     utils::Colors,
-    view::{editor::Edit, horizon::Horizon, fw_update::SwUpdate, vario::Vario, menu::MenuView},
+    view::{editor::Edit, fw_update::SwUpdate, horizon::Horizon, menu::MenuView, vario::Vario},
     CoreError, DrawImage,
 };
 
@@ -75,7 +75,7 @@ where
             DisplayActive::FirmwareUpdate => {
                 let update_state = core_model.control.firmware_update_state;
                 PrimaryView::SwUpade(SwUpdate::new(update_state))
-            },
+            }
             DisplayActive::Menu => PrimaryView::MenuView(MenuView::new()),
             _ => PrimaryView::Vario(Vario::new()),
         };
@@ -91,7 +91,9 @@ where
         match &self.primary_view {
             PrimaryView::Vario(vario) => vario.draw(&mut self.display, &self.core_model)?,
             PrimaryView::Horizon(horizon) => horizon.draw(&mut self.display, &self.core_model)?,
-            PrimaryView::MenuView(menu_view) => menu_view.draw(&mut self.display, &self.core_model)?,
+            PrimaryView::MenuView(menu_view) => {
+                menu_view.draw(&mut self.display, &self.core_model)?
+            }
             PrimaryView::SwUpade(sw_update) => {
                 sw_update.draw(&mut self.display, &self.core_model)?
             }
