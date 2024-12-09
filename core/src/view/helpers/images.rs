@@ -1,3 +1,5 @@
+
+
 #[macro_export]
 macro_rules! include_bytes_aligned {
     ($align_to:expr, $path:expr) => {{
@@ -10,6 +12,7 @@ macro_rules! include_bytes_aligned {
     }};
 }
 
+#[allow(clippy::module_inception)]
 #[cfg(feature = "air_avionics_ad57")]
 pub mod images {
     pub const BAT_EMPTY_IMG: &[u8] =
@@ -35,6 +38,7 @@ pub mod images {
         include_bytes_aligned!(4, "../../../assets/size_227x285/wp_vario.lif");
 }
 
+#[allow(clippy::module_inception)]
 #[cfg(feature = "larus_frontend_v1")]
 pub mod images {
     use crate::include_bytes_aligned;
@@ -61,6 +65,7 @@ pub mod images {
         include_bytes_aligned!(4, "../../../assets/size_240x320/wp_vario.lif");
 }
 
+#[allow(clippy::module_inception)]
 #[cfg(feature = "larus_frontend_v2")]
 pub mod images {
     use crate::include_bytes_aligned;

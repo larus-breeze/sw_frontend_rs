@@ -44,12 +44,10 @@ impl MenuView {
                     } else {
                         cm.color(Palette::Text1Bold)
                     }
-                } else {
-                    if menu_item.is_menu() {
+                } else if menu_item.is_menu() {
                         cm.color(Palette::Text2)
-                    } else {
-                        cm.color(Palette::Text1)
-                    }
+                } else {
+                    cm.color(Palette::Text1)
                 };
                 (menu_item.name(), color)
             }
@@ -79,7 +77,7 @@ impl MenuView {
         const DELTA_Y: i32 = DISPLAY_HEIGHT as i32 / 10;
 
         const X_MARGIN: i32 = (5 * DISPLAY_WIDTH / 100) as i32;
-        const Y_DELTA: i32 = (285 * DELTA_Y / 100) as i32;
+        const Y_DELTA: i32 = 285 * DELTA_Y / 100;
         const Y_SIZE: u32 = 110 * DELTA_Y as u32 / 100;
         let style = PrimitiveStyle::with_stroke(cm.color(Palette::Scale), 1);
 
