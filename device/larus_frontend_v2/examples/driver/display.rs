@@ -1,12 +1,12 @@
+use super::{FrameBuffer, TBuffer, AVAIL_PIXELS};
+use core::{mem, mem::transmute, ptr::addr_of};
+use corelib::basic_config::{DISPLAY_HEIGHT, DISPLAY_WIDTH};
+use corelib::{Colors, CoreError, DrawImage, RGB565_COLORS};
 use embedded_graphics::{
     draw_target::DrawTarget, geometry::OriginDimensions, prelude::*, primitives::Rectangle, Pixel,
 };
-use corelib::{Colors, CoreError, DrawImage, RGB565_COLORS};
-use core::{mem, mem::transmute, ptr::addr_of};
-use corelib::basic_config::{DISPLAY_HEIGHT, DISPLAY_WIDTH};
 use embedded_hal::can::Frame;
 use stm32h7xx_hal::pac;
-use super::{FrameBuffer, TBuffer, AVAIL_PIXELS};
 
 const PORT_AVAIL_HEI_M1: u32 = DISPLAY_HEIGHT - 1;
 const PORT_AVAIL_WID_M1: u32 = DISPLAY_WIDTH - 1;

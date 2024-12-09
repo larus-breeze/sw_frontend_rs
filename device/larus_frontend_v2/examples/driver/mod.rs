@@ -47,7 +47,7 @@ macro_rules! set_clocksys {
 
         $cp.SCB.invalidate_icache();
         $cp.SCB.enable_icache();
-    
+
         ccdr
     }};
 }

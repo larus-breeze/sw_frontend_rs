@@ -3,8 +3,8 @@
 
 use corelib::{basic_config, Colors, DrawImage, FONT_BIG};
 use embedded_graphics::{draw_target::DrawTarget, geometry::Point};
-use u8g2_fonts::types::{FontColor, HorizontalAlignment, VerticalPosition};
 use stm32h7xx_hal::{pac, prelude::*};
+use u8g2_fonts::types::{FontColor, HorizontalAlignment, VerticalPosition};
 
 mod driver;
 
@@ -33,12 +33,10 @@ fn main() -> ! {
 
     let lcd_pins = LcdPins(gpioc.pc1, gpioc.pc2, gpioa.pa12, gpiod.pd14, gpioe.pe8);
 
-    let ltdc_pins = LtdcPins (
-        gpioc.pc0, gpioa.pa3, gpioa.pa4, gpioa.pa6, gpiob.pb0,
-        gpioe.pe11, gpioe.pe12, gpioe.pe13, gpioe.pe14, gpioe.pe15,
-        gpiob.pb10, gpiob.pb11, gpiod.pd10, gpioc.pc6, gpioc.pc7, 
-        gpioc.pc9, gpioa.pa8, gpioa.pa11, gpioc.pc10, gpiod.pd3, 
-        gpiob.pb8, gpiob.pb9, 
+    let ltdc_pins = LtdcPins(
+        gpioc.pc0, gpioa.pa3, gpioa.pa4, gpioa.pa6, gpiob.pb0, gpioe.pe11, gpioe.pe12, gpioe.pe13,
+        gpioe.pe14, gpioe.pe15, gpiob.pb10, gpiob.pb11, gpiod.pd10, gpioc.pc6, gpioc.pc7,
+        gpioc.pc9, gpioa.pa8, gpioa.pa11, gpioc.pc10, gpiod.pd3, gpiob.pb8, gpiob.pb9,
     );
 
     St7701s::init(
@@ -50,10 +48,10 @@ fn main() -> ! {
     );
 
     let ltdc = Ltdc::init(
-        dp.LTDC, 
-        ltdc_pins, 
-        ccdr.peripheral.LTDC, 
-        &ccdr.clocks, 
+        dp.LTDC,
+        ltdc_pins,
+        ccdr.peripheral.LTDC,
+        &ccdr.clocks,
         &mut delay,
     );
 
@@ -62,25 +60,28 @@ fn main() -> ! {
 
     loop {
         display.clear(Colors::Black).unwrap();
-        display.draw_img(
-            basic_config::WP_VARIO_IMG, 
-            Point::new(0, 0), 
-            Some(Colors::White),
-        ).unwrap();
+        display
+            .draw_img(
+                basic_config::WP_VARIO_IMG,
+                Point::new(0, 0),
+                Some(Colors::White),
+            )
+            .unwrap();
         display.show();
         delay.delay_ms(2000_u16);
 
         display.clear(Colors::Blue).unwrap();
-        FONT_BIG.render_aligned(
-            "Hello",
-            Point::new(240, 240),
-            VerticalPosition::Center,
-            HorizontalAlignment::Center,
-            FontColor::Transparent(Colors::White),
-            &mut display,
-        ).unwrap();
+        FONT_BIG
+            .render_aligned(
+                "Hello",
+                Point::new(240, 240),
+                VerticalPosition::Center,
+                HorizontalAlignment::Center,
+                FontColor::Transparent(Colors::White),
+                &mut display,
+            )
+            .unwrap();
         display.show();
         delay.delay_ms(2000_u16);
-
     }
 }

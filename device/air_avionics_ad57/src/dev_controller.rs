@@ -42,9 +42,7 @@ impl DevController {
     pub fn tick_1ms(&mut self, core_model: &mut CoreModel) -> bool {
         while let Some(event) = self.q_events.dequeue() {
             match event {
-                Event::KeyItem(key_event) => {
-                    self.core_controller.key_action(core_model, &key_event)
-                }
+                Event::KeyItem(key_event) => self.core_controller.key_action(core_model, key_event),
                 Event::DeviceItem(device_event) => self
                     .core_controller
                     .device_action(core_model, &device_event),

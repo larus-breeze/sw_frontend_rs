@@ -12,14 +12,14 @@ use stm32h7xx_hal::{
 };
 type FileSysError = SdmmcError<DeviceError>;
 
-pub struct SdcardPins (
-    pub Pin<'C', 12>,   // clk
-    pub Pin<'D', 2>,    // cmd
-    pub Pin<'C', 8>,    // d0
-    pub Pin<'C', 9>,    // d1
-    pub Pin<'C', 10>,   // d2
-    pub Pin<'C', 11>,   // d3
-    pub Pin<'A', 15>,   // detect
+pub struct SdcardPins(
+    pub Pin<'C', 12>, // clk
+    pub Pin<'D', 2>,  // cmd
+    pub Pin<'C', 8>,  // d0
+    pub Pin<'C', 9>,  // d1
+    pub Pin<'C', 10>, // d2
+    pub Pin<'C', 11>, // d3
+    pub Pin<'A', 15>, // detect
 );
 
 pub struct TimeSource;
@@ -80,9 +80,7 @@ impl FileIo {
                 .into_alternate::<12>()
                 .internal_pull_up(false)
                 .speed(Speed::VeryHigh),
-            sdcard_pins
-                .6
-                .into_pull_down_input(),
+            sdcard_pins.6.into_pull_down_input(),
         );
 
         if detect.is_low() {

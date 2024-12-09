@@ -9,11 +9,11 @@ pub use helpers::{
 mod editor;
 pub use editor::{close_edit_frame, Editor};
 
-mod menu_control;
-pub use menu_control::{MenuControl, close_menu_display};
+mod menu;
+pub use menu::{MenuControl, close_menu_display};
 
-mod sw_update;
-use sw_update::SwUpdateController;
+mod fw_update;
+use fw_update::SwUpdateController;
 
 mod tick_1s;
 use tick_1s::*;
@@ -139,7 +139,7 @@ impl CoreController {
 
     pub fn key_action(&mut self, cm: &mut CoreModel, mut key_event: KeyEvent) {
         editor::key_action(&mut key_event, cm, self); 
-        menu_control::key_action(&mut key_event, cm, self);
+        menu::key_action(&mut key_event, cm, self);
     }
 
     /// Call this latest after 1 ms

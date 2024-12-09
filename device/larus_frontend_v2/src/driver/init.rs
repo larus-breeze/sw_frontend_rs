@@ -150,23 +150,17 @@ pub fn hw_init(
             &ccdr.clocks,
             &mut delay,
         );
-    
+
         let ltdc_pins = LtdcPins(
             gpioa.pa5, gpioa.pa8, gpioc.pc0, gpiod.pd3, gpiog.pg6, gpiog.pg7, gpiog.pg10,
-            gpioi.pi11, gpioi.pi12, gpioi.pi13, 
-            gpioj.pj1, gpioj.pj2, gpioj.pj9, gpioj.pj11, gpioj.pj12, gpioj.pj15,
-            gpiok.pk0, gpiok.pk3, gpiok.pk4, gpiok.pk5, gpiok.pk6, gpiok.pk7,  
+            gpioi.pi11, gpioi.pi12, gpioi.pi13, gpioj.pj1, gpioj.pj2, gpioj.pj9, gpioj.pj11,
+            gpioj.pj12, gpioj.pj15, gpiok.pk0, gpiok.pk3, gpiok.pk4, gpiok.pk5, gpiok.pk6,
+            gpiok.pk7,
         );
-        let ltdc = Ltdc::init(
-            dp.LTDC, 
-            ltdc_pins, 
-            ccdr.peripheral.LTDC, 
-            &ccdr.clocks, 
-        );
-    
+        let ltdc = Ltdc::init(dp.LTDC, ltdc_pins, ccdr.peripheral.LTDC, &ccdr.clocks);
+
         let frame_buffer = FrameBuffer::new(ltdc);
         let display = Display::new(frame_buffer);
-
 
         DevView::new(display, &core_model)
     };
@@ -205,8 +199,14 @@ pub fn hw_init(
             .I2C1
             .i2c((scl, sda), 400.kHz(), ccdr.peripheral.I2C1, &ccdr.clocks);
 
-        let pins = SdcardPins (
-            gpioc.pc12, gpiod.pd2, gpioc.pc8, gpioc.pc9, gpioc.pc10, gpioc.pc11, gpioa.pa15.into(),
+        let pins = SdcardPins(
+            gpioc.pc12,
+            gpiod.pd2,
+            gpioc.pc8,
+            gpioc.pc9,
+            gpioc.pc10,
+            gpioc.pc11,
+            gpioa.pa15.into(),
         );
 
         // Init filesystem if sdcard available

@@ -1,4 +1,4 @@
-// This initialization sequence comes from the manufacturer of the driver IC. It works, but is not 
+// This initialization sequence comes from the manufacturer of the driver IC. It works, but is not
 // consistently comprehensible in relation to the data sheet.
 //
 // This data is for initializing the st7701 driver:
@@ -128,13 +128,13 @@ const INIT_SEQ_2: [u16; 5] = [
     0x0160,
 ];
 
+use super::Delay;
 use stm32h7xx_hal::{
     gpio::{self, Output, PinState},
     pac,
     prelude::*,
     rcc::{rec, CoreClocks, ResetEnable},
 };
-use super::Delay;
 
 // These pins are required to control the SPI interface of the driver IC and to reset it.
 pub struct LcdPins(
@@ -146,7 +146,7 @@ pub struct LcdPins(
 
 pub struct St7701s {}
 
-// This driver only initializes the driver IC ST7701S. The image data is then transferred from the 
+// This driver only initializes the driver IC ST7701S. The image data is then transferred from the
 // LTDC periphery to the LCD via RGB, VSync, HSync etc.
 impl St7701s {
     pub fn init(
@@ -159,8 +159,14 @@ impl St7701s {
         let (_mosi, _sck, mut cs, mut reset) = (
             lcd_pins.0.into_alternate::<5>(),
             lcd_pins.1.into_alternate::<5>(),
-            lcd_pins.2.into_push_pull_output_in_state(PinState::High).speed(gpio::Speed::Low),
-            lcd_pins.3.into_push_pull_output_in_state(PinState::High).speed(gpio::Speed::Low),
+            lcd_pins
+                .2
+                .into_push_pull_output_in_state(PinState::High)
+                .speed(gpio::Speed::Low),
+            lcd_pins
+                .3
+                .into_push_pull_output_in_state(PinState::High)
+                .speed(gpio::Speed::Low),
         );
 
         // reset LCD
@@ -193,12 +199,14 @@ impl St7701s {
                 unsafe {
                     let spi2 = &(*pac::SPI2::ptr());
 
-                    spi2.cr1.write(|w| w.ssi().slave_not_selected().spe().disabled());
+                    spi2.cr1
+                        .write(|w| w.ssi().slave_not_selected().spe().disabled());
 
                     spi2.ifcr.write(|w| w.modfc().clear());
                     spi2.cr2.write(|w| w.tsize().bits(1));
 
-                    spi2.cr1.write(|w| w.ssi().slave_not_selected().spe().enabled());
+                    spi2.cr1
+                        .write(|w| w.ssi().slave_not_selected().spe().enabled());
                     while spi2.sr.read().txp().is_full() {}
 
                     spi2.txdr.write(|w| w.bits(*wo as u32));
