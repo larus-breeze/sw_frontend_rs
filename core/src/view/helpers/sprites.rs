@@ -124,7 +124,7 @@ where
 
 /// Draw a scale marker
 ///
-///
+#[allow(clippy::too_many_arguments)]
 pub fn scale_marker<D>(
     display: &mut D,
     center: Point,
@@ -160,6 +160,7 @@ where
 ///
 ///
 #[allow(dead_code)]
+#[allow(clippy::too_many_arguments)]
 pub fn inverted_scale_marker<D>(
     display: &mut D,
     center: Point,

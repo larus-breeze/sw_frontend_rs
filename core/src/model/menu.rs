@@ -44,7 +44,7 @@ pub const ROOT_IDX: usize = 0;
 pub const FLIGHT_MENU_IDX: usize = 1;
 pub const VARIO_SETINGS_IDX: usize = 2;
 
-pub const MENU_LIST: &'static [Menu] = &[ROOT, FLIGHT_MENU, VARIO_SETTINGS];
+pub const MENU_LIST: &[Menu] = &[ROOT, FLIGHT_MENU, VARIO_SETTINGS];
 
 pub const ROOT: Menu = Menu {
     name: "Root",

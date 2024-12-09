@@ -98,7 +98,7 @@ fn main() -> Result<(), core::convert::Infallible> {
         let mut key_event = KeyEvent::NoEvent;
         for event in window.events() {
             match event {
-                SimulatorEvent::Quit=> break 'running,
+                SimulatorEvent::Quit => break 'running,
                 SimulatorEvent::KeyDown { keycode, .. } => {
                     key_event = match keycode {
                         Keycode::Down => KeyEvent::Rotary1Left,
