@@ -50,7 +50,9 @@ fn main() -> Result<(), core::convert::Infallible> {
     ⇓  Big Encoder left\n\n\
 \
     S Key to save image as png file\n\
-    U Key to simulate Firmware Update\n\
+    U Key to simulate Firmware Update\n\n\
+\
+    <ENTER> Button Encoder\n\
 "
     );
 
@@ -96,7 +98,7 @@ fn main() -> Result<(), core::convert::Infallible> {
         let mut key_event = KeyEvent::NoEvent;
         for event in window.events() {
             match event {
-                SimulatorEvent::Quit => break 'running,
+                SimulatorEvent::Quit=> break 'running,
                 SimulatorEvent::KeyDown { keycode, .. } => {
                     key_event = match keycode {
                         Keycode::Down => KeyEvent::Rotary1Left,
@@ -108,9 +110,10 @@ fn main() -> Result<(), core::convert::Infallible> {
                         Keycode::F3 => KeyEvent::Btn3,
                         Keycode::F4 => KeyEvent::BtnEsc,
 
-                        Keycode::F5 => KeyEvent::BtnEnc,
+                        Keycode::F5 | Keycode::Return => KeyEvent::BtnEnc,
                         Keycode::F6 => KeyEvent::BtnEncS3,
 
+                        Keycode::C => break 'running,
                         Keycode::S => {
                             img_no += 1;
                             let img_path = format!("vario_{:03}.png", img_no);

@@ -19,6 +19,8 @@ pub enum Editable {
     None,
     PilotWeight,
     Return,
+    TcClimbRate,
+    TcSpeedToFly,
     Theme,
     VarioModeControl,
     Volume,
@@ -113,6 +115,22 @@ impl Editable {
             Editable::Return => Params::String(StringParams {
                 content: TString::<12>::from_str(""),
             }),
+            Editable::TcClimbRate => Params::F32(F32Params {
+                min: 15.0,
+                max: 120.0,
+                small_inc: 1.0,
+                big_inc: 10.0,
+                dec_places: 0,
+                unit: TString::<5>::from_str("s"),
+            }),
+            Editable::TcSpeedToFly => Params::F32(F32Params {
+                min: 1.0,
+                max: 60.0,
+                small_inc: 1.0,
+                big_inc: 10.0,
+                dec_places: 0,
+                unit: TString::<5>::from_str("s"),
+            }),
             Editable::Theme => Params::Enum(EnumParams {
                 variants: [
                     TString::<12>::from_str("Dark"),
@@ -159,6 +177,8 @@ impl Editable {
             Editable::None => TString::<16>::from_str("None"),
             Editable::PilotWeight => TString::<16>::from_str("Pilot Weight"),
             Editable::Return => TString::<16>::from_str("Return"),
+            Editable::TcClimbRate => TString::<16>::from_str("TC Climb Rate"),
+            Editable::TcSpeedToFly => TString::<16>::from_str("TC Speed to Fly"),
             Editable::Theme => TString::<16>::from_str("Theme"),
             Editable::VarioModeControl => TString::<16>::from_str("Vario Control"),
             Editable::Volume => TString::<16>::from_str("Volume"),
@@ -209,6 +229,8 @@ impl Editable {
             Editable::None => Content::String(TString::<12>::from_str("")),
             Editable::PilotWeight => Content::F32(cm.glider_data.pilot_weight.to_kg()),
             Editable::Return => Content::String(TString::<12>::from_str("")),
+            Editable::TcClimbRate => Content::F32(cm.config.av2_climb_rate_tc),
+            Editable::TcSpeedToFly => Content::F32(cm.config.av_speed_to_fly_tc),
             Editable::Theme => {
                 if cm.config.theme == &DARK_MODE {
                     Content::Enum(TString::<12>::from_str("Dark"))
@@ -258,6 +280,8 @@ impl Editable {
             Editable::Bugs => cc.persist_set_bugs(cm, 1.0 + val / 100.0, Echo::NmeaAndCan),
             Editable::McCready => cc.persist_set_maccready(cm, val.m_s(), Echo::NmeaAndCan),
             Editable::PilotWeight => cc.persist_set_pilot_weight(cm, val.kg(), Echo::NmeaAndCan),
+            Editable::TcClimbRate => cc.persist_set_tc_climb_rate(cm, val, Echo::None),
+            Editable::TcSpeedToFly => cc.persist_set_tc_speed_to_fly(cm, val, Echo::None),
             Editable::Volume => cc.persist_set_volume(cm, val as i8, Echo::NmeaAndCan),
             Editable::WaterBallast => cc.persist_set_water_ballast(cm, val.kg(), Echo::NmeaAndCan),
             _ => (),
