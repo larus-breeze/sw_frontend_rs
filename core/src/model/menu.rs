@@ -96,6 +96,14 @@ pub const VARIO_SETTINGS: Menu = Menu {
             next_menu_idx: VARIO_SETINGS_IDX,
         },
         MenuItem {
+            content: MenuItemContent::EditItem(Editable::TcClimbRate),
+            next_menu_idx: VARIO_SETINGS_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::TcSpeedToFly),
+            next_menu_idx: VARIO_SETINGS_IDX,
+        },
+        MenuItem {
             content: MenuItemContent::EditItem(Editable::Return),
             next_menu_idx: ROOT_IDX,
         },

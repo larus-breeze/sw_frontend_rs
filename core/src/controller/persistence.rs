@@ -24,6 +24,8 @@ pub enum PersistenceId {
     Qnh = 7,
     Bugs = 8,
     Display = 9,
+    TcClimbRate = 10,
+    TcSpeedToFly = 11,
     LastItem,
 }
 
@@ -68,12 +70,14 @@ impl CoreController {
                     &BRIGHT_MODE
                 }
             }
-            PersistenceId::Bugs => cm.glider_data.bugs = item.to_f32(),
             PersistenceId::Qnh => {
                 let qnh = Pressure::from_hpa(item.to_f32());
                 cm.sensor.pressure_altitude.set_qnh(qnh)
             }
+            PersistenceId::Bugs => cm.glider_data.bugs = item.to_f32(),
             PersistenceId::Display => cm.config.display_active = item.to_u8().into(),
+            PersistenceId::TcClimbRate => cm.config.av2_climb_rate_tc = item.to_f32(),
+            PersistenceId::TcSpeedToFly => cm.config.av_speed_to_fly_tc = item.to_f32(),
             _ => (),
         }
     }
@@ -108,6 +112,12 @@ impl CoreController {
             }
             PersistenceId::Display => {
                 PersistenceItem::from_u8(id, cm.config.last_display_active as u8)
+            }
+            PersistenceId::TcClimbRate => {
+                PersistenceItem::from_f32(id, cm.config.av2_climb_rate_tc)
+            }
+            PersistenceId::TcSpeedToFly => {
+                PersistenceItem::from_f32(id, cm.config.av_speed_to_fly_tc)
             }
             _ => PersistenceItem::do_not_store(),
         };
@@ -162,6 +172,16 @@ impl CoreController {
     pub fn persist_set_water_ballast(&mut self, cm: &mut CoreModel, val: Mass, echo: Echo) {
         cm.glider_data.water_ballast = val;
         self.persist_finish_push(cm, PersistenceId::WaterBallast, echo);
+    }
+
+    pub fn persist_set_tc_climb_rate(&mut self, cm: &mut CoreModel, val: f32, echo: Echo) {
+        cm.config.av2_climb_rate_tc = val;
+        self.persist_finish_push(cm, PersistenceId::TcClimbRate, echo);
+    }
+
+    pub fn persist_set_tc_speed_to_fly(&mut self, cm: &mut CoreModel, val: f32, echo: Echo) {
+        cm.config.av_speed_to_fly_tc = val;
+        self.persist_finish_push(cm, PersistenceId::TcSpeedToFly, echo);
     }
 
     fn persist_finish_push(&mut self, cm: &mut CoreModel, id: PersistenceId, echo: Echo) {
