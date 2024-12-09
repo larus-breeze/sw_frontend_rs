@@ -19,7 +19,7 @@ mod tick_1s;
 use tick_1s::*;
 
 mod persistence;
-pub use persistence::{store_persistence_ids, Echo};
+pub use persistence::{store_persistence_ids, Echo, PersistenceId};
 
 use crate::{
     basic_config::{CONTROLLER_TICK_RATE, MAX_TX_FRAMES},
@@ -28,7 +28,7 @@ use crate::{
     model::{DisplayActive, EditMode, VarioModeControl},
     system_of_units::{FloatToSpeed, Speed},
     utils::{KeyEvent, PIdleEvents, Pt1},
-    CoreModel, DeviceEvent, IdleEvent, PersistenceId, SdCardCmd, VarioMode, POLARS,
+    CoreModel, DeviceEvent, IdleEvent, SdCardCmd, VarioMode, POLARS,
     Editable,
 };
 use helpers::nmea_cyclic_200ms;

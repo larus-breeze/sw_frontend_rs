@@ -4,11 +4,39 @@ use super::{VarioModeControl, MAX_PERS_IDS};
 use crate::{
     basic_config::PERSISTENCE_TIMEOUT,
     controller::helpers::IntToDuration,
+    eeprom,
     model::DisplayActive,
     system_of_units::Speed,
     view::helpers::themes::{BRIGHT_MODE, DARK_MODE},
-    CoreController, CoreModel, Mass, PersistenceId, PersistenceItem, Pressure,
+    CoreController, CoreModel, Mass, PersistenceItem, Pressure,
 };
+
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+pub enum PersistenceId {
+    DoNotStore = 65535,
+    Volume = 0,
+    McCready = 1,
+    WaterBallast = 2,
+    PilotWeight = 3,
+    Glider = 4,
+    VarioModeControl = 5,
+    DisplayTheme = 6, // Dark = 0, Bright = 1
+    Qnh = 7,
+    Bugs = 8,
+    Display = 9,
+    LastItem,
+}
+
+impl From<u16> for PersistenceId {
+    fn from(src: u16) -> Self {
+        if src < eeprom::MAX_ITEM_COUNT as u16 && src < PersistenceId::LastItem as u16 {
+            // Safety: Only valid or possible values are transmuted
+            unsafe { core::mem::transmute::<u16, PersistenceId>(src) }
+        } else {
+            panic!()
+        }
+    }
+}
 
 #[derive(PartialEq)]
 pub enum Echo {
