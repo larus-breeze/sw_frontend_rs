@@ -22,9 +22,9 @@ pub struct DateTime {
 }
 
 impl Default for DateTime {
-     fn default() -> Self {
-         Self::new()
-     }
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 impl DateTime {

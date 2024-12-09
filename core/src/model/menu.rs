@@ -44,12 +44,7 @@ pub const ROOT_IDX: usize = 0;
 pub const FLIGHT_MENU_IDX: usize = 1;
 pub const VARIO_SETINGS_IDX: usize = 2;
 
-
-pub const MENU_LIST: &'static [Menu] = &[
-    ROOT,
-    FLIGHT_MENU,
-    VARIO_SETTINGS,
-];
+pub const MENU_LIST: &'static [Menu] = &[ROOT, FLIGHT_MENU, VARIO_SETTINGS];
 
 pub const ROOT: Menu = Menu {
     name: "Root",
@@ -70,6 +65,10 @@ pub const FLIGHT_MENU: Menu = Menu {
             next_menu_idx: ROOT_IDX,
         },
         MenuItem {
+            content: MenuItemContent::EditItem(Editable::Bugs),
+            next_menu_idx: ROOT_IDX,
+        },
+        MenuItem {
             content: MenuItemContent::EditItem(Editable::PilotWeight),
             next_menu_idx: ROOT_IDX,
         },
@@ -81,7 +80,7 @@ pub const FLIGHT_MENU: Menu = Menu {
             content: MenuItemContent::EditItem(Editable::Return),
             next_menu_idx: ROOT_IDX,
         },
-    ]
+    ],
 };
 
 pub const VARIO_SETTINGS: Menu = Menu {
@@ -100,5 +99,5 @@ pub const VARIO_SETTINGS: Menu = Menu {
             content: MenuItemContent::EditItem(Editable::Return),
             next_menu_idx: ROOT_IDX,
         },
-    ]
+    ],
 };

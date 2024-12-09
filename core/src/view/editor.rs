@@ -2,7 +2,10 @@ use crate::{
     basic_config::{DISPLAY_HEIGHT, DISPLAY_WIDTH},
     model::CoreModel,
     utils::{Colors, TString},
-    view::{SCREEN_CENTER, helpers::themes::{FONT_BIG, FONT_SMALL}}, 
+    view::{
+        helpers::themes::{FONT_BIG, FONT_SMALL},
+        SCREEN_CENTER,
+    },
     CoreError, DrawImage,
 };
 use embedded_graphics::{

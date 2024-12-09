@@ -39,7 +39,7 @@ pub enum Palette {
 
     HorizonSky,
     HorizonEarth,
-    
+
     VarioSpeedToFly,
     VarioPicInfo1,
     VarioWindPlus,

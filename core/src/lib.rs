@@ -29,7 +29,7 @@ mod view;
 
 // The core components
 pub use controller::*;
-pub use model::{CoreModel, FlyMode, VarioMode, Editable};
+pub use model::{CoreModel, Editable, FlyMode, VarioMode};
 pub use view::{CoreView, FRAME_RATE};
 
 // Some helper functionality

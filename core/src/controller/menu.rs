@@ -1,7 +1,11 @@
 use crate::{
-    basic_config::MENU_TIMEOUT, controller::{editor, helpers::IntToDuration, EditMode, KeyEvent, Timer}, model::{
-        menu::{Menu, MenuItemContent, FLIGHT_MENU, MENU_LIST, ROOT, VARIO_SETTINGS}, DisplayActive
-    }, CoreController, CoreModel, Editable
+    basic_config::MENU_TIMEOUT,
+    controller::{editor, helpers::IntToDuration, EditMode, KeyEvent, Timer},
+    model::{
+        menu::{Menu, MenuItemContent, FLIGHT_MENU, MENU_LIST, ROOT, VARIO_SETTINGS},
+        DisplayActive,
+    },
+    CoreController, CoreModel, Editable,
 };
 
 #[derive(Clone, Copy)]
@@ -27,17 +31,14 @@ impl MenuControl {
     }
 }
 
-pub fn key_action(
-    key_event: &mut KeyEvent,
-    cm: &mut CoreModel,
-    cc: &mut CoreController,
-) {
+pub fn key_action(key_event: &mut KeyEvent, cm: &mut CoreModel, cc: &mut CoreController) {
     if cm.control.editor.mode == EditMode::Section {
-        return
+        return;
     }
     match cm.config.display_active {
         DisplayActive::Menu => {
-            cc.scheduler.after(crate::Timer::CloseMenu, MENU_TIMEOUT.secs());
+            cc.scheduler
+                .after(crate::Timer::CloseMenu, MENU_TIMEOUT.secs());
             let level = cm.control.menu_control.menu.level;
             match key_event {
                 KeyEvent::Rotary1Left | KeyEvent::Rotary2Left => {
@@ -45,14 +46,16 @@ pub fn key_action(
                         cm.control.menu_control.pos[level] -= 1;
                     }
                     *key_event = KeyEvent::NoEvent
-                },
+                }
                 KeyEvent::Rotary1Right | KeyEvent::Rotary2Right => {
-                    if (cm.control.menu_control.pos[level] + 1) < cm.control.menu_control.menu.items.len() {
+                    if (cm.control.menu_control.pos[level] + 1)
+                        < cm.control.menu_control.menu.items.len()
+                    {
                         cm.control.menu_control.pos[level] += 1;
                     }
                     *key_event = KeyEvent::NoEvent
-                },
-                KeyEvent::BtnEnc  => {
+                }
+                KeyEvent::BtnEnc => {
                     // get menu_item
                     let pos = cm.control.menu_control.pos[level];
                     let menu_item = cm.control.menu_control.menu.items[pos];
@@ -64,25 +67,25 @@ pub fn key_action(
                         close_menu_display(cm, cc);
                     }
 
-                    if let MenuItemContent::EditItem(editable) =  menu_item.content {
-                            if editable != Editable::Return {
-                                editor::activate_editable(editable, cm, cc);
-                            }
+                    if let MenuItemContent::EditItem(editable) = menu_item.content {
+                        if editable != Editable::Return {
+                            editor::activate_editable(editable, cm, cc);
+                        }
                     }
-                },
+                }
                 _ => (),
             };
-        },
+        }
         _ => {
             match key_event {
                 KeyEvent::BtnEnc => {
                     activate_menu(&FLIGHT_MENU, cm, cc);
                     *key_event = KeyEvent::NoEvent;
-                },
+                }
                 KeyEvent::BtnEncS3 => {
                     activate_menu(&VARIO_SETTINGS, cm, cc);
                     *key_event = KeyEvent::NoEvent;
-                },
+                }
                 _ => (),
             };
         }
@@ -98,7 +101,8 @@ pub fn activate_menu(menu: &'static Menu, cm: &mut CoreModel, cc: &mut CoreContr
     }
 
     cm.config.display_active = DisplayActive::Menu;
-    cc.scheduler.after(crate::Timer::CloseMenu, MENU_TIMEOUT.secs());
+    cc.scheduler
+        .after(crate::Timer::CloseMenu, MENU_TIMEOUT.secs());
 }
 
 pub fn close_menu_display(cm: &mut CoreModel, cc: &mut CoreController) {

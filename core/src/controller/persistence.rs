@@ -106,7 +106,9 @@ impl CoreController {
             PersistenceId::Qnh => {
                 PersistenceItem::from_f32(id, cm.sensor.pressure_altitude.qnh().to_hpa())
             }
-            PersistenceId::Display => PersistenceItem::from_u8(id, cm.config.last_display_active as u8),
+            PersistenceId::Display => {
+                PersistenceItem::from_u8(id, cm.config.last_display_active as u8)
+            }
             _ => PersistenceItem::do_not_store(),
         };
         self.send_idle_event(crate::IdleEvent::EepromItem(p_item));

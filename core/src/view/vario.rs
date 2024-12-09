@@ -1,16 +1,14 @@
 use super::{
-    helpers::sprites::*,
-    helpers::images::images::*,
-    helpers::themes::Palette,
-    CENTER, DIAMETER, RADIUS,
+    helpers::images::images::*, helpers::sprites::*, helpers::themes::Palette, CENTER, DIAMETER,
+    RADIUS,
 };
 use crate::{
     model::{CoreModel, FlyMode, SystemState, VarioMode},
     system_of_units::FloatToSpeed,
     tformat,
     utils::Colors,
+    view::helpers::themes::FONT_BIG,
     CoreError, DrawImage,
-    view::helpers::themes::FONT_BIG, 
 };
 
 use embedded_graphics::{
@@ -70,7 +68,7 @@ const DIMS: VarioSizes = VarioSizes {
     wind_len: 105,
     wind_len_min: 50,
     angle_m_s: 25.0,
-    wp_vario_scale:[
+    wp_vario_scale: [
         (202, 248, "5"),
         (156, 267, "4"),
         (105, 265, "3"),
@@ -223,7 +221,11 @@ impl Vario {
 
         // draw battery symbol
         if cm.device.supply_voltage > cm.device.voltage_limit_good {
-            display.draw_img(BAT_FULL_IMG, DIMS.bat_pos, Some(cm.color(Palette::SignalGo)))?;
+            display.draw_img(
+                BAT_FULL_IMG,
+                DIMS.bat_pos,
+                Some(cm.color(Palette::SignalGo)),
+            )?;
         } else if cm.device.supply_voltage < cm.device.voltage_limit_bad {
             display.draw_img(
                 BAT_EMPTY_IMG,
