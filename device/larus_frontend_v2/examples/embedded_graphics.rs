@@ -1,7 +1,7 @@
 #![no_main]
 #![no_std]
 
-use corelib::{basic_config, Colors, DrawImage, FONT_BIG};
+use corelib::{Colors, DrawImage, images, themes};
 use embedded_graphics::{draw_target::DrawTarget, geometry::Point};
 use stm32h7xx_hal::{pac, prelude::*};
 use u8g2_fonts::types::{FontColor, HorizontalAlignment, VerticalPosition};
@@ -62,7 +62,7 @@ fn main() -> ! {
         display.clear(Colors::Black).unwrap();
         display
             .draw_img(
-                basic_config::WP_VARIO_IMG,
+                images::WP_VARIO_IMG,
                 Point::new(0, 0),
                 Some(Colors::White),
             )
@@ -71,7 +71,7 @@ fn main() -> ! {
         delay.delay_ms(2000_u16);
 
         display.clear(Colors::Blue).unwrap();
-        FONT_BIG
+        themes::FONT_BIG
             .render_aligned(
                 "Hello",
                 Point::new(240, 240),

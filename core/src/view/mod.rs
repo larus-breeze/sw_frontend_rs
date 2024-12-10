@@ -2,7 +2,7 @@ use embedded_graphics::{draw_target::DrawTarget, geometry::Point};
 
 pub mod editor;
 pub mod fw_update;
-pub(crate) mod helpers;
+pub mod helpers;
 
 pub(crate) mod horizon;
 pub(crate) mod menu;

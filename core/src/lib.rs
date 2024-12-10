@@ -30,7 +30,7 @@ mod view;
 // The core components
 pub use controller::*;
 pub use model::{CoreModel, Editable, FlyMode, VarioMode};
-pub use view::{CoreView, FRAME_RATE};
+pub use view::{CoreView, FRAME_RATE, helpers::{images::images, themes}};
 
 // Some helper functionality
 pub use common::*;
