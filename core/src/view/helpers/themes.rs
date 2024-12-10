@@ -15,7 +15,7 @@ pub const FONT_BIG: FontRenderer = FontRenderer::new::<fonts::u8g2_font_fub20_tf
 #[cfg(feature = "larus_frontend_v2")]
 pub const FONT_BIG: FontRenderer = FontRenderer::new::<fonts::u8g2_font_fub30_tf>();
 
-pub type PaletteColors = [Colors; 24];
+pub type PaletteColors = [Colors; 26];
 
 pub enum Palette {
     Background,
@@ -36,6 +36,9 @@ pub enum Palette {
     Text1Bold,
     Text2,
     Text2Bold,
+
+    EditBackground,
+    EditStroke,
 
     HorizonSky,
     HorizonEarth,
@@ -66,6 +69,8 @@ pub const DARK_MODE: PaletteColors = [
     Colors::Bisque,       // Text1Bold,
     Colors::LightSkyBlue, // Text2,
     Colors::White,        // Text2Bold,
+    Colors::DarkBlue,     // EditBackground,
+    Colors::DodgerBlue,   // EditStroke,
     Colors::LightSkyBlue, // HorizonSky,
     Colors::Sienna,       // HorizonEarth,
     Colors::Orange,       // VarioSpeedToFly
@@ -94,6 +99,8 @@ pub const DARK_MODE: PaletteColors = [
     Colors::Bisque,       // Text1Bold,
     Colors::LightSkyBlue, // Text2,
     Colors::White,        // Text2Bold,
+    Colors::DarkBlue,     // EditBackground,
+    Colors::DodgerBlue,   // EditStroke,
     Colors::LightSkyBlue, // HorizonSky,
     Colors::Sienna,       // HorizonEarth,
     Colors::Orange,       // VarioSpeedToFly
@@ -122,6 +129,8 @@ pub const DARK_MODE: PaletteColors = [
     Colors::Bisque,       // Text1Bold,
     Colors::LightSkyBlue, // Text2,
     Colors::White,        // Text2Bold,
+    Colors::DarkBlue,     // EditBackground,
+    Colors::DodgerBlue,   // EditStroke,
     Colors::LightSkyBlue, // HorizonSky,
     Colors::Sienna,       // HorizonEarth,
     Colors::Orange,       // VarioSpeedToFly
@@ -150,6 +159,8 @@ pub const BRIGHT_MODE: PaletteColors = [
     Colors::OldLace,      // Text1Bold,
     Colors::LightSkyBlue, // Text2,
     Colors::LightCyan,    // Text2Bold,
+    Colors::DarkBlue,     // EditBackground,
+    Colors::DodgerBlue,   // EditStroke,
     Colors::Azure,        // HorizonSky,
     Colors::Sienna,       // HorizonEarth,
     Colors::Coral,        // VarioSpeedToFly
@@ -178,6 +189,8 @@ pub const BRIGHT_MODE: PaletteColors = [
     Colors::OldLace,      // Text1Bold,
     Colors::LightSkyBlue, // Text2,
     Colors::LightCyan,    // Text2Bold,
+    Colors::DarkBlue,     // EditBackground,
+    Colors::DodgerBlue,   // EditStroke,
     Colors::Azure,        // HorizonSky,
     Colors::Sienna,       // HorizonEarth,
     Colors::Coral,        // VarioSpeedToFly
@@ -206,6 +219,8 @@ pub const BRIGHT_MODE: PaletteColors = [
     Colors::OldLace,      // Text1Bold,
     Colors::LightSkyBlue, // Text2,
     Colors::LightCyan,    // Text2Bold,
+    Colors::DarkBlue,     // EditBackground,
+    Colors::DodgerBlue,   // EditStroke,
     Colors::Azure,        // HorizonSky,
     Colors::Sienna,       // HorizonEarth,
     Colors::Coral,        // VarioSpeedToFly

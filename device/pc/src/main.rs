@@ -201,7 +201,7 @@ fn main() -> Result<(), core::convert::Infallible> {
         while let Some(nmea_data) = controller.nmea_next(&mut core_model) {
             nmea_server.send(nmea_data);
             if nmea_data.len() >= 6 && &nmea_data[0..6] == b"$PLARS" {
-                print!("{}", std::str::from_utf8(nmea_data).unwrap());
+                // print!("{}", std::str::from_utf8(nmea_data).unwrap());
             }
         }
 

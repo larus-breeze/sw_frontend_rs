@@ -1,8 +1,8 @@
 use crate::{
     model::VarioModeControl,
     utils::TString,
-    view::helpers::themes::{BRIGHT_MODE, DARK_MODE},
-    CoreController, CoreModel, Echo, FloatToMass, FloatToSpeed, PersistenceId, Polar, POLARS,
+    view::helpers::themes::DARK_MODE,
+    CoreController, CoreModel, Echo, FloatToMass, FloatToSpeed, Polar, POLARS,
     POLAR_COUNT,
 };
 
@@ -256,13 +256,7 @@ impl Editable {
                 "Horizon" => cc.persist_set_display(cm, DisplayActive::Horizon, Echo::None),
                 _ => cc.persist_set_display(cm, DisplayActive::Vario, Echo::None),
             },
-            Editable::Theme => {
-                cm.config.theme = match val.as_str() {
-                    "Bright" => &BRIGHT_MODE,
-                    _ => &DARK_MODE,
-                };
-                cc.persist_push_id(PersistenceId::DisplayTheme);
-            }
+            Editable::Theme => cc.persist_set_theme(cm, val, Echo::None), 
             Editable::VarioModeControl => {
                 let mode = match val.as_str() {
                     "Vario" => VarioModeControl::Vario,
