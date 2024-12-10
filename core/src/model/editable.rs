@@ -1,3 +1,13 @@
+/// Elements that can be changed by the user
+/// 
+/// Editables are always saved in the model and can be changed by the user. These can be 
+/// parameters, display selection, time constants or other data. With the help of this module, 
+/// the implemented editor is able to display and change such data, save it and, if necessary, 
+/// output it at the NMEA and CAN interfaces.
+/// 
+/// New elements are added in two steps:
+///   - First, the persistence layer is extended (src/controller/persistence.rs, persist_set_xxx() methods)
+///   - Then the enum is extended by the new element (see below)
 use crate::{
     model::VarioModeControl,
     utils::TString,
