@@ -10,7 +10,7 @@ impl CoreModel {
             CanFrame::empty_from_id(0x00)
                 .push_u16(OBJECT_ID)
                 .push_u16(OBJECT_ID_GEN)
-                .push_u32(self.config.uuid),
+                .push_u32(self.device_const.misc.uuid),
             GenericId::Heartbeat as u16,
         )
     }

@@ -1,4 +1,3 @@
-use super::{helpers::images::images::*, DISPLAY_HEIGHT, DISPLAY_WIDTH};
 use crate::{model::CoreModel, tformat, utils::Colors, CoreError, DrawImage};
 
 #[allow(unused_imports)]
@@ -14,52 +13,6 @@ use u8g2_fonts::{
     FontRenderer,
 };
 
-const AH_TOP: i32 = 0;
-const AH_BOTTOM: i32 = DISPLAY_WIDTH as i32;
-const AH_CENTER_Y: i32 = AH_TOP + DISPLAY_WIDTH as i32 / 2;
-const AH_CENTER_X: i32 = DISPLAY_WIDTH as i32 / 2;
-const AH_CENTER: Point = Point::new(AH_CENTER_X, AH_CENTER_Y);
-const SCALE_INC: i32 = DISPLAY_WIDTH as i32 / 10;
-
-#[cfg(feature = "air_avionics_ad57")]
-mod c {
-    pub const T_WIDTH: i32 = 88;
-    pub const RM_LEN: i32 = 25;
-    pub const RM_WIDTH: f32 = 7.0;
-    pub const STROKE_WIDTH: i32 = 2;
-    pub const BOX_HEIGHT: i32 = 30;
-    pub const TC_POS_Y: i32 = super::DISPLAY_HEIGHT as i32 - 16;
-    pub const TC_NEEDLE_Y: i32 = super::DISPLAY_WIDTH as i32;
-    pub const TC_NEEDLE_DELTA: i32 = 18;
-    pub const PITCH_SCALE_LEN: i32 = 18;
-}
-
-#[cfg(feature = "larus_frontend_v1")]
-mod c {
-    pub const T_WIDTH: i32 = 100;
-    pub const RM_LEN: i32 = 30;
-    pub const RM_WIDTH: f32 = 8.0;
-    pub const STROKE_WIDTH: i32 = 2;
-    pub const BOX_HEIGHT: i32 = 32;
-    pub const TC_POS_Y: i32 = super::DISPLAY_HEIGHT as i32 - 30;
-    pub const TC_NEEDLE_Y: i32 = super::DISPLAY_WIDTH as i32;
-    pub const TC_NEEDLE_DELTA: i32 = 18;
-    pub const PITCH_SCALE_LEN: i32 = 20;
-}
-
-#[cfg(feature = "larus_frontend_v2")]
-mod c {
-    pub const T_WIDTH: i32 = 160;
-    pub const RM_LEN: i32 = 45;
-    pub const RM_WIDTH: f32 = 6.0;
-    pub const STROKE_WIDTH: i32 = 3;
-    pub const BOX_HEIGHT: i32 = 50;
-    pub const TC_POS_Y: i32 = super::DISPLAY_HEIGHT as i32 - 105;
-    pub const TC_NEEDLE_Y: i32 = super::DISPLAY_WIDTH as i32 - 50;
-    pub const TC_NEEDLE_DELTA: i32 = -30;
-    pub const PITCH_SCALE_LEN: i32 = 20;
-}
-
 pub struct Horizon {}
 
 impl Horizon {
@@ -72,39 +25,52 @@ impl Horizon {
         D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
     {
         display.clear(cm.palette().background)?;
+        let sizes = &cm.device_const.sizes.horizon;
+
+        let ah_top = 0;
+        let display_width = cm.device_const.sizes.display.width;
+        let ah_bottom = display_width as i32;
+        let ah_center_y = ah_top + display_width as i32 / 2;
+        let ah_center_x = display_width as i32 / 2;
+        let ah_center = Point::new(ah_center_x, ah_center_y);
+        let scale_inc = display_width as i32 / 10;
 
         // draw horizon
         //
         let m = clamp(cm.sensor.euler_roll.to_radians(), -1.55, 1.55).tan();
         let m2 = clamp(cm.sensor.euler_pitch.to_radians(), -1.55, 1.55).tan();
-        let dy2 = (m2 * AH_CENTER_X as f32) as i32;
+        let dy2 = (m2 * ah_center_x as f32) as i32;
 
         let heaven = PrimitiveStyle::with_fill(cm.palette().horizon_sky);
         Rectangle::new(
-            Point::new(0, AH_TOP),
-            Size::new(DISPLAY_WIDTH, DISPLAY_WIDTH),
+            Point::new(0, ah_top),
+            Size::new(display_width, display_width),
         )
         .into_styled(heaven)
         .draw(display)?;
 
         let earth = PrimitiveStyle::with_stroke(cm.palette().horizon_earth, 1);
-        for x in 0..DISPLAY_WIDTH as i32 {
-            let dy1 = (m * ((DISPLAY_WIDTH / 2) as i32 - x) as f32) as i32;
-            let y2 = AH_CENTER_Y + clamp(dy1 + dy2, -AH_CENTER_X, AH_CENTER_X);
+        for x in 0..display_width as i32 {
+            let dy1 = (m * ((display_width / 2) as i32 - x) as f32) as i32;
+            let y2 = ah_center_y + clamp(dy1 + dy2, -ah_center_x, ah_center_x);
 
             let p2 = Point::new(x, y2);
-            let p3 = Point::new(x, AH_BOTTOM);
+            let p3 = Point::new(x, ah_bottom);
             Line::new(p2, p3).into_styled(earth).draw(display)?;
         }
 
         // draw background image / scale
         //
-        display.draw_img(WP_HORIZON_IMG, Point::new(0, 0), Some(cm.palette().scale))?;
+        display.draw_img(
+            &cm.device_const.images.wp_horizon,
+            Point::new(0, 0),
+            Some(cm.palette().scale),
+        )?;
 
         // draw roll marker
         //
         let angle = 90.0_f32.deg() - cm.sensor.euler_roll;
-        let radius = AH_CENTER_X - 4;
+        let radius = ah_center_x - 4;
 
         fn scale_coord(center: Point, angle: Angle, radius: i32) -> Point {
             center
@@ -114,9 +80,17 @@ impl Horizon {
                 )
         }
 
-        let p1 = scale_coord(AH_CENTER, angle + c::RM_WIDTH.deg(), radius - c::RM_LEN);
-        let p2 = scale_coord(AH_CENTER, angle - c::RM_WIDTH.deg(), radius - c::RM_LEN);
-        let p3 = scale_coord(AH_CENTER, angle, radius);
+        let p1 = scale_coord(
+            ah_center,
+            angle + sizes.rm_width.deg(),
+            radius - sizes.rm_len,
+        );
+        let p2 = scale_coord(
+            ah_center,
+            angle - sizes.rm_width.deg(),
+            radius - sizes.rm_len,
+        );
+        let p3 = scale_coord(ah_center, angle, radius);
         Triangle::new(p1, p2, p3)
             .into_styled(PrimitiveStyle::with_fill(Colors::Red))
             .draw(display)?;
@@ -125,20 +99,20 @@ impl Horizon {
         //
         let sin_alpha = angle.to_radians().sin();
         let cos_alpha = angle.to_radians().cos();
-        let dx = (sin_alpha * c::PITCH_SCALE_LEN as f32) as i32;
-        let dy = (cos_alpha * c::PITCH_SCALE_LEN as f32) as i32;
-        let dcx = cos_alpha * (DISPLAY_WIDTH / 9) as f32;
-        let dcy = sin_alpha * (DISPLAY_WIDTH / 9) as f32;
+        let dx = (sin_alpha * sizes.pitch_scale_len as f32) as i32;
+        let dy = (cos_alpha * sizes.pitch_scale_len as f32) as i32;
+        let dcx = cos_alpha * (display_width / 9) as f32;
+        let dcy = sin_alpha * (display_width / 9) as f32;
 
         let style = PrimitiveStyle::with_stroke(cm.palette().scale, 2);
         for mul in 1_i32..4 {
             let mul_dcx = (mul as f32 * dcx) as i32;
             let mul_dcy = (mul as f32 * dcy) as i32;
-            let p1 = Point::new(AH_CENTER_X - dx - mul_dcx, AH_CENTER_Y - mul_dcy + dy);
-            let p2 = Point::new(AH_CENTER_X + dx - mul_dcx, AH_CENTER_Y - mul_dcy - dy);
+            let p1 = Point::new(ah_center_x - dx - mul_dcx, ah_center_y - mul_dcy + dy);
+            let p2 = Point::new(ah_center_x + dx - mul_dcx, ah_center_y - mul_dcy - dy);
             Line::new(p1, p2).into_styled(style).draw(display)?;
-            let p1 = Point::new(AH_CENTER_X - dx + mul_dcx, AH_CENTER_Y + mul_dcy + dy);
-            let p2 = Point::new(AH_CENTER_X + dx + mul_dcx, AH_CENTER_Y + mul_dcy - dy);
+            let p1 = Point::new(ah_center_x - dx + mul_dcx, ah_center_y + mul_dcy + dy);
+            let p2 = Point::new(ah_center_x + dx + mul_dcx, ah_center_y + mul_dcy - dy);
             Line::new(p1, p2).into_styled(style).draw(display)?;
         }
 
@@ -149,10 +123,11 @@ impl Horizon {
         boxed_text(
             display,
             th_txt.as_str(),
-            Point::new(AH_CENTER_X, AH_BOTTOM - c::BOX_HEIGHT / 2),
+            Point::new(ah_center_x, ah_bottom - sizes.box_height / 2),
             &cm.device_const.big_font,
-            c::T_WIDTH,
-            c::STROKE_WIDTH,
+            sizes.t_width,
+            sizes.box_height,
+            sizes.stroke_width,
             cm.palette().scale,
             cm.palette().needle4,
             cm.palette().background,
@@ -170,22 +145,27 @@ impl Horizon {
             diff += 360.0;
         }
         let t_col = cm.palette().needle5;
-        let x = ((diff * SCALE_INC as f32) / 10.0) as i32 + AH_CENTER_X;
-        let p1 = Point::new(x, c::TC_NEEDLE_Y);
-        let p2 = Point::new(x + 10, c::TC_NEEDLE_Y + c::TC_NEEDLE_DELTA);
-        let p3 = Point::new(x - 10, c::TC_NEEDLE_Y + c::TC_NEEDLE_DELTA);
+        let x = ((diff * scale_inc as f32) / 10.0) as i32 + ah_center_x;
+        let p1 = Point::new(x, sizes.tc_needle_y);
+        let p2 = Point::new(x + 10, sizes.tc_needle_y + sizes.tc_needle_delta);
+        let p3 = Point::new(x - 10, sizes.tc_needle_y + sizes.tc_needle_delta);
         Triangle::new(p1, p2, p3)
             .into_styled(PrimitiveStyle::with_fill(t_col))
             .draw(display)?;
 
-        let x = clamp(x, c::T_WIDTH / 2, DISPLAY_WIDTH as i32 - c::T_WIDTH / 2);
+        let x = clamp(
+            x,
+            sizes.t_width / 2,
+            display_width as i32 - sizes.t_width / 2,
+        );
         boxed_text(
             display,
             tc_txt.as_str(),
-            Point::new(x, c::TC_POS_Y),
+            Point::new(x, sizes.tc_pos_y),
             &cm.device_const.big_font,
-            c::T_WIDTH,
-            c::STROKE_WIDTH,
+            sizes.t_width,
+            sizes.box_height,
+            sizes.stroke_width,
             cm.palette().scale,
             cm.palette().scale,
             cm.palette().background,
@@ -202,6 +182,7 @@ pub fn boxed_text<D>(
     position: Point,
     font: &FontRenderer,
     width: i32,
+    height: i32,
     stroke_width: i32,
     frame_color: Colors,
     text_color: Colors,
@@ -210,8 +191,8 @@ pub fn boxed_text<D>(
 where
     D: DrawTarget<Color = Colors, Error = CoreError>,
 {
-    let top_left = Point::new(position.x - width / 2, position.y - c::BOX_HEIGHT / 2);
-    let size = Size::new(width as u32, c::BOX_HEIGHT as u32);
+    let top_left = Point::new(position.x - width / 2, position.y - height / 2);
+    let size = Size::new(width as u32, height as u32);
     let mut style = PrimitiveStyle::with_stroke(frame_color, stroke_width as u32);
     style.fill_color = Some(background_color);
     Rectangle::new(top_left, size)

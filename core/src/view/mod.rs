@@ -1,4 +1,4 @@
-use embedded_graphics::{draw_target::DrawTarget, geometry::Point};
+use embedded_graphics::draw_target::DrawTarget;
 
 pub mod editor;
 pub mod fw_update;
@@ -9,7 +9,6 @@ pub(crate) mod menu;
 pub(crate) mod vario;
 
 use crate::{
-    basic_config::{DISPLAY_HEIGHT, DISPLAY_WIDTH},
     model::{CoreModel, DisplayActive, EditMode},
     utils::Colors,
     view::{editor::Edit, fw_update::SwUpdate, horizon::Horizon, menu::MenuView, vario::Vario},
@@ -23,12 +22,6 @@ pub const FRAME_RATE: u32 = 10;
 // Release build runs at 30 Hz
 #[cfg(not(debug_assertions))]
 pub const FRAME_RATE: u32 = 20;
-
-pub const MARGIN: i32 = 2;
-pub const DIAMETER: u32 = DISPLAY_HEIGHT - 2 * MARGIN as u32;
-pub const RADIUS: u32 = DIAMETER / 2;
-pub const CENTER: Point = Point::new(RADIUS as i32 + MARGIN, RADIUS as i32 + MARGIN);
-pub const SCREEN_CENTER: Point = Point::new(DISPLAY_WIDTH as i32 / 2, DISPLAY_HEIGHT as i32 / 2);
 
 enum PrimaryView {
     Vario(Vario),

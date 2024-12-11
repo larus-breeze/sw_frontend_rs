@@ -6,7 +6,7 @@ use embedded_graphics::{
 #[allow(unused_imports)]
 use micromath::F32Ext;
 
-use crate::{utils::Colors, view::CENTER, CoreError};
+use crate::{utils::Colors, CoreError};
 
 /// Draw an indicator
 ///
@@ -117,7 +117,7 @@ where
 
     // Draw wind tail
     let style = PrimitiveStyle::with_stroke(tail_color, tail_thick);
-    Arc::with_center(CENTER, (2.0 * l1) as u32, 90.0.deg() + w1, w2 - w1)
+    Arc::with_center(center, (2.0 * l1) as u32, 90.0.deg() + w1, w2 - w1)
         .into_styled(style)
         .draw(display)
 }

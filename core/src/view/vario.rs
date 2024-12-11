@@ -1,4 +1,4 @@
-use super::{helpers::images::images::*, helpers::sprites::*, CENTER, DIAMETER, RADIUS};
+use super::helpers::sprites::*;
 use crate::{
     model::{CoreModel, FlyMode, SystemState, VarioMode},
     system_of_units::FloatToSpeed,
@@ -14,149 +14,6 @@ use embedded_graphics::{
 };
 use u8g2_fonts::types::{FontColor, HorizontalAlignment, VerticalPosition};
 
-struct VarioSizes {
-    stf_diameter: u32,
-    stf_width: u32,
-    indicator_len: u32,
-    indicator_width: u32,
-    info_1_pos: Point,
-    pic_info_1_pos: Point,
-    mc_width: f32,
-    mc_len: u32,
-    tcr_width: f32,
-    tcr_len: u32,
-    glider_pos: Point,
-    north_pos: Point,
-    bat_pos: Point,
-    sat_pos: Point,
-    unit_pos: Point,
-    wind_pos: Point,
-    delta_pos: Point,
-    avg_climb_pos: Point,
-    version_pos: Point,
-    wind_len: i32,
-    wind_len_min: i32,
-    angle_m_s: f32,
-    wp_vario_scale: [(i32, i32, &'static str); 11],
-}
-
-#[cfg(feature = "air_avionics_ad57")]
-const DIMS: VarioSizes = VarioSizes {
-    stf_diameter: DIAMETER - 80,
-    stf_width: 5,
-    indicator_len: 37,
-    indicator_width: 12,
-    info_1_pos: Point::new(40, 258),
-    pic_info_1_pos: Point::new(2, 222),
-    mc_width: 0.14,
-    mc_len: 22,
-    tcr_width: 0.25,
-    tcr_len: 22,
-    glider_pos: Point::new(67, 118),
-    north_pos: Point::new(127, 8),
-    bat_pos: Point::new(205, 100),
-    sat_pos: Point::new(10, 15),
-    unit_pos: Point::new(122, 255),
-    wind_pos: Point::new(175, 195),
-    delta_pos: Point::new(150, 220),
-    avg_climb_pos: Point::new(150, 65),
-    version_pos: Point::new(200, 200),
-    wind_len: 105,
-    wind_len_min: 50,
-    angle_m_s: 25.0,
-    wp_vario_scale: [
-        (202, 248, "5"),
-        (156, 267, "4"),
-        (105, 265, "3"),
-        (61, 241, "2"),
-        (30, 202, "1"),
-        (20, 153, "0"),
-        (30, 103, "1"),
-        (61, 64, "2"),
-        (105, 40, "3"),
-        (156, 38, "4"),
-        (202, 57, "5"),
-    ],
-};
-
-#[cfg(feature = "larus_frontend_v1")]
-const DIMS: VarioSizes = VarioSizes {
-    stf_diameter: DIAMETER - 80,
-    stf_width: 10,
-    indicator_len: 45,
-    indicator_width: 14,
-    info_1_pos: Point::new(47, 290),
-    pic_info_1_pos: Point::new(9, 254),
-    mc_width: 0.16,
-    mc_len: 25,
-    tcr_width: 0.25,
-    tcr_len: 25,
-    glider_pos: Point::new(85, 136),
-    north_pos: Point::new(135, 12),
-    bat_pos: Point::new(215, 90),
-    sat_pos: Point::new(10, 10),
-    unit_pos: Point::new(130, 292),
-    wind_pos: Point::new(195, 217),
-    delta_pos: Point::new(147, 245),
-    avg_climb_pos: Point::new(170, 70),
-    version_pos: Point::new(200, 217),
-    wind_len: 105,
-    wind_len_min: 50,
-    angle_m_s: 24.0,
-    wp_vario_scale: [
-        (217, 282, "5"),
-        (166, 299, "4"),
-        (112, 293, "3"),
-        (65, 266, "2"),
-        (34, 223, "1"),
-        (23, 170, "0"),
-        (34, 117, "1"),
-        (65, 74, "2"),
-        (112, 47, "3"),
-        (166, 41, "4"),
-        (217, 58, "5"),
-    ],
-};
-
-#[cfg(feature = "larus_frontend_v2")]
-const DIMS: VarioSizes = VarioSizes {
-    stf_diameter: DIAMETER - 130,
-    stf_width: 10,
-    indicator_len: 71,
-    indicator_width: 18,
-    info_1_pos: Point::new(420, 200),
-    pic_info_1_pos: Point::new(390, 125),
-    mc_width: 0.14,
-    mc_len: 33,
-    tcr_width: 0.25,
-    tcr_len: 33,
-    glider_pos: Point::new(129, 205),
-    north_pos: Point::new(216, 14),
-    bat_pos: Point::new(375, 300),
-    sat_pos: Point::new(410, 300),
-    unit_pos: Point::new(208, 432),
-    wind_pos: Point::new(280, 320),
-    delta_pos: Point::new(247, 363),
-    avg_climb_pos: Point::new(270, 105),
-    version_pos: Point::new(300, 120),
-    wind_len: 120,
-    wind_len_min: 80,
-    angle_m_s: 25.0,
-    wp_vario_scale: [
-        (338, 413, "5"),
-        (261, 445, "4"),
-        (178, 441, "3"),
-        (104, 402, "2"),
-        (54, 336, "1"),
-        (36, 255, "0"),
-        (54, 174, "1"),
-        (104, 108, "2"),
-        (178, 69, "3"),
-        (261, 65, "4"),
-        (338, 97, "5"),
-    ],
-};
-
 // Limits of the wind arrow
 const WIND_MIN: f32 = 10.0; // 10 km/h
 const WIND_MAX: f32 = 30.0; // 30 km/h
@@ -165,17 +22,23 @@ pub fn draw_thermal_climb<D>(display: &mut D, cm: &CoreModel) -> Result<(), Core
 where
     D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
 {
+    let sizes = &cm.device_const.sizes.vario;
+
     display.draw_img(
-        SPIRAL_IMG,
-        DIMS.pic_info_1_pos,
+        &cm.device_const.images.spiral,
+        sizes.pic_info_1_pos,
         Some(cm.palette().vario_pic_info1),
     )?;
-    display.draw_img(M_S_IMG, DIMS.info_1_pos, Some(cm.palette().scale))?;
+    display.draw_img(
+        &cm.device_const.images.m_s,
+        sizes.info_1_pos,
+        Some(cm.palette().scale),
+    )?;
     let acr = num::clamp(cm.calculated.thermal_climb_rate.to_m_s(), -9.9, 99.9);
     let txt = tformat!(10, "{:.1}", acr).unwrap();
     cm.device_const.big_font.render_aligned(
         txt.as_str(),
-        DIMS.info_1_pos,
+        sizes.info_1_pos,
         VerticalPosition::Top,
         HorizontalAlignment::Right,
         FontColor::Transparent(cm.palette().scale),
@@ -195,12 +58,23 @@ impl Vario {
     where
         D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
     {
+        let sizes = &cm.device_const.sizes.vario;
+        let d_sizes = &cm.device_const.sizes.display;
+
         // draaw wallpaper
         display.clear(cm.palette().background)?;
-        display.draw_img(WP_VARIO_IMG, Point::new(0, 0), Some(cm.palette().scale))?;
-        display.draw_img(M_S_IMG, DIMS.unit_pos, Some(cm.palette().background))?;
+        display.draw_img(
+            &cm.device_const.images.wp_vario,
+            Point::new(0, 0),
+            Some(cm.palette().scale),
+        )?;
+        display.draw_img(
+            &cm.device_const.images.m_s,
+            sizes.unit_pos,
+            Some(cm.palette().background),
+        )?;
 
-        for (pos_x, pos_y, txt) in DIMS.wp_vario_scale {
+        for (pos_x, pos_y, txt) in sizes.wp_vario_scale {
             let pos = Point::new(pos_x, pos_y);
             cm.device_const.big_font.render(
                 txt,
@@ -213,13 +87,21 @@ impl Vario {
 
         // draw battery symbol
         if cm.device.supply_voltage > cm.device.voltage_limit_good {
-            display.draw_img(BAT_FULL_IMG, DIMS.bat_pos, Some(cm.palette().signal_go))?;
+            display.draw_img(
+                &cm.device_const.images.bat_full,
+                sizes.bat_pos,
+                Some(cm.palette().signal_go),
+            )?;
         } else if cm.device.supply_voltage < cm.device.voltage_limit_bad {
-            display.draw_img(BAT_EMPTY_IMG, DIMS.bat_pos, Some(cm.palette().signal_stop))?;
+            display.draw_img(
+                &cm.device_const.images.bat_empty,
+                sizes.bat_pos,
+                Some(cm.palette().signal_stop),
+            )?;
         } else {
             display.draw_img(
-                BAT_HALF_IMG,
-                DIMS.bat_pos,
+                &cm.device_const.images.bat_half,
+                sizes.bat_pos,
                 Some(cm.palette().signal_warning),
             )?;
         }
@@ -230,17 +112,17 @@ impl Vario {
             SystemState::CanOk => cm.palette().signal_warning,
             SystemState::CanAndGpsOk => cm.palette().signal_go,
         };
-        display.draw_img(SAT_IMG, DIMS.sat_pos, Some(color))?;
+        display.draw_img(&cm.device_const.images.sat, sizes.sat_pos, Some(color))?;
 
         // draw mc_ready marker
         scale_marker(
             display,
-            CENTER,
+            d_sizes.center,
             cm.config.mc_cready.to_m_s(),
-            RADIUS as i32 + 1,
-            DIMS.mc_len as i32,
-            DIMS.mc_width,
-            DIMS.angle_m_s,
+            d_sizes.radius as i32 + 1,
+            sizes.mc_len as i32,
+            sizes.mc_width,
+            sizes.angle_m_s,
             cm.palette().needle2,
         )?;
 
@@ -249,7 +131,11 @@ impl Vario {
         let (mut angle, mut av_angle, fill_color, stroke_color) = match cm.control.fly_mode {
             FlyMode::Circling => {
                 // draw north symbol
-                display.draw_img(NORTH_IMG, DIMS.north_pos, Some(cm.palette().background))?;
+                display.draw_img(
+                    &cm.device_const.images.north,
+                    sizes.north_pos,
+                    Some(cm.palette().background),
+                )?;
                 // return absolut wind vector
                 (
                     cm.sensor.wind_vector.angle(),
@@ -260,7 +146,11 @@ impl Vario {
             }
             FlyMode::StraightFlight => {
                 // draw glider symbol
-                display.draw_img(GLIDER_IMG, DIMS.glider_pos, Some(cm.palette().scale))?;
+                display.draw_img(
+                    &cm.device_const.images.glider,
+                    sizes.glider_pos,
+                    Some(cm.palette().scale),
+                )?;
                 (
                     // return relativ wind vector
                     cm.sensor.wind_vector.angle() - cm.sensor.gps_track,
@@ -281,11 +171,11 @@ impl Vario {
         };
 
         let len = match wind_speed {
-            x if x < WIND_MIN => DIMS.wind_len_min, // Light wind is set to a minimum size
-            x if x > WIND_MAX => DIMS.wind_len,     // Strong wind is set to a maximum size
+            x if x < WIND_MIN => sizes.wind_len_min, // Light wind is set to a minimum size
+            x if x > WIND_MAX => sizes.wind_len,     // Strong wind is set to a maximum size
             _ => {
-                DIMS.wind_len_min
-                    + ((DIMS.wind_len - DIMS.wind_len_min) as f32 * (wind_speed - WIND_MIN)
+                sizes.wind_len_min
+                    + ((sizes.wind_len - sizes.wind_len_min) as f32 * (wind_speed - WIND_MIN)
                         / (WIND_MAX - WIND_MIN)) as i32
             }
         };
@@ -305,7 +195,7 @@ impl Vario {
         let tail_thick = (num::clamp(num::abs(delta_speed), 1.0, 10.0)) as u32;
         wind_arrow(
             display,
-            CENTER,
+            d_sizes.center,
             angle,
             av_angle,
             len,
@@ -316,12 +206,16 @@ impl Vario {
         )?;
 
         // draw wind direction an speed text
-        display.draw_img(KM_H_IMG, DIMS.wind_pos, Some(cm.palette().scale))?;
+        display.draw_img(
+            &cm.device_const.images.km_h,
+            sizes.wind_pos,
+            Some(cm.palette().scale),
+        )?;
         let wind_deg = txt_angle.to_degrees();
         let s = tformat!(25, "{:.0}° {:.0}", wind_deg, wind_speed).unwrap();
         cm.device_const.big_font.render_aligned(
             s.as_str(),
-            DIMS.wind_pos,
+            sizes.wind_pos,
             VerticalPosition::Top,
             HorizontalAlignment::Right,
             FontColor::Transparent(cm.palette().scale),
@@ -330,7 +224,7 @@ impl Vario {
 
         cm.device_const.big_font.render_aligned(
             delta_txt.as_str(),
-            DIMS.delta_pos,
+            sizes.delta_pos,
             VerticalPosition::Top,
             HorizontalAlignment::Center,
             FontColor::Transparent(delta_color),
@@ -339,10 +233,10 @@ impl Vario {
 
         // draw software version during the first 10 seconds
         if false {
-            let s = cm.config.sw_version.as_string();
+            let s = cm.device_const.misc.sw_version.as_string();
             cm.device_const.big_font.render_aligned(
                 s.as_str(),
-                DIMS.version_pos,
+                sizes.version_pos,
                 VerticalPosition::Top,
                 HorizontalAlignment::Right,
                 FontColor::Transparent(cm.palette().scale),
@@ -357,24 +251,28 @@ impl Vario {
             }
             VarioMode::SpeedToFly => {
                 let stf = num::clamp(-cm.calculated.speed_to_fly_dif.to_km_h() / 10.0, -5.0, 5.0);
-                let angle_sweep = (DIMS.angle_m_s * stf).deg();
+                let angle_sweep = (sizes.angle_m_s * stf).deg();
                 let col = cm.palette().vario_speed_to_fly;
-                Arc::with_center(CENTER, DIMS.stf_diameter, 180.0.deg(), angle_sweep)
-                    .into_styled(PrimitiveStyle::with_stroke(col, DIMS.stf_width))
+                Arc::with_center(d_sizes.center, sizes.stf_diameter, 180.0.deg(), angle_sweep)
+                    .into_styled(PrimitiveStyle::with_stroke(col, sizes.stf_width))
                     .draw(display)?;
 
                 if cm.config.alt_stf_thermal_climb {
                     display.draw_img(
-                        STRAIGHT_IMG,
-                        DIMS.pic_info_1_pos,
+                        &cm.device_const.images.straight,
+                        sizes.pic_info_1_pos,
                         Some(cm.palette().scale),
                     )?;
-                    display.draw_img(KM_H_IMG, DIMS.info_1_pos, Some(cm.palette().scale))?;
+                    display.draw_img(
+                        &cm.device_const.images.km_h,
+                        sizes.info_1_pos,
+                        Some(cm.palette().scale),
+                    )?;
                     let stf = num::clamp(cm.calculated.speed_to_fly_1s.to_km_h(), 0.0, 999.0);
                     let txt = tformat!(10, "{:.0}", stf).unwrap();
                     cm.device_const.big_font.render_aligned(
                         txt.as_str(),
-                        DIMS.info_1_pos,
+                        sizes.info_1_pos,
                         VerticalPosition::Top,
                         HorizontalAlignment::Right,
                         FontColor::Transparent(col),
@@ -389,12 +287,12 @@ impl Vario {
         // draw average climb rate marker
         inverted_scale_marker(
             display,
-            CENTER,
+            d_sizes.center,
             cm.calculated.av2_climb_rate.to_m_s(),
-            (RADIUS - DIMS.indicator_len) as i32,
-            DIMS.tcr_len as i32,
-            DIMS.tcr_width,
-            DIMS.angle_m_s,
+            (d_sizes.radius - sizes.indicator_len) as i32,
+            sizes.tcr_len as i32,
+            sizes.tcr_width,
+            sizes.angle_m_s,
             cm.palette().needle3,
         )?;
 
@@ -404,10 +302,14 @@ impl Vario {
         } else {
             tformat!(5, "+{:.1}", cm.calculated.av2_climb_rate.to_m_s()).unwrap()
         };
-        display.draw_img(M_S_IMG, DIMS.avg_climb_pos, Some(cm.palette().scale))?;
+        display.draw_img(
+            &cm.device_const.images.m_s,
+            sizes.avg_climb_pos,
+            Some(cm.palette().scale),
+        )?;
         cm.device_const.big_font.render_aligned(
             s.as_str(),
-            DIMS.avg_climb_pos,
+            sizes.avg_climb_pos,
             VerticalPosition::Top,
             HorizontalAlignment::Right,
             FontColor::Transparent(cm.palette().scale),
@@ -415,14 +317,14 @@ impl Vario {
         )?;
 
         // draw climb rate indicator
-        let angle = (DIMS.angle_m_s * num::clamp(cm.sensor.climb_rate.to_m_s(), -5.1, 5.1)).deg();
+        let angle = (sizes.angle_m_s * num::clamp(cm.sensor.climb_rate.to_m_s(), -5.1, 5.1)).deg();
         classic_indicator(
             display,
-            CENTER,
+            d_sizes.center,
             angle,
-            DIMS.indicator_width as i32,
-            (RADIUS - DIMS.indicator_len) as i32,
-            RADIUS as i32,
+            sizes.indicator_width as i32,
+            (d_sizes.radius - sizes.indicator_len) as i32,
+            d_sizes.radius as i32,
             cm.palette().needle1,
         )?;
         Ok(())

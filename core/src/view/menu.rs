@@ -1,5 +1,4 @@
 use crate::{
-    basic_config::{DISPLAY_HEIGHT, DISPLAY_WIDTH},
     model::{menu::Menu, CoreModel},
     utils::Colors,
     CoreError, DrawImage, TString,
@@ -54,35 +53,36 @@ impl MenuView {
 
         let menu = cm.control.menu_control.menu;
         let pos = cm.control.menu_control.pos[menu.level];
+        let d_sizes = &cm.device_const.sizes.display;
 
         display.clear(cm.palette().background)?;
 
         cm.device_const.big_font.render_aligned(
             menu.name,
-            Point::new(DISPLAY_WIDTH as i32 / 2, DISPLAY_HEIGHT as i32 / 14),
+            Point::new(d_sizes.width as i32 / 2, d_sizes.height as i32 / 14),
             VerticalPosition::Top,
             HorizontalAlignment::Center,
             FontColor::Transparent(cm.palette().scale),
             display,
         )?;
 
-        let y = DISPLAY_HEIGHT as i32 / 5;
+        let y = d_sizes.height as i32 / 5;
 
-        Line::new(Point::new(0, y), Point::new(DISPLAY_WIDTH as i32, y))
+        Line::new(Point::new(0, y), Point::new(d_sizes.width as i32, y))
             .into_styled(PrimitiveStyle::with_stroke(cm.palette().scale, 1))
             .draw(display)?;
 
-        let mut y_pos = DISPLAY_HEIGHT as i32 / 4;
-        const DELTA_Y: i32 = DISPLAY_HEIGHT as i32 / 10;
+        let mut y_pos = d_sizes.height as i32 / 4;
+        let delta_y = d_sizes.height as i32 / 10;
 
-        const X_MARGIN: i32 = (5 * DISPLAY_WIDTH / 100) as i32;
-        const Y_DELTA: i32 = 285 * DELTA_Y / 100;
-        const Y_SIZE: u32 = 110 * DELTA_Y as u32 / 100;
+        let x_margin = (5 * d_sizes.width / 100) as i32;
+        let y_delta = 285 * delta_y / 100;
+        let y_size = 110 * delta_y as u32 / 100;
         let style = PrimitiveStyle::with_stroke(cm.palette().scale, 1);
 
         Rectangle::new(
-            Point::new(X_MARGIN, y_pos + Y_DELTA),
-            Size::new(DISPLAY_WIDTH - 2 * X_MARGIN as u32, Y_SIZE),
+            Point::new(x_margin, y_pos + y_delta),
+            Size::new(d_sizes.width - 2 * x_margin as u32, y_size),
         )
         .into_styled(style)
         .draw(display)?;
@@ -91,13 +91,13 @@ impl MenuView {
             let (s, color) = get_str(menu, pos, menu_idx, cm);
             cm.device_const.big_font.render_aligned(
                 s.as_str(),
-                Point::new(DISPLAY_WIDTH as i32 / 2, y_pos),
+                Point::new(d_sizes.width as i32 / 2, y_pos),
                 VerticalPosition::Top,
                 HorizontalAlignment::Center,
                 FontColor::Transparent(color),
                 display,
             )?;
-            y_pos += DELTA_Y;
+            y_pos += delta_y;
         }
         Ok(())
     }

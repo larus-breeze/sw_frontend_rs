@@ -1,8 +1,4 @@
-use crate::{
-    basic_config::{DISPLAY_HEIGHT, DISPLAY_WIDTH},
-    utils::Colors,
-    CoreError, DrawImage,
-};
+use crate::{utils::Colors, CoreError, DrawImage};
 use embedded_graphics::{
     prelude::*,
     primitives::{Line, PrimitiveStyle},
@@ -40,6 +36,8 @@ impl<'a> DialogBox<'a> {
     pub fn draw<D>(
         &mut self,
         display: &mut D,
+        height: u32,
+        width: u32,
         text: &str,
         font: &FontRenderer,
     ) -> Result<(), CoreError>
@@ -50,25 +48,25 @@ impl<'a> DialogBox<'a> {
 
         font.render_aligned(
             self.header,
-            Point::new(DISPLAY_WIDTH as i32 / 2, DISPLAY_HEIGHT as i32 / 14),
+            Point::new(width as i32 / 2, height as i32 / 14),
             VerticalPosition::Top,
             HorizontalAlignment::Center,
             FontColor::Transparent(self.header_color),
             display,
         )?;
 
-        let y = DISPLAY_HEIGHT as i32 / 5;
+        let y = height as i32 / 5;
 
-        Line::new(Point::new(0, y), Point::new(DISPLAY_WIDTH as i32, y))
+        Line::new(Point::new(0, y), Point::new(width as i32, y))
             .into_styled(PrimitiveStyle::with_stroke(self.underline_color, 1))
             .draw(display)?;
 
-        let mut y_pos = DISPLAY_HEIGHT as i32 / 4;
-        let delty_y = DISPLAY_HEIGHT as i32 / 7;
+        let mut y_pos = height as i32 / 4;
+        let delty_y = height as i32 / 7;
         for line in text.lines() {
             font.render_aligned(
                 line,
-                Point::new(DISPLAY_WIDTH as i32 / 2, y_pos),
+                Point::new(width as i32 / 2, y_pos),
                 VerticalPosition::Top,
                 HorizontalAlignment::Center,
                 FontColor::Transparent(self.text_color),

@@ -27,12 +27,10 @@ embedded-hal = "0.2"
 [dependencies.corelib]
 path = "../../core"
 default-features = false
-# features = ["larus_frontend_v1", "eeprom_size_8192"]
-features = ["larus_frontend_v2", "eeprom_size_8192"]
-# features = ["air_avionics_ad57", "eeprom_size_8192"]
+features = ["colors_rgb565", "eeprom_size_8192"]
 
 [features]
-default = ["air_avionics_ad57", "eeprom_size_8192"]
+default = ["larus_frontend_v2", "eeprom_size_8192"]
 air_avionics_ad57 = []
 larus_frontend_v1 = []
 larus_frontend_v2 = []

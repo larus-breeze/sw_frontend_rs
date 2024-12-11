@@ -1,8 +1,6 @@
 use crate::{
-    basic_config::{DISPLAY_HEIGHT, DISPLAY_WIDTH},
     model::CoreModel,
     utils::{Colors, TString},
-    view::SCREEN_CENTER,
     CoreError, DrawImage,
 };
 use embedded_graphics::{
@@ -10,9 +8,6 @@ use embedded_graphics::{
     primitives::{PrimitiveStyleBuilder, Rectangle},
 };
 use u8g2_fonts::types::{FontColor, HorizontalAlignment, VerticalPosition};
-
-const WIDTH: u32 = DISPLAY_WIDTH * 90 / 100;
-const HEIGHT: u32 = DISPLAY_HEIGHT * 50 / 100;
 
 pub struct Edit {
     name_str: TString<16>,
@@ -37,15 +32,18 @@ impl Edit {
             .fill_color(cm.palette().edit_background)
             .build();
 
-        Rectangle::with_center(SCREEN_CENTER, Size::new(WIDTH, HEIGHT))
+        let d_sizes = &cm.device_const.sizes.display;
+        let height = d_sizes.height * 50 / 100;
+        let width = d_sizes.width * 90 / 100;
+
+        Rectangle::with_center(d_sizes.screen_center, Size::new(width, height))
             .into_styled(style)
             .draw(display)?;
 
-        const DELTA_Y: i32 = DISPLAY_HEIGHT as i32 / 15;
-
+        let delta_y = cm.device_const.sizes.display.height as i32 / 15;
         cm.device_const.big_font.render_aligned(
             self.name_str.as_str(),
-            SCREEN_CENTER + Point::new(0, -DELTA_Y),
+            d_sizes.screen_center + Point::new(0, -delta_y),
             VerticalPosition::Center,
             HorizontalAlignment::Center,
             FontColor::Transparent(cm.palette().text2),
@@ -54,7 +52,7 @@ impl Edit {
 
         cm.device_const.big_font.render_aligned(
             self.val_str.as_str(),
-            SCREEN_CENTER + Point::new(0, DELTA_Y),
+            d_sizes.screen_center + Point::new(0, delta_y),
             VerticalPosition::Center,
             HorizontalAlignment::Center,
             FontColor::Transparent(cm.palette().text2_bold),

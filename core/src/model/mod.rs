@@ -7,12 +7,14 @@ pub mod editable;
 pub mod menu;
 mod sensor;
 
-use crate::{flight_physics::GliderData, HwVersion, SwVersion};
+use crate::flight_physics::GliderData;
 use calculated::Calculated;
 pub use config::{Config, DisplayActive};
 pub use control::{Control, EditMode, FlyMode, SystemState, TcrMode, VarioMode, VarioModeControl};
 use device::Device;
-pub use device_const::{DeviceConst, Palette};
+pub use device_const::{
+    DeviceConst, DisplaySizes, HorizonSizes, Images, Misc, Palette, Sizes, VarioSizes,
+};
 pub use editable::Editable;
 pub use sensor::{GpsState, Sensor};
 
@@ -35,14 +37,9 @@ pub struct CoreModel {
 }
 
 impl CoreModel {
-    pub fn new(
-        uuid: u32,
-        hw_version: HwVersion,
-        sw_version: SwVersion,
-        device_const: &'static DeviceConst,
-    ) -> Self {
+    pub fn new(device_const: &'static DeviceConst) -> Self {
         let calculated = Calculated::default();
-        let config = Config::default(uuid, hw_version, sw_version, &device_const.dark_theme);
+        let config = Config::default(&device_const.dark_theme);
         let control = Control::default();
         let device = Device::default();
         let glider_data = GliderData::default();

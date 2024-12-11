@@ -1,20 +1,11 @@
+mod device_const;
 mod display;
 mod eeprom;
 mod tcp;
-mod device_const;
 
 use byteorder::{ByteOrder, LittleEndian as LE};
-use corelib::{
-    basic_config::{DISPLAY_HEIGHT, DISPLAY_WIDTH},
-    *,
-};
-
-const SW_VERSION: SwVersion = SwVersion {
-    version: [0, 1, 1, 0],
-};
-const HW_VERSION: HwVersion = HwVersion {
-    version: [1, 3, 1, 0],
-};
+use corelib::*;
+use device_const::{DISPLAY_HEIGHT, DISPLAY_WIDTH};
 
 use display::MockDisplay;
 use eeprom::Storage;
@@ -73,7 +64,8 @@ fn main() -> Result<(), core::convert::Infallible> {
         unsafe { Q_TX_FRAMES.split() }
     };
 
-    let mut core_model = CoreModel::new(0x1234_5678, HW_VERSION, SW_VERSION, &device_const::DEVICE_CONST);
+    let mut core_model = CoreModel::new(&device_const::DEVICE_CONST);
+
     let mut eeprom = Storage::new().unwrap();
     let mut nmea_server = TcpServer::new("127.0.0.1:4353");
 
@@ -126,7 +118,9 @@ fn main() -> Result<(), core::convert::Infallible> {
                             let device_event = match sw_update_status {
                                 0 => {
                                     sw_update_status = 1;
-                                    DeviceEvent::FwAvailable(SW_VERSION)
+                                    DeviceEvent::FwAvailable(
+                                        core_model.device_const.misc.sw_version,
+                                    )
                                 }
                                 _ => {
                                     sw_update_status = 0;

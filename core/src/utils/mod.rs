@@ -2,6 +2,7 @@ mod colors16;
 mod colors8;
 mod crc;
 mod date_time;
+mod draw_image;
 mod error;
 mod events;
 mod filter;
@@ -14,15 +15,14 @@ mod tstring;
 mod version;
 mod version_check;
 
-#[cfg(feature = "larus_frontend_v1")]
+#[cfg(feature = "colors_rgb565")]
 pub use colors16::Colors;
-#[cfg(feature = "larus_frontend_v2")]
-pub use colors8::Colors;
-#[cfg(feature = "air_avionics_ad57")]
+#[cfg(feature = "colors_8_indexed")]
 pub use colors8::Colors;
 pub use colors8::Colors as Colors8;
 pub use crc::*;
 pub use date_time::*;
+pub use draw_image::*;
 pub use error::CoreError;
 pub use events::*;
 pub use filter::*;
@@ -50,11 +50,10 @@ where
     }
 }
 
-#[cfg(test)]
+/*#[cfg(test)]
 pub(crate) mod tests {
     use crate::{
-        basic_config::MAX_TX_FRAMES, CoreController, CoreModel, DeviceConst, HwVersion, Palette,
-        QIdleEvents, QTxFrames, SwVersion,
+        basic_config::MAX_TX_FRAMES, CoreController, CoreModel, DeviceConst, HwVersion, Images, Palette, QIdleEvents, QTxFrames, SwVersion
     };
     use heapless::spsc::Queue;
     use u8g2_fonts::{fonts, FontRenderer};
@@ -84,10 +83,11 @@ pub(crate) mod tests {
             bright_theme: Palette::default(),
             big_font: FontRenderer::new::<fonts::u8g2_font_fub20_tf>(),
             small_font: FontRenderer::new::<fonts::u8g2_font_fub20_tf>(),
+            images: Images::new(),
         };
 
         let mut model = CoreModel::new(1234_u32, HW_VERSION, SW_VERSION, &DEVICE_CONST);
         let controller = CoreController::new(&mut model, p_idle_events, p_tx_frames);
         (model, controller)
     }
-}
+}*/

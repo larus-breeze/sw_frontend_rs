@@ -34,6 +34,12 @@ impl SwUpdate {
             cm.palette().scale,
             cm.palette().text1,
         );
-        dialog_box.draw(display, self.text.as_str(), &cm.device_const.big_font)
+        dialog_box.draw(
+            display,
+            cm.device_const.sizes.display.height,
+            cm.device_const.sizes.display.width,
+            self.text.as_str(),
+            &cm.device_const.big_font,
+        )
     }
 }

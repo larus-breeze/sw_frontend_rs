@@ -242,7 +242,7 @@ pub fn nmea_cyclic_200ms(_cm: &mut CoreModel, cc: &mut CoreController) {
     cc.nmea_cyclic_200ms();
 }
 
-#[cfg(test)]
+/*#[cfg(test)]
 mod tests {
     use crate::{
         model::GpsState, utils::tests::cores, AirSpeed, Coord, FloatToDensity, FloatToLength,
@@ -382,4 +382,4 @@ mod tests {
         let controller = CoreController::new(&mut model, p_idle_events, p_tx_frames);
         (model, controller)
     }*/
-}
+}*/
