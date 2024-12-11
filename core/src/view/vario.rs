@@ -1,13 +1,9 @@
-use super::{
-    helpers::images::images::*, helpers::sprites::*, helpers::themes::Palette, CENTER, DIAMETER,
-    RADIUS,
-};
+use super::{helpers::images::images::*, helpers::sprites::*, CENTER, DIAMETER, RADIUS};
 use crate::{
     model::{CoreModel, FlyMode, SystemState, VarioMode},
     system_of_units::FloatToSpeed,
     tformat,
     utils::Colors,
-    view::helpers::themes::FONT_BIG,
     CoreError, DrawImage,
 };
 
@@ -172,17 +168,17 @@ where
     display.draw_img(
         SPIRAL_IMG,
         DIMS.pic_info_1_pos,
-        Some(cm.color(Palette::VarioPicInfo1)),
+        Some(cm.palette().vario_pic_info1),
     )?;
-    display.draw_img(M_S_IMG, DIMS.info_1_pos, Some(cm.color(Palette::Scale)))?;
+    display.draw_img(M_S_IMG, DIMS.info_1_pos, Some(cm.palette().scale))?;
     let acr = num::clamp(cm.calculated.thermal_climb_rate.to_m_s(), -9.9, 99.9);
     let txt = tformat!(10, "{:.1}", acr).unwrap();
-    FONT_BIG.render_aligned(
+    cm.device_const.big_font.render_aligned(
         txt.as_str(),
         DIMS.info_1_pos,
         VerticalPosition::Top,
         HorizontalAlignment::Right,
-        FontColor::Transparent(cm.color(Palette::Scale)),
+        FontColor::Transparent(cm.palette().scale),
         display,
     )?;
     Ok(())
@@ -200,51 +196,39 @@ impl Vario {
         D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
     {
         // draaw wallpaper
-        display.clear(cm.color(Palette::Background))?;
-        display.draw_img(
-            WP_VARIO_IMG,
-            Point::new(0, 0),
-            Some(cm.color(Palette::Scale)),
-        )?;
-        display.draw_img(M_S_IMG, DIMS.unit_pos, Some(cm.color(Palette::Background)))?;
+        display.clear(cm.palette().background)?;
+        display.draw_img(WP_VARIO_IMG, Point::new(0, 0), Some(cm.palette().scale))?;
+        display.draw_img(M_S_IMG, DIMS.unit_pos, Some(cm.palette().background))?;
 
         for (pos_x, pos_y, txt) in DIMS.wp_vario_scale {
             let pos = Point::new(pos_x, pos_y);
-            FONT_BIG.render(
+            cm.device_const.big_font.render(
                 txt,
                 pos,
                 VerticalPosition::Baseline,
-                FontColor::Transparent(cm.color(Palette::Background)),
+                FontColor::Transparent(cm.palette().background),
                 display,
             )?;
         }
 
         // draw battery symbol
         if cm.device.supply_voltage > cm.device.voltage_limit_good {
-            display.draw_img(
-                BAT_FULL_IMG,
-                DIMS.bat_pos,
-                Some(cm.color(Palette::SignalGo)),
-            )?;
+            display.draw_img(BAT_FULL_IMG, DIMS.bat_pos, Some(cm.palette().signal_go))?;
         } else if cm.device.supply_voltage < cm.device.voltage_limit_bad {
-            display.draw_img(
-                BAT_EMPTY_IMG,
-                DIMS.bat_pos,
-                Some(cm.color(Palette::SignalStop)),
-            )?;
+            display.draw_img(BAT_EMPTY_IMG, DIMS.bat_pos, Some(cm.palette().signal_stop))?;
         } else {
             display.draw_img(
                 BAT_HALF_IMG,
                 DIMS.bat_pos,
-                Some(cm.color(Palette::SignalWarning)),
+                Some(cm.palette().signal_warning),
             )?;
         }
 
         // draw sat symbol
         let color = match cm.control.system_state {
-            SystemState::NoCom => cm.color(Palette::SignalStop),
-            SystemState::CanOk => cm.color(Palette::SignalWarning),
-            SystemState::CanAndGpsOk => cm.color(Palette::SignalGo),
+            SystemState::NoCom => cm.palette().signal_stop,
+            SystemState::CanOk => cm.palette().signal_warning,
+            SystemState::CanAndGpsOk => cm.palette().signal_go,
         };
         display.draw_img(SAT_IMG, DIMS.sat_pos, Some(color))?;
 
@@ -257,7 +241,7 @@ impl Vario {
             DIMS.mc_len as i32,
             DIMS.mc_width,
             DIMS.angle_m_s,
-            cm.color(Palette::Needle2),
+            cm.palette().needle2,
         )?;
 
         // draw wind arrow
@@ -265,28 +249,24 @@ impl Vario {
         let (mut angle, mut av_angle, fill_color, stroke_color) = match cm.control.fly_mode {
             FlyMode::Circling => {
                 // draw north symbol
-                display.draw_img(
-                    NORTH_IMG,
-                    DIMS.north_pos,
-                    Some(cm.color(Palette::Background)),
-                )?;
+                display.draw_img(NORTH_IMG, DIMS.north_pos, Some(cm.palette().background))?;
                 // return absolut wind vector
                 (
                     cm.sensor.wind_vector.angle(),
                     cm.sensor.average_wind.angle(),
-                    cm.color(Palette::Sprite2Fill),
-                    cm.color(Palette::Sprite2Stroke),
+                    cm.palette().sprite2_fill,
+                    cm.palette().sprite2_stroke,
                 )
             }
             FlyMode::StraightFlight => {
                 // draw glider symbol
-                display.draw_img(GLIDER_IMG, DIMS.glider_pos, Some(cm.color(Palette::Scale)))?;
+                display.draw_img(GLIDER_IMG, DIMS.glider_pos, Some(cm.palette().scale))?;
                 (
                     // return relativ wind vector
                     cm.sensor.wind_vector.angle() - cm.sensor.gps_track,
                     cm.sensor.average_wind.angle() - cm.sensor.gps_track,
-                    cm.color(Palette::Sprite1Fill),
-                    cm.color(Palette::Sprite1Stroke),
+                    cm.palette().sprite1_fill,
+                    cm.palette().sprite1_stroke,
                 )
             }
         };
@@ -314,12 +294,12 @@ impl Vario {
         let (delta_txt, delta_color) = if delta_speed < 0.0 {
             (
                 tformat!(5, "{:.0}", delta_speed).unwrap(),
-                cm.color(Palette::VarioWindMinus),
+                cm.palette().vario_wind_minus,
             )
         } else {
             (
                 tformat!(5, "+{:.0}", delta_speed).unwrap(),
-                cm.color(Palette::VarioWindPlus),
+                cm.palette().vario_wind_plus,
             )
         };
         let tail_thick = (num::clamp(num::abs(delta_speed), 1.0, 10.0)) as u32;
@@ -336,19 +316,19 @@ impl Vario {
         )?;
 
         // draw wind direction an speed text
-        display.draw_img(KM_H_IMG, DIMS.wind_pos, Some(cm.color(Palette::Scale)))?;
+        display.draw_img(KM_H_IMG, DIMS.wind_pos, Some(cm.palette().scale))?;
         let wind_deg = txt_angle.to_degrees();
         let s = tformat!(25, "{:.0}° {:.0}", wind_deg, wind_speed).unwrap();
-        FONT_BIG.render_aligned(
+        cm.device_const.big_font.render_aligned(
             s.as_str(),
             DIMS.wind_pos,
             VerticalPosition::Top,
             HorizontalAlignment::Right,
-            FontColor::Transparent(cm.color(Palette::Scale)),
+            FontColor::Transparent(cm.palette().scale),
             display,
         )?;
 
-        FONT_BIG.render_aligned(
+        cm.device_const.big_font.render_aligned(
             delta_txt.as_str(),
             DIMS.delta_pos,
             VerticalPosition::Top,
@@ -360,12 +340,12 @@ impl Vario {
         // draw software version during the first 10 seconds
         if false {
             let s = cm.config.sw_version.as_string();
-            FONT_BIG.render_aligned(
+            cm.device_const.big_font.render_aligned(
                 s.as_str(),
                 DIMS.version_pos,
                 VerticalPosition::Top,
                 HorizontalAlignment::Right,
-                FontColor::Transparent(cm.color(Palette::Scale)),
+                FontColor::Transparent(cm.palette().scale),
                 display,
             )?;
         }
@@ -378,7 +358,7 @@ impl Vario {
             VarioMode::SpeedToFly => {
                 let stf = num::clamp(-cm.calculated.speed_to_fly_dif.to_km_h() / 10.0, -5.0, 5.0);
                 let angle_sweep = (DIMS.angle_m_s * stf).deg();
-                let col = cm.color(Palette::VarioSpeedToFly);
+                let col = cm.palette().vario_speed_to_fly;
                 Arc::with_center(CENTER, DIMS.stf_diameter, 180.0.deg(), angle_sweep)
                     .into_styled(PrimitiveStyle::with_stroke(col, DIMS.stf_width))
                     .draw(display)?;
@@ -387,12 +367,12 @@ impl Vario {
                     display.draw_img(
                         STRAIGHT_IMG,
                         DIMS.pic_info_1_pos,
-                        Some(cm.color(Palette::Scale)),
+                        Some(cm.palette().scale),
                     )?;
-                    display.draw_img(KM_H_IMG, DIMS.info_1_pos, Some(cm.color(Palette::Scale)))?;
+                    display.draw_img(KM_H_IMG, DIMS.info_1_pos, Some(cm.palette().scale))?;
                     let stf = num::clamp(cm.calculated.speed_to_fly_1s.to_km_h(), 0.0, 999.0);
                     let txt = tformat!(10, "{:.0}", stf).unwrap();
-                    FONT_BIG.render_aligned(
+                    cm.device_const.big_font.render_aligned(
                         txt.as_str(),
                         DIMS.info_1_pos,
                         VerticalPosition::Top,
@@ -415,7 +395,7 @@ impl Vario {
             DIMS.tcr_len as i32,
             DIMS.tcr_width,
             DIMS.angle_m_s,
-            cm.color(Palette::Needle3),
+            cm.palette().needle3,
         )?;
 
         // draw average climb rate text
@@ -424,13 +404,13 @@ impl Vario {
         } else {
             tformat!(5, "+{:.1}", cm.calculated.av2_climb_rate.to_m_s()).unwrap()
         };
-        display.draw_img(M_S_IMG, DIMS.avg_climb_pos, Some(cm.color(Palette::Scale)))?;
-        FONT_BIG.render_aligned(
+        display.draw_img(M_S_IMG, DIMS.avg_climb_pos, Some(cm.palette().scale))?;
+        cm.device_const.big_font.render_aligned(
             s.as_str(),
             DIMS.avg_climb_pos,
             VerticalPosition::Top,
             HorizontalAlignment::Right,
-            FontColor::Transparent(cm.color(Palette::Scale)),
+            FontColor::Transparent(cm.palette().scale),
             display,
         )?;
 
@@ -443,7 +423,7 @@ impl Vario {
             DIMS.indicator_width as i32,
             (RADIUS - DIMS.indicator_len) as i32,
             RADIUS as i32,
-            cm.color(Palette::Needle1),
+            cm.palette().needle1,
         )?;
         Ok(())
     }

@@ -1,5 +1,3 @@
-
-
 #[macro_export]
 macro_rules! include_bytes_aligned {
     ($align_to:expr, $path:expr) => {{

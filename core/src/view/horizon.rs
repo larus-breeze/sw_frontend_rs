@@ -1,7 +1,5 @@
-use super::{helpers::images::images::*, helpers::themes::Palette, DISPLAY_HEIGHT, DISPLAY_WIDTH};
-use crate::{
-    model::CoreModel, tformat, utils::Colors, view::helpers::themes::FONT_BIG, CoreError, DrawImage,
-};
+use super::{helpers::images::images::*, DISPLAY_HEIGHT, DISPLAY_WIDTH};
+use crate::{model::CoreModel, tformat, utils::Colors, CoreError, DrawImage};
 
 #[allow(unused_imports)]
 use micromath::F32Ext;
@@ -11,7 +9,10 @@ use embedded_graphics::{
     primitives::{Line, PrimitiveStyle, Rectangle, Triangle},
 };
 use num::clamp;
-use u8g2_fonts::types::{FontColor, HorizontalAlignment, VerticalPosition};
+use u8g2_fonts::{
+    types::{FontColor, HorizontalAlignment, VerticalPosition},
+    FontRenderer,
+};
 
 const AH_TOP: i32 = 0;
 const AH_BOTTOM: i32 = DISPLAY_WIDTH as i32;
@@ -70,7 +71,7 @@ impl Horizon {
     where
         D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
     {
-        display.clear(cm.color(Palette::Background))?;
+        display.clear(cm.palette().background)?;
 
         // draw horizon
         //
@@ -78,7 +79,7 @@ impl Horizon {
         let m2 = clamp(cm.sensor.euler_pitch.to_radians(), -1.55, 1.55).tan();
         let dy2 = (m2 * AH_CENTER_X as f32) as i32;
 
-        let heaven = PrimitiveStyle::with_fill(cm.color(Palette::HorizonSky));
+        let heaven = PrimitiveStyle::with_fill(cm.palette().horizon_sky);
         Rectangle::new(
             Point::new(0, AH_TOP),
             Size::new(DISPLAY_WIDTH, DISPLAY_WIDTH),
@@ -86,7 +87,7 @@ impl Horizon {
         .into_styled(heaven)
         .draw(display)?;
 
-        let earth = PrimitiveStyle::with_stroke(cm.color(Palette::HorizonEarth), 1);
+        let earth = PrimitiveStyle::with_stroke(cm.palette().horizon_earth, 1);
         for x in 0..DISPLAY_WIDTH as i32 {
             let dy1 = (m * ((DISPLAY_WIDTH / 2) as i32 - x) as f32) as i32;
             let y2 = AH_CENTER_Y + clamp(dy1 + dy2, -AH_CENTER_X, AH_CENTER_X);
@@ -98,11 +99,7 @@ impl Horizon {
 
         // draw background image / scale
         //
-        display.draw_img(
-            WP_HORIZON_IMG,
-            Point::new(0, 0),
-            Some(cm.color(Palette::Scale)),
-        )?;
+        display.draw_img(WP_HORIZON_IMG, Point::new(0, 0), Some(cm.palette().scale))?;
 
         // draw roll marker
         //
@@ -133,7 +130,7 @@ impl Horizon {
         let dcx = cos_alpha * (DISPLAY_WIDTH / 9) as f32;
         let dcy = sin_alpha * (DISPLAY_WIDTH / 9) as f32;
 
-        let style = PrimitiveStyle::with_stroke(cm.color(Palette::Scale), 2);
+        let style = PrimitiveStyle::with_stroke(cm.palette().scale, 2);
         for mul in 1_i32..4 {
             let mul_dcx = (mul as f32 * dcx) as i32;
             let mul_dcy = (mul as f32 * dcy) as i32;
@@ -153,11 +150,12 @@ impl Horizon {
             display,
             th_txt.as_str(),
             Point::new(AH_CENTER_X, AH_BOTTOM - c::BOX_HEIGHT / 2),
+            &cm.device_const.big_font,
             c::T_WIDTH,
             c::STROKE_WIDTH,
-            cm.color(Palette::Scale),
-            cm.color(Palette::Needle4),
-            cm.color(Palette::Background),
+            cm.palette().scale,
+            cm.palette().needle4,
+            cm.palette().background,
         )?;
 
         // draw true course
@@ -171,7 +169,7 @@ impl Horizon {
         if diff < -180.0 {
             diff += 360.0;
         }
-        let t_col = cm.color(Palette::Needle5);
+        let t_col = cm.palette().needle5;
         let x = ((diff * SCALE_INC as f32) / 10.0) as i32 + AH_CENTER_X;
         let p1 = Point::new(x, c::TC_NEEDLE_Y);
         let p2 = Point::new(x + 10, c::TC_NEEDLE_Y + c::TC_NEEDLE_DELTA);
@@ -185,11 +183,12 @@ impl Horizon {
             display,
             tc_txt.as_str(),
             Point::new(x, c::TC_POS_Y),
+            &cm.device_const.big_font,
             c::T_WIDTH,
             c::STROKE_WIDTH,
-            cm.color(Palette::Scale),
-            cm.color(Palette::Scale),
-            cm.color(Palette::Background),
+            cm.palette().scale,
+            cm.palette().scale,
+            cm.palette().background,
         )?;
 
         Ok(())
@@ -201,6 +200,7 @@ pub fn boxed_text<D>(
     display: &mut D,
     content: &str,
     position: Point,
+    font: &FontRenderer,
     width: i32,
     stroke_width: i32,
     frame_color: Colors,
@@ -218,7 +218,7 @@ where
         .into_styled(style)
         .draw(display)?;
 
-    FONT_BIG.render_aligned(
+    font.render_aligned(
         content,
         position,
         VerticalPosition::Center,

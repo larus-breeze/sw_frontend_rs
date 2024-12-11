@@ -53,10 +53,12 @@ where
 #[cfg(test)]
 pub(crate) mod tests {
     use crate::{
-        basic_config::MAX_TX_FRAMES, CoreController, CoreModel, HwVersion, QIdleEvents, QTxFrames,
-        SwVersion,
+        basic_config::MAX_TX_FRAMES, CoreController, CoreModel, DeviceConst, HwVersion, Palette,
+        QIdleEvents, QTxFrames, SwVersion,
     };
     use heapless::spsc::Queue;
+    use u8g2_fonts::{fonts, FontRenderer};
+
     const HW_VERSION: HwVersion = HwVersion::from_bytes([1, 3, 1, 0]);
     const SW_VERSION: SwVersion = SwVersion {
         version: [0, 0, 0, 0],
@@ -77,7 +79,14 @@ pub(crate) mod tests {
             unsafe { Q_IDLE_EVENTS.split() }
         };
 
-        let mut model = CoreModel::new(1234_u32, HW_VERSION, SW_VERSION);
+        const DEVICE_CONST: DeviceConst = DeviceConst {
+            dark_theme: Palette::default(),
+            bright_theme: Palette::default(),
+            big_font: FontRenderer::new::<fonts::u8g2_font_fub20_tf>(),
+            small_font: FontRenderer::new::<fonts::u8g2_font_fub20_tf>(),
+        };
+
+        let mut model = CoreModel::new(1234_u32, HW_VERSION, SW_VERSION, &DEVICE_CONST);
         let controller = CoreController::new(&mut model, p_idle_events, p_tx_frames);
         (model, controller)
     }

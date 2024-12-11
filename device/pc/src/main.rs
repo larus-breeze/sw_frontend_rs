@@ -1,6 +1,7 @@
 mod display;
 mod eeprom;
 mod tcp;
+mod device_const;
 
 use byteorder::{ByteOrder, LittleEndian as LE};
 use corelib::{
@@ -72,7 +73,7 @@ fn main() -> Result<(), core::convert::Infallible> {
         unsafe { Q_TX_FRAMES.split() }
     };
 
-    let mut core_model = CoreModel::new(0x1234_5678, HW_VERSION, SW_VERSION);
+    let mut core_model = CoreModel::new(0x1234_5678, HW_VERSION, SW_VERSION, &device_const::DEVICE_CONST);
     let mut eeprom = Storage::new().unwrap();
     let mut nmea_server = TcpServer::new("127.0.0.1:4353");
 

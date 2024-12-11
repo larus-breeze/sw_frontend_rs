@@ -2,6 +2,7 @@ mod calculated;
 mod config;
 mod control;
 mod device;
+mod device_const;
 pub mod editable;
 pub mod menu;
 mod sensor;
@@ -11,6 +12,7 @@ use calculated::Calculated;
 pub use config::{Config, DisplayActive};
 pub use control::{Control, EditMode, FlyMode, SystemState, TcrMode, VarioMode, VarioModeControl};
 use device::Device;
+pub use device_const::{DeviceConst, Palette};
 pub use editable::Editable;
 pub use sensor::{GpsState, Sensor};
 
@@ -27,19 +29,20 @@ pub struct CoreModel {
     pub config: Config,
     pub control: Control,
     pub device: Device,
+    pub device_const: &'static DeviceConst,
     pub glider_data: GliderData,
     pub sensor: Sensor,
 }
 
 impl CoreModel {
-    pub fn new(uuid: u32, hw_version: HwVersion, sw_version: SwVersion) -> Self {
+    pub fn new(
+        uuid: u32,
+        hw_version: HwVersion,
+        sw_version: SwVersion,
+        device_const: &'static DeviceConst,
+    ) -> Self {
         let calculated = Calculated::default();
-        let config = Config {
-            uuid,
-            hw_version,
-            sw_version,
-            ..Default::default()
-        };
+        let config = Config::default(uuid, hw_version, sw_version, &device_const.dark_theme);
         let control = Control::default();
         let device = Device::default();
         let glider_data = GliderData::default();
@@ -49,6 +52,7 @@ impl CoreModel {
             config,
             control,
             device,
+            device_const,
             glider_data,
             sensor,
         }

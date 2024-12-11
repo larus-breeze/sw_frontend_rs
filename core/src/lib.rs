@@ -29,8 +29,8 @@ mod view;
 
 // The core components
 pub use controller::*;
-pub use model::{CoreModel, Editable, FlyMode, VarioMode};
-pub use view::{CoreView, FRAME_RATE, helpers::{images::images, themes}};
+pub use model::{CoreModel, DeviceConst, Editable, FlyMode, Palette, VarioMode};
+pub use view::{helpers::images::images, CoreView, FRAME_RATE};
 
 // Some helper functionality
 pub use common::*;
