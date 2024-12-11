@@ -1,4 +1,3 @@
-use basic_config::DISPLAY_WIDTH;
 use corelib::*;
 use embedded_graphics::{
     draw_target::DrawTarget,
@@ -7,6 +6,21 @@ use embedded_graphics::{
     Pixel,
 };
 use embedded_graphics_simulator::{OutputSettingsBuilder, SimulatorDisplay};
+
+#[cfg(feature = "air_avionics_ad57")]
+pub const DISPLAY_WIDTH: u32 = 227;
+#[cfg(feature = "air_avionics_ad57")]
+pub const DISPLAY_HEIGHT: u32 = 285;
+
+#[cfg(feature = "larus_frontend_v1")]
+pub const DISPLAY_WIDTH: u32 = 240;
+#[cfg(feature = "larus_frontend_v1")]
+pub const DISPLAY_HEIGHT: u32 = 320;
+
+#[cfg(feature = "larus_frontend_v2")]
+pub const DISPLAY_WIDTH: u32 = 480;
+#[cfg(feature = "larus_frontend_v2")]
+pub const DISPLAY_HEIGHT: u32 = 480;
 
 pub struct MockDisplay {
     pub display: SimulatorDisplay<Colors>,
@@ -29,6 +43,9 @@ impl MockDisplay {
 }
 
 impl DrawImage for MockDisplay {
+    const DISPLAY_HEIGHT: u32 = DISPLAY_HEIGHT;
+    const DISPLAY_WIDTH: u32 = DISPLAY_WIDTH;
+
     fn draw_line_unchecked(&mut self, idx: usize, len: usize, color: Colors) {
         let x = (idx % (DISPLAY_WIDTH as usize)) as i32;
         let y = (idx / (DISPLAY_WIDTH as usize)) as i32;

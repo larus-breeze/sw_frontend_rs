@@ -1,4 +1,5 @@
-use crate::{utils::Colors, CoreModel};
+use crate::{utils::Colors, CoreModel, HwVersion, SwVersion};
+use embedded_graphics::geometry::Point;
 use u8g2_fonts::FontRenderer;
 
 pub struct DeviceConst {
@@ -6,12 +7,89 @@ pub struct DeviceConst {
     pub bright_theme: Palette,
     pub big_font: FontRenderer,
     pub small_font: FontRenderer,
+    pub images: Images,
+    pub sizes: Sizes,
+    pub misc: Misc,
 }
 
 impl CoreModel {
     pub fn palette(&self) -> &'static Palette {
         self.config.theme
     }
+}
+
+pub struct Misc {
+    pub uuid: u32,
+    pub sw_version: SwVersion,
+    pub hw_version: HwVersion,
+}
+
+pub struct Sizes {
+    pub vario: VarioSizes,
+    pub horizon: HorizonSizes,
+    pub display: DisplaySizes,
+}
+
+pub struct DisplaySizes {
+    pub height: u32,
+    pub width: u32,
+    pub margin: u32,
+    pub radius: u32,
+    pub center: Point,
+    pub screen_center: Point,
+}
+
+pub struct HorizonSizes {
+    pub t_width: i32,
+    pub rm_len: i32,
+    pub rm_width: f32,
+    pub stroke_width: i32,
+    pub box_height: i32,
+    pub tc_pos_y: i32,
+    pub tc_needle_y: i32,
+    pub tc_needle_delta: i32,
+    pub pitch_scale_len: i32,
+}
+
+pub struct VarioSizes {
+    pub stf_diameter: u32,
+    pub stf_width: u32,
+    pub indicator_len: u32,
+    pub indicator_width: u32,
+    pub info_1_pos: Point,
+    pub pic_info_1_pos: Point,
+    pub mc_width: f32,
+    pub mc_len: u32,
+    pub tcr_width: f32,
+    pub tcr_len: u32,
+    pub glider_pos: Point,
+    pub north_pos: Point,
+    pub bat_pos: Point,
+    pub sat_pos: Point,
+    pub unit_pos: Point,
+    pub wind_pos: Point,
+    pub delta_pos: Point,
+    pub avg_climb_pos: Point,
+    pub version_pos: Point,
+    pub wind_len: i32,
+    pub wind_len_min: i32,
+    pub angle_m_s: f32,
+    pub wp_vario_scale: [(i32, i32, &'static str); 11],
+}
+
+pub struct Images {
+    pub bat_empty: &'static [u8],
+    pub bat_full: &'static [u8],
+    pub bat_half: &'static [u8],
+    pub glider: &'static [u8],
+    pub north: &'static [u8],
+    pub spiral: &'static [u8],
+    pub straight: &'static [u8],
+    pub km_h: &'static [u8],
+    pub m_s: &'static [u8],
+    pub sat: &'static [u8],
+    pub wp_horizon: &'static [u8],
+    pub wp_vario: &'static [u8],
 }
 
 #[derive(PartialEq)]
