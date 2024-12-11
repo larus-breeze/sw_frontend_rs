@@ -1,4 +1,3 @@
-use super::themes::FONT_BIG;
 use crate::{
     basic_config::{DISPLAY_HEIGHT, DISPLAY_WIDTH},
     utils::Colors,
@@ -8,7 +7,10 @@ use embedded_graphics::{
     prelude::*,
     primitives::{Line, PrimitiveStyle},
 };
-use u8g2_fonts::types::{FontColor, HorizontalAlignment, VerticalPosition};
+use u8g2_fonts::{
+    types::{FontColor, HorizontalAlignment, VerticalPosition},
+    FontRenderer,
+};
 
 pub struct DialogBox<'a> {
     header: &'a str,
@@ -35,13 +37,18 @@ impl<'a> DialogBox<'a> {
         }
     }
 
-    pub fn draw<D>(&mut self, display: &mut D, text: &str) -> Result<(), CoreError>
+    pub fn draw<D>(
+        &mut self,
+        display: &mut D,
+        text: &str,
+        font: &FontRenderer,
+    ) -> Result<(), CoreError>
     where
         D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
     {
         display.clear(self.background_color)?;
 
-        FONT_BIG.render_aligned(
+        font.render_aligned(
             self.header,
             Point::new(DISPLAY_WIDTH as i32 / 2, DISPLAY_HEIGHT as i32 / 14),
             VerticalPosition::Top,
@@ -59,7 +66,7 @@ impl<'a> DialogBox<'a> {
         let mut y_pos = DISPLAY_HEIGHT as i32 / 4;
         let delty_y = DISPLAY_HEIGHT as i32 / 7;
         for line in text.lines() {
-            FONT_BIG.render_aligned(
+            font.render_aligned(
                 line,
                 Point::new(DISPLAY_WIDTH as i32 / 2, y_pos),
                 VerticalPosition::Top,

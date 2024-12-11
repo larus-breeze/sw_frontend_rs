@@ -1,19 +1,16 @@
 /// Elements that can be changed by the user
-/// 
-/// Editables are always saved in the model and can be changed by the user. These can be 
-/// parameters, display selection, time constants or other data. With the help of this module, 
-/// the implemented editor is able to display and change such data, save it and, if necessary, 
+///
+/// Editables are always saved in the model and can be changed by the user. These can be
+/// parameters, display selection, time constants or other data. With the help of this module,
+/// the implemented editor is able to display and change such data, save it and, if necessary,
 /// output it at the NMEA and CAN interfaces.
-/// 
+///
 /// New elements are added in two steps:
 ///   - First, the persistence layer is extended (src/controller/persistence.rs, persist_set_xxx() methods)
 ///   - Then the enum is extended by the new element (see below)
 use crate::{
-    model::VarioModeControl,
-    utils::TString,
-    view::helpers::themes::DARK_MODE,
-    CoreController, CoreModel, Echo, FloatToMass, FloatToSpeed, Polar, POLARS,
-    POLAR_COUNT,
+    model::VarioModeControl, utils::TString, CoreController, CoreModel, Echo, FloatToMass,
+    FloatToSpeed, Polar, POLARS, POLAR_COUNT,
 };
 
 use super::DisplayActive;
@@ -242,7 +239,7 @@ impl Editable {
             Editable::TcClimbRate => Content::F32(cm.config.av2_climb_rate_tc),
             Editable::TcSpeedToFly => Content::F32(cm.config.av_speed_to_fly_tc),
             Editable::Theme => {
-                if cm.config.theme == &DARK_MODE {
+                if cm.config.theme == &cm.device_const.dark_theme {
                     Content::Enum(TString::<12>::from_str("Dark"))
                 } else {
                     Content::Enum(TString::<12>::from_str("Bright"))
@@ -266,7 +263,7 @@ impl Editable {
                 "Horizon" => cc.persist_set_display(cm, DisplayActive::Horizon, Echo::None),
                 _ => cc.persist_set_display(cm, DisplayActive::Vario, Echo::None),
             },
-            Editable::Theme => cc.persist_set_theme(cm, val, Echo::None), 
+            Editable::Theme => cc.persist_set_theme(cm, val, Echo::None),
             Editable::VarioModeControl => {
                 let mode = match val.as_str() {
                     "Vario" => VarioModeControl::Vario,

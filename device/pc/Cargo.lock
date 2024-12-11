@@ -283,6 +283,7 @@ dependencies = [
  "embedded-hal",
  "heapless",
  "micromath 1.1.1",
+ "u8g2-fonts",
 ]
 
 [[package]]

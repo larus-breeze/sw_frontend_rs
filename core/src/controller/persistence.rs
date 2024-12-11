@@ -2,13 +2,9 @@ use heapless::Vec;
 
 use super::{VarioModeControl, MAX_PERS_IDS};
 use crate::{
-    basic_config::PERSISTENCE_TIMEOUT,
-    controller::helpers::IntToDuration,
-    eeprom,
-    model::DisplayActive,
-    system_of_units::Speed,
-    view::helpers::themes::{BRIGHT_MODE, DARK_MODE},
-    CoreController, CoreModel, Mass, PersistenceItem, Pressure, TString,
+    basic_config::PERSISTENCE_TIMEOUT, controller::helpers::IntToDuration, eeprom,
+    model::DisplayActive, system_of_units::Speed, CoreController, CoreModel, Mass, PersistenceItem,
+    Pressure, TString,
 };
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
@@ -50,7 +46,7 @@ pub enum Echo {
 
 impl CoreController {
     //// Restore Items from EEPROM
-    /// 
+    ///
     /// This method is called directly from the idle-loop during start-up
     pub fn persist_restore_item(&mut self, cm: &mut CoreModel, item: PersistenceItem) {
         match item.id {
@@ -68,9 +64,9 @@ impl CoreController {
             }
             PersistenceId::DisplayTheme => {
                 cm.config.theme = if item.to_i32() == 0 {
-                    &DARK_MODE
+                    &cm.device_const.dark_theme
                 } else {
-                    &BRIGHT_MODE
+                    &cm.device_const.bright_theme
                 }
             }
             PersistenceId::Qnh => {
@@ -86,7 +82,7 @@ impl CoreController {
     }
 
     /// Store Content of PersistenceId in EEPROM
-    /// 
+    ///
     /// This method pushs the content into a queue, which is connected to the hardware
     pub fn persist_store_item(&mut self, cm: &mut CoreModel, id: PersistenceId) {
         let p_item = match id {
@@ -103,7 +99,11 @@ impl CoreController {
                 PersistenceItem::from_u8(id, cm.control.vario_mode_control as u8)
             }
             PersistenceId::DisplayTheme => {
-                let mode = if cm.config.theme == &DARK_MODE { 0 } else { 1 };
+                let mode = if cm.config.theme == &cm.device_const.dark_theme {
+                    0
+                } else {
+                    1
+                };
                 PersistenceItem::from_i32(id, mode)
             }
             PersistenceId::Bugs => PersistenceItem::from_f32(id, cm.glider_data.bugs),
@@ -136,11 +136,11 @@ impl CoreController {
 
     pub fn persist_set_theme(&mut self, cm: &mut CoreModel, theme: &TString<12>, echo: Echo) {
         cm.config.theme = match theme.as_str() {
-            "Bright" => &BRIGHT_MODE,
-            _ => &DARK_MODE,
+            "Bright" => &cm.device_const.bright_theme,
+            _ => &cm.device_const.dark_theme,
         };
         self.persist_finish_push(cm, PersistenceId::DisplayTheme, echo);
-}
+    }
 
     pub fn persist_set_glider_idx(&mut self, cm: &mut CoreModel, val: i32, echo: Echo) {
         cm.config.glider_idx = val;
@@ -193,12 +193,14 @@ impl CoreController {
     }
 
     fn persist_finish_push(&mut self, cm: &mut CoreModel, id: PersistenceId, echo: Echo) {
-        if echo == Echo::Nmea || echo == Echo::NmeaAndCan { // Buffer NMEA datagrams in IndexSet
-            let _ = self.nmea_vals.insert(id);              // send only last content
+        if echo == Echo::Nmea || echo == Echo::NmeaAndCan {
+            // Buffer NMEA datagrams in IndexSet
+            let _ = self.nmea_vals.insert(id); // send only last content
         }
-        if echo == Echo::Can || echo == Echo::NmeaAndCan {  // Queue directly to canbus
+        if echo == Echo::Can || echo == Echo::NmeaAndCan {
+            // Queue directly to canbus
             if let Some(frame) = cm.can_frame_sys_config(id) {
-                let _ = self.p_tx_frames.enqueue(frame); 
+                let _ = self.p_tx_frames.enqueue(frame);
             }
         }
         self.scheduler
@@ -217,7 +219,8 @@ pub fn store_persistence_ids(cm: &mut CoreModel, cc: &mut CoreController) {
         let _ = ids.push(*id);
     }
     cc.pers_vals.clear();
-    while let Some(id) = ids.pop() {    // Store data in EEPROM
+    while let Some(id) = ids.pop() {
+        // Store data in EEPROM
         cc.persist_store_item(cm, id);
     }
 
@@ -227,7 +230,8 @@ pub fn store_persistence_ids(cm: &mut CoreModel, cc: &mut CoreController) {
         let _ = ids.push(*id);
     }
     cc.nmea_vals.clear();
-    while let Some(id) = ids.pop() {    // Send data via NMEA
+    while let Some(id) = ids.pop() {
+        // Send data via NMEA
         cc.nmea_config(id);
     }
 }

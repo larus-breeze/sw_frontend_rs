@@ -1,4 +1,4 @@
-use super::helpers::{dialog_box::DialogBox, themes::Palette};
+use super::helpers::dialog_box::DialogBox;
 use crate::{model::CoreModel, tformat, utils::Colors, CoreError, DeviceEvent, DrawImage};
 
 use embedded_graphics::draw_target::DrawTarget;
@@ -29,11 +29,11 @@ impl SwUpdate {
     {
         let mut dialog_box = DialogBox::new(
             "FW Update",
-            cm.color(Palette::Background),
-            cm.color(Palette::Scale),
-            cm.color(Palette::Scale),
-            cm.color(Palette::Text1),
+            cm.palette().background,
+            cm.palette().scale,
+            cm.palette().scale,
+            cm.palette().text1,
         );
-        dialog_box.draw(display, self.text.as_str())
+        dialog_box.draw(display, self.text.as_str(), &cm.device_const.big_font)
     }
 }

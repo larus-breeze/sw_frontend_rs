@@ -2,10 +2,7 @@ use crate::{
     basic_config::{DISPLAY_HEIGHT, DISPLAY_WIDTH},
     model::CoreModel,
     utils::{Colors, TString},
-    view::{
-        helpers::themes::{FONT_BIG, Palette},
-        SCREEN_CENTER,
-    },
+    view::SCREEN_CENTER,
     CoreError, DrawImage,
 };
 use embedded_graphics::{
@@ -35,9 +32,9 @@ impl Edit {
         D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
     {
         let style = PrimitiveStyleBuilder::new()
-            .stroke_color(cm.color(Palette::EditStroke))
+            .stroke_color(cm.palette().edit_stroke)
             .stroke_width(2)
-            .fill_color(cm.color(Palette::EditBackground))
+            .fill_color(cm.palette().edit_background)
             .build();
 
         Rectangle::with_center(SCREEN_CENTER, Size::new(WIDTH, HEIGHT))
@@ -46,21 +43,21 @@ impl Edit {
 
         const DELTA_Y: i32 = DISPLAY_HEIGHT as i32 / 15;
 
-        FONT_BIG.render_aligned(
+        cm.device_const.big_font.render_aligned(
             self.name_str.as_str(),
             SCREEN_CENTER + Point::new(0, -DELTA_Y),
             VerticalPosition::Center,
             HorizontalAlignment::Center,
-            FontColor::Transparent(cm.color(Palette::Text1Bold)),
+            FontColor::Transparent(cm.palette().text2),
             display,
         )?;
 
-        FONT_BIG.render_aligned(
+        cm.device_const.big_font.render_aligned(
             self.val_str.as_str(),
             SCREEN_CENTER + Point::new(0, DELTA_Y),
             VerticalPosition::Center,
             HorizontalAlignment::Center,
-            FontColor::Transparent(cm.color(Palette::Text2Bold)),
+            FontColor::Transparent(cm.palette().text2_bold),
             display,
         )?;
         Ok(())

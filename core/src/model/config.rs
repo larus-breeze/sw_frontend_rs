@@ -1,8 +1,6 @@
 use crate::{
-    model::CoreModel,
     system_of_units::{FloatToSpeed, Speed},
-    view::helpers::themes::{Palette, PaletteColors, DARK_MODE},
-    Colors, HwVersion, SwVersion,
+    HwVersion, Palette, SwVersion,
 };
 use core::{convert::From, mem::transmute};
 
@@ -46,11 +44,16 @@ pub struct Config {
     pub av2_climb_rate_tc: f32,
     pub av_speed_to_fly_tc: f32,
     pub alt_stf_thermal_climb: bool,
-    pub theme: &'static PaletteColors,
+    pub theme: &'static Palette,
 }
 
-impl Default for Config {
-    fn default() -> Self {
+impl Config {
+    pub fn default(
+        uuid: u32,
+        hw_version: HwVersion,
+        sw_version: SwVersion,
+        theme: &'static Palette,
+    ) -> Self {
         Self {
             display_active: DisplayActive::Vario,
             last_display_active: DisplayActive::Vario,
@@ -62,19 +65,13 @@ impl Default for Config {
             snd_max_freq: 1864.0,   // +7,5
             snd_exp_mul: 0.138629,  // -5 .. 5 two octaves
             snd_duty_cycle: 200,
-            uuid: 0,
-            hw_version: HwVersion::default(),
-            sw_version: SwVersion::default(),
+            uuid,
+            hw_version,
+            sw_version,
             av2_climb_rate_tc: 30.0,
             av_speed_to_fly_tc: 5.0,
             alt_stf_thermal_climb: false,
-            theme: &DARK_MODE,
+            theme,
         }
-    }
-}
-
-impl CoreModel {
-    pub fn color(&self, color_name: Palette) -> Colors {
-        self.config.theme[color_name as usize]
     }
 }
