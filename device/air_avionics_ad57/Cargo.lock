@@ -848,6 +848,7 @@ dependencies = [
  "static_cell",
  "stm32f4xx-hal",
  "tfmt",
+ "u8g2-fonts",
 ]
 
 [[package]]

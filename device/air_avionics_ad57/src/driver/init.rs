@@ -1,9 +1,9 @@
 use crate::driver::{
     frame_buffer::*, init_can, keyboard::*, nmea::*, CanRx, CanTx, MonoTimer, Storage,
 };
-use crate::utils::{HW_VERSION, SW_VERSION};
 use crate::{
     dev_controller::DevController, dev_view::DevView, driver::*, idle_loop::IdleLoop, Statistics,
+    DEVICE_CONST,
 };
 use corelib::{
     basic_config::{MAX_RX_FRAMES, MAX_TX_FRAMES, VDA},
@@ -151,7 +151,7 @@ pub fn hw_init(
     let mut eeprom = Storage::new(i2c).unwrap();
 
     // Setup ----------> CoreModel
-    let mut core_model = CoreModel::new(uuid(), HW_VERSION, SW_VERSION);
+    let mut core_model = CoreModel::new(&DEVICE_CONST, uuid());
 
     // Setup ----------> controller
     let mut dev_controller = DevController::new(

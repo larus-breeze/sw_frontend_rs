@@ -1,3 +1,4 @@
+use crate::{DISPLAY_HEIGHT, DISPLAY_WIDTH};
 /// The display driver consists of two components:
 /// - Display unit, which uses the draw target trait and is used to build the content.
 /// - Framebuffer, which is used to copy the content to the LCD.
@@ -5,10 +6,7 @@
 /// Both components access the same buffer memory. Decoupling is achieved by calling the copy
 /// routine after the image has been built up.
 use core::{mem::transmute, ptr::addr_of};
-use corelib::{
-    basic_config::{DISPLAY_HEIGHT, DISPLAY_WIDTH},
-    Colors, CoreError, DrawImage,
-};
+use corelib::{Colors, CoreError, DrawImage};
 use embedded_graphics::{draw_target::DrawTarget, prelude::*, primitives::Rectangle};
 use stm32h7xx_hal::{
     device::MDMA,
@@ -200,6 +198,9 @@ impl OriginDimensions for Display {
 }
 
 impl DrawImage for Display {
+    const DISPLAY_HEIGHT: u32 = DISPLAY_HEIGHT;
+    const DISPLAY_WIDTH: u32 = DISPLAY_WIDTH;
+
     fn draw_line_unchecked(&mut self, idx: usize, len: usize, color: Colors) {
         for dx in 0..len {
             self.buf[idx + dx] = color.into_storage();

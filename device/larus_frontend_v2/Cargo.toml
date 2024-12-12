@@ -27,6 +27,7 @@ embedded-sdmmc = { version = "0.7" }
 # other libraries
 display-interface = "0.4"
 embedded-graphics = "0.8.0"
+u8g2-fonts = "0.3.0"
 embedded-hal = { version = "0.2.6", features = ["unproven"] }
 embedded-storage = "0.3"
 fugit = "0.3"
@@ -39,10 +40,7 @@ nb = "1"
 [dependencies.corelib]
 path = "../../core"
 default-features = false 
-features = ["larus_frontend_v2", "eeprom_size_8192"]
-
-[dev-dependencies]
-u8g2-fonts = "0.3.0"
+features = ["colors_8_indexed", "eeprom_size_8192"]
 
 [features]
 test-panic = []

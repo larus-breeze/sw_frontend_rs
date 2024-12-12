@@ -1,5 +1,5 @@
 use super::{FrameBuffer, TBuffer, AVAIL_PIXELS};
-use corelib::basic_config::{DISPLAY_HEIGHT, DISPLAY_WIDTH};
+use crate::{DISPLAY_HEIGHT, DISPLAY_WIDTH};
 use corelib::{Colors, CoreError, DrawImage};
 use embedded_graphics::{
     draw_target::DrawTarget, geometry::OriginDimensions, prelude::*, primitives::Rectangle, Pixel,
@@ -73,6 +73,9 @@ impl OriginDimensions for Display {
 }
 
 impl DrawImage for Display {
+    const DISPLAY_HEIGHT: u32 = DISPLAY_HEIGHT;
+    const DISPLAY_WIDTH: u32 = DISPLAY_WIDTH;
+
     fn draw_line_unchecked(&mut self, idx: usize, len: usize, color: Colors) {
         for dx in 0..len {
             self.buf[idx + dx] = color.into_storage();

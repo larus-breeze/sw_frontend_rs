@@ -1,4 +1,4 @@
-use crate::{driver::*, utils::*, DevController, DevView, IdleLoop};
+use crate::{driver::*, utils::*, DevController, DevView, IdleLoop, DEVICE_CONST};
 use corelib::{
     basic_config::{MAX_RX_FRAMES, MAX_TX_FRAMES, VDA},
     CanDispatch, CoreModel, QIdleEvents, QRxFrames, QTxFrames, QTxIrqFrames,
@@ -136,7 +136,7 @@ pub fn hw_init(
     can_dispatch.set_legacy_filter(0x100, 0x120).unwrap();
 
     // Setup ----------> CoreModel
-    let mut core_model = CoreModel::new(uuid(), HW_VERSION, SW_VERSION);
+    let mut core_model = CoreModel::new(&&DEVICE_CONST, uuid());
 
     // Setup ----------> Frame buffer, Display
     let (frame_buffer, dev_view) = {

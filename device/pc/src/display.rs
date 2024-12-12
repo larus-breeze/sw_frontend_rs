@@ -1,3 +1,4 @@
+use crate::dev_const::{DISPLAY_HEIGHT, DISPLAY_WIDTH};
 use corelib::*;
 use embedded_graphics::{
     draw_target::DrawTarget,
@@ -6,21 +7,6 @@ use embedded_graphics::{
     Pixel,
 };
 use embedded_graphics_simulator::{OutputSettingsBuilder, SimulatorDisplay};
-
-#[cfg(feature = "air_avionics_ad57")]
-pub const DISPLAY_WIDTH: u32 = 227;
-#[cfg(feature = "air_avionics_ad57")]
-pub const DISPLAY_HEIGHT: u32 = 285;
-
-#[cfg(feature = "larus_frontend_v1")]
-pub const DISPLAY_WIDTH: u32 = 240;
-#[cfg(feature = "larus_frontend_v1")]
-pub const DISPLAY_HEIGHT: u32 = 320;
-
-#[cfg(feature = "larus_frontend_v2")]
-pub const DISPLAY_WIDTH: u32 = 480;
-#[cfg(feature = "larus_frontend_v2")]
-pub const DISPLAY_HEIGHT: u32 = 480;
 
 pub struct MockDisplay {
     pub display: SimulatorDisplay<Colors>,

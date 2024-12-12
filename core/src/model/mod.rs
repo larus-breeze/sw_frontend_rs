@@ -37,9 +37,9 @@ pub struct CoreModel {
 }
 
 impl CoreModel {
-    pub fn new(device_const: &'static DeviceConst) -> Self {
+    pub fn new(device_const: &'static DeviceConst, uuid: u32) -> Self {
         let calculated = Calculated::default();
-        let config = Config::default(&device_const.dark_theme);
+        let config = Config::default(&device_const.dark_theme, uuid);
         let control = Control::default();
         let device = Device::default();
         let glider_data = GliderData::default();

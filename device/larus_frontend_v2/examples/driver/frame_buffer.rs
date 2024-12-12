@@ -1,6 +1,6 @@
 use super::{Display, Ltdc};
+use super::{DISPLAY_HEIGHT, DISPLAY_WIDTH};
 use core::{mem, mem::transmute, ptr::addr_of};
-use corelib::basic_config::{DISPLAY_HEIGHT, DISPLAY_WIDTH};
 use embedded_hal::can::Frame;
 use stm32h7xx_hal::pac;
 

@@ -24,6 +24,7 @@ use defmt::trace;
 
 use rtic::app;
 
+mod dev_const;
 mod dev_controller;
 mod dev_view;
 mod driver;
@@ -36,6 +37,7 @@ use stm32f4xx_hal::interrupt;
 
 use corelib::basic_config::MAX_TX_FRAMES;
 use corelib::*;
+use dev_const::*;
 use dev_controller::*;
 use dev_view::*;
 use driver::*;

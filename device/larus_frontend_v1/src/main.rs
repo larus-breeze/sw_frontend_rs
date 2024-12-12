@@ -1,6 +1,7 @@
 #![no_main]
 #![no_std]
 
+mod dev_const;
 mod dev_controller;
 mod dev_view;
 mod driver;
@@ -15,6 +16,7 @@ use defmt_rtt as _;
 use stm32h7xx_hal::interrupt;
 
 use corelib::*;
+use dev_const::*;
 use dev_controller::*;
 use dev_view::*;
 use driver::*;

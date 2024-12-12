@@ -1,11 +1,11 @@
-mod device_const;
+mod dev_const;
 mod display;
 mod eeprom;
 mod tcp;
 
 use byteorder::{ByteOrder, LittleEndian as LE};
 use corelib::*;
-use device_const::{DISPLAY_HEIGHT, DISPLAY_WIDTH};
+use dev_const::{DISPLAY_HEIGHT, DISPLAY_WIDTH};
 
 use display::MockDisplay;
 use eeprom::Storage;
@@ -24,6 +24,13 @@ fn millis() -> u16 {
         .expect("Time went backwards");
     since_the_epoch.as_millis() as u16
 }
+
+const SW_VERSION: SwVersion = SwVersion {
+    version: [0, 1, 1, 0],
+};
+const HW_VERSION: HwVersion = HwVersion {
+    version: [1, 3, 1, 0],
+};
 
 fn main() -> Result<(), core::convert::Infallible> {
     println!(
@@ -64,7 +71,9 @@ fn main() -> Result<(), core::convert::Infallible> {
         unsafe { Q_TX_FRAMES.split() }
     };
 
-    let mut core_model = CoreModel::new(&device_const::DEVICE_CONST);
+    println!("Display {} {}", DISPLAY_HEIGHT, DISPLAY_WIDTH);
+    let mut core_model = CoreModel::new(&dev_const::DEVICE_CONST, 0x1234_5678);
+    println!("Display {} {}", DISPLAY_HEIGHT, DISPLAY_WIDTH);
 
     let mut eeprom = Storage::new().unwrap();
     let mut nmea_server = TcpServer::new("127.0.0.1:4353");

@@ -42,10 +42,11 @@ pub struct Config {
     pub av_speed_to_fly_tc: f32,
     pub alt_stf_thermal_climb: bool,
     pub theme: &'static Palette,
+    pub uuid: u32,
 }
 
 impl Config {
-    pub fn default(theme: &'static Palette) -> Self {
+    pub fn default(theme: &'static Palette, uuid: u32) -> Self {
         Self {
             display_active: DisplayActive::Vario,
             last_display_active: DisplayActive::Vario,
@@ -61,6 +62,7 @@ impl Config {
             av_speed_to_fly_tc: 5.0,
             alt_stf_thermal_climb: false,
             theme,
+            uuid,
         }
     }
 }

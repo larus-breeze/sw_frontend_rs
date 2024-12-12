@@ -1,4 +1,5 @@
 use super::{TBuffer, AVAIL_PIXELS, CLUT_COLORS};
+use super::{DISPLAY_HEIGHT, DISPLAY_WIDTH};
 use core::ptr::addr_of;
 use defmt::info;
 use stm32h7xx_hal::{
@@ -33,9 +34,7 @@ pub struct LtdcPins(
     pub gpio::Pin<'B', 9>,
 );
 
-pub const DISPLAY_HEIGHT: usize = 480;
-pub const DISPLAY_WIDTH: usize = 480;
-pub const PIX_AVAIL: usize = DISPLAY_HEIGHT * DISPLAY_WIDTH;
+pub const PIX_AVAIL: usize = (DISPLAY_HEIGHT * DISPLAY_WIDTH) as usize;
 
 pub struct Ltdc {}
 
