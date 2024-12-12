@@ -1,10 +1,31 @@
+/// The Persistence Layer stores Data in EEPROM an distributes it to NMEA and Can Bus interfaces
+/// 
+/// The persistent layer stores the data in the EEPROM and distributes the data to the NMEA and Can 
+/// bus interfaces. Data points that can be processed must be recorded by the PersistenceId. The 
+/// persist_restore_item() method writes the data read from the EEPROM to the CoreModel. The 
+/// persist_store_item() method stores model data in the EEPROM.
+/// 
+/// The set_id() method receives data from the NMEA and CAN bus interfaces and from the editor, 
+/// saves it in the EEPROM if necessary and distributes the data to interfaces if required. The 
+/// distribution of the data to the interfaces is controlled via the enum Echo:
+///   - Echo::None -> no distribution
+///   - Echo::Nmea -> forwarding to the NMEA interface
+///   - Echo::Can -> forwarding to the Can bus interface
+///   - Echo::NmeaAndCan -> forwarding to NMEA and Can Bus
+/// 
+/// The module also ensures that the Nmea interface and the EEPROM are not overloaded by too much 
+/// data. This is achieved by initially storing the data in an index set and only forwarding it 
+/// after a pause of incoming data of at least 500 ms. 
+
+use crate::utils::Variant;
+
 use heapless::Vec;
 
 use super::{VarioModeControl, MAX_PERS_IDS};
 use crate::{
     basic_config::PERSISTENCE_TIMEOUT, controller::helpers::IntToDuration, eeprom,
-    model::DisplayActive, system_of_units::Speed, CoreController, CoreModel, Mass, PersistenceItem,
-    Pressure, TString,
+    system_of_units::Speed, CoreController, CoreModel, Mass, PersistenceItem,
+    Pressure,
 };
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
@@ -124,72 +145,51 @@ impl CoreController {
         self.send_idle_event(crate::IdleEvent::EepromItem(p_item));
     }
 
-    pub fn persist_set_bugs(&mut self, cm: &mut CoreModel, val: f32, echo: Echo) {
-        cm.glider_data.bugs = val;
-        self.persist_finish_push(cm, PersistenceId::Bugs, echo);
-    }
-
-    pub fn persist_set_display(&mut self, cm: &mut CoreModel, display: DisplayActive, echo: Echo) {
-        cm.config.last_display_active = display;
-        self.persist_finish_push(cm, PersistenceId::Display, echo);
-    }
-
-    pub fn persist_set_theme(&mut self, cm: &mut CoreModel, theme: &TString<12>, echo: Echo) {
-        cm.config.theme = match theme.as_str() {
-            "Bright" => &cm.device_const.bright_theme,
-            _ => &cm.device_const.dark_theme,
-        };
-        self.persist_finish_push(cm, PersistenceId::DisplayTheme, echo);
-    }
-
-    pub fn persist_set_glider_idx(&mut self, cm: &mut CoreModel, val: i32, echo: Echo) {
-        cm.config.glider_idx = val;
-        self.persist_finish_push(cm, PersistenceId::Glider, echo);
-    }
-
-    pub fn persist_set_maccready(&mut self, cm: &mut CoreModel, val: Speed, echo: Echo) {
-        cm.config.mc_cready = val;
-        self.persist_finish_push(cm, PersistenceId::McCready, echo);
-    }
-
-    pub fn persist_set_pilot_weight(&mut self, cm: &mut CoreModel, val: Mass, echo: Echo) {
-        cm.glider_data.pilot_weight = val;
-        self.persist_finish_push(cm, PersistenceId::PilotWeight, echo);
-    }
-
-    pub fn persist_set_pilot_qnh(&mut self, cm: &mut CoreModel, val: Pressure, echo: Echo) {
-        cm.sensor.pressure_altitude.set_qnh(val);
-        self.persist_finish_push(cm, PersistenceId::Qnh, echo);
-    }
-
-    pub fn persist_set_vario_mode_control(
-        &mut self,
-        cm: &mut CoreModel,
-        val: VarioModeControl,
-        echo: Echo,
-    ) {
-        cm.control.vario_mode_control = val;
-        self.persist_finish_push(cm, PersistenceId::VarioModeControl, echo);
-    }
-
-    pub fn persist_set_volume(&mut self, cm: &mut CoreModel, val: i8, echo: Echo) {
-        cm.config.volume = val;
-        self.persist_finish_push(cm, PersistenceId::Volume, echo);
-    }
-
-    pub fn persist_set_water_ballast(&mut self, cm: &mut CoreModel, val: Mass, echo: Echo) {
-        cm.glider_data.water_ballast = val;
-        self.persist_finish_push(cm, PersistenceId::WaterBallast, echo);
-    }
-
-    pub fn persist_set_tc_climb_rate(&mut self, cm: &mut CoreModel, val: f32, echo: Echo) {
-        cm.config.av2_climb_rate_tc = val;
-        self.persist_finish_push(cm, PersistenceId::TcClimbRate, echo);
-    }
-
-    pub fn persist_set_tc_speed_to_fly(&mut self, cm: &mut CoreModel, val: f32, echo: Echo) {
-        cm.config.av_speed_to_fly_tc = val;
-        self.persist_finish_push(cm, PersistenceId::TcSpeedToFly, echo);
+    pub fn persist_set(&mut self, cm: &mut CoreModel, variant: Variant, id: PersistenceId, echo: Echo) {
+        match id {
+            PersistenceId::Volume => if let Variant::I8(volume) = variant {
+                cm.config.volume = volume;
+            }
+            PersistenceId::McCready => if let Variant::Speed(mc_cready) = variant {
+                cm.config.mc_cready = mc_cready;
+            } 
+            PersistenceId::WaterBallast => if let Variant::Mass(water_ballast) = variant {
+                cm.glider_data.water_ballast = water_ballast;
+            }
+            PersistenceId::PilotWeight => if let Variant::Mass(pilot_weight) = variant {
+                cm.glider_data.pilot_weight = pilot_weight;
+            }
+            PersistenceId::Glider => if let Variant::I32(glider_idx) = variant {
+                cm.config.glider_idx = glider_idx;
+            }
+            PersistenceId::VarioModeControl => if let Variant::VarioModeControl(vario_mode_control) = variant {
+                cm.control.vario_mode_control = vario_mode_control;
+            }
+            PersistenceId::DisplayTheme => if let Variant::Str(theme_name) = variant {
+                cm.config.theme = if theme_name == "Bright" {
+                    &cm.device_const.bright_theme
+                } else {
+                    &cm.device_const.dark_theme
+                };
+            }
+            PersistenceId::Qnh => if let Variant::Pressure(qnh) = variant {
+                cm.sensor.pressure_altitude.set_qnh(qnh);
+            }
+            PersistenceId::Bugs => if let Variant::F32(bugs) = variant {
+                cm.glider_data.bugs = bugs;
+            }
+            PersistenceId::Display => if let Variant::DisplayActive(display_active) = variant {
+                cm.config.last_display_active = display_active;
+            }
+            PersistenceId::TcClimbRate => if let Variant::F32(tc_climb_rate) = variant {
+                cm.config.av2_climb_rate_tc = tc_climb_rate;
+            }
+            PersistenceId::TcSpeedToFly => if let Variant::F32(av_speed_to_fly_tc) = variant {
+                cm.config.av_speed_to_fly_tc = av_speed_to_fly_tc;
+            }
+            _ => (),
+        }
+        self.persist_finish_push(cm, id, echo);
     }
 
     fn persist_finish_push(&mut self, cm: &mut CoreModel, id: PersistenceId, echo: Echo) {
@@ -232,6 +232,6 @@ pub fn store_persistence_ids(cm: &mut CoreModel, cc: &mut CoreController) {
     cc.nmea_vals.clear();
     while let Some(id) = ids.pop() {
         // Send data via NMEA
-        cc.nmea_config(id);
+        cc.nmea_send_config_data(id);
     }
 }

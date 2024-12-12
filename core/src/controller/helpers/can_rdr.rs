@@ -1,6 +1,6 @@
 use crate::{
-    controller::helpers::{object_id, CanActive},
-    controller::Echo,
+    controller::{helpers::{object_id, CanActive}, Echo},
+    Variant,
     model::{GpsState, VarioModeControl},
     sensor_legacy, AirSpeed, Angle, CanFrame, CoreController, CoreModel, F64ToCoord,
     FloatToAcceleration, FloatToAngularVelocity, FloatToDensity, FloatToLength, FloatToMass,
@@ -48,23 +48,23 @@ impl CoreController {
         match config_id {
             PersistenceId::McCready => {
                 let val = frame.read_f32(4).m_s();
-                self.persist_set_maccready(cm, val, Echo::Nmea);
+                self.persist_set(cm, Variant::Speed(val), PersistenceId::McCready, Echo::Nmea);
             }
             PersistenceId::PilotWeight => {
                 let val = frame.read_f32(4).kg();
-                self.persist_set_pilot_weight(cm, val, Echo::Nmea)
+                self.persist_set(cm, Variant::Mass(val), PersistenceId::PilotWeight, Echo::Nmea)
             }
             PersistenceId::Volume => {
                 let val = frame.read_u8(2) as i8;
-                self.persist_set_volume(cm, val, Echo::Nmea);
+                self.persist_set(cm, Variant::I8(val), PersistenceId::Volume, Echo::Nmea);
             }
             PersistenceId::WaterBallast => {
                 let val = frame.read_f32(4).kg();
-                self.persist_set_water_ballast(cm, val, Echo::Nmea);
+                self.persist_set(cm, Variant::Mass(val), PersistenceId::WaterBallast, Echo::Nmea);
             }
             PersistenceId::VarioModeControl => {
                 let val = VarioModeControl::from(frame.read_u8(2));
-                self.persist_set_vario_mode_control(cm, val, Echo::None);
+                self.persist_set(cm, Variant::VarioModeControl(val), PersistenceId::VarioModeControl, Echo::None);
             }
             _ => (),
         }
