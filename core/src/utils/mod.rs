@@ -1,3 +1,4 @@
+mod variant;
 mod colors16;
 mod colors8;
 mod crc;
@@ -15,6 +16,7 @@ mod tstring;
 mod version;
 mod version_check;
 
+pub use variant::*;
 #[cfg(feature = "colors_rgb565")]
 pub use colors16::Colors;
 #[cfg(feature = "colors_8_indexed")]
@@ -49,6 +51,7 @@ where
         _ => val,
     }
 }
+
 
 /*#[cfg(test)]
 pub(crate) mod tests {

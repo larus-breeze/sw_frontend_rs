@@ -1,6 +1,6 @@
 use crate::{
     controller::Echo, model::GpsState, utils::ParseSlice, CoreController, CoreError, CoreModel,
-    FloatToPressure, FloatToSpeed, PersistenceId,
+    FloatToPressure, FloatToSpeed, PersistenceId, Variant,
 };
 use heapless::Vec;
 use tfmt::uwrite;
@@ -42,28 +42,28 @@ impl CoreController {
         match cmd.as_slice() {
             b"MC" => {
                 let val = in_range(val, 0.0, 9.9)?.m_s();
-                self.persist_set_maccready(cm, val, Echo::Can)
+                self.persist_set(cm, Variant::Speed( val), PersistenceId::McCready, Echo::Can)
             }
             b"BAL" => {
                 cm.glider_data
                     .set_ballast_fraction(in_range(val, 0.00, 1.00)?);
                 let val = cm.glider_data.water_ballast;
-                self.persist_set_water_ballast(cm, val, Echo::Can);
+                self.persist_set(cm, Variant::Mass(val), PersistenceId::WaterBallast, Echo::Can);
             }
             b"BUGS" => {
                 let val = 1.0 + in_range(val, 0.0, 50.0)? / 100.0;
-                self.persist_set_bugs(cm, val, Echo::Can);
+                self.persist_set(cm, Variant::F32(val), PersistenceId::Bugs, Echo::Can);
             }
             b"QNH" => {
                 let val = in_range(val, 900.0, 1100.0)?.hpa();
-                self.persist_set_pilot_qnh(cm, val, Echo::Can);
+                self.persist_set(cm, Variant::Pressure(val), PersistenceId::Qnh, Echo::Can);
             }
             _ => return Err(CoreError::ParseError),
         }
         Ok(())
     }
 
-    pub fn nmea_config(&mut self, id: PersistenceId) {
+    pub fn nmea_send_config_data(&mut self, id: PersistenceId) {
         // no error if deque is full
         match id {
             PersistenceId::Bugs
