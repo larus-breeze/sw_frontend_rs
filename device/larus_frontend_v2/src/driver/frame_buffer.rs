@@ -1,6 +1,6 @@
 use super::Ltdc;
+use crate::{DISPLAY_HEIGHT, DISPLAY_WIDTH};
 use core::{mem, mem::transmute, ptr::addr_of};
-use corelib::basic_config::{DISPLAY_HEIGHT, DISPLAY_WIDTH};
 
 pub const AVAIL_PIXELS: usize = (DISPLAY_HEIGHT * DISPLAY_WIDTH) as usize;
 pub type TBuffer = &'static mut [u8; AVAIL_PIXELS];

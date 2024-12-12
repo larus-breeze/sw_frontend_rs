@@ -24,6 +24,7 @@ stm32f4xx-hal = { version = "0.17", features = ["rt", "stm32f407", "fsmc_lcd", "
 # other libraries
 display-interface = "0.4"
 embedded-graphics = "0.8"
+u8g2-fonts = "0.3.0"
 embedded-hal = "0.2"
 embedded-storage = "0.2.0"
 embedded-sdmmc = { version = "0.6.0", default-features = false }
@@ -40,7 +41,7 @@ static_cell = "1.2.0"
 [dependencies.corelib]
 path = "../../core"
 default-features = false
-features = ["air_avionics_ad57", "eeprom_size_8192"]
+features = ["colors_8_indexed", "eeprom_size_8192"]
 
 
 [features]

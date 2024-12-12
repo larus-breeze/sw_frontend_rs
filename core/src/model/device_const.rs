@@ -19,7 +19,6 @@ impl CoreModel {
 }
 
 pub struct Misc {
-    pub uuid: u32,
     pub sw_version: SwVersion,
     pub hw_version: HwVersion,
 }

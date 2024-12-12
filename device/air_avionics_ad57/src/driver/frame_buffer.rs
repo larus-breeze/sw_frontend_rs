@@ -2,8 +2,9 @@ use crate::driver::r61580::{
     is_r61580, Orientation, AVAIL_PIXELS, PORTRAIT_AVAIL_HEIGHT, PORTRAIT_AVAIL_WIDTH,
     PORTRAIT_ORIGIN_X, PORTRAIT_ORIGIN_Y, R61580,
 };
+use crate::{DISPLAY_HEIGHT, DISPLAY_WIDTH};
 use core::{convert::TryInto, mem::transmute, ptr::addr_of};
-use corelib::{basic_config::DISPLAY_WIDTH, Colors, CoreError, DrawImage, RGB565_COLORS};
+use corelib::{Colors, CoreError, DrawImage, RGB565_COLORS};
 use embedded_graphics::{
     draw_target::DrawTarget, geometry::OriginDimensions, prelude::*, primitives::Rectangle, Pixel,
 };
@@ -229,6 +230,9 @@ impl OriginDimensions for Display {
 }
 
 impl DrawImage for Display {
+    const DISPLAY_HEIGHT: u32 = DISPLAY_HEIGHT;
+    const DISPLAY_WIDTH: u32 = DISPLAY_WIDTH;
+
     fn draw_line_unchecked(&mut self, idx: usize, len: usize, color: Colors) {
         for dx in 0..len {
             self.buf[idx + dx] = color.into_storage();

@@ -1,10 +1,11 @@
 #![no_main]
 #![no_std]
 
-use corelib::{Colors, DrawImage, images, themes};
+use corelib::{Colors, DrawImage};
 use embedded_graphics::{draw_target::DrawTarget, geometry::Point};
 use stm32h7xx_hal::{pac, prelude::*};
 use u8g2_fonts::types::{FontColor, HorizontalAlignment, VerticalPosition};
+use u8g2_fonts::{fonts, FontRenderer};
 
 mod driver;
 
@@ -58,11 +59,13 @@ fn main() -> ! {
     let frame_buffer = FrameBuffer::new(ltdc);
     let mut display = Display::new(frame_buffer);
 
+    let font = FontRenderer::new::<fonts::u8g2_font_fub30_tf>();
+
     loop {
         display.clear(Colors::Black).unwrap();
         display
             .draw_img(
-                images::WP_VARIO_IMG,
+                &*include_bytes!("../assets/wp_vario.lif"),
                 Point::new(0, 0),
                 Some(Colors::White),
             )
@@ -71,16 +74,15 @@ fn main() -> ! {
         delay.delay_ms(2000_u16);
 
         display.clear(Colors::Blue).unwrap();
-        themes::FONT_BIG
-            .render_aligned(
-                "Hello",
-                Point::new(240, 240),
-                VerticalPosition::Center,
-                HorizontalAlignment::Center,
-                FontColor::Transparent(Colors::White),
-                &mut display,
-            )
-            .unwrap();
+        font.render_aligned(
+            "Hello",
+            Point::new(240, 240),
+            VerticalPosition::Center,
+            HorizontalAlignment::Center,
+            FontColor::Transparent(Colors::White),
+            &mut display,
+        )
+        .unwrap();
         display.show();
         delay.delay_ms(2000_u16);
     }
