@@ -13,9 +13,7 @@
 ///   - Extend necessary mehtods params(), name(), content(), set_...()
 
 use crate::{
-    model::VarioModeControl, utils::TString, CoreController, CoreModel, Echo, FloatToMass,
-    FloatToSpeed, Polar, POLARS, POLAR_COUNT,
-    utils::Variant, PersistenceId,
+    model::VarioModeControl, utils::{TString, Variant}, view::viewable::Viewable, CoreController, CoreModel, Echo, FloatToMass, FloatToSpeed, PersistenceId, Polar, POLARS, POLAR_COUNT
 };
 
 use super::DisplayActive;
@@ -37,6 +35,8 @@ pub enum Editable {
     VarioModeControl,
     Volume,
     WaterBallast,
+    Info1,
+    Info2,
 }
 
 #[derive(Clone, Copy)]
@@ -62,7 +62,7 @@ pub struct StringParams {
 }
 
 #[derive(Clone, Copy)]
-pub struct PolarParams {
+pub struct ListParams {
     pub max: i32,
 }
 
@@ -71,7 +71,7 @@ pub enum Params {
     F32(F32Params),
     Enum(EnumParams),
     String(StringParams),
-    Polar(PolarParams),
+    List(ListParams),
 }
 
 #[derive(Clone, Copy)]
@@ -79,7 +79,7 @@ pub enum Content {
     F32(f32),
     Enum(TString<12>),
     String(TString<12>),
-    Polar(i32),
+    List(i32),
 }
 
 impl Editable {
@@ -102,7 +102,7 @@ impl Editable {
                     TString::<12>::from_str(""),
                 ],
             }),
-            Editable::Glider => Params::Polar(PolarParams {
+            Editable::Glider => Params::List(ListParams {
                 max: POLAR_COUNT as i32 - 1,
             }),
             Editable::McCready => Params::F32(F32Params {
@@ -177,6 +177,9 @@ impl Editable {
                 dec_places: 0,
                 unit: TString::<5>::from_str("kg"),
             }),
+            Editable::Info1 | Editable::Info2 =>  Params::List(ListParams {
+                max: Viewable::max() as i32,
+            }),
         }
     }
 
@@ -195,6 +198,8 @@ impl Editable {
             Editable::VarioModeControl => TString::<16>::from_str("Vario Control"),
             Editable::Volume => TString::<16>::from_str("Volume"),
             Editable::WaterBallast => TString::<16>::from_str("Water Ballast"),
+            Editable::Info1 => TString::<16>::from_str("Info 1 Content"),
+            Editable::Info2 => TString::<16>::from_str("Info 2 Content"),
         }
     }
 
@@ -215,9 +220,14 @@ impl Editable {
                     conv.f32(val, params.dec_places as usize).unwrap();
                 }
             }
-            Params::Polar(_params) => {
-                if let Content::Polar(val) = content {
-                    conv.write_str(POLARS[val as usize].name).unwrap();
+            Params::List(_params) => {
+                if let Content::List(val) = content {
+                    match self {
+                        Editable::Glider => conv.write_str(POLARS[val as usize].name).unwrap(),
+                        Editable::Info1 => conv.write_str(Viewable::from(val as u32).name()).unwrap(),
+                        Editable::Info2 => conv.write_str(Viewable::from(val as u32).name()).unwrap(),
+                        _ => (),
+                    }
                 }
             }
             Params::String(_params) => {
@@ -236,7 +246,7 @@ impl Editable {
                 DisplayActive::Horizon => Content::Enum(TString::<12>::from_str("Horizon")),
                 _ => Content::Enum(TString::<12>::from_str("Vario")),
             },
-            Editable::Glider => Content::Polar(cm.config.glider_idx),
+            Editable::Glider => Content::List(cm.config.glider_idx),
             Editable::McCready => Content::F32(cm.config.mc_cready.to_m_s()),
             Editable::None => Content::String(TString::<12>::from_str("")),
             Editable::PilotWeight => Content::F32(cm.glider_data.pilot_weight.to_kg()),
@@ -259,6 +269,8 @@ impl Editable {
             },
             Editable::Volume => Content::F32(cm.config.volume as f32),
             Editable::WaterBallast => Content::F32(cm.glider_data.water_ballast.to_kg()),
+            Editable::Info1 => Content::List(cm.config.info1_content as i32),
+            Editable::Info2 => Content::List(cm.config.info2_content as i32),
         }
     }
 
@@ -295,12 +307,14 @@ impl Editable {
     }
 
     #[allow(clippy::single_match)]
-    pub fn set_polar_content(&self, cm: &mut CoreModel, cc: &mut CoreController, val: i32) {
+    pub fn set_list_content(&self, cm: &mut CoreModel, cc: &mut CoreController, val: i32) {
         match self {
             Editable::Glider => {
                 cc.polar = Polar::new(&POLARS[val as usize], &mut cm.glider_data);
                 cc.persist_set(cm, Variant::I32(val), PersistenceId::Glider, Echo::None)
             }
+            Editable::Info1 => cc.persist_set(cm, Variant::I32(val), PersistenceId::Info1, Echo::None),
+            Editable::Info2 => cc.persist_set(cm, Variant::I32(val), PersistenceId::Info2, Echo::None),
             _ => (),
         }
     }

@@ -1,5 +1,5 @@
 use crate::{utils::Colors, CoreModel, HwVersion, SwVersion};
-use embedded_graphics::geometry::Point;
+use embedded_graphics::geometry::{Point, Size};
 use u8g2_fonts::FontRenderer;
 
 pub struct DeviceConst {
@@ -18,15 +18,15 @@ impl CoreModel {
     }
 }
 
-pub struct Misc {
-    pub sw_version: SwVersion,
-    pub hw_version: HwVersion,
-}
-
 pub struct Sizes {
     pub vario: VarioSizes,
     pub horizon: HorizonSizes,
     pub display: DisplaySizes,
+}
+
+pub struct Misc {
+    pub sw_version: SwVersion,
+    pub hw_version: HwVersion,
 }
 
 pub struct DisplaySizes {
@@ -36,6 +36,9 @@ pub struct DisplaySizes {
     pub radius: u32,
     pub center: Point,
     pub screen_center: Point,
+    pub m_s: Size,
+    pub km_h: Size,
+
 }
 
 pub struct HorizonSizes {
@@ -66,9 +69,8 @@ pub struct VarioSizes {
     pub bat_pos: Point,
     pub sat_pos: Point,
     pub unit_pos: Point,
-    pub wind_pos: Point,
-    pub delta_pos: Point,
-    pub avg_climb_pos: Point,
+    pub info1_pos: Point,
+    pub info2_pos: Point,
     pub version_pos: Point,
     pub wind_len: i32,
     pub wind_len_min: i32,

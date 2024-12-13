@@ -1,4 +1,5 @@
 use super::helpers::sprites::*;
+
 use crate::{
     model::{CoreModel, FlyMode, SystemState, VarioMode},
     system_of_units::FloatToSpeed,
@@ -161,14 +162,10 @@ impl Vario {
             }
         };
 
-        // draw wind arrow
-        let txt_angle = if cm.sensor.airspeed.ias() < 30.0.km_h() {
+        if cm.sensor.airspeed.ias() < 30.0.km_h() {
             angle = 180.0.deg(); // The sensor box should actually do this
             av_angle = 180.0.deg();
-            cm.sensor.euler_yaw
-        } else {
-            cm.sensor.wind_vector.angle()
-        };
+        }
 
         let len = match wind_speed {
             x if x < WIND_MIN => sizes.wind_len_min, // Light wind is set to a minimum size
@@ -181,16 +178,10 @@ impl Vario {
         };
         let avg_wind_spped = cm.sensor.average_wind.speed().to_km_h();
         let delta_speed = wind_speed - avg_wind_spped;
-        let (delta_txt, delta_color) = if delta_speed < 0.0 {
-            (
-                tformat!(5, "{:.0}", delta_speed).unwrap(),
-                cm.palette().vario_wind_minus,
-            )
+        let delta_color = if delta_speed < 0.0 {
+            cm.palette().vario_wind_minus
         } else {
-            (
-                tformat!(5, "+{:.0}", delta_speed).unwrap(),
-                cm.palette().vario_wind_plus,
-            )
+            cm.palette().vario_wind_plus
         };
         let tail_thick = (num::clamp(num::abs(delta_speed), 1.0, 10.0)) as u32;
         wind_arrow(
@@ -205,31 +196,10 @@ impl Vario {
             delta_color,
         )?;
 
-        // draw wind direction an speed text
-        display.draw_img(
-            &cm.device_const.images.km_h,
-            sizes.wind_pos,
-            Some(cm.palette().scale),
-        )?;
-        let wind_deg = txt_angle.to_degrees();
-        let s = tformat!(25, "{:.0}° {:.0}", wind_deg, wind_speed).unwrap();
-        cm.device_const.big_font.render_aligned(
-            s.as_str(),
-            sizes.wind_pos,
-            VerticalPosition::Top,
-            HorizontalAlignment::Right,
-            FontColor::Transparent(cm.palette().scale),
-            display,
-        )?;
+        // draw info1 and info2 fields
+        cm.config.info1_content.draw(display, cm, sizes.info1_pos, cm.palette().scale)?;
+        cm.config.info2_content.draw(display, cm, sizes.info2_pos, cm.palette().scale)?;
 
-        cm.device_const.big_font.render_aligned(
-            delta_txt.as_str(),
-            sizes.delta_pos,
-            VerticalPosition::Top,
-            HorizontalAlignment::Center,
-            FontColor::Transparent(delta_color),
-            display,
-        )?;
 
         // draw software version during the first 10 seconds
         if false {
@@ -294,26 +264,6 @@ impl Vario {
             sizes.tcr_width,
             sizes.angle_m_s,
             cm.palette().needle3,
-        )?;
-
-        // draw average climb rate text
-        let s = if cm.calculated.av2_climb_rate.to_m_s() < 0.0 {
-            tformat!(5, "{:.1}", cm.calculated.av2_climb_rate.to_m_s()).unwrap()
-        } else {
-            tformat!(5, "+{:.1}", cm.calculated.av2_climb_rate.to_m_s()).unwrap()
-        };
-        display.draw_img(
-            &cm.device_const.images.m_s,
-            sizes.avg_climb_pos,
-            Some(cm.palette().scale),
-        )?;
-        cm.device_const.big_font.render_aligned(
-            s.as_str(),
-            sizes.avg_climb_pos,
-            VerticalPosition::Top,
-            HorizontalAlignment::Right,
-            FontColor::Transparent(cm.palette().scale),
-            display,
         )?;
 
         // draw climb rate indicator

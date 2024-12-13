@@ -1,6 +1,5 @@
 use crate::{
-    system_of_units::{FloatToSpeed, Speed},
-    Palette,
+    system_of_units::{FloatToSpeed, Speed}, view::viewable::Viewable, Palette
 };
 use core::{convert::From, mem::transmute};
 
@@ -43,6 +42,8 @@ pub struct Config {
     pub alt_stf_thermal_climb: bool,
     pub theme: &'static Palette,
     pub uuid: u32,
+    pub info1_content: Viewable,
+    pub info2_content: Viewable,
 }
 
 impl Config {
@@ -63,6 +64,8 @@ impl Config {
             alt_stf_thermal_climb: false,
             theme,
             uuid,
+            info1_content: Viewable::None,
+            info2_content: Viewable::WindAndDelta,
         }
     }
 }

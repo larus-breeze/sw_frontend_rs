@@ -71,14 +71,14 @@ fn edit_f32_content(
     }
 }
 
-fn edit_polar_content(
+fn edit_list_content(
     cm: &mut CoreModel,
     cc: &mut CoreController,
     key_event: &mut KeyEvent,
     target: Editable,
-    params: &PolarParams,
+    params: &ListParams,
 ) {
-    if let Content::Polar(mut val) = cm.control.editor.content {
+    if let Content::List(mut val) = cm.control.editor.content {
         match key_event {
             KeyEvent::Rotary2Left => val -= 1,
             KeyEvent::Rotary2Right => val += 1,
@@ -87,8 +87,8 @@ fn edit_polar_content(
             _ => return,
         }
         let val = clamp(val, 0, params.max);
-        target.set_polar_content(cm, cc, val);
-        cm.control.editor.content = Content::Polar(val);
+        target.set_list_content(cm, cc, val);
+        cm.control.editor.content = Content::List(val);
         *key_event = KeyEvent::NoEvent
     }
 }
@@ -109,7 +109,7 @@ pub fn key_action(key_event: &mut KeyEvent, cm: &mut CoreModel, cc: &mut CoreCon
         match cm.control.editor.params {
             Params::Enum(params) => edit_enum_content(cm, cc, key_event, target, &params),
             Params::String(_) => (),
-            Params::Polar(params) => edit_polar_content(cm, cc, key_event, target, &params),
+            Params::List(params) => edit_list_content(cm, cc, key_event, target, &params),
             Params::F32(params) => edit_f32_content(cm, cc, key_event, target, &params),
         }
     }
