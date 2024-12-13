@@ -1,6 +1,8 @@
 use heapless::String;
 use tfmt::{uDisplayFormatted, uWrite, Convert, Formatter, Padding};
 
+use crate::tformat;
+
 #[derive(Clone, Copy, Debug)]
 pub struct Date {
     year: u16,
@@ -87,6 +89,10 @@ impl DateTime {
             r.push(c as char).unwrap();
         }
         r
+    }
+
+    pub fn to_time_string(&self) -> String<5> {
+        tformat!(5, "{:02}:{:02}", self.time.hour, self.time.min).unwrap()
     }
 
     pub fn date(&self) -> &Date {

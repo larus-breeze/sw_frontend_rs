@@ -1,6 +1,6 @@
 use crate::{HW_VERSION, SW_VERSION};
 use corelib::{DeviceConst, DisplaySizes, HorizonSizes, Images, Misc, Palette, Sizes, VarioSizes};
-use embedded_graphics::geometry::Point;
+use embedded_graphics::geometry::{Point, Size};
 use u8g2_fonts::{fonts, FontRenderer};
 
 pub const DISPLAY_HEIGHT: u32 = 480;
@@ -49,6 +49,9 @@ const fn display_sizes() -> DisplaySizes {
         radius: 238,
         center: Point::new(240, 240),
         screen_center: Point::new(240, 240),
+        m_s: Size::new(45, 29),
+        km_h: Size::new(56, 36),
+
     }
 }
 
@@ -83,9 +86,8 @@ const fn vario_sizes() -> VarioSizes {
         bat_pos: Point::new(375, 300),
         sat_pos: Point::new(410, 300),
         unit_pos: Point::new(208, 432),
-        wind_pos: Point::new(280, 320),
-        delta_pos: Point::new(247, 363),
-        avg_climb_pos: Point::new(270, 105),
+        info1_pos: Point::new(240, 120),
+        info2_pos: Point::new(240, 360),
         version_pos: Point::new(300, 120),
         wind_len: 120,
         wind_len_min: 80,

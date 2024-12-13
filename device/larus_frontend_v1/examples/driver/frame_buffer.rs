@@ -4,12 +4,14 @@
 ///
 /// Both components access the same buffer memory. Decoupling is achieved by calling the copy
 /// routine after the image has been built up.
+const DISPLAY_HEIGHT: u32 = 320;
+const DISPLAY_WIDTH: u32 = 240;
+
 use core::{
     mem::transmute,
     ptr::{addr_eq, addr_of},
 };
 use corelib::{
-    basic_config::{DISPLAY_HEIGHT, DISPLAY_WIDTH},
     Colors, Colors8, CoreError, DrawImage, RGB565_COLORS,
 };
 use embedded_graphics::{
@@ -212,6 +214,9 @@ impl OriginDimensions for Display {
 }
 
 impl DrawImage for Display {
+    const DISPLAY_HEIGHT: u32 = DISPLAY_HEIGHT;
+    const DISPLAY_WIDTH: u32 = DISPLAY_WIDTH;
+
     fn draw_line_unchecked(&mut self, idx: usize, len: usize, color: Colors) {
         for dx in 0..len {
             self.buf[idx + dx] = color.into_storage();

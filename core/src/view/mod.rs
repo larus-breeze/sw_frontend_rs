@@ -7,6 +7,9 @@ pub mod helpers;
 pub(crate) mod horizon;
 pub(crate) mod menu;
 pub(crate) mod vario;
+pub(crate) mod viewable; 
+
+
 
 use crate::{
     model::{CoreModel, DisplayActive, EditMode},

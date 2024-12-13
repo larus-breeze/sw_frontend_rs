@@ -71,9 +71,7 @@ fn main() -> Result<(), core::convert::Infallible> {
         unsafe { Q_TX_FRAMES.split() }
     };
 
-    println!("Display {} {}", DISPLAY_HEIGHT, DISPLAY_WIDTH);
     let mut core_model = CoreModel::new(&dev_const::DEVICE_CONST, 0x1234_5678);
-    println!("Display {} {}", DISPLAY_HEIGHT, DISPLAY_WIDTH);
 
     let mut eeprom = Storage::new().unwrap();
     let mut nmea_server = TcpServer::new("127.0.0.1:4353");

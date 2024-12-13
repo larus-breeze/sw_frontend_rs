@@ -17,7 +17,7 @@
 /// data. This is achieved by initially storing the data in an index set and only forwarding it 
 /// after a pause of incoming data of at least 500 ms. 
 
-use crate::utils::Variant;
+use crate::{utils::Variant, view::viewable::Viewable};
 
 use heapless::Vec;
 
@@ -43,6 +43,8 @@ pub enum PersistenceId {
     Display = 9,
     TcClimbRate = 10,
     TcSpeedToFly = 11,
+    Info1 = 12,
+    Info2 = 13,
     LastItem,
 }
 
@@ -98,6 +100,8 @@ impl CoreController {
             PersistenceId::Display => cm.config.display_active = item.to_u8().into(),
             PersistenceId::TcClimbRate => cm.config.av2_climb_rate_tc = item.to_f32(),
             PersistenceId::TcSpeedToFly => cm.config.av_speed_to_fly_tc = item.to_f32(),
+            PersistenceId::Info1 => cm.config.info1_content = Viewable::from(item.to_u32()),
+            PersistenceId::Info2 => cm.config.info2_content = Viewable::from(item.to_u32()),
             _ => (),
         }
     }
@@ -140,6 +144,8 @@ impl CoreController {
             PersistenceId::TcSpeedToFly => {
                 PersistenceItem::from_f32(id, cm.config.av_speed_to_fly_tc)
             }
+            PersistenceId::Info1 => PersistenceItem::from_u32(id, cm.config.info1_content as u32),
+            PersistenceId::Info2 => PersistenceItem::from_u32(id, cm.config.info2_content as u32),
             _ => PersistenceItem::do_not_store(),
         };
         self.send_idle_event(crate::IdleEvent::EepromItem(p_item));
@@ -186,6 +192,12 @@ impl CoreController {
             }
             PersistenceId::TcSpeedToFly => if let Variant::F32(av_speed_to_fly_tc) = variant {
                 cm.config.av_speed_to_fly_tc = av_speed_to_fly_tc;
+            }
+            PersistenceId::Info1 => if let Variant::I32(info) = variant {
+                cm.config.info1_content = Viewable::from(info as u32);
+            }
+            PersistenceId::Info2 => if let Variant::I32(info) = variant {
+                cm.config.info2_content = Viewable::from(info as u32);
             }
             _ => (),
         }
