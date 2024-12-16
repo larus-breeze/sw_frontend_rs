@@ -1,4 +1,3 @@
-mod variant;
 mod colors16;
 mod colors8;
 mod crc;
@@ -13,10 +12,10 @@ mod parse;
 mod persistence;
 mod rgb565_colors;
 mod tstring;
+mod variant;
 mod version;
 mod version_check;
 
-pub use variant::*;
 #[cfg(feature = "colors_rgb565")]
 pub use colors16::Colors;
 #[cfg(feature = "colors_8_indexed")]
@@ -34,6 +33,7 @@ pub use parse::*;
 pub use persistence::*;
 pub use rgb565_colors::RGB565_COLORS;
 pub use tstring::*;
+pub use variant::*;
 pub use version::*;
 pub use version_check::*;
 
@@ -51,7 +51,6 @@ where
         _ => val,
     }
 }
-
 
 /*#[cfg(test)]
 pub(crate) mod tests {

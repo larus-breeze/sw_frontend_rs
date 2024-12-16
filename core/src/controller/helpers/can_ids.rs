@@ -1,5 +1,7 @@
 use core::mem::transmute;
 
+use crate::PersistenceId;
+
 /// Definition of special ids (Object Id 4 Vario Display)
 pub enum SpecialId {
     Sound = 0,
@@ -34,6 +36,48 @@ impl From<u16> for GenericId {
         } else {
             // Saftey: only valid values are transmuted
             unsafe { transmute::<u8, GenericId>(value as u8) }
+        }
+    }
+}
+
+#[allow(dead_code)]
+pub enum CanConfigId {
+    Volume = 0,
+    MacCready = 1,
+    WaterBallast = 2,
+    Bugs = 3,
+    Qnh = 4,
+    PilotWeight = 5,
+    VarioModeControl = 6,
+    TcClimbRate = 7,
+    TcSpeedToFly = 8,
+    Ignore = 9,
+}
+
+impl From<u16> for CanConfigId {
+    fn from(value: u16) -> Self {
+        if value > CanConfigId::Ignore as u16 {
+            CanConfigId::Ignore
+        } else {
+            // Saftey: only valid values are transmuted
+            unsafe { transmute::<u8, CanConfigId>(value as u8) }
+        }
+    }
+}
+
+impl From<PersistenceId> for CanConfigId {
+    fn from(value: PersistenceId) -> Self {
+        match value {
+            PersistenceId::Volume => CanConfigId::Volume,
+            PersistenceId::McCready => CanConfigId::MacCready,
+            PersistenceId::WaterBallast => CanConfigId::WaterBallast,
+            PersistenceId::Bugs => CanConfigId::Bugs,
+            PersistenceId::Qnh => CanConfigId::Qnh,
+            PersistenceId::PilotWeight => CanConfigId::PilotWeight,
+            PersistenceId::VarioModeControl => CanConfigId::VarioModeControl,
+            PersistenceId::TcClimbRate => CanConfigId::TcClimbRate,
+            PersistenceId::TcSpeedToFly => CanConfigId::TcSpeedToFly,
+            _ => CanConfigId::Ignore,
         }
     }
 }

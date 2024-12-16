@@ -11,9 +11,7 @@ use core::{
     mem::transmute,
     ptr::{addr_eq, addr_of},
 };
-use corelib::{
-    Colors, Colors8, CoreError, DrawImage, RGB565_COLORS,
-};
+use corelib::{Colors, Colors8, CoreError, DrawImage, RGB565_COLORS};
 use embedded_graphics::{
     draw_target::DrawTarget, pixelcolor::PixelColor, prelude::*, primitives::Rectangle,
 };

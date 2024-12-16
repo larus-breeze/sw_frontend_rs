@@ -11,18 +11,17 @@ pub enum Task {
     CanTx,
     CanTimer,
     //
-    Mdma,
     Keyboard,
     Controller,
     View,
-    //
     NmeaRx,
+    //
     NmeaTx,
     None,
 }
 
 // Pattern defines, which tasks must be active to feed the watchdog
-const ALL_ALIVE_PATTERN: u32 = 0b_0010_1111_1101;
+const ALL_ALIVE_PATTERN: u32 = 0b_0001_0111_1101;
 
 impl Task {
     pub fn from_usize(u: usize) -> Self {
@@ -41,7 +40,6 @@ const TASK_NAMES: [&str; TASK_CNT] = [
     "CanRx",
     "CanTx",
     "CanTimer",
-    "Mdma",
     "Keyboard",
     "Controller",
     "View",

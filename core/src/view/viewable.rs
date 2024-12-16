@@ -1,10 +1,5 @@
-use crate::{
-    CoreModel, DrawImage, CoreError, Colors, tformat, FloatToSpeed,
-};
-use embedded_graphics::{
-    draw_target::DrawTarget,
-    geometry::Point,
-};
+use crate::{tformat, Colors, CoreError, CoreModel, DrawImage, FloatToSpeed};
+use embedded_graphics::{draw_target::DrawTarget, geometry::Point};
 use u8g2_fonts::types::{FontColor, HorizontalAlignment, VerticalPosition};
 
 #[derive(Clone, Copy)]
@@ -26,9 +21,7 @@ impl core::convert::From<u32> for Viewable {
             value as u8
         };
         // Transmute is ok, as idx is guaranteed to be in the valid range
-        unsafe {
-            core::mem::transmute::<u8, Viewable>(idx)
-        }
+        unsafe { core::mem::transmute::<u8, Viewable>(idx) }
     }
 }
 
@@ -50,9 +43,9 @@ impl Viewable {
     }
 
     pub fn draw<D>(
-        &self, 
-        display: &mut D, 
-        cm: &CoreModel, 
+        &self,
+        display: &mut D,
+        cm: &CoreModel,
         pos: Point,
         color: Colors,
     ) -> Result<(), CoreError>
@@ -71,10 +64,8 @@ impl Viewable {
     }
 }
 
-
-
 pub fn draw_average_climb_rate<D>(
-    display: &mut D, 
+    display: &mut D,
     cm: &CoreModel,
     pos: Point,
     color: Colors,
@@ -109,7 +100,7 @@ where
 }
 
 pub fn draw_flight_level<D>(
-    display: &mut D, 
+    display: &mut D,
     cm: &CoreModel,
     pos: Point,
     color: Colors,
@@ -132,7 +123,7 @@ where
 }
 
 pub fn draw_true_course<D>(
-    display: &mut D, 
+    display: &mut D,
     cm: &CoreModel,
     pos: Point,
     color: Colors,
@@ -154,7 +145,7 @@ where
 }
 
 pub fn draw_utc_time<D>(
-    display: &mut D, 
+    display: &mut D,
     cm: &CoreModel,
     pos: Point,
     color: Colors,
@@ -175,7 +166,7 @@ where
 }
 
 pub fn draw_wind_and_delta<D>(
-    display: &mut D, 
+    display: &mut D,
     cm: &CoreModel,
     pos: Point,
     color: Colors,
@@ -183,8 +174,10 @@ pub fn draw_wind_and_delta<D>(
 where
     D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
 {
-    let total_height = 
-        (cm.device_const.big_font.get_default_line_height() + cm.device_const.small_font.get_default_line_height()) * 80 / 100;
+    let total_height = (cm.device_const.big_font.get_default_line_height()
+        + cm.device_const.small_font.get_default_line_height())
+        * 80
+        / 100;
     let angle = if cm.sensor.airspeed.ias() < 30.0.km_h() {
         cm.sensor.euler_yaw
     } else {

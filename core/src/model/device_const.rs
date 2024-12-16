@@ -38,7 +38,6 @@ pub struct DisplaySizes {
     pub screen_center: Point,
     pub m_s: Size,
     pub km_h: Size,
-
 }
 
 pub struct HorizonSizes {

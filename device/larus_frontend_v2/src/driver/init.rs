@@ -78,11 +78,14 @@ pub fn hw_init(
         .RCC
         .constrain()
         .use_hse(16.MHz())
-        .sys_ck(200.MHz())
-        .hclk(100.MHz())
+        .sys_ck(400.MHz())
+        .hclk(100.MHz()) // Todo change 20 200 MHz and check sound
         .pll1_q_ck(50.MHz()) // CAN
         .pll2_p_ck(100.MHz()) // ?
         .pll2_r_ck(50.MHz()) // LCD
+        .pll3_p_ck(150.MHz())
+        .pll3_q_ck(150.MHz())
+        .pll3_r_ck(9.MHz()) // LTDC pixel frequency
         .freeze(pwrcfg, &dp.SYSCFG);
 
     // Enable cortex m7 cache and cyclecounter
@@ -142,10 +145,10 @@ pub fn hw_init(
 
     // Setup ----------> Frame buffer, Display
     let dev_view = {
-        let lcd_pins = LcdPins(gpiob.pb5, gpiog.pg11, gpioh.ph4, gpioh.ph3);
+        let lcd_pins = LcdPins(gpiob.pb5, gpiog.pg9, gpiog.pg11, gpioh.ph4, gpioh.ph3);
         St7701s::init(
-            dp.SPI2,
-            ccdr.peripheral.SPI2,
+            dp.SPI1,
+            ccdr.peripheral.SPI1,
             lcd_pins,
             &ccdr.clocks,
             &mut delay,

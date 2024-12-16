@@ -1,14 +1,18 @@
 use crate::{
-    controller::{helpers::{object_id, CanActive}, Echo},
-    Variant,
+    controller::{
+        helpers::{object_id, CanActive},
+        Echo,
+    },
     model::{GpsState, VarioModeControl},
     sensor_legacy, AirSpeed, Angle, CanFrame, CoreController, CoreModel, F64ToCoord,
     FloatToAcceleration, FloatToAngularVelocity, FloatToDensity, FloatToLength, FloatToMass,
     FloatToPressure, FloatToSpeed, FlyMode, Frame, GenericFrame, GenericId, Latitude, Longitude,
-    PersistenceId, SpecificFrame,
+    PersistenceId, SpecificFrame, Variant,
 };
 use byteorder::{ByteOrder, LittleEndian as LE};
 use embedded_graphics::prelude::AngleUnit;
+
+use super::CanConfigId;
 
 impl CoreController {
     pub fn read_can_frame(&mut self, cm: &mut CoreModel, frame: &Frame) {
@@ -24,7 +28,7 @@ impl CoreController {
         #[allow(clippy::single_match)]
         match GenericId::from(frame.generic_id) {
             GenericId::SetSysSetting => {
-                let config_id = PersistenceId::from(rdr.pop_u16());
+                let config_id = CanConfigId::from(rdr.pop_u16());
                 self.can_frame_read_sys_config_value(cm, config_id, &frame.can_frame)
             }
             _ => (),
@@ -42,29 +46,70 @@ impl CoreController {
     fn can_frame_read_sys_config_value(
         &mut self,
         cm: &mut CoreModel,
-        config_id: PersistenceId,
+        config_id: CanConfigId,
         frame: &CanFrame,
     ) {
         match config_id {
-            PersistenceId::McCready => {
-                let val = frame.read_f32(4).m_s();
-                self.persist_set(cm, Variant::Speed(val), PersistenceId::McCready, Echo::Nmea);
-            }
-            PersistenceId::PilotWeight => {
-                let val = frame.read_f32(4).kg();
-                self.persist_set(cm, Variant::Mass(val), PersistenceId::PilotWeight, Echo::Nmea)
-            }
-            PersistenceId::Volume => {
+            CanConfigId::Volume => {
                 let val = frame.read_u8(2) as i8;
                 self.persist_set(cm, Variant::I8(val), PersistenceId::Volume, Echo::Nmea);
             }
-            PersistenceId::WaterBallast => {
-                let val = frame.read_f32(4).kg();
-                self.persist_set(cm, Variant::Mass(val), PersistenceId::WaterBallast, Echo::Nmea);
+            CanConfigId::MacCready => {
+                let val = frame.read_f32(4).m_s();
+                self.persist_set(cm, Variant::Speed(val), PersistenceId::McCready, Echo::Nmea);
             }
-            PersistenceId::VarioModeControl => {
+            CanConfigId::WaterBallast => {
+                let val = frame.read_f32(4).kg();
+                self.persist_set(
+                    cm,
+                    Variant::Mass(val),
+                    PersistenceId::WaterBallast,
+                    Echo::Nmea,
+                );
+            }
+            CanConfigId::Bugs => {
+                let val = frame.read_f32(4);
+                self.persist_set(cm, Variant::F32(val), PersistenceId::Bugs, Echo::Nmea);
+            }
+            CanConfigId::Qnh => {
+                let val = frame.read_f32(4).hpa();
+                self.persist_set(cm, Variant::Pressure(val), PersistenceId::Qnh, Echo::Nmea);
+            }
+            CanConfigId::PilotWeight => {
+                let val = frame.read_f32(4).kg();
+                self.persist_set(
+                    cm,
+                    Variant::Mass(val),
+                    PersistenceId::PilotWeight,
+                    Echo::Nmea,
+                )
+            }
+            CanConfigId::VarioModeControl => {
                 let val = VarioModeControl::from(frame.read_u8(2));
-                self.persist_set(cm, Variant::VarioModeControl(val), PersistenceId::VarioModeControl, Echo::None);
+                self.persist_set(
+                    cm,
+                    Variant::VarioModeControl(val),
+                    PersistenceId::VarioModeControl,
+                    Echo::None,
+                );
+            }
+            CanConfigId::TcClimbRate => {
+                let val = frame.read_f32(4);
+                self.persist_set(
+                    cm,
+                    Variant::F32(val),
+                    PersistenceId::TcClimbRate,
+                    Echo::None,
+                )
+            }
+            CanConfigId::TcSpeedToFly => {
+                let val = frame.read_f32(4);
+                self.persist_set(
+                    cm,
+                    Variant::F32(val),
+                    PersistenceId::TcSpeedToFly,
+                    Echo::None,
+                )
             }
             _ => (),
         }

@@ -27,22 +27,26 @@ fn main() -> ! {
     let gpiob = dp.GPIOB.split(ccdr.peripheral.GPIOB);
     let gpioc = dp.GPIOC.split(ccdr.peripheral.GPIOC);
     let gpiod = dp.GPIOD.split(ccdr.peripheral.GPIOD);
-    let gpioe = dp.GPIOE.split(ccdr.peripheral.GPIOE);
+    let gpiog = dp.GPIOG.split(ccdr.peripheral.GPIOG);
+    let gpioh = dp.GPIOH.split(ccdr.peripheral.GPIOH);
+    let gpioi = dp.GPIOI.split(ccdr.peripheral.GPIOI);
+    let gpioj = dp.GPIOJ.split(ccdr.peripheral.GPIOJ);
+    let gpiok = dp.GPIOK.split(ccdr.peripheral.GPIOK);
 
     // Get the delay provider.
     let mut delay = cp.SYST.delay(ccdr.clocks);
 
-    let lcd_pins = LcdPins(gpioc.pc1, gpioc.pc2, gpioa.pa12, gpiod.pd14, gpioe.pe8);
+    let lcd_pins = LcdPins(gpiob.pb5, gpiog.pg9, gpiog.pg11, gpioh.ph4, gpioh.ph3);
 
     let ltdc_pins = LtdcPins(
-        gpioc.pc0, gpioa.pa3, gpioa.pa4, gpioa.pa6, gpiob.pb0, gpioe.pe11, gpioe.pe12, gpioe.pe13,
-        gpioe.pe14, gpioe.pe15, gpiob.pb10, gpiob.pb11, gpiod.pd10, gpioc.pc6, gpioc.pc7,
-        gpioc.pc9, gpioa.pa8, gpioa.pa11, gpioc.pc10, gpiod.pd3, gpiob.pb8, gpiob.pb9,
+        gpioa.pa5, gpioa.pa8, gpioc.pc0, gpiod.pd3, gpiog.pg6, gpiog.pg7, gpiog.pg10, gpioi.pi11,
+        gpioi.pi12, gpioi.pi13, gpioj.pj1, gpioj.pj2, gpioj.pj9, gpioj.pj11, gpioj.pj12,
+        gpioj.pj15, gpiok.pk0, gpiok.pk3, gpiok.pk4, gpiok.pk5, gpiok.pk6, gpiok.pk7,
     );
 
     St7701s::init(
-        dp.SPI2,
-        ccdr.peripheral.SPI2,
+        dp.SPI1,
+        ccdr.peripheral.SPI1,
         lcd_pins,
         &ccdr.clocks,
         &mut delay,

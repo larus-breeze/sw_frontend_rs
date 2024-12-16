@@ -1,5 +1,4 @@
 use super::helpers::sprites::*;
-
 use crate::{
     model::{CoreModel, FlyMode, SystemState, VarioMode},
     system_of_units::FloatToSpeed,
@@ -197,9 +196,12 @@ impl Vario {
         )?;
 
         // draw info1 and info2 fields
-        cm.config.info1_content.draw(display, cm, sizes.info1_pos, cm.palette().scale)?;
-        cm.config.info2_content.draw(display, cm, sizes.info2_pos, cm.palette().scale)?;
-
+        cm.config
+            .info1_content
+            .draw(display, cm, sizes.info1_pos, cm.palette().scale)?;
+        cm.config
+            .info2_content
+            .draw(display, cm, sizes.info2_pos, cm.palette().scale)?;
 
         // draw software version during the first 10 seconds
         if false {

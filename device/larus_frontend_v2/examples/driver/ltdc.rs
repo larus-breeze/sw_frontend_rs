@@ -9,7 +9,7 @@ use stm32h7xx_hal::{
     rcc::{rec, CoreClocks, ResetEnable},
 };
 
-pub struct LtdcPins(
+/*pub struct LtdcPins(
     pub gpio::Pin<'C', 0>,
     pub gpio::Pin<'A', 3>,
     pub gpio::Pin<'A', 4>,
@@ -32,6 +32,31 @@ pub struct LtdcPins(
     pub gpio::Pin<'D', 3>,
     pub gpio::Pin<'B', 8>,
     pub gpio::Pin<'B', 9>,
+);*/
+
+pub struct LtdcPins(
+    pub gpio::Pin<'A', 5>,  // R4
+    pub gpio::Pin<'A', 8>,  // R6
+    pub gpio::Pin<'C', 0>,  // R5
+    pub gpio::Pin<'D', 3>,  // G7
+    pub gpio::Pin<'G', 6>,  // R7
+    pub gpio::Pin<'G', 7>,  // PCLK
+    pub gpio::Pin<'G', 10>, // B2
+    pub gpio::Pin<'I', 11>, // G6
+    pub gpio::Pin<'I', 12>, // HSYNC
+    pub gpio::Pin<'I', 13>, // VSYNC
+    pub gpio::Pin<'J', 1>,  // R2
+    pub gpio::Pin<'J', 2>,  // R3
+    pub gpio::Pin<'J', 9>,  // G2
+    pub gpio::Pin<'J', 11>, // G4
+    pub gpio::Pin<'J', 12>, // G3
+    pub gpio::Pin<'J', 15>, // B3
+    pub gpio::Pin<'K', 0>,  // G5
+    pub gpio::Pin<'K', 3>,  // B4
+    pub gpio::Pin<'K', 4>,  // B5
+    pub gpio::Pin<'K', 5>,  // B6
+    pub gpio::Pin<'K', 6>,  // B7
+    pub gpio::Pin<'K', 7>,  // DE
 );
 
 pub const PIX_AVAIL: usize = (DISPLAY_HEIGHT * DISPLAY_WIDTH) as usize;
@@ -51,7 +76,7 @@ impl Ltdc {
         let _ = clocks.pll3_r_ck().unwrap(); // pll3 must run
         prec.enable().reset(); // enable peripheral
 
-        ltdc_pins
+        /*ltdc_pins
             .0
             .into_alternate::<14>()
             .speed(Speed::High)
@@ -160,7 +185,118 @@ impl Ltdc {
             .21
             .into_alternate::<14>()
             .speed(Speed::High)
-            .internal_pull_up(true); // pb9  -> LTDC B7
+            .internal_pull_up(true); // pb9  -> LTDC B7*/
+
+        ltdc_pins
+            .0
+            .into_alternate::<14>()
+            .speed(Speed::High)
+            .internal_pull_up(true);
+        ltdc_pins
+            .1
+            .into_alternate::<14>()
+            .speed(Speed::High)
+            .internal_pull_up(true);
+        ltdc_pins
+            .2
+            .into_alternate::<14>()
+            .speed(Speed::High)
+            .internal_pull_up(true);
+        ltdc_pins
+            .3
+            .into_alternate::<14>()
+            .speed(Speed::High)
+            .internal_pull_up(true);
+        ltdc_pins
+            .4
+            .into_alternate::<14>()
+            .speed(Speed::High)
+            .internal_pull_up(true);
+        ltdc_pins
+            .5
+            .into_alternate::<14>()
+            .speed(Speed::High)
+            .internal_pull_up(true);
+        ltdc_pins
+            .6
+            .into_alternate::<14>()
+            .speed(Speed::High)
+            .internal_pull_up(true);
+        ltdc_pins
+            .7
+            .into_alternate::<9>()
+            .speed(Speed::High)
+            .internal_pull_up(true);
+        ltdc_pins
+            .8
+            .into_alternate::<14>()
+            .speed(Speed::High)
+            .internal_pull_up(true);
+        ltdc_pins
+            .9
+            .into_alternate::<14>()
+            .speed(Speed::High)
+            .internal_pull_up(true);
+        ltdc_pins
+            .10
+            .into_alternate::<14>()
+            .speed(Speed::High)
+            .internal_pull_up(true);
+        ltdc_pins
+            .11
+            .into_alternate::<14>()
+            .speed(Speed::High)
+            .internal_pull_up(true);
+        ltdc_pins
+            .12
+            .into_alternate::<14>()
+            .speed(Speed::High)
+            .internal_pull_up(true);
+        ltdc_pins
+            .13
+            .into_alternate::<14>()
+            .speed(Speed::High)
+            .internal_pull_up(true);
+        ltdc_pins
+            .14
+            .into_alternate::<9>()
+            .speed(Speed::High)
+            .internal_pull_up(true);
+        ltdc_pins
+            .15
+            .into_alternate::<14>()
+            .speed(Speed::High)
+            .internal_pull_up(true);
+        ltdc_pins
+            .16
+            .into_alternate::<14>()
+            .speed(Speed::High)
+            .internal_pull_up(true);
+        ltdc_pins
+            .17
+            .into_alternate::<14>()
+            .speed(Speed::High)
+            .internal_pull_up(true);
+        ltdc_pins
+            .18
+            .into_alternate::<14>()
+            .speed(Speed::High)
+            .internal_pull_up(true);
+        ltdc_pins
+            .19
+            .into_alternate::<14>()
+            .speed(Speed::High)
+            .internal_pull_up(true);
+        ltdc_pins
+            .20
+            .into_alternate::<14>()
+            .speed(Speed::High)
+            .internal_pull_up(true);
+        ltdc_pins
+            .21
+            .into_alternate::<14>()
+            .speed(Speed::High)
+            .internal_pull_up(true);
 
         // unsafe is unavoidable and ok during initialization of the hardware
         //

@@ -139,6 +139,7 @@ use stm32h7xx_hal::{
 // These pins are required to control the SPI interface of the driver IC and to reset it.
 pub struct LcdPins(
     pub gpio::Pin<'B', 5>,  // SPI MOSI
+    pub gpio::Pin<'G', 9>,  // SPI MISO
     pub gpio::Pin<'G', 11>, // SPI SLK
     pub gpio::Pin<'H', 4>,  // SPI_CS
     pub gpio::Pin<'H', 3>,  // LCD Reset
@@ -150,21 +151,22 @@ pub struct St7701s {}
 // LTDC periphery to the LCD via RGB, VSync, HSync etc.
 impl St7701s {
     pub fn init(
-        _spi2: pac::SPI2,
-        prec: rec::Spi2,
+        _spi1: pac::SPI1,
+        prec: rec::Spi1,
         lcd_pins: LcdPins,
         _clocks: &CoreClocks,
         delay: &mut Delay,
     ) {
-        let (_mosi, _sck, mut cs, mut reset) = (
+        let (_mosi, _miso, _sck, mut cs, mut reset) = (
             lcd_pins.0.into_alternate::<5>(),
             lcd_pins.1.into_alternate::<5>(),
+            lcd_pins.2.into_alternate::<5>(),
             lcd_pins
-                .2
+                .3
                 .into_push_pull_output_in_state(PinState::High)
                 .speed(gpio::Speed::Low),
             lcd_pins
-                .3
+                .4
                 .into_push_pull_output_in_state(PinState::High)
                 .speed(gpio::Speed::Low),
         );
@@ -184,45 +186,45 @@ impl St7701s {
         // the details are taken from
         // https://github.com/larus-breeze/sw_frontend/tree/hw_frontend_stm32h743_hal_lqfp100_rgb18_st7701
         unsafe {
-            let spi2 = &(*pac::SPI2::ptr());
-            spi2.cr1.write(|w| w.bits(0x0000_1000));
-            spi2.cfg1.write(|w| w.bits(0x5007_0008));
-            spi2.crcpoly.write(|w| w.bits(0x0000_0107));
-            spi2.cfg2.write(|w| w.bits(0x4442_0000));
+            let spi1 = &(*pac::SPI1::ptr());
+            spi1.cr1.write(|w| w.bits(0x0000_1000));
+            spi1.cfg1.write(|w| w.bits(0x5007_0008));
+            spi1.crcpoly.write(|w| w.bits(0x0000_0107));
+            spi1.cfg2.write(|w| w.bits(0x4442_0000));
         }
 
-        fn write_data(cs: &mut gpio::Pin<'H', 4, Output>, data: &[u16]) {
+        fn write_data(cs: &mut gpio::Pin<'H', 4, Output>, _delay: &mut Delay, data: &[u16]) {
             for wo in data {
                 cs.set_low();
 
                 // unsafe is unavoidable and ok during initialization of the hardware
                 unsafe {
-                    let spi2 = &(*pac::SPI2::ptr());
+                    let spi1 = &(*pac::SPI1::ptr());
 
-                    spi2.cr1
+                    spi1.cr1
                         .write(|w| w.ssi().slave_not_selected().spe().disabled());
 
-                    spi2.ifcr.write(|w| w.modfc().clear());
-                    spi2.cr2.write(|w| w.tsize().bits(1));
+                    spi1.ifcr.write(|w| w.modfc().clear());
+                    spi1.cr2.write(|w| w.tsize().bits(1));
 
-                    spi2.cr1
+                    spi1.cr1
                         .write(|w| w.ssi().slave_not_selected().spe().enabled());
-                    while spi2.sr.read().txp().is_full() {}
+                    while spi1.sr.read().txp().is_full() {}
 
-                    spi2.txdr.write(|w| w.bits(*wo as u32));
-                    spi2.cr1.modify(|_, w| w.cstart().set_bit());
+                    spi1.txdr.write(|w| w.bits(*wo as u32));
+                    spi1.cr1.modify(|_, w| w.cstart().set_bit());
 
-                    while spi2.sr.read().eot().bit_is_clear() == true {}
-                    while spi2.cr1.read().cstart().is_started() {}
-                    spi2.ifcr.write(|w| w.txtfc().clear().eotc().clear());
+                    while spi1.sr.read().eot().bit_is_clear() == true {}
+                    while spi1.cr1.read().cstart().is_started() {}
+                    spi1.ifcr.write(|w| w.txtfc().clear().eotc().clear());
                 }
                 cs.set_high();
             }
         }
 
-        write_data(&mut cs, &INIT_SEQ_1);
+        write_data(&mut cs, delay, &INIT_SEQ_1);
         delay.delay_ms(10_u16);
-        write_data(&mut cs, &INIT_SEQ_2);
+        write_data(&mut cs, delay, &INIT_SEQ_2);
         delay.delay_ms(10_u16);
     }
 }

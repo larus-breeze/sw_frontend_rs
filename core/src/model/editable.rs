@@ -11,9 +11,12 @@
 ///     - Extend persist_restore_item(), persist_store_item() and persist_set_id()
 ///   - Then the enum Editable is extended by the new element (see below)
 ///   - Extend necessary mehtods params(), name(), content(), set_...()
-
 use crate::{
-    model::VarioModeControl, utils::{TString, Variant}, view::viewable::Viewable, CoreController, CoreModel, Echo, FloatToMass, FloatToSpeed, PersistenceId, Polar, POLARS, POLAR_COUNT
+    model::VarioModeControl,
+    utils::{TString, Variant},
+    view::viewable::Viewable,
+    CoreController, CoreModel, Echo, FloatToMass, FloatToSpeed, PersistenceId, Polar, POLARS,
+    POLAR_COUNT,
 };
 
 use super::DisplayActive;
@@ -177,7 +180,7 @@ impl Editable {
                 dec_places: 0,
                 unit: TString::<5>::from_str("kg"),
             }),
-            Editable::Info1 | Editable::Info2 =>  Params::List(ListParams {
+            Editable::Info1 | Editable::Info2 => Params::List(ListParams {
                 max: Viewable::max() as i32,
             }),
         }
@@ -224,8 +227,12 @@ impl Editable {
                 if let Content::List(val) = content {
                     match self {
                         Editable::Glider => conv.write_str(POLARS[val as usize].name).unwrap(),
-                        Editable::Info1 => conv.write_str(Viewable::from(val as u32).name()).unwrap(),
-                        Editable::Info2 => conv.write_str(Viewable::from(val as u32).name()).unwrap(),
+                        Editable::Info1 => {
+                            conv.write_str(Viewable::from(val as u32).name()).unwrap()
+                        }
+                        Editable::Info2 => {
+                            conv.write_str(Viewable::from(val as u32).name()).unwrap()
+                        }
                         _ => (),
                     }
                 }
@@ -277,17 +284,37 @@ impl Editable {
     pub fn set_enum_content(&self, cm: &mut CoreModel, cc: &mut CoreController, val: &TString<12>) {
         match self {
             Editable::Display => match val.as_str() {
-                "Horizon" => cc.persist_set(cm, Variant::DisplayActive(DisplayActive::Horizon), PersistenceId::Display, Echo::None),
-                _ => cc.persist_set(cm, Variant::DisplayActive(DisplayActive::Vario), PersistenceId::Display, Echo::None),
+                "Horizon" => cc.persist_set(
+                    cm,
+                    Variant::DisplayActive(DisplayActive::Horizon),
+                    PersistenceId::Display,
+                    Echo::None,
+                ),
+                _ => cc.persist_set(
+                    cm,
+                    Variant::DisplayActive(DisplayActive::Vario),
+                    PersistenceId::Display,
+                    Echo::None,
+                ),
             },
-            Editable::Theme => cc.persist_set(cm, Variant::Str(val.as_str()), PersistenceId::DisplayTheme, Echo::None),
+            Editable::Theme => cc.persist_set(
+                cm,
+                Variant::Str(val.as_str()),
+                PersistenceId::DisplayTheme,
+                Echo::None,
+            ),
             Editable::VarioModeControl => {
                 let mode = match val.as_str() {
                     "Vario" => VarioModeControl::Vario,
                     "SpeedToFly" => VarioModeControl::SpeedToFly,
                     _ => VarioModeControl::Auto,
                 };
-                cc.persist_set(cm, Variant::VarioModeControl(mode),PersistenceId::VarioModeControl, Echo::NmeaAndCan);
+                cc.persist_set(
+                    cm,
+                    Variant::VarioModeControl(mode),
+                    PersistenceId::VarioModeControl,
+                    Echo::NmeaAndCan,
+                );
             }
             _ => (),
         }
@@ -295,13 +322,45 @@ impl Editable {
 
     pub fn set_f32_content(&self, cm: &mut CoreModel, cc: &mut CoreController, val: f32) {
         match self {
-            Editable::Bugs => cc.persist_set(cm, Variant::F32(1.0 + val / 100.0), PersistenceId::Bugs, Echo::NmeaAndCan),
-            Editable::McCready => cc.persist_set(cm, Variant::Speed(val.m_s()), PersistenceId::McCready, Echo::NmeaAndCan),
-            Editable::PilotWeight => cc.persist_set(cm, Variant::Mass(val.kg()), PersistenceId::PilotWeight, Echo::NmeaAndCan),
-            Editable::TcClimbRate => cc.persist_set(cm, Variant::F32(val), PersistenceId::TcClimbRate, Echo::None),
-            Editable::TcSpeedToFly => cc.persist_set(cm, Variant::F32(val), PersistenceId::TcSpeedToFly, Echo::None),
-            Editable::Volume => cc.persist_set(cm, Variant::I8(val as i8), PersistenceId::Volume, Echo::NmeaAndCan),
-            Editable::WaterBallast => cc.persist_set(cm, Variant::Mass(val.kg()), PersistenceId::WaterBallast, Echo::NmeaAndCan),
+            Editable::Bugs => cc.persist_set(
+                cm,
+                Variant::F32(1.0 + val / 100.0),
+                PersistenceId::Bugs,
+                Echo::NmeaAndCan,
+            ),
+            Editable::McCready => cc.persist_set(
+                cm,
+                Variant::Speed(val.m_s()),
+                PersistenceId::McCready,
+                Echo::NmeaAndCan,
+            ),
+            Editable::PilotWeight => cc.persist_set(
+                cm,
+                Variant::Mass(val.kg()),
+                PersistenceId::PilotWeight,
+                Echo::NmeaAndCan,
+            ),
+            Editable::TcClimbRate => {
+                cc.persist_set(cm, Variant::F32(val), PersistenceId::TcClimbRate, Echo::Can)
+            }
+            Editable::TcSpeedToFly => cc.persist_set(
+                cm,
+                Variant::F32(val),
+                PersistenceId::TcSpeedToFly,
+                Echo::Can,
+            ),
+            Editable::Volume => cc.persist_set(
+                cm,
+                Variant::I8(val as i8),
+                PersistenceId::Volume,
+                Echo::NmeaAndCan,
+            ),
+            Editable::WaterBallast => cc.persist_set(
+                cm,
+                Variant::Mass(val.kg()),
+                PersistenceId::WaterBallast,
+                Echo::NmeaAndCan,
+            ),
             _ => (),
         }
     }
@@ -313,8 +372,12 @@ impl Editable {
                 cc.polar = Polar::new(&POLARS[val as usize], &mut cm.glider_data);
                 cc.persist_set(cm, Variant::I32(val), PersistenceId::Glider, Echo::None)
             }
-            Editable::Info1 => cc.persist_set(cm, Variant::I32(val), PersistenceId::Info1, Echo::None),
-            Editable::Info2 => cc.persist_set(cm, Variant::I32(val), PersistenceId::Info2, Echo::None),
+            Editable::Info1 => {
+                cc.persist_set(cm, Variant::I32(val), PersistenceId::Info1, Echo::None)
+            }
+            Editable::Info2 => {
+                cc.persist_set(cm, Variant::I32(val), PersistenceId::Info2, Echo::None)
+            }
             _ => (),
         }
     }
