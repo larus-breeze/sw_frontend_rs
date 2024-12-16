@@ -1,31 +1,32 @@
 /// The Persistence Layer stores Data in EEPROM an distributes it to NMEA and Can Bus interfaces
-/// 
-/// The persistent layer stores the data in the EEPROM and distributes the data to the NMEA and Can 
-/// bus interfaces. Data points that can be processed must be recorded by the PersistenceId. The 
-/// persist_restore_item() method writes the data read from the EEPROM to the CoreModel. The 
+///
+/// The persistent layer stores the data in the EEPROM and distributes the data to the NMEA and Can
+/// bus interfaces. Data points that can be processed must be recorded by the PersistenceId. The
+/// persist_restore_item() method writes the data read from the EEPROM to the CoreModel. The
 /// persist_store_item() method stores model data in the EEPROM.
-/// 
-/// The set_id() method receives data from the NMEA and CAN bus interfaces and from the editor, 
-/// saves it in the EEPROM if necessary and distributes the data to interfaces if required. The 
+///
+/// The set_id() method receives data from the NMEA and CAN bus interfaces and from the editor,
+/// saves it in the EEPROM if necessary and distributes the data to interfaces if required. The
 /// distribution of the data to the interfaces is controlled via the enum Echo:
 ///   - Echo::None -> no distribution
 ///   - Echo::Nmea -> forwarding to the NMEA interface
 ///   - Echo::Can -> forwarding to the Can bus interface
 ///   - Echo::NmeaAndCan -> forwarding to NMEA and Can Bus
-/// 
-/// The module also ensures that the Nmea interface and the EEPROM are not overloaded by too much 
-/// data. This is achieved by initially storing the data in an index set and only forwarding it 
-/// after a pause of incoming data of at least 500 ms. 
-
+///
+/// The module also ensures that the Nmea interface and the EEPROM are not overloaded by too much
+/// data. This is achieved by initially storing the data in an index set and only forwarding it
+/// after a pause of incoming data of at least 500 ms.
 use crate::{utils::Variant, view::viewable::Viewable};
 
 use heapless::Vec;
 
 use super::{VarioModeControl, MAX_PERS_IDS};
 use crate::{
-    basic_config::PERSISTENCE_TIMEOUT, controller::helpers::IntToDuration, eeprom,
-    system_of_units::Speed, CoreController, CoreModel, Mass, PersistenceItem,
-    Pressure,
+    basic_config::PERSISTENCE_TIMEOUT,
+    controller::helpers::{CanConfigId, IntToDuration},
+    eeprom,
+    system_of_units::Speed,
+    CoreController, CoreModel, Mass, PersistenceItem, Pressure,
 };
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
@@ -151,53 +152,87 @@ impl CoreController {
         self.send_idle_event(crate::IdleEvent::EepromItem(p_item));
     }
 
-    pub fn persist_set(&mut self, cm: &mut CoreModel, variant: Variant, id: PersistenceId, echo: Echo) {
+    pub fn persist_set(
+        &mut self,
+        cm: &mut CoreModel,
+        variant: Variant,
+        id: PersistenceId,
+        echo: Echo,
+    ) {
         match id {
-            PersistenceId::Volume => if let Variant::I8(volume) = variant {
-                cm.config.volume = volume;
+            PersistenceId::Volume => {
+                if let Variant::I8(volume) = variant {
+                    cm.config.volume = volume;
+                }
             }
-            PersistenceId::McCready => if let Variant::Speed(mc_cready) = variant {
-                cm.config.mc_cready = mc_cready;
-            } 
-            PersistenceId::WaterBallast => if let Variant::Mass(water_ballast) = variant {
-                cm.glider_data.water_ballast = water_ballast;
+            PersistenceId::McCready => {
+                if let Variant::Speed(mc_cready) = variant {
+                    cm.config.mc_cready = mc_cready;
+                }
             }
-            PersistenceId::PilotWeight => if let Variant::Mass(pilot_weight) = variant {
-                cm.glider_data.pilot_weight = pilot_weight;
+            PersistenceId::WaterBallast => {
+                if let Variant::Mass(water_ballast) = variant {
+                    cm.glider_data.water_ballast = water_ballast;
+                }
             }
-            PersistenceId::Glider => if let Variant::I32(glider_idx) = variant {
-                cm.config.glider_idx = glider_idx;
+            PersistenceId::PilotWeight => {
+                if let Variant::Mass(pilot_weight) = variant {
+                    cm.glider_data.pilot_weight = pilot_weight;
+                }
             }
-            PersistenceId::VarioModeControl => if let Variant::VarioModeControl(vario_mode_control) = variant {
-                cm.control.vario_mode_control = vario_mode_control;
+            PersistenceId::Glider => {
+                if let Variant::I32(glider_idx) = variant {
+                    cm.config.glider_idx = glider_idx;
+                }
             }
-            PersistenceId::DisplayTheme => if let Variant::Str(theme_name) = variant {
-                cm.config.theme = if theme_name == "Bright" {
-                    &cm.device_const.bright_theme
-                } else {
-                    &cm.device_const.dark_theme
-                };
+            PersistenceId::VarioModeControl => {
+                if let Variant::VarioModeControl(vario_mode_control) = variant {
+                    cm.control.vario_mode_control = vario_mode_control;
+                }
             }
-            PersistenceId::Qnh => if let Variant::Pressure(qnh) = variant {
-                cm.sensor.pressure_altitude.set_qnh(qnh);
+            PersistenceId::DisplayTheme => {
+                if let Variant::Str(theme_name) = variant {
+                    cm.config.theme = if theme_name == "Bright" {
+                        &cm.device_const.bright_theme
+                    } else {
+                        &cm.device_const.dark_theme
+                    };
+                }
             }
-            PersistenceId::Bugs => if let Variant::F32(bugs) = variant {
-                cm.glider_data.bugs = bugs;
+            PersistenceId::Qnh => {
+                if let Variant::Pressure(qnh) = variant {
+                    cm.sensor.pressure_altitude.set_qnh(qnh);
+                }
             }
-            PersistenceId::Display => if let Variant::DisplayActive(display_active) = variant {
-                cm.config.last_display_active = display_active;
+            PersistenceId::Bugs => {
+                if let Variant::F32(bugs) = variant {
+                    cm.glider_data.bugs = bugs;
+                }
             }
-            PersistenceId::TcClimbRate => if let Variant::F32(tc_climb_rate) = variant {
-                cm.config.av2_climb_rate_tc = tc_climb_rate;
+            PersistenceId::Display => {
+                if let Variant::DisplayActive(display_active) = variant {
+                    cm.config.last_display_active = display_active;
+                }
             }
-            PersistenceId::TcSpeedToFly => if let Variant::F32(av_speed_to_fly_tc) = variant {
-                cm.config.av_speed_to_fly_tc = av_speed_to_fly_tc;
+            PersistenceId::TcClimbRate => {
+                if let Variant::F32(tc_climb_rate) = variant {
+                    cm.config.av2_climb_rate_tc = tc_climb_rate;
+                }
             }
-            PersistenceId::Info1 => if let Variant::I32(info) = variant {
-                cm.config.info1_content = Viewable::from(info as u32);
+            PersistenceId::TcSpeedToFly => {
+                if let Variant::F32(av_speed_to_fly_tc) = variant {
+                    cm.config.av_speed_to_fly_tc = av_speed_to_fly_tc;
+                }
             }
-            PersistenceId::Info2 => if let Variant::I32(info) = variant {
-                cm.config.info2_content = Viewable::from(info as u32);
+            PersistenceId::Info1 => {
+                if let Variant::I32(info) = variant {
+                    cm.config.info1_content = Viewable::from(info as u32);
+                }
+            }
+            PersistenceId::Info2 => {
+                if let Variant::I32(info) = variant {
+                    cm.config.info2_content = Viewable::from(info as u32);
+                }
             }
             _ => (),
         }
@@ -211,7 +246,7 @@ impl CoreController {
         }
         if echo == Echo::Can || echo == Echo::NmeaAndCan {
             // Queue directly to canbus
-            if let Some(frame) = cm.can_frame_sys_config(id) {
+            if let Some(frame) = cm.can_frame_sys_config(CanConfigId::from(id)) {
                 let _ = self.p_tx_frames.enqueue(frame);
             }
         }

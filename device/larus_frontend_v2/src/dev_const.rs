@@ -51,7 +51,6 @@ const fn display_sizes() -> DisplaySizes {
         screen_center: Point::new(240, 240),
         m_s: Size::new(45, 29),
         km_h: Size::new(56, 36),
-
     }
 }
 

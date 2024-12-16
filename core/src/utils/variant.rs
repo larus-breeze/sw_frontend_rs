@@ -1,4 +1,7 @@
-use crate::{model::{DisplayActive, VarioModeControl}, Mass, Pressure, Speed};
+use crate::{
+    model::{DisplayActive, VarioModeControl},
+    Mass, Pressure, Speed,
+};
 
 pub enum Variant<'a> {
     I8(i8),

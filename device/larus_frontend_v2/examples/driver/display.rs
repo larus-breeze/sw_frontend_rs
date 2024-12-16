@@ -7,8 +7,8 @@ use embedded_graphics::{
 use embedded_hal::can::Frame;
 use stm32h7xx_hal::pac;
 
-pub const DISPLAY_HEIGHT: u32 = 320;
-pub const DISPLAY_WIDTH: u32 = 240;
+pub const DISPLAY_HEIGHT: u32 = 480;
+pub const DISPLAY_WIDTH: u32 = 480;
 
 const PORT_AVAIL_HEI_M1: u32 = DISPLAY_HEIGHT - 1;
 const PORT_AVAIL_WID_M1: u32 = DISPLAY_WIDTH - 1;

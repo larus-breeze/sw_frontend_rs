@@ -42,13 +42,18 @@ impl CoreController {
         match cmd.as_slice() {
             b"MC" => {
                 let val = in_range(val, 0.0, 9.9)?.m_s();
-                self.persist_set(cm, Variant::Speed( val), PersistenceId::McCready, Echo::Can)
+                self.persist_set(cm, Variant::Speed(val), PersistenceId::McCready, Echo::Can)
             }
             b"BAL" => {
                 cm.glider_data
                     .set_ballast_fraction(in_range(val, 0.00, 1.00)?);
                 let val = cm.glider_data.water_ballast;
-                self.persist_set(cm, Variant::Mass(val), PersistenceId::WaterBallast, Echo::Can);
+                self.persist_set(
+                    cm,
+                    Variant::Mass(val),
+                    PersistenceId::WaterBallast,
+                    Echo::Can,
+                );
             }
             b"BUGS" => {
                 let val = 1.0 + in_range(val, 0.0, 50.0)? / 100.0;

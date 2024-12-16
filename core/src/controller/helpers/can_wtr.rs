@@ -1,5 +1,7 @@
-use crate::{CanFrame, CoreModel, Frame, GenericId, PersistenceId, SpecialId};
+use crate::{CanFrame, CoreModel, Frame, GenericId, SpecialId};
 use byteorder::{ByteOrder, LittleEndian as LE};
+
+use super::CanConfigId;
 
 const OBJECT_ID: u16 = 4;
 const OBJECT_ID_GEN: u16 = 0;
@@ -27,22 +29,32 @@ impl CoreModel {
         )
     }
 
-    pub fn can_frame_sys_config(&mut self, config_id: PersistenceId) -> Option<Frame> {
+    pub fn can_frame_sys_config(&mut self, config_id: CanConfigId) -> Option<Frame> {
         let mut data = [0u8; 6];
         match config_id {
-            PersistenceId::McCready => {
+            CanConfigId::Volume => data[0] = self.config.volume as u8,
+            CanConfigId::MacCready => {
                 LE::write_f32(&mut data[2..6], self.config.mc_cready.to_m_s());
             }
-            PersistenceId::PilotWeight => {
-                LE::write_f32(&mut data[2..6], self.glider_data.pilot_weight.to_kg());
-            }
-            PersistenceId::VarioModeControl => data[0] = self.control.vario_mode_control as u8,
-            PersistenceId::Volume => data[0] = self.config.volume as u8,
-            PersistenceId::WaterBallast => {
+            CanConfigId::WaterBallast => {
                 LE::write_f32(&mut data[2..6], self.glider_data.water_ballast.to_kg());
             }
-            PersistenceId::Qnh => {
-                return None;
+            CanConfigId::Bugs => LE::write_f32(&mut data[2..6], self.glider_data.bugs),
+            CanConfigId::Qnh => {
+                LE::write_f32(
+                    &mut data[2..6],
+                    self.sensor.pressure_altitude.qnh().to_hpa(),
+                );
+            }
+            CanConfigId::PilotWeight => {
+                LE::write_f32(&mut data[2..6], self.glider_data.pilot_weight.to_kg());
+            }
+            CanConfigId::VarioModeControl => data[0] = self.control.vario_mode_control as u8,
+            CanConfigId::TcClimbRate => {
+                LE::write_f32(&mut data[2..6], self.config.av2_climb_rate_tc);
+            }
+            CanConfigId::TcSpeedToFly => {
+                LE::write_f32(&mut data[2..6], self.config.av_speed_to_fly_tc);
             }
             _ => return None,
         }

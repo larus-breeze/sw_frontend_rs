@@ -1,5 +1,7 @@
 use crate::{
-    system_of_units::{FloatToSpeed, Speed}, view::viewable::Viewable, Palette
+    system_of_units::{FloatToSpeed, Speed},
+    view::viewable::Viewable,
+    Palette,
 };
 use core::{convert::From, mem::transmute};
 
