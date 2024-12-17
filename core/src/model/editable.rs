@@ -182,10 +182,10 @@ impl Editable {
             }),
             Editable::Rotation => Params::Enum(EnumParams {
                 variants: [
-                    TString::<12>::from_str("Rotate 0°"),
-                    TString::<12>::from_str("Rotate 90°"),
-                    TString::<12>::from_str("Rotate 180°"),
-                    TString::<12>::from_str("Rotate 270°"),
+                    TString::<12>::from_str(Rotation::Rotate0.name()),
+                    TString::<12>::from_str(Rotation::Rotate90.name()),
+                    TString::<12>::from_str(Rotation::Rotate180.name()),
+                    TString::<12>::from_str(Rotation::Rotate270.name()),
                     TString::<12>::from_str(""),
                 ],
             }),
@@ -285,12 +285,7 @@ impl Editable {
             Editable::WaterBallast => Content::F32(cm.glider_data.water_ballast.to_kg()),
             Editable::Info1 => Content::List(cm.config.info1_content as i32),
             Editable::Info2 => Content::List(cm.config.info2_content as i32),
-            Editable::Rotation => match cm.control.rotation {
-                Rotation::Rotate0 => Content::Enum(TString::<12>::from_str("Rotate 0°")),
-                Rotation::Rotate90 => Content::Enum(TString::<12>::from_str("Rotate 90°")),
-                Rotation::Rotate180 => Content::Enum(TString::<12>::from_str("Rotate 180°")),
-                Rotation::Rotate270 => Content::Enum(TString::<12>::from_str("Rotate 270°")),
-            }
+            Editable::Rotation => Content::Enum(TString::<12>::from_str(cm.control.rotation.name())),
         }
     }
 
@@ -330,16 +325,9 @@ impl Editable {
                 );
             }
             Editable::Rotation => {
-                let rotation = match val.as_str() {
-                    "Rotate 0°" => Rotation::Rotate0,
-                    "Rotate 90°" => Rotation::Rotate90,
-                    "Rotate 180°" => Rotation::Rotate180,
-                    "Rotate 270°" => Rotation::Rotate270,
-                    _ => Rotation::Rotate0,
-                };
                 cc.persist_set(
                     cm,
-                    Variant::Rotation(rotation),
+                    Variant::Rotation(Rotation::from(val.as_str())),
                     PersistenceId::Rotation,
                     Echo::None,
                 )

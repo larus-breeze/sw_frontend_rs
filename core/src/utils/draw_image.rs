@@ -12,6 +12,17 @@ pub enum Rotation {
     Rotate270
 }
 
+impl Rotation {
+    pub fn name(&self) -> &'static str {
+        match self {
+            Rotation::Rotate0 => "Rotate 0°",
+            Rotation::Rotate90 => "Rotate 90°",
+            Rotation::Rotate180 => "Rotate 180°",
+            Rotation::Rotate270 => "Rotate 270°",
+        }
+    }
+}
+
 impl From<u32> for Rotation {
     fn from(value: u32) -> Self {
         if value <= Rotation::Rotate270 as u32 {
@@ -23,6 +34,16 @@ impl From<u32> for Rotation {
     }
 }
 
+impl From<&str> for Rotation {
+    fn from(value: &str) -> Self {
+        match value {
+            "Rotate 90°" => Rotation::Rotate90,
+            "Rotate 180°" => Rotation::Rotate180,
+            "Rotate 270°" => Rotation::Rotate270,
+            _ => Rotation::Rotate0,
+        }
+    }
+}
 
 /// Trait of a function to bring an image to the screen. The format of the image files is
 /// specifically designed to be ultra-fast. It is defined in the Python script
