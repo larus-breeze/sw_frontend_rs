@@ -90,7 +90,7 @@ impl DrawTarget for Display {
                 }
             }
             Rotation::Rotate90 => {
-                let mut row_start_idx = (area.top_left.x as u32 + 1) * WIDTH_M1 - area.top_left.y as u32;
+                let mut row_start_idx = (area.top_left.x as u32 + 1) * DISPLAY_WIDTH - area.top_left.y as u32 - 1;
                 for _x in 0..area.size.width {
                     for y in 0..area.size.height {
                         let idx = row_start_idx - y;
@@ -153,7 +153,7 @@ impl DrawImage for Display {
             Rotation::Rotate90 => {
                 let x = idx as u32 % DISPLAY_WIDTH;
                 let y = idx as u32 / DISPLAY_WIDTH;
-                let mut idx = (x + 1) * WIDTH_M1 - y;
+                let mut idx = (x + 1) * DISPLAY_WIDTH - y - 1;
                 for _ in 0..len {
                     self.buf[idx as usize] = color.into_storage();
                     idx += DISPLAY_WIDTH;
