@@ -47,6 +47,7 @@ pub enum PersistenceId {
     Info1 = 12,
     Info2 = 13,
     Rotation = 14,
+    CenterFrequency = 15,
     LastItem,
 }
 
@@ -105,6 +106,7 @@ impl CoreController {
             PersistenceId::Info1 => cm.config.info1_content = Viewable::from(item.to_u32()),
             PersistenceId::Info2 => cm.config.info2_content = Viewable::from(item.to_u32()),
             PersistenceId::Rotation => cm.control.rotation = Rotation::from(item.to_u32()),
+            PersistenceId::CenterFrequency => cm.config.snd_center_freq = item.to_f32(),
             _ => (),
         }
     }
@@ -150,6 +152,7 @@ impl CoreController {
             PersistenceId::Info1 => PersistenceItem::from_u32(id, cm.config.info1_content as u32),
             PersistenceId::Info2 => PersistenceItem::from_u32(id, cm.config.info2_content as u32),
             PersistenceId::Rotation => PersistenceItem::from_u32(id, cm.control.rotation as u32),
+            PersistenceId::CenterFrequency => PersistenceItem::from_f32(id, cm.config.snd_center_freq),
             _ => PersistenceItem::do_not_store(),
         };
         self.send_idle_event(crate::IdleEvent::EepromItem(p_item));
@@ -242,6 +245,11 @@ impl CoreController {
                     cm.control.rotation = rotation;
                 }
             }
+            PersistenceId::CenterFrequency => {
+                if let Variant::F32(frequency) = variant {
+                    cm.config.snd_center_freq = frequency;
+                }
+            }           
             _ => (),
         }
         self.persist_finish_push(cm, id, echo);

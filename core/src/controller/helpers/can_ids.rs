@@ -2,6 +2,8 @@ use core::mem::transmute;
 
 use crate::PersistenceId;
 
+// Todo include configuration of center frequency
+
 /// Definition of special ids (Object Id 4 Vario Display)
 pub enum SpecialId {
     Sound = 0,

@@ -5,6 +5,7 @@ pub use helpers::{
     can_ids::{audio_legacy, frontend_legacy, sensor_legacy, GenericId, SpecialId},
     CanActive, IntToDuration, NmeaBuffer, Scheduler, Tim,
 };
+use num::clamp;
 
 mod editor;
 pub use editor::{close_edit_frame, Editor};
@@ -211,7 +212,7 @@ impl CoreController {
                 }
             }
         };
-        core_model.calculated.frequency = frequency;
+        core_model.calculated.frequency = clamp(frequency, cmc.snd_min_freq as u16, cmc.snd_max_freq as u16);
         core_model.calculated.continuous = continuous;
         if gain != core_model.calculated.gain {
             core_model.calculated.gain = gain;
