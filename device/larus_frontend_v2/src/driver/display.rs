@@ -1,22 +1,23 @@
 use super::{FrameBuffer, TBuffer, AVAIL_PIXELS};
 use crate::{DISPLAY_HEIGHT, DISPLAY_WIDTH};
-use corelib::{Colors, CoreError, DrawImage};
+use corelib::{Colors, CoreError, DrawImage, Rotation};
 use embedded_graphics::{
     draw_target::DrawTarget, geometry::OriginDimensions, prelude::*, primitives::Rectangle, Pixel,
 };
 
-const PORT_AVAIL_HEI_M1: u32 = DISPLAY_HEIGHT - 1;
-const PORT_AVAIL_WID_M1: u32 = DISPLAY_WIDTH - 1;
+const WIDTH_M1: u32 = DISPLAY_WIDTH - 1;
 
 pub struct Display {
     buf: TBuffer,
     frame_buffer: FrameBuffer,
+    rotation: Rotation,
 }
+
 
 impl Display {
     pub fn new(mut frame_buffer: FrameBuffer) -> Self {
         let buf = frame_buffer.swap_buffers();
-        Display { buf, frame_buffer }
+        Display { buf, frame_buffer , rotation: Rotation::Rotate0}
     }
 
     pub fn show(&mut self) {
@@ -32,12 +33,40 @@ impl DrawTarget for Display {
     where
         I: IntoIterator<Item = Pixel<Self::Color>>,
     {
-        for Pixel(coord, color) in pixels.into_iter() {
-            // Check if the pixel coordinates are out of bounds. `DrawTarget` implementation are required
-            // to discard any out of bounds pixels without returning an error or causing a panic.
-            if let Ok((x @ 0..=PORT_AVAIL_WID_M1, y @ 0..=PORT_AVAIL_HEI_M1)) = coord.try_into() {
-                let index: u32 = x + y * DISPLAY_WIDTH as u32;
-                self.buf[index as usize] = color.into_storage();
+        match self.rotation {
+            Rotation::Rotate0 => {
+                for Pixel(coord, color) in pixels.into_iter() {
+                    // Check if the pixel coordinates are out of bounds. `DrawTarget` implementation are required
+                    // to discard any out of bounds pixels without returning an error or causing a panic.
+                    if let Ok((x @ 0..=WIDTH_M1, y @ 0..=WIDTH_M1)) = coord.try_into() {
+                        let idx: u32 = x + y * DISPLAY_WIDTH as u32;
+                        self.buf[idx as usize] = color.into_storage();
+                    }
+                }
+            }
+            Rotation::Rotate90 => {
+                for Pixel(coord, color) in pixels.into_iter() {
+                    if let Ok((x @ 0..=WIDTH_M1, y @ 0..=WIDTH_M1)) = coord.try_into() {
+                        let idx: u32 = ((x + 1)* DISPLAY_WIDTH) as u32 - 1 - y;
+                        self.buf[idx as usize] = color.into_storage();
+                    }
+                }
+            }
+            Rotation::Rotate180 => {
+                for Pixel(coord, color) in pixels.into_iter() {
+                    if let Ok((x @ 0..=WIDTH_M1, y @ 0..=WIDTH_M1)) = coord.try_into() {
+                        let idx: u32 = WIDTH_M1 - x + (WIDTH_M1 - y) * DISPLAY_WIDTH;
+                        self.buf[idx as usize] = color.into_storage();
+                    }
+                }
+            }
+            Rotation::Rotate270 => {
+                for Pixel(coord, color) in pixels.into_iter() {
+                    if let Ok((x @ 0..=WIDTH_M1, y @ 0..=WIDTH_M1)) = coord.try_into() {
+                        let idx: u32 = (WIDTH_M1 - x) * DISPLAY_WIDTH + y;
+                        self.buf[idx as usize] = color.into_storage();
+                    }
+                }
             }
         }
 
@@ -49,13 +78,47 @@ impl DrawTarget for Display {
         // the intersection of the fill area and the visible display area
         // by using Rectangle::intersection.
         let area = area.intersection(&self.bounding_box());
-        let mut row_start_idx = (area.top_left.y as u32) * DISPLAY_WIDTH + area.top_left.x as u32;
 
-        for _row in 0..area.size.height {
-            for idx in row_start_idx..(row_start_idx + area.size.width) {
-                self.buf[idx as usize] = color.into_storage();
+        match self.rotation {
+            Rotation::Rotate0 => {
+                let mut row_start_idx = (area.top_left.y as u32) * DISPLAY_WIDTH + area.top_left.x as u32;
+                for _ in 0..area.size.height {
+                    for idx in row_start_idx..(row_start_idx + area.size.width) {
+                        self.buf[idx as usize] = color.into_storage();
+                    }
+                    row_start_idx += DISPLAY_WIDTH;
+                }
             }
-            row_start_idx += DISPLAY_WIDTH;
+            Rotation::Rotate90 => {
+                let mut row_start_idx = (area.top_left.x as u32 + 1) * WIDTH_M1 - area.top_left.y as u32;
+                for _x in 0..area.size.width {
+                    for y in 0..area.size.height {
+                        let idx = row_start_idx - y;
+                        self.buf[idx as usize] = color.into_storage();
+                    }
+                    row_start_idx += DISPLAY_WIDTH;
+                }
+            }
+            Rotation::Rotate180 => {
+                let mut row_start_idx = WIDTH_M1 - area.top_left.x as u32 + (WIDTH_M1 - area.top_left.y as u32) * DISPLAY_WIDTH;
+                for _y in 0..area.size.height {
+                    for x in 0..area.size.width {
+                        let idx = row_start_idx - x;
+                        self.buf[idx as usize] = color.into_storage();
+                    }
+                    row_start_idx -= DISPLAY_WIDTH;
+                }
+            }
+            Rotation::Rotate270 => {
+                let mut row_start_idx = (WIDTH_M1 - area.top_left.x as u32) * DISPLAY_WIDTH + area.top_left.y as u32;
+                for _ in 0..area.size.width {
+                    for y in 0..area.size.height {
+                        let idx = row_start_idx + y;
+                        self.buf[idx as usize] = color.into_storage();
+                    }
+                    row_start_idx -= DISPLAY_WIDTH;
+                }
+            }
         }
         Ok(())
     }
@@ -76,9 +139,42 @@ impl DrawImage for Display {
     const DISPLAY_HEIGHT: u32 = DISPLAY_HEIGHT;
     const DISPLAY_WIDTH: u32 = DISPLAY_WIDTH;
 
+    fn set_rotation(&mut self, rotation: Rotation) {
+        self.rotation = rotation;
+    }
+
     fn draw_line_unchecked(&mut self, idx: usize, len: usize, color: Colors) {
-        for dx in 0..len {
-            self.buf[idx + dx] = color.into_storage();
+        match self.rotation {
+            Rotation::Rotate0 => {
+                for dx in 0..len {
+                    self.buf[idx + dx] = color.into_storage();
+                }
+            }
+            Rotation::Rotate90 => {
+                let x = idx as u32 % DISPLAY_WIDTH;
+                let y = idx as u32 / DISPLAY_WIDTH;
+                let mut idx = (x + 1) * WIDTH_M1 - y;
+                for _ in 0..len {
+                    self.buf[idx as usize] = color.into_storage();
+                    idx += DISPLAY_WIDTH;
+                }
+            }
+            Rotation::Rotate180 => {
+                let idx = AVAIL_PIXELS - idx - 1;
+                for dx in 0..len {
+                    self.buf[idx - dx] = color.into_storage();
+                }
+            }
+            Rotation::Rotate270 => {
+                let x = idx as u32 % DISPLAY_WIDTH;
+                let y = idx as u32  / DISPLAY_WIDTH;
+                let mut idx = (WIDTH_M1 - x) * DISPLAY_WIDTH + y;
+                for _ in 0..len {
+                    self.buf[idx as usize] = color.into_storage();
+                    idx -= DISPLAY_WIDTH;
+                }
+            }
+
         }
     }
 }

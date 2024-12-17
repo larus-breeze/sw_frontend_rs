@@ -2,7 +2,7 @@ use crate::dev_const::{DISPLAY_HEIGHT, DISPLAY_WIDTH};
 use corelib::*;
 use embedded_graphics::{
     draw_target::DrawTarget,
-    geometry::{OriginDimensions, Point, Size},
+    geometry::{OriginDimensions, Point, Size, Dimensions},
     primitives::Rectangle,
     Pixel,
 };
@@ -10,6 +10,7 @@ use embedded_graphics_simulator::{OutputSettingsBuilder, SimulatorDisplay};
 
 pub struct MockDisplay {
     pub display: SimulatorDisplay<Colors>,
+    rotation: Rotation,
 }
 
 impl MockDisplay {
@@ -18,7 +19,7 @@ impl MockDisplay {
     /// The display is filled with `C::from(BinaryColor::Off)`.
     pub fn new(size: Size) -> Self {
         let display = SimulatorDisplay::with_default_color(size, Colors::Black);
-        MockDisplay { display }
+        MockDisplay { display, rotation: Rotation::Rotate0 }
     }
 
     pub fn save_png(&mut self, img_path: &str) {
@@ -32,13 +33,17 @@ impl DrawImage for MockDisplay {
     const DISPLAY_HEIGHT: u32 = DISPLAY_HEIGHT;
     const DISPLAY_WIDTH: u32 = DISPLAY_WIDTH;
 
+    fn set_rotation(&mut self, rotation: Rotation) {
+        self.rotation = rotation;
+    }
+
     fn draw_line_unchecked(&mut self, idx: usize, len: usize, color: Colors) {
-        let x = (idx % (DISPLAY_WIDTH as usize)) as i32;
-        let y = (idx / (DISPLAY_WIDTH as usize)) as i32;
-        let top_left = Point::new(x, y);
-        let size = Size::new(len as u32, 1);
-        let area = Rectangle::new(top_left, size);
-        let _ = self.fill_solid(&area, color);
+            let x = (idx % (DISPLAY_WIDTH as usize)) as i32;
+            let y = (idx / (DISPLAY_WIDTH as usize)) as i32;
+            let top_left = Point::new(x, y);
+            let size = Size::new(len as u32, 1);
+            let area = Rectangle::new(top_left, size);
+            let _ = self.fill_solid(&area, color);
     }
 }
 
@@ -50,8 +55,38 @@ impl DrawTarget for MockDisplay {
     where
         I: IntoIterator<Item = Pixel<Self::Color>>,
     {
-        self.display.draw_iter(pixels).unwrap();
+        match self.rotation {
+            Rotation::Rotate180 => {
+                for pixel in pixels {
+                    let (x, y) = (DISPLAY_WIDTH as i32 - 1 - pixel.0.x, DISPLAY_HEIGHT as i32 - 1 - pixel.0.y);
+                    self.display.draw_iter(core::iter::once(Pixel(Point::new(x, y), pixel.1))).unwrap();
+                }
+            }
+            _ => {
+                self.display.draw_iter(pixels).unwrap();
+            }
+        }
+        Ok(())
+    }
 
+    fn fill_solid(&mut self, area: &Rectangle, color: Self::Color) -> Result<(), Self::Error> {
+        // Clamp the rectangle coordinates to the valid range by determining
+        // the intersection of the fill area and the visible display area
+        // by using Rectangle::intersection.
+        let area = area.intersection(&self.display.bounding_box());
+
+        match self.rotation {
+            Rotation::Rotate180 => {
+                let x = DISPLAY_WIDTH as i32 - 1 - area.top_left.x - area.size.width as i32;
+                let y = DISPLAY_HEIGHT as i32 - 1 - area.top_left.y - area.size.height as i32;
+                let area_inv = Rectangle::new(Point::new(x, y), area.size);
+                self.display.fill_solid(&area_inv, color).unwrap();
+            }
+            _ => {
+                self.display.fill_solid(&area, color).unwrap();
+            }
+
+        }
         Ok(())
     }
 }
