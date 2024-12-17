@@ -4,7 +4,7 @@ use crate::driver::r61580::{
 };
 use crate::{DISPLAY_HEIGHT, DISPLAY_WIDTH};
 use core::{convert::TryInto, mem::transmute, ptr::addr_of};
-use corelib::{Colors, CoreError, DrawImage, RGB565_COLORS};
+use corelib::{Colors, CoreError, DrawImage, Rotation, RGB565_COLORS};
 use embedded_graphics::{
     draw_target::DrawTarget, geometry::OriginDimensions, prelude::*, primitives::Rectangle, Pixel,
 };
@@ -112,7 +112,7 @@ impl FrameBuffer {
         };
 
         (
-            Display { buf: buf2 },
+            Display { buf: buf2, rotation: Rotation::Rotate0 },
             FrameBuffer {
                 buf,
                 line_buf,
@@ -176,6 +176,7 @@ impl FrameBuffer {
 
 pub struct Display {
     buf: &'static mut [u8; AVAIL_PIXELS],
+    rotation: Rotation,
 }
 
 const PORT_AVAIL_HEI_M1: u32 = PORTRAIT_AVAIL_HEIGHT as u32 - 1;
@@ -189,15 +190,26 @@ impl DrawTarget for Display {
     where
         I: IntoIterator<Item = Pixel<Self::Color>>,
     {
-        for Pixel(coord, color) in pixels.into_iter() {
-            // Check if the pixel coordinates are out of bounds. `DrawTarget` implementation are required
-            // to discard any out of bounds pixels without returning an error or causing a panic.
-            if let Ok((x @ 0..=PORT_AVAIL_WID_M1, y @ 0..=PORT_AVAIL_HEI_M1)) = coord.try_into() {
-                let index: u32 = x + y * PORTRAIT_AVAIL_WIDTH as u32;
-                self.buf[index as usize] = color.into_storage();
+        match self.rotation {
+            Rotation::Rotate180 => {
+                for Pixel(coord, color) in pixels.into_iter() {
+                    if let Ok((x @ 0..=PORT_AVAIL_WID_M1, y @ 0..=PORT_AVAIL_HEI_M1)) = coord.try_into() {
+                        let idx: u32 = PORT_AVAIL_WID_M1 - x + (PORT_AVAIL_HEI_M1 - y) * DISPLAY_WIDTH;
+                        self.buf[idx as usize] = color.into_storage();
+                    }
+                }
+            }
+            _ => {
+                for Pixel(coord, color) in pixels.into_iter() {
+                    // Check if the pixel coordinates are out of bounds. `DrawTarget` implementation are required
+                    // to discard any out of bounds pixels without returning an error or causing a panic.
+                    if let Ok((x @ 0..=PORT_AVAIL_WID_M1, y @ 0..=PORT_AVAIL_HEI_M1)) = coord.try_into() {
+                        let idx: u32 = x + y * PORTRAIT_AVAIL_WIDTH as u32;
+                        self.buf[idx as usize] = color.into_storage();
+                    }
+                }
             }
         }
-
         Ok(())
     }
 
@@ -206,13 +218,27 @@ impl DrawTarget for Display {
         // the intersection of the fill area and the visible display area
         // by using Rectangle::intersection.
         let area = area.intersection(&self.bounding_box());
-        let mut row_start_idx = (area.top_left.y as u32) * DISPLAY_WIDTH + area.top_left.x as u32;
 
-        for _row in 0..area.size.height {
-            for idx in row_start_idx..(row_start_idx + area.size.width) {
-                self.buf[idx as usize] = color.into_storage();
+        match self.rotation {
+            Rotation::Rotate180 => {
+                let mut row_start_idx = PORTRAIT_AVAIL_WIDTH as u32 - area.top_left.x as u32 + (PORTRAIT_AVAIL_HEIGHT as u32 - area.top_left.y as u32) * DISPLAY_WIDTH;
+                for _y in 0..area.size.height {
+                    for x in 0..area.size.width {
+                        let idx = row_start_idx - x;
+                        self.buf[idx as usize] = color.into_storage();
+                    }
+                    row_start_idx -= DISPLAY_WIDTH;
+                }
             }
-            row_start_idx += DISPLAY_WIDTH;
+            _ => {
+                let mut row_start_idx = (area.top_left.y as u32) * DISPLAY_WIDTH + area.top_left.x as u32;
+                for _ in 0..area.size.height {
+                    for idx in row_start_idx..(row_start_idx + area.size.width) {
+                        self.buf[idx as usize] = color.into_storage();
+                    }
+                    row_start_idx += DISPLAY_WIDTH;
+                }
+            }
         }
         Ok(())
     }
@@ -233,9 +259,23 @@ impl DrawImage for Display {
     const DISPLAY_HEIGHT: u32 = DISPLAY_HEIGHT;
     const DISPLAY_WIDTH: u32 = DISPLAY_WIDTH;
 
+    fn set_rotation(&mut self, rotation: Rotation) {
+        self.rotation = rotation;
+    }
+
     fn draw_line_unchecked(&mut self, idx: usize, len: usize, color: Colors) {
-        for dx in 0..len {
-            self.buf[idx + dx] = color.into_storage();
+        match self.rotation {
+            Rotation::Rotate180 => {
+                let idx = AVAIL_PIXELS - idx - 1;
+                for dx in 0..len {
+                    self.buf[idx - dx] = color.into_storage();
+                }
+            }
+            _ => {
+                for dx in 0..len {
+                    self.buf[idx + dx] = color.into_storage();
+                }
+            }
         }
     }
 }

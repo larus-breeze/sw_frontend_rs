@@ -2,7 +2,7 @@ use crate::{
     controller::{CanActive, Editor},
     system_of_units::{FloatToLength, FloatToSpeed, Length, Speed},
     utils::DeviceEvent,
-    MenuControl,
+    MenuControl, Rotation,
 };
 
 /// Flymode display variants
@@ -110,6 +110,8 @@ pub struct Control {
     pub editor: Editor,
     /// Menu Control
     pub menu_control: MenuControl,
+    /// Screen Rotation
+    pub rotation: Rotation,
 }
 
 impl Default for Control {
@@ -131,6 +133,7 @@ impl Default for Control {
             tcr_start: 0.0.m(),
             editor: Editor::new(),
             menu_control: MenuControl::new(),
+            rotation: Rotation::Rotate0,
         }
     }
 }

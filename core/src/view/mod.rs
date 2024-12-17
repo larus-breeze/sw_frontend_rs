@@ -64,6 +64,9 @@ where
         // take a snapshot
         self.core_model = *core_model;
 
+        // set the orientation
+        self.display.set_rotation(core_model.control.rotation);
+
         self.primary_view = match core_model.config.display_active {
             DisplayActive::Horizon => PrimaryView::Horizon(Horizon::new()),
             DisplayActive::FirmwareUpdate => {

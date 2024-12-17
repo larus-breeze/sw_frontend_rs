@@ -12,11 +12,7 @@
 ///   - Then the enum Editable is extended by the new element (see below)
 ///   - Extend necessary mehtods params(), name(), content(), set_...()
 use crate::{
-    model::VarioModeControl,
-    utils::{TString, Variant},
-    view::viewable::Viewable,
-    CoreController, CoreModel, Echo, FloatToMass, FloatToSpeed, PersistenceId, Polar, POLARS,
-    POLAR_COUNT,
+    model::VarioModeControl, utils::{TString, Variant}, view::viewable::Viewable, CoreController, CoreModel, Echo, FloatToMass, FloatToSpeed, PersistenceId, Polar, Rotation, POLARS, POLAR_COUNT
 };
 
 use super::DisplayActive;
@@ -40,6 +36,7 @@ pub enum Editable {
     WaterBallast,
     Info1,
     Info2,
+    Rotation,
 }
 
 #[derive(Clone, Copy)]
@@ -183,6 +180,15 @@ impl Editable {
             Editable::Info1 | Editable::Info2 => Params::List(ListParams {
                 max: Viewable::max() as i32,
             }),
+            Editable::Rotation => Params::Enum(EnumParams {
+                variants: [
+                    TString::<12>::from_str("Rotate 0°"),
+                    TString::<12>::from_str("Rotate 90°"),
+                    TString::<12>::from_str("Rotate 180°"),
+                    TString::<12>::from_str("Rotate 270°"),
+                    TString::<12>::from_str(""),
+                ],
+            }),
         }
     }
 
@@ -203,6 +209,7 @@ impl Editable {
             Editable::WaterBallast => TString::<16>::from_str("Water Ballast"),
             Editable::Info1 => TString::<16>::from_str("Info 1 Content"),
             Editable::Info2 => TString::<16>::from_str("Info 2 Content"),
+            Editable::Rotation => TString::<16>::from_str("Display Rotation")
         }
     }
 
@@ -278,6 +285,12 @@ impl Editable {
             Editable::WaterBallast => Content::F32(cm.glider_data.water_ballast.to_kg()),
             Editable::Info1 => Content::List(cm.config.info1_content as i32),
             Editable::Info2 => Content::List(cm.config.info2_content as i32),
+            Editable::Rotation => match cm.control.rotation {
+                Rotation::Rotate0 => Content::Enum(TString::<12>::from_str("Rotate 0°")),
+                Rotation::Rotate90 => Content::Enum(TString::<12>::from_str("Rotate 90°")),
+                Rotation::Rotate180 => Content::Enum(TString::<12>::from_str("Rotate 180°")),
+                Rotation::Rotate270 => Content::Enum(TString::<12>::from_str("Rotate 270°")),
+            }
         }
     }
 
@@ -315,6 +328,21 @@ impl Editable {
                     PersistenceId::VarioModeControl,
                     Echo::NmeaAndCan,
                 );
+            }
+            Editable::Rotation => {
+                let rotation = match val.as_str() {
+                    "Rotate 0°" => Rotation::Rotate0,
+                    "Rotate 90°" => Rotation::Rotate90,
+                    "Rotate 180°" => Rotation::Rotate180,
+                    "Rotate 270°" => Rotation::Rotate270,
+                    _ => Rotation::Rotate0,
+                };
+                cc.persist_set(
+                    cm,
+                    Variant::Rotation(rotation),
+                    PersistenceId::Rotation,
+                    Echo::None,
+                )
             }
             _ => (),
         }

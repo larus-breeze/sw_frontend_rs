@@ -104,6 +104,10 @@ pub const VARIO_SETTINGS: Menu = Menu {
             next_menu_idx: VARIO_SETINGS_IDX,
         },
         MenuItem {
+            content: MenuItemContent::EditItem(Editable::Rotation),
+            next_menu_idx: VARIO_SETINGS_IDX,
+        },
+        MenuItem {
             content: MenuItemContent::EditItem(Editable::TcClimbRate),
             next_menu_idx: VARIO_SETINGS_IDX,
         },

@@ -16,7 +16,7 @@
 /// The module also ensures that the Nmea interface and the EEPROM are not overloaded by too much
 /// data. This is achieved by initially storing the data in an index set and only forwarding it
 /// after a pause of incoming data of at least 500 ms.
-use crate::{utils::Variant, view::viewable::Viewable};
+use crate::{utils::Variant, view::viewable::Viewable, Rotation};
 
 use heapless::Vec;
 
@@ -46,6 +46,7 @@ pub enum PersistenceId {
     TcSpeedToFly = 11,
     Info1 = 12,
     Info2 = 13,
+    Rotation = 14,
     LastItem,
 }
 
@@ -103,6 +104,7 @@ impl CoreController {
             PersistenceId::TcSpeedToFly => cm.config.av_speed_to_fly_tc = item.to_f32(),
             PersistenceId::Info1 => cm.config.info1_content = Viewable::from(item.to_u32()),
             PersistenceId::Info2 => cm.config.info2_content = Viewable::from(item.to_u32()),
+            PersistenceId::Rotation => cm.control.rotation = Rotation::from(item.to_u32()),
             _ => (),
         }
     }
@@ -147,6 +149,7 @@ impl CoreController {
             }
             PersistenceId::Info1 => PersistenceItem::from_u32(id, cm.config.info1_content as u32),
             PersistenceId::Info2 => PersistenceItem::from_u32(id, cm.config.info2_content as u32),
+            PersistenceId::Rotation => PersistenceItem::from_u32(id, cm.control.rotation as u32),
             _ => PersistenceItem::do_not_store(),
         };
         self.send_idle_event(crate::IdleEvent::EepromItem(p_item));
@@ -232,6 +235,11 @@ impl CoreController {
             PersistenceId::Info2 => {
                 if let Variant::I32(info) = variant {
                     cm.config.info2_content = Viewable::from(info as u32);
+                }
+            }
+            PersistenceId::Rotation => {
+                if let Variant::Rotation(rotation) = variant {
+                    cm.control.rotation = rotation;
                 }
             }
             _ => (),

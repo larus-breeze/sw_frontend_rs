@@ -4,6 +4,26 @@ use embedded_graphics::{draw_target::DrawTarget, geometry::Point, Drawable, Pixe
 #[allow(unused_imports)]
 use crate::RGB565_COLORS;
 
+#[derive(Clone, Copy)]
+pub enum Rotation {
+    Rotate0,
+    Rotate90,
+    Rotate180,
+    Rotate270
+}
+
+impl From<u32> for Rotation {
+    fn from(value: u32) -> Self {
+        if value <= Rotation::Rotate270 as u32 {
+            // It is garanteed, that value is in range and so safe
+            unsafe { core::mem::transmute::<u8, Rotation>(value as u8) }
+        } else {
+            Rotation::Rotate0
+        }
+    }
+}
+
+
 /// Trait of a function to bring an image to the screen. The format of the image files is
 /// specifically designed to be ultra-fast. It is defined in the Python script
 /// assets/convert_pictures.py and is described there.
@@ -12,6 +32,8 @@ pub trait DrawImage {
     const DISPLAY_HEIGHT: u32;
 
     fn draw_line_unchecked(&mut self, idx: usize, len: usize, color: Colors);
+
+    fn set_rotation(&mut self, rotation: Rotation);
 
     fn draw_img(
         &mut self,
@@ -112,17 +134,17 @@ pub trait DrawImage {
             // Let's write the pixels
             let idx_col_arr: usize = 7;
             let mut idx = img[6] as usize + 7;
-            let mut img_idx = (offset.x + offset.y * Self::DISPLAY_WIDTH as i32) as usize;
+            let mut img_idx = (offset.x + offset.y * Self::DISPLAY_WIDTH as i32) as u32;
             let mut color = Colors::from(0);
             while idx < img.len() {
                 let n = img[idx] & 0b0011_1111;
                 match img[idx] & 0b1100_0000 {
                     0b0000_0000 => {
-                        self.draw_line_unchecked(img_idx, n as usize, color);
-                        img_idx += n as usize;
+                        self.draw_line_unchecked(img_idx as usize, n as usize, color);
+                        img_idx += n as u32;
                     }
-                    0b0100_0000 => img_idx += n as usize,
-                    0b1000_0000 => img_idx += 64 * n as usize,
+                    0b0100_0000 => img_idx += n as u32,
+                    0b1000_0000 => img_idx += 64 * n as u32,
                     0b1100_0000 => {
                         color = if let Some(color) = cover_up {
                             color
