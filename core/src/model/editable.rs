@@ -37,6 +37,7 @@ pub enum Editable {
     Info1,
     Info2,
     Rotation,
+    CenterFrequency,
 }
 
 #[derive(Clone, Copy)]
@@ -189,6 +190,14 @@ impl Editable {
                     TString::<12>::from_str(""),
                 ],
             }),
+            Editable::CenterFrequency => Params::F32(F32Params {
+                min: 500.0,
+                max: 1000.0,
+                small_inc: 1.0,
+                big_inc: 10.0,
+                dec_places: 0,
+                unit: TString::<5>::from_str("Hz"),
+            }),
         }
     }
 
@@ -209,7 +218,8 @@ impl Editable {
             Editable::WaterBallast => TString::<16>::from_str("Water Ballast"),
             Editable::Info1 => TString::<16>::from_str("Info 1 Content"),
             Editable::Info2 => TString::<16>::from_str("Info 2 Content"),
-            Editable::Rotation => TString::<16>::from_str("Display Rotation")
+            Editable::Rotation => TString::<16>::from_str("Display Rotation"),
+            Editable::CenterFrequency => TString::<16>::from_str("Center Frequency"),
         }
     }
 
@@ -286,6 +296,7 @@ impl Editable {
             Editable::Info1 => Content::List(cm.config.info1_content as i32),
             Editable::Info2 => Content::List(cm.config.info2_content as i32),
             Editable::Rotation => Content::Enum(TString::<12>::from_str(cm.control.rotation.name())),
+            Editable::CenterFrequency => Content::F32(cm.config.snd_center_freq as f32),
         }
     }
 
@@ -377,6 +388,12 @@ impl Editable {
                 PersistenceId::WaterBallast,
                 Echo::NmeaAndCan,
             ),
+            Editable::CenterFrequency => cc.persist_set(
+                cm,
+                Variant::F32(val),
+                PersistenceId::CenterFrequency,
+                Echo::Can,
+            ),            
             _ => (),
         }
     }

@@ -2,6 +2,9 @@ use crate::{tformat, Colors, CoreError, CoreModel, DrawImage, FloatToSpeed};
 use embedded_graphics::{draw_target::DrawTarget, geometry::Point};
 use u8g2_fonts::types::{FontColor, HorizontalAlignment, VerticalPosition};
 
+/// This enum is also used to reload configurations saved in the EEPROM. Therefore, the sequence 
+/// must not be changed, as otherwise existing configurations would change. New viewables should 
+/// always be inserted before the last enum (LastElementNotInUse)
 #[derive(Clone, Copy)]
 pub enum Viewable {
     None,
@@ -31,6 +34,7 @@ impl Viewable {
         Viewable::LastElemntNotInUse as u32 - 1
     }
 
+    /// Get the name of a viewable
     pub fn name(&self) -> &'static str {
         match self {
             Viewable::AverageClimbRate => "Avg Climb Rate",
@@ -44,6 +48,7 @@ impl Viewable {
         }
     }
 
+    /// Draw viewable
     pub fn draw<D>(
         &self,
         display: &mut D,
@@ -67,7 +72,7 @@ impl Viewable {
     }
 }
 
-pub fn draw_average_climb_rate<D>(
+fn draw_average_climb_rate<D>(
     display: &mut D,
     cm: &CoreModel,
     pos: Point,
@@ -102,7 +107,7 @@ where
     Ok(())
 }
 
-pub fn draw_drift_angle<D>(
+fn draw_drift_angle<D>(
     display: &mut D,
     cm: &CoreModel,
     pos: Point,
@@ -135,7 +140,7 @@ where
     Ok(())
 }
 
-pub fn draw_flight_level<D>(
+fn draw_flight_level<D>(
     display: &mut D,
     cm: &CoreModel,
     pos: Point,
@@ -161,7 +166,7 @@ where
     Ok(())
 }
 
-pub fn draw_true_course<D>(
+fn draw_true_course<D>(
     display: &mut D,
     cm: &CoreModel,
     pos: Point,
@@ -183,7 +188,7 @@ where
     Ok(())
 }
 
-pub fn draw_utc_time<D>(
+fn draw_utc_time<D>(
     display: &mut D,
     cm: &CoreModel,
     pos: Point,
@@ -204,7 +209,7 @@ where
     Ok(())
 }
 
-pub fn draw_wind_and_delta<D>(
+fn draw_wind_and_delta<D>(
     display: &mut D,
     cm: &CoreModel,
     pos: Point,
