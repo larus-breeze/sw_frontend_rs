@@ -10,6 +10,7 @@ pub enum Viewable {
     TrueCourse,
     UtcTime,
     WindAndDelta,
+    DriftAngle,
     LastElemntNotInUse,
 }
 
@@ -33,6 +34,7 @@ impl Viewable {
     pub fn name(&self) -> &'static str {
         match self {
             Viewable::AverageClimbRate => "Avg Climb Rate",
+            Viewable::DriftAngle => "Drift Angle",
             Viewable::FlightLevel => "Flight Level",
             Viewable::TrueCourse => "True Course",
             Viewable::UtcTime => "UTC Time",
@@ -55,6 +57,7 @@ impl Viewable {
         match self {
             Viewable::None => Ok(()),
             Viewable::AverageClimbRate => draw_average_climb_rate(display, cm, pos, color),
+            Viewable::DriftAngle => draw_drift_angle(display, cm, pos, color),
             Viewable::FlightLevel => draw_flight_level(display, cm, pos, color),
             Viewable::TrueCourse => draw_true_course(display, cm, pos, color),
             Viewable::UtcTime => draw_utc_time(display, cm, pos, color),
@@ -99,6 +102,39 @@ where
     Ok(())
 }
 
+pub fn draw_drift_angle<D>(
+    display: &mut D,
+    cm: &CoreModel,
+    pos: Point,
+    color: Colors,
+) -> Result<(), CoreError>
+where
+    D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
+{
+    let track = cm.sensor.gps_track.to_degrees();
+    let heading = cm.sensor.euler_yaw.to_degrees();
+    let mut drift_angle = track - heading;
+    if drift_angle > 180.0 {
+        drift_angle -= 360.0    // t: 355 h 5 => 350 correct -10
+    } else if drift_angle < -180.0 {
+        drift_angle += 360.0    // t: 5 h 355 => - 350 correct +10
+    }
+    let s = if drift_angle > 0.0 {
+        tformat!(8, "DA +{:.0}°", drift_angle).unwrap()
+    } else {
+        tformat!(8, "DA {:.0}°", drift_angle).unwrap()
+    };
+    cm.device_const.big_font.render_aligned(
+        s.as_str(),
+        pos,
+        VerticalPosition::Center,
+        HorizontalAlignment::Center,
+        FontColor::Transparent(color),
+        display,
+    )?;
+    Ok(())
+}
+
 pub fn draw_flight_level<D>(
     display: &mut D,
     cm: &CoreModel,
@@ -108,7 +144,10 @@ pub fn draw_flight_level<D>(
 where
     D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
 {
-    let altitude = cm.sensor.pressure_altitude.qne_altitude().to_ft() / 100.0;
+    let mut altitude = cm.sensor.pressure_altitude.qne_altitude().to_ft() / 100.0;
+    if altitude < 0.0 { // Patch to avoid -0.01 => "FL0-0"
+        altitude = 0.0
+    }
     let fl = tformat!(10, "FL{:03.0}", altitude).unwrap();
 
     cm.device_const.big_font.render_aligned(
