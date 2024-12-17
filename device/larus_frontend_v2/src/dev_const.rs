@@ -124,5 +124,5 @@ const fn images() -> Images {
     }
 }
 
-pub const SMALL_FONT: FontRenderer = FontRenderer::new::<fonts::u8g2_font_fub17_tf>();
+pub const SMALL_FONT: FontRenderer = FontRenderer::new::<fonts::u8g2_font_fub25_tf>();
 pub const BIG_FONT: FontRenderer = FontRenderer::new::<fonts::u8g2_font_fub30_tf>();
