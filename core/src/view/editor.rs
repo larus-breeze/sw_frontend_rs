@@ -34,7 +34,7 @@ impl Edit {
 
         let d_sizes = &cm.device_const.sizes.display;
         let height = d_sizes.height * 50 / 100;
-        let width = d_sizes.width * 90 / 100;
+        let width = d_sizes.width * 80 / 100;
 
         Rectangle::with_center(d_sizes.screen_center, Size::new(width, height))
             .into_styled(style)
