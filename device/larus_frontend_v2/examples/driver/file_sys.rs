@@ -4,7 +4,7 @@ use embedded_sdmmc::{
 };
 use stm32h7xx_hal::{
     device::SDMMC1,
-    gpio::{Pin, Speed},
+    gpio::{Alternate, Input, Pin, Speed},
     prelude::*,
     rcc::rec::Sdmmc1,
     rcc::CoreClocks,
@@ -12,15 +12,62 @@ use stm32h7xx_hal::{
 };
 type FileSysError = SdmmcError<DeviceError>;
 
-pub struct SdcardPins(
-    pub Pin<'C', 12>, // clk
-    pub Pin<'D', 2>,  // cmd
-    pub Pin<'C', 8>,  // d0
-    pub Pin<'C', 9>,  // d1
-    pub Pin<'C', 10>, // d2
-    pub Pin<'C', 11>, // d3
-    pub Pin<'A', 15>, // detect
-);
+pub struct SdcardPins {
+    clk: Pin<'C', 12, Alternate<12>>,
+    cmd: Pin<'D', 2, Alternate<12>>,
+    d0: Pin<'C', 8, Alternate<12>>,
+    d1: Pin<'C', 9, Alternate<12>>,
+    d2: Pin<'C', 10, Alternate<12>>,
+    d3: Pin<'C', 11, Alternate<12>>,
+    detect: Pin<'A', 15, Input>,
+}
+
+impl SdcardPins {
+    pub fn new(
+        clk: Pin<'C', 12>,
+        cmd: Pin<'D', 2>,
+        d0: Pin<'C', 8>,
+        d1: Pin<'C', 9>,
+        d2: Pin<'C', 10>,
+        d3: Pin<'C', 11>,
+        detect: Pin<'A', 15>,
+    ) -> Self {
+        let clk = clk
+            .into_alternate::<12>()
+            .internal_pull_up(false)
+            .speed(Speed::VeryHigh);
+        let cmd = cmd
+            .into_alternate::<12>()
+            .internal_pull_up(true)
+            .speed(Speed::VeryHigh);
+        let d0 = d0
+            .into_alternate::<12>()
+            .internal_pull_up(true)
+            .speed(Speed::VeryHigh);
+        let d1 = d1
+            .into_alternate::<12>()
+            .internal_pull_up(true)
+            .speed(Speed::VeryHigh);
+        let d2 = d2
+            .into_alternate::<12>()
+            .internal_pull_up(true)
+            .speed(Speed::VeryHigh);
+        let d3 = d3
+            .into_alternate::<12>()
+            .internal_pull_up(true)
+            .speed(Speed::VeryHigh);
+        let detect = detect.into_input();
+        SdcardPins {
+            clk,
+            cmd,
+            d0,
+            d1,
+            d2,
+            d3,
+            detect,
+        }
+    }
+}
 
 pub struct TimeSource;
 
@@ -44,51 +91,20 @@ pub struct FileIo {
 
 impl FileIo {
     pub fn new(
-        sdcard_pins: SdcardPins,
+        pins: SdcardPins,
         sdmmc1: SDMMC1,
         prec: Sdmmc1,
         clocks: &CoreClocks,
     ) -> Result<Self, FileSysError> {
-        let (clk, cmd, d0, d1, d2, d3, detect) = (
-            sdcard_pins
-                .0
-                .into_alternate::<12>()
-                .internal_pull_up(false)
-                .speed(Speed::VeryHigh),
-            sdcard_pins
-                .1
-                .into_alternate::<12>()
-                .internal_pull_up(false)
-                .speed(Speed::VeryHigh),
-            sdcard_pins
-                .2
-                .into_alternate::<12>()
-                .internal_pull_up(false)
-                .speed(Speed::VeryHigh),
-            sdcard_pins
-                .3
-                .into_alternate::<12>()
-                .internal_pull_up(false)
-                .speed(Speed::VeryHigh),
-            sdcard_pins
-                .4
-                .into_alternate::<12>()
-                .internal_pull_up(false)
-                .speed(Speed::VeryHigh),
-            sdcard_pins
-                .5
-                .into_alternate::<12>()
-                .internal_pull_up(false)
-                .speed(Speed::VeryHigh),
-            sdcard_pins.6.into_input(),
-        );
-
-        if detect.is_high() {
+        if pins.detect.is_high() {
             return Err(SdmmcError::DeviceError(DeviceError::NoCard));
         }
-        let mut sdmmc: Sdmmc<_, SdCard> = sdmmc1.sdmmc((clk, cmd, d0, d1, d2, d3), prec, clocks);
-        sdmmc.init(10.MHz()).map_err(SdmmcError::DeviceError)?;
-        let size = sdmmc.card().map_err(SdmmcError::DeviceError)?.size();
+        let pins = (pins.clk, pins.cmd, pins.d0, pins.d1, pins.d2, pins.d3);
+        let mut sdmmc: Sdmmc<_, SdCard> = sdmmc1.sdmmc(pins, prec, clocks);
+        sdmmc
+            .init(10.MHz())
+            .map_err(|e| SdmmcError::DeviceError(e))?;
+        let size = sdmmc.card().map_err(|e| SdmmcError::DeviceError(e))?.size();
         Ok(FileIo {
             size,
             sdmmc: RefCell::new(sdmmc),
@@ -105,7 +121,8 @@ impl BlockDevice for FileIo {
         start_block_idx: BlockIdx,
         _reason: &str,
     ) -> Result<(), Self::Error> {
-        let mut sdmmc = self.sdmmc.borrow_mut();
+        // unsafe is ok, becaus we are the only one knowing and using sdmmc
+        let mut sdmmc = unsafe { self.sdmmc.borrow_mut() };
         let start = start_block_idx.0;
         for block_idx in start..(start + blocks.len() as u32) {
             sdmmc
@@ -113,19 +130,20 @@ impl BlockDevice for FileIo {
                     block_idx,
                     &mut blocks[(block_idx - start) as usize].contents,
                 )
-                .map_err(SdmmcError::DeviceError)?;
+                .map_err(|e| SdmmcError::DeviceError(e))?;
         }
         Ok(())
     }
 
     fn write(&self, blocks: &[Block], start_block_idx: BlockIdx) -> Result<(), Self::Error> {
-        let mut sdmmc = self.sdmmc.borrow_mut();
+        // unsafe is ok, becaus we are the only one knowing and using sdmmc
+        let mut sdmmc = unsafe { self.sdmmc.borrow_mut() };
         let start = start_block_idx.0;
         for block_idx in start..(start + blocks.len() as u32) {
             let block = &blocks[(block_idx - start) as usize].contents;
             sdmmc
                 .write_block(block_idx, block)
-                .map_err(SdmmcError::DeviceError)?;
+                .map_err(|e| SdmmcError::DeviceError(e))?;
         }
         Ok(())
     }
@@ -150,7 +168,6 @@ pub struct FileSys {
 }
 
 impl FileSys {
-    #[allow(clippy::new_ret_no_self)]
     pub fn new(
         pins: SdcardPins,
         //        time_source: TimeSource,
@@ -159,7 +176,7 @@ impl FileSys {
         clocks: &CoreClocks,
     ) -> Result<(), FileSysError> {
         let file_io = FileIo::new(pins, sdmmc1, prec, clocks)?;
-        let vol_mgr = VolumeManager::new(file_io, TimeSource);
+        let mut vol_mgr = VolumeManager::new(file_io, TimeSource);
         // ok, since access only provided from one thread
         unsafe { FILE_SYS = Some(FileSys { vol_mgr }) }
         Ok(())
