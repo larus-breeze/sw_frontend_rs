@@ -6,6 +6,8 @@ mod clut_colors;
 #[allow(unused)]
 mod display;
 #[allow(unused)]
+mod file_sys;
+#[allow(unused)]
 mod frame_buffer;
 #[allow(unused)]
 mod ltdc;
@@ -17,6 +19,8 @@ mod st7701s;
 pub use clut_colors::*;
 #[allow(unused)]
 pub use display::*;
+#[allow(unused)]
+pub use file_sys::*;
 #[allow(unused)]
 pub use frame_buffer::*;
 #[allow(unused)]
