@@ -7,6 +7,7 @@ use crate::{
     CoreError, DrawImage,
 };
 
+use num::clamp;
 use embedded_graphics::{
     geometry::AngleUnit,
     prelude::*,
@@ -257,10 +258,11 @@ impl Vario {
         }
 
         // draw average climb rate marker
+        let av_climb_rate_limited = clamp(cm.calculated.av2_climb_rate.to_m_s(), 0.0, 5.0);
         inverted_scale_marker(
             display,
             d_sizes.center,
-            cm.calculated.av2_climb_rate.to_m_s(),
+            av_climb_rate_limited,
             (d_sizes.radius - sizes.indicator_len) as i32,
             sizes.tcr_len as i32,
             sizes.tcr_width,
