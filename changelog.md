@@ -1,6 +1,15 @@
 Changelog
 =
 
+v.0.3.0 Support the Larus V2 hardware
+- Larus V2 hardware with large display works
+- Add menu infrastructure
+- Add the option to customize displayed information
+- Enables the display of flight level, UTC time, average climb rate, true course, drift angle and wind/avg wind
+- The display can be rotated by 90°, 180°, and 270°
+- The audio frequency can be customized
+- Change the time constants for average climb rate and speed to fly
+
 v.0.2.1 Artificial horizon
 - Keyboard is now individual per display
 - Editor as independent component
