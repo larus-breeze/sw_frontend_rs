@@ -17,6 +17,8 @@ use stm32h7xx_hal::{
 
 pub type DevCanDispatch = CanDispatch<VDA, 8, MAX_TX_FRAMES, MAX_RX_FRAMES, DevRng>;
 
+pub const H7_HCLK: u32 = 200_000_000;
+
 pub fn hw_init(
     dp: DevicePeripherals,
     mut cp: CorePeripherals,
@@ -79,7 +81,7 @@ pub fn hw_init(
         .constrain()
         .use_hse(16.MHz())
         .sys_ck(400.MHz())
-        .hclk(100.MHz()) // Todo change 20 200 MHz and check sound
+        .hclk(H7_HCLK.Hz())
         .pll1_q_ck(50.MHz()) // CAN
         .pll2_p_ck(100.MHz()) // ?
         .pll2_r_ck(50.MHz()) // LCD

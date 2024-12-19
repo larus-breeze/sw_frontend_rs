@@ -1,4 +1,4 @@
-clock = 100_000_000
+clock = 200_000_000
 lowest_fq = 200
 highest_fq = 2000
 samples = 20
