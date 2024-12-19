@@ -26,6 +26,7 @@ use stm32h7xx_hal::{
     pac,
     pac::{DAC, DMA1},
 };
+use super::H7_HCLK;
 
 const SAMPLES_CNT: usize = 20;
 #[allow(unused)]
@@ -182,7 +183,7 @@ impl Sound {
     pub fn set_params(&mut self, fq: u16, continous: bool, gain: i8) {
         let devider = self.tim.arr.read().bits();
         self.wave_ctr = 0;
-        self.curr_f = 100_000_000.0 / SAMPLES_CNT as f32 / devider as f32;
+        self.curr_f = H7_HCLK as f32 / SAMPLES_CNT as f32 / devider as f32;
         // Calculate delta frequency asume 10 Hz tick rate
         self.next_f = fq as f32;
         self.delta_f = (self.next_f - self.curr_f) / self.curr_f * 10.0;
@@ -209,7 +210,7 @@ impl Sound {
         self.curr_f += self.delta_f;
         self.wave_ctr += 1;
         if self.curr_f > 200.0 && self.curr_f < 2000.0 {
-            let devider = (100_000_000 / SAMPLES_CNT as u32 / self.curr_f as u32) as u16;
+            let devider = (H7_HCLK / SAMPLES_CNT as u32 / self.curr_f as u32) as u16;
             self.tim.arr.write(|w| w.arr().bits(devider)); // preload register
         }
 
