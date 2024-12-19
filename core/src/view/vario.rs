@@ -258,7 +258,7 @@ impl Vario {
         }
 
         // draw average climb rate marker
-        let av_climb_rate_limited = clamp(cm.calculated.av2_climb_rate.to_m_s(), 0.0, 5.0);
+        let av_climb_rate_limited = clamp(cm.calculated.av2_climb_rate.to_m_s(), -5.0, 5.0);
         inverted_scale_marker(
             display,
             d_sizes.center,
