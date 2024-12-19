@@ -14,6 +14,7 @@ pub enum Viewable {
     UtcTime,
     WindAndDelta,
     DriftAngle,
+    WindAndAvgWind,
     LastElemntNotInUse,
 }
 
@@ -42,6 +43,7 @@ impl Viewable {
             Viewable::FlightLevel => "Flight Level",
             Viewable::TrueCourse => "True Course",
             Viewable::UtcTime => "UTC Time",
+            Viewable::WindAndAvgWind => "Wind, avg Wind",
             Viewable::WindAndDelta => "Wind and Delta",
             Viewable::None => "None",
             Viewable::LastElemntNotInUse => "",
@@ -66,6 +68,7 @@ impl Viewable {
             Viewable::FlightLevel => draw_flight_level(display, cm, pos, color),
             Viewable::TrueCourse => draw_true_course(display, cm, pos, color),
             Viewable::UtcTime => draw_utc_time(display, cm, pos, color),
+            Viewable::WindAndAvgWind => draw_wind_and_avg_wind(display, cm, pos, color),
             Viewable::WindAndDelta => draw_wind_and_delta(display, cm, pos, color),
             Viewable::LastElemntNotInUse => Ok(()),
         }
@@ -204,6 +207,75 @@ where
         VerticalPosition::Center,
         HorizontalAlignment::Center,
         FontColor::Transparent(color),
+        display,
+    )?;
+    Ok(())
+}
+
+fn draw_wind_and_avg_wind<D>(
+    display: &mut D,
+    cm: &CoreModel,
+    pos: Point,
+    color: Colors,
+) -> Result<(), CoreError>
+where
+    D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
+{
+    let total_height = (cm.device_const.big_font.get_default_line_height()
+        + cm.device_const.small_font.get_default_line_height())
+        * 80
+        / 100;
+    let angle = if cm.sensor.airspeed.ias() < 30.0.km_h() {
+        cm.sensor.euler_yaw
+    } else {
+        cm.sensor.wind_vector.angle()
+    };
+
+    let wind_deg = angle.to_degrees();
+    let wind_speed = cm.sensor.wind_vector.speed().to_km_h();
+    let wind_x = pos.x - cm.device_const.sizes.display.km_h.width as i32 / 2;
+    let wind_y = pos.y - (total_height as i32) / 2;
+    let s = tformat!(25, "{:.0}° {:.0}", wind_deg, wind_speed).unwrap();
+    let result = cm.device_const.big_font.render_aligned(
+        s.as_str(),
+        Point::new(wind_x, wind_y),
+        VerticalPosition::Top,
+        HorizontalAlignment::Center,
+        FontColor::Transparent(color),
+        display,
+    )?;
+
+    if let Some(rectangle) = result {
+        let pic_x = wind_x + 2 + (rectangle.size.width / 2) as i32;
+        display.draw_img(
+            &cm.device_const.images.km_h,
+            Point::new(pic_x, wind_y),
+            Some(color),
+        )?;
+    }
+
+    let avg_wind_spped = cm.sensor.average_wind.speed().to_km_h();
+    let avg_wind_angle = cm.sensor.average_wind.angle().to_degrees();
+    let delta_speed = wind_speed - avg_wind_spped;
+    let (avg_txt, avg_color) = if delta_speed < 0.0 {
+        (
+            tformat!(25, "{:.0}° {:.0}", avg_wind_angle, avg_wind_spped).unwrap(),
+            cm.palette().vario_wind_minus,
+        )
+    } else {
+        (
+            tformat!(25, "{:.0}° {:.0}", avg_wind_angle, avg_wind_spped).unwrap(),
+            cm.palette().vario_wind_plus,
+        )
+    };
+
+    let avg_y = pos.y + (total_height as i32) / 2;
+    cm.device_const.small_font.render_aligned(
+        avg_txt.as_str(),
+        Point::new(pos.x, avg_y),
+        VerticalPosition::Bottom,
+        HorizontalAlignment::Center,
+        FontColor::Transparent(avg_color),
         display,
     )?;
     Ok(())
