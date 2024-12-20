@@ -197,25 +197,25 @@ impl Vario {
         )?;
 
         // draw info1 and info2 fields
-        cm.config
+        if cm.control.alive_secs > 7 {
+            cm.config
             .info1_content
             .draw(display, cm, sizes.info1_pos, cm.palette().scale)?;
-        cm.config
-            .info2_content
-            .draw(display, cm, sizes.info2_pos, cm.palette().scale)?;
-
-        // draw software version during the first 10 seconds
-        if false {
+        } else {
+            // draw software version during the first N seconds
             let s = cm.device_const.misc.sw_version.as_string();
             cm.device_const.big_font.render_aligned(
                 s.as_str(),
-                sizes.version_pos,
-                VerticalPosition::Top,
-                HorizontalAlignment::Right,
+                sizes.info1_pos,
+                VerticalPosition::Center,
+                HorizontalAlignment::Center,
                 FontColor::Transparent(cm.palette().scale),
                 display,
             )?;
         }
+        cm.config
+            .info2_content
+            .draw(display, cm, sizes.info2_pos, cm.palette().scale)?;
 
         // dependend on vario_mode draw speed_to_fly or average_climb_rate
         match cm.control.vario_mode {
