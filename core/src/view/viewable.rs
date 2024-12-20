@@ -2,6 +2,9 @@ use crate::{tformat, Colors, CoreError, CoreModel, DrawImage, FloatToSpeed};
 use embedded_graphics::{draw_target::DrawTarget, geometry::Point};
 use u8g2_fonts::types::{FontColor, HorizontalAlignment, VerticalPosition};
 
+#[allow(unused)]
+use micromath::F32Ext;
+
 /// This enum is also used to reload configurations saved in the EEPROM. Therefore, the sequence 
 /// must not be changed, as otherwise existing configurations would change. New viewables should 
 /// always be inserted before the last enum (LastElementNotInUse)
@@ -138,15 +141,19 @@ where
     let track = cm.sensor.gps_track.to_degrees();
     let heading = cm.sensor.euler_yaw.to_degrees();
     let mut drift_angle = track - heading;
-    if drift_angle > 180.0 {
+    if drift_angle.abs() > 360.0 {
+        drift_angle = 0.0
+    }
+    while drift_angle > 180.0 {
         drift_angle -= 360.0    // t: 355 h 5 => 350 correct -10
-    } else if drift_angle < -180.0 {
+    } 
+    while drift_angle < -180.0 {
         drift_angle += 360.0    // t: 5 h 355 => - 350 correct +10
     }
     let s = if drift_angle > 0.0 {
-        tformat!(8, "DA +{:.0}°", drift_angle).unwrap()
+        tformat!(12, "DA +{:.0}°", drift_angle).unwrap()
     } else {
-        tformat!(8, "DA {:.0}°", drift_angle).unwrap()
+        tformat!(12, "DA {:.0}°", drift_angle).unwrap()
     };
     cm.device_const.big_font.render_aligned(
         s.as_str(),
