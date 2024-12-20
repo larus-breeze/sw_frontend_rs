@@ -245,10 +245,10 @@ impl Editable {
                     match self {
                         Editable::Glider => conv.write_str(POLARS[val as usize].name).unwrap(),
                         Editable::Info1 => {
-                            conv.write_str(Viewable::from(val as u32).name()).unwrap()
+                            conv.write_str(Viewable::from_sorted(val as u32).name()).unwrap()
                         }
                         Editable::Info2 => {
-                            conv.write_str(Viewable::from(val as u32).name()).unwrap()
+                            conv.write_str(Viewable::from_sorted(val as u32).name()).unwrap()
                         }
                         _ => (),
                     }
@@ -406,10 +406,12 @@ impl Editable {
                 cc.persist_set(cm, Variant::I32(val), PersistenceId::Glider, Echo::None)
             }
             Editable::Info1 => {
-                cc.persist_set(cm, Variant::I32(val), PersistenceId::Info1, Echo::None)
+                let variant = Viewable::from_sorted(val as u32) as i32;
+                cc.persist_set(cm, Variant::I32(variant), PersistenceId::Info1, Echo::None)
             }
             Editable::Info2 => {
-                cc.persist_set(cm, Variant::I32(val), PersistenceId::Info2, Echo::None)
+                let variant = Viewable::from_sorted(val as u32) as i32;
+                cc.persist_set(cm, Variant::I32(variant), PersistenceId::Info2, Echo::None)
             }
             _ => (),
         }

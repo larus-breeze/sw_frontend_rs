@@ -87,7 +87,6 @@ const fn vario_sizes() -> VarioSizes {
         unit_pos: Point::new(130, 292),
         info1_pos: Point::new(160, 80),
         info2_pos: Point::new(160, 240),
-        version_pos: Point::new(200, 217),
         wind_len: 105,
         wind_len_min: 50,
         angle_m_s: 24.0,

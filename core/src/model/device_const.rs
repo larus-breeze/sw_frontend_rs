@@ -70,7 +70,6 @@ pub struct VarioSizes {
     pub unit_pos: Point,
     pub info1_pos: Point,
     pub info2_pos: Point,
-    pub version_pos: Point,
     pub wind_len: i32,
     pub wind_len_min: i32,
     pub angle_m_s: f32,

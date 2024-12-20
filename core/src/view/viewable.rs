@@ -35,6 +35,21 @@ impl Viewable {
         Viewable::LastElemntNotInUse as u32 - 1
     }
 
+    // This method is used by the editor to obtain the correct viewables in the correct order 
+    pub fn from_sorted(value: u32) -> Viewable {
+        match value {
+            0 => Viewable::None,
+            1 => Viewable::AverageClimbRate,
+            2 => Viewable::DriftAngle,
+            3 => Viewable::FlightLevel,
+            4 => Viewable::TrueCourse,
+            5 => Viewable::UtcTime,
+            6 => Viewable::WindAndAvgWind,
+            7 => Viewable::WindAndDelta,
+            _ => Viewable::None,
+        }
+    }
+
     /// Get the name of a viewable
     pub fn name(&self) -> &'static str {
         match self {
@@ -109,6 +124,7 @@ where
     }
     Ok(())
 }
+
 
 fn draw_drift_angle<D>(
     display: &mut D,
