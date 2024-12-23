@@ -21,10 +21,16 @@ pub enum Viewable {
     LastElemntNotInUse,
 }
 
+#[derive(Clone, Copy)]
+pub enum Placement {
+    Top,
+    Bottom,
+}
+
 impl core::convert::From<u32> for Viewable {
     fn from(value: u32) -> Self {
-        let idx = if value > Self::max() {
-            Self::max() as u8
+        let idx = if value >= Self::LastElemntNotInUse as u32 - 1 {
+            Self::LastElemntNotInUse as u8 - 1
         } else {
             value as u8
         };
@@ -34,22 +40,65 @@ impl core::convert::From<u32> for Viewable {
 }
 
 impl Viewable {
-    pub const fn max() -> u32 {
-        Viewable::LastElemntNotInUse as u32 - 1
+    pub const fn max(placement: Placement) -> u32 {
+        match placement {
+            Placement::Bottom => 7,
+            Placement::Top => 5,
+        }
     }
 
     // This method is used by the editor to obtain the correct viewables in the correct order 
-    pub fn from_sorted(value: u32) -> Viewable {
-        match value {
-            0 => Viewable::None,
-            1 => Viewable::AverageClimbRate,
-            2 => Viewable::DriftAngle,
-            3 => Viewable::FlightLevel,
-            4 => Viewable::TrueCourse,
-            5 => Viewable::UtcTime,
-            6 => Viewable::WindAndAvgWind,
-            7 => Viewable::WindAndDelta,
-            _ => Viewable::None,
+    pub fn from_sorted(value: u32, placement: Placement) -> Viewable {
+        match placement {
+            Placement::Bottom => {
+                match value {
+                    0 => Viewable::None,
+                    1 => Viewable::AverageClimbRate,
+                    2 => Viewable::DriftAngle,
+                    3 => Viewable::FlightLevel,
+                    4 => Viewable::TrueCourse,
+                    5 => Viewable::UtcTime,
+                    6 => Viewable::WindAndAvgWind,
+                    _ => Viewable::WindAndDelta,
+                }
+            }
+            Placement::Top => {
+                match value {
+                    0 => Viewable::None,
+                    1 => Viewable::AverageClimbRate,
+                    2 => Viewable::DriftAngle,
+                    3 => Viewable::FlightLevel,
+                    4 => Viewable::TrueCourse,
+                    _ => Viewable::UtcTime,
+                }
+            }
+        }
+    }
+
+    pub fn sorted_as_i32(&self, placement: Placement) -> i32 {
+        match placement {
+            Placement::Bottom => {
+                match self {
+                    Viewable::None => 0,
+                    Viewable::AverageClimbRate => 1,
+                    Viewable::DriftAngle => 2,
+                    Viewable::FlightLevel => 3,
+                    Viewable::TrueCourse => 4,
+                    Viewable::UtcTime => 5,
+                    Viewable::WindAndAvgWind => 6,
+                    _ => 7,
+                }
+            }
+            Placement::Top => {
+                match self {
+                    Viewable::None => 0,
+                    Viewable::AverageClimbRate => 1,
+                    Viewable::DriftAngle => 2,
+                    Viewable::FlightLevel => 3,
+                    Viewable::TrueCourse => 4,
+                    _ => 5,
+                }
+            }
         }
     }
 

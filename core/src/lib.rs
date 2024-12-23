@@ -51,7 +51,7 @@ pub mod basic_config {
     pub const MAX_RX_FRAMES: usize = 30;
     pub const VDA: u16 = 40; // heartbeat at 0x680
     pub const CONTROLLER_TICK_RATE: u32 = 10;
-    pub const SECTION_EDITOR_TIMEOUT: u16 = 3;
+    pub const SECTION_EDITOR_TIMEOUT: u16 = 7;
     pub const MENU_TIMEOUT: u16 = 30;
     pub const PERSISTENCE_TIMEOUT: u16 = 500;
 }
