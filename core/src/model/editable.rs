@@ -12,7 +12,7 @@
 ///   - Then the enum Editable is extended by the new element (see below)
 ///   - Extend necessary mehtods params(), name(), content(), set_...()
 use crate::{
-    model::VarioModeControl, utils::{TString, Variant}, view::viewable::Viewable, CoreController, CoreModel, Echo, FloatToMass, FloatToSpeed, PersistenceId, Polar, Rotation, POLARS, POLAR_COUNT
+    model::VarioModeControl, utils::{TString, Variant}, view::viewable::{Placement, Viewable}, CoreController, CoreModel, Echo, FloatToMass, FloatToSpeed, PersistenceId, Polar, Rotation, POLARS, POLAR_COUNT
 };
 
 use super::DisplayActive;
@@ -178,8 +178,11 @@ impl Editable {
                 dec_places: 0,
                 unit: TString::<5>::from_str("kg"),
             }),
-            Editable::Info1 | Editable::Info2 => Params::List(ListParams {
-                max: Viewable::max() as i32,
+            Editable::Info1 => Params::List(ListParams {
+                max: Viewable::max(Placement::Top) as i32,
+            }),
+            Editable::Info2 =>  Params::List(ListParams {
+                max: Viewable::max(Placement::Bottom) as i32,
             }),
             Editable::Rotation => Params::Enum(EnumParams {
                 variants: [
@@ -245,10 +248,10 @@ impl Editable {
                     match self {
                         Editable::Glider => conv.write_str(POLARS[val as usize].name).unwrap(),
                         Editable::Info1 => {
-                            conv.write_str(Viewable::from_sorted(val as u32).name()).unwrap()
+                            conv.write_str(Viewable::from_sorted(val as u32, Placement::Top).name()).unwrap()
                         }
                         Editable::Info2 => {
-                            conv.write_str(Viewable::from_sorted(val as u32).name()).unwrap()
+                            conv.write_str(Viewable::from_sorted(val as u32, Placement::Bottom).name()).unwrap()
                         }
                         _ => (),
                     }
@@ -293,8 +296,8 @@ impl Editable {
             },
             Editable::Volume => Content::F32(cm.config.volume as f32),
             Editable::WaterBallast => Content::F32(cm.glider_data.water_ballast.to_kg()),
-            Editable::Info1 => Content::List(cm.config.info1_content as i32),
-            Editable::Info2 => Content::List(cm.config.info2_content as i32),
+            Editable::Info1 => Content::List(cm.config.info1_content.sorted_as_i32(Placement::Top)),
+            Editable::Info2 => Content::List(cm.config.info2_content.sorted_as_i32(Placement::Bottom)),
             Editable::Rotation => Content::Enum(TString::<12>::from_str(cm.control.rotation.name())),
             Editable::CenterFrequency => Content::F32(cm.config.snd_center_freq as f32),
         }
@@ -406,11 +409,11 @@ impl Editable {
                 cc.persist_set(cm, Variant::I32(val), PersistenceId::Glider, Echo::None)
             }
             Editable::Info1 => {
-                let variant = Viewable::from_sorted(val as u32) as i32;
+                let variant = Viewable::from_sorted(val as u32, Placement::Top) as i32;
                 cc.persist_set(cm, Variant::I32(variant), PersistenceId::Info1, Echo::None)
             }
             Editable::Info2 => {
-                let variant = Viewable::from_sorted(val as u32) as i32;
+                let variant = Viewable::from_sorted(val as u32, Placement::Bottom) as i32;
                 cc.persist_set(cm, Variant::I32(variant), PersistenceId::Info2, Echo::None)
             }
             _ => (),

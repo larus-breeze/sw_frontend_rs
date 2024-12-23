@@ -15,5 +15,6 @@
 /device/pc/target
 /device/pc/simulator-0.5.0/target
 /device/pc/simulator-0.5.0/Cargo.lock
+/device/pc/eeprom.bin
 *.f110
 *.pyc
