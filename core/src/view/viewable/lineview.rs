@@ -8,8 +8,8 @@ use micromath::F32Ext;
 /// This enum is also used to reload configurations saved in the EEPROM. Therefore, the sequence 
 /// must not be changed, as otherwise existing configurations would change. New viewables should 
 /// always be inserted before the last enum (LastElementNotInUse)
-#[derive(Clone, Copy)]
-pub enum Viewable {
+#[derive(Clone, Copy, PartialEq)]
+pub enum LineView {
     None,
     AverageClimbRate,
     FlightLevel,
@@ -21,13 +21,7 @@ pub enum Viewable {
     LastElemntNotInUse,
 }
 
-#[derive(Clone, Copy)]
-pub enum Placement {
-    Top,
-    Bottom,
-}
-
-impl core::convert::From<u32> for Viewable {
+impl core::convert::From<u32> for LineView {
     fn from(value: u32) -> Self {
         let idx = if value >= Self::LastElemntNotInUse as u32 - 1 {
             Self::LastElemntNotInUse as u8 - 1
@@ -35,85 +29,93 @@ impl core::convert::From<u32> for Viewable {
             value as u8
         };
         // Transmute is ok, as idx is guaranteed to be in the valid range
-        unsafe { core::mem::transmute::<u8, Viewable>(idx) }
+        unsafe { core::mem::transmute::<u8, LineView>(idx) }
     }
 }
 
-impl Viewable {
-    pub const fn max(placement: Placement) -> u32 {
+const TOP_LINE_VIEW: [LineView; 6] = [
+    LineView::None,
+    LineView::AverageClimbRate,
+    LineView::DriftAngle,
+    LineView::FlightLevel,
+    LineView::TrueCourse,
+    LineView::UtcTime,
+];
+
+const BOTTOM_LINE_VIEW: [LineView; 8] = [
+    LineView::None,
+    LineView::AverageClimbRate,
+    LineView::DriftAngle,
+    LineView::FlightLevel,
+    LineView::TrueCourse,
+    LineView::UtcTime,
+    LineView::WindAndAvgWind,
+    LineView::WindAndDelta,
+];
+
+#[derive(Clone, Copy)]
+pub enum Placement {
+    Top,
+    Bottom,
+}
+
+impl LineView {
+    pub const fn max(placement: Placement) -> usize {
         match placement {
             Placement::Bottom => 7,
-            Placement::Top => 5,
+            Placement::Top => TOP_LINE_VIEW.len() - 1,
         }
     }
 
     // This method is used by the editor to obtain the correct viewables in the correct order 
-    pub fn from_sorted(value: u32, placement: Placement) -> Viewable {
+    pub fn from_sorted(value: usize, placement: Placement) -> LineView {
         match placement {
             Placement::Bottom => {
-                match value {
-                    0 => Viewable::None,
-                    1 => Viewable::AverageClimbRate,
-                    2 => Viewable::DriftAngle,
-                    3 => Viewable::FlightLevel,
-                    4 => Viewable::TrueCourse,
-                    5 => Viewable::UtcTime,
-                    6 => Viewable::WindAndAvgWind,
-                    _ => Viewable::WindAndDelta,
+                if value < BOTTOM_LINE_VIEW.len() {
+                    return BOTTOM_LINE_VIEW[value]
                 }
             }
             Placement::Top => {
-                match value {
-                    0 => Viewable::None,
-                    1 => Viewable::AverageClimbRate,
-                    2 => Viewable::DriftAngle,
-                    3 => Viewable::FlightLevel,
-                    4 => Viewable::TrueCourse,
-                    _ => Viewable::UtcTime,
+                if value < TOP_LINE_VIEW.len() {
+                    return TOP_LINE_VIEW[value]
                 }
             }
         }
+        return LineView::None; // should never happen
     }
 
     pub fn sorted_as_i32(&self, placement: Placement) -> i32 {
         match placement {
             Placement::Bottom => {
-                match self {
-                    Viewable::None => 0,
-                    Viewable::AverageClimbRate => 1,
-                    Viewable::DriftAngle => 2,
-                    Viewable::FlightLevel => 3,
-                    Viewable::TrueCourse => 4,
-                    Viewable::UtcTime => 5,
-                    Viewable::WindAndAvgWind => 6,
-                    _ => 7,
+                for idx in 0..BOTTOM_LINE_VIEW.len() {
+                    if *self == BOTTOM_LINE_VIEW[idx] {
+                        return idx as i32
+                    };
                 }
             }
             Placement::Top => {
-                match self {
-                    Viewable::None => 0,
-                    Viewable::AverageClimbRate => 1,
-                    Viewable::DriftAngle => 2,
-                    Viewable::FlightLevel => 3,
-                    Viewable::TrueCourse => 4,
-                    _ => 5,
+                for idx in 0..TOP_LINE_VIEW.len() {
+                    if *self == TOP_LINE_VIEW[idx] {
+                        return idx as i32
+                    };
                 }
             }
         }
+        0 // should never happen
     }
 
     /// Get the name of a viewable
     pub fn name(&self) -> &'static str {
         match self {
-            Viewable::AverageClimbRate => "Avg Climb Rate",
-            Viewable::DriftAngle => "Drift Angle",
-            Viewable::FlightLevel => "Flight Level",
-            Viewable::TrueCourse => "True Course",
-            Viewable::UtcTime => "UTC Time",
-            Viewable::WindAndAvgWind => "Wind, avg Wind",
-            Viewable::WindAndDelta => "Wind and Delta",
-            Viewable::None => "None",
-            Viewable::LastElemntNotInUse => "",
+            LineView::AverageClimbRate => "Avg Climb Rate",
+            LineView::DriftAngle => "Drift Angle",
+            LineView::FlightLevel => "Flight Level",
+            LineView::TrueCourse => "True Course",
+            LineView::UtcTime => "UTC Time",
+            LineView::WindAndAvgWind => "Wind, avg Wind",
+            LineView::WindAndDelta => "Wind and Delta",
+            LineView::None => "None",
+            LineView::LastElemntNotInUse => "",
         }
     }
 
@@ -129,15 +131,15 @@ impl Viewable {
         D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
     {
         match self {
-            Viewable::None => Ok(()),
-            Viewable::AverageClimbRate => draw_average_climb_rate(display, cm, pos, color),
-            Viewable::DriftAngle => draw_drift_angle(display, cm, pos, color),
-            Viewable::FlightLevel => draw_flight_level(display, cm, pos, color),
-            Viewable::TrueCourse => draw_true_course(display, cm, pos, color),
-            Viewable::UtcTime => draw_utc_time(display, cm, pos, color),
-            Viewable::WindAndAvgWind => draw_wind_and_avg_wind(display, cm, pos, color),
-            Viewable::WindAndDelta => draw_wind_and_delta(display, cm, pos, color),
-            Viewable::LastElemntNotInUse => Ok(()),
+            LineView::None => Ok(()),
+            LineView::AverageClimbRate => draw_average_climb_rate(display, cm, pos, color),
+            LineView::DriftAngle => draw_drift_angle(display, cm, pos, color),
+            LineView::FlightLevel => draw_flight_level(display, cm, pos, color),
+            LineView::TrueCourse => draw_true_course(display, cm, pos, color),
+            LineView::UtcTime => draw_utc_time(display, cm, pos, color),
+            LineView::WindAndAvgWind => draw_wind_and_avg_wind(display, cm, pos, color),
+            LineView::WindAndDelta => draw_wind_and_delta(display, cm, pos, color),
+            LineView::LastElemntNotInUse => Ok(()),
         }
     }
 }

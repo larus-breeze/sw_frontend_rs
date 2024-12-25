@@ -16,7 +16,7 @@
 /// The module also ensures that the Nmea interface and the EEPROM are not overloaded by too much
 /// data. This is achieved by initially storing the data in an index set and only forwarding it
 /// after a pause of incoming data of at least 500 ms.
-use crate::{utils::Variant, view::viewable::Viewable, Rotation};
+use crate::{utils::Variant, view::viewable::*, Rotation};
 
 use heapless::Vec;
 
@@ -103,8 +103,8 @@ impl CoreController {
             PersistenceId::Display => cm.config.display_active = item.to_u8().into(),
             PersistenceId::TcClimbRate => cm.config.av2_climb_rate_tc = item.to_f32(),
             PersistenceId::TcSpeedToFly => cm.config.av_speed_to_fly_tc = item.to_f32(),
-            PersistenceId::Info1 => cm.config.info1_content = Viewable::from(item.to_u32()),
-            PersistenceId::Info2 => cm.config.info2_content = Viewable::from(item.to_u32()),
+            PersistenceId::Info1 => cm.config.info1_content = LineView::from(item.to_u32()),
+            PersistenceId::Info2 => cm.config.info2_content = LineView::from(item.to_u32()),
             PersistenceId::Rotation => cm.control.rotation = Rotation::from(item.to_u32()),
             PersistenceId::CenterFrequency => cm.config.snd_center_freq = item.to_f32(),
             _ => (),
@@ -232,12 +232,12 @@ impl CoreController {
             }
             PersistenceId::Info1 => {
                 if let Variant::I32(info) = variant {
-                    cm.config.info1_content = Viewable::from(info as u32);
+                    cm.config.info1_content = LineView::from(info as u32);
                 }
             }
             PersistenceId::Info2 => {
                 if let Variant::I32(info) = variant {
-                    cm.config.info2_content = Viewable::from(info as u32);
+                    cm.config.info2_content = LineView::from(info as u32);
                 }
             }
             PersistenceId::Rotation => {
