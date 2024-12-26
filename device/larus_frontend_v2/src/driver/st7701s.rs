@@ -173,11 +173,11 @@ impl St7701s {
 
         // reset LCD
         reset.set_high();
-        delay.delay_ms(10_u16);
+        delay.delay_ms(100_u16);
         reset.set_low();
-        delay.delay_ms(10_u16);
+        delay.delay_ms(100_u16);
         reset.set_high();
-        delay.delay_ms(10_u16);
+        delay.delay_ms(100_u16);
 
         prec.enable(); // enable peripheral
 
@@ -223,8 +223,8 @@ impl St7701s {
         }
 
         write_data(&mut cs, delay, &INIT_SEQ_1);
-        delay.delay_ms(10_u16);
+        delay.delay_ms(120_u16);
         write_data(&mut cs, delay, &INIT_SEQ_2);
-        delay.delay_ms(10_u16);
+        delay.delay_ms(200_u16);
     }
 }
