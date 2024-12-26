@@ -62,7 +62,7 @@ pub enum Placement {
 impl LineView {
     pub const fn max(placement: Placement) -> usize {
         match placement {
-            Placement::Bottom => 7,
+            Placement::Bottom => BOTTOM_LINE_VIEW.len() - 1,
             Placement::Top => TOP_LINE_VIEW.len() - 1,
         }
     }
