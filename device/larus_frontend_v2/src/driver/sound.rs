@@ -217,6 +217,9 @@ impl Sound {
         self.cycle_counter += 1;
 
         if self.gain == 0 {
+            if self.cycle_counter >= self.duty_cycle {
+                self.cycle_counter = 0;
+            }
             if self.on {
                 self.set_wave(false);
             }
