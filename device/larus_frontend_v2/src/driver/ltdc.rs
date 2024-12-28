@@ -47,112 +47,112 @@ impl Ltdc {
         ltdc_pins
             .0
             .into_alternate::<14>()
-            .speed(Speed::High)
+            .speed(Speed::Low)
             .internal_pull_up(true);
         ltdc_pins
             .1
             .into_alternate::<14>()
-            .speed(Speed::High)
+            .speed(Speed::Low)
             .internal_pull_up(true);
         ltdc_pins
             .2
             .into_alternate::<14>()
-            .speed(Speed::High)
+            .speed(Speed::Low)
             .internal_pull_up(true);
         ltdc_pins
             .3
             .into_alternate::<14>()
-            .speed(Speed::High)
+            .speed(Speed::Low)
             .internal_pull_up(true);
         ltdc_pins
             .4
             .into_alternate::<14>()
-            .speed(Speed::High)
+            .speed(Speed::Low)
             .internal_pull_up(true);
         ltdc_pins
             .5
             .into_alternate::<14>()
-            .speed(Speed::High)
+            .speed(Speed::Low)
             .internal_pull_up(true);
         ltdc_pins
             .6
             .into_alternate::<14>()
-            .speed(Speed::High)
+            .speed(Speed::Low)
             .internal_pull_up(true);
         ltdc_pins
             .7
             .into_alternate::<9>()
-            .speed(Speed::High)
+            .speed(Speed::Low)
             .internal_pull_up(true);
         ltdc_pins
             .8
             .into_alternate::<14>()
-            .speed(Speed::High)
+            .speed(Speed::Low)
             .internal_pull_up(true);
         ltdc_pins
             .9
             .into_alternate::<14>()
-            .speed(Speed::High)
+            .speed(Speed::Low)
             .internal_pull_up(true);
         ltdc_pins
             .10
             .into_alternate::<14>()
-            .speed(Speed::High)
+            .speed(Speed::Low)
             .internal_pull_up(true);
         ltdc_pins
             .11
             .into_alternate::<14>()
-            .speed(Speed::High)
+            .speed(Speed::Low)
             .internal_pull_up(true);
         ltdc_pins
             .12
             .into_alternate::<14>()
-            .speed(Speed::High)
+            .speed(Speed::Low)
             .internal_pull_up(true);
         ltdc_pins
             .13
             .into_alternate::<14>()
-            .speed(Speed::High)
+            .speed(Speed::Low)
             .internal_pull_up(true);
         ltdc_pins
             .14
             .into_alternate::<9>()
-            .speed(Speed::High)
+            .speed(Speed::Low)
             .internal_pull_up(true);
         ltdc_pins
             .15
             .into_alternate::<14>()
-            .speed(Speed::High)
+            .speed(Speed::Low)
             .internal_pull_up(true);
         ltdc_pins
             .16
             .into_alternate::<14>()
-            .speed(Speed::High)
+            .speed(Speed::Low)
             .internal_pull_up(true);
         ltdc_pins
             .17
             .into_alternate::<14>()
-            .speed(Speed::High)
+            .speed(Speed::Low)
             .internal_pull_up(true);
         ltdc_pins
             .18
             .into_alternate::<14>()
-            .speed(Speed::High)
+            .speed(Speed::Low)
             .internal_pull_up(true);
         ltdc_pins
             .19
             .into_alternate::<14>()
-            .speed(Speed::High)
+            .speed(Speed::Low)
             .internal_pull_up(true);
         ltdc_pins
             .20
             .into_alternate::<14>()
-            .speed(Speed::High)
+            .speed(Speed::Low)
             .internal_pull_up(true);
         ltdc_pins
             .21
             .into_alternate::<14>()
-            .speed(Speed::High)
+            .speed(Speed::Low)
             .internal_pull_up(true);
 
         // unsafe is unavoidable and ok during initialization of the hardware
