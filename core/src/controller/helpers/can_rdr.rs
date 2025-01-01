@@ -1,10 +1,10 @@
 use crate::{
     controller::{
-        helpers::{object_id, CanActive},
+        helpers::{object_id, CanActive, can_ids::{gps, sensor, sensor_legacy}},
         Echo,
     },
     model::{GpsState, VarioModeControl},
-    sensor_legacy, AirSpeed, Angle, CanFrame, CoreController, CoreModel, F64ToCoord,
+    AirSpeed, Angle, CanFrame, CoreController, CoreModel, F64ToCoord,
     FloatToAcceleration, FloatToAngularVelocity, FloatToDensity, FloatToLength, FloatToMass,
     FloatToPressure, FloatToSpeed, FlyMode, Frame, GenericFrame, GenericId, Latitude, Longitude,
     PersistenceId, SpecificFrame, Variant,
@@ -39,6 +39,7 @@ impl CoreController {
         #[allow(clippy::single_match)]
         match frame.object_id {
             object_id::SENSOR => self.can_frame_read_sensor_values(cm, frame),
+            object_id::GPS => self.can_frame_read_gps_values(cm, frame),
             _ => (),
         }
     }
@@ -144,7 +145,7 @@ impl CoreController {
             sensor_legacy::ACCELERATION => {
                 cm.sensor.g_force = ((rdr.pop_i16() as f32) * 0.001).m_s2();
                 cm.sensor.vertical_g_force = ((rdr.pop_i16() as f32) * 0.001).m_s2();
-                cm.sensor.gps_climb_rate = ((rdr.pop_i16() as f32) * 0.001).m_s();
+                let _ = ((rdr.pop_i16() as f32) * 0.001).m_s(); // gps_climb_rate
                 match rdr.pop_u8() {
                     0 => cm.control.fly_mode = FlyMode::StraightFlight,
                     2 => cm.control.fly_mode = FlyMode::Circling,
@@ -228,71 +229,152 @@ impl CoreController {
         }
     }
 
-    fn can_frame_read_sensor_values(&mut self, _cm: &mut CoreModel, _frame: &SpecificFrame) {
+    fn can_frame_read_sensor_values(&mut self, cm: &mut CoreModel, frame: &SpecificFrame) {
 
-        /* FIXME: This is an unfinished fragment
         let mut rdr: Reader<'_> = Reader::new(frame.can_frame.data());
         match frame.specific_id {
-            //sensor::EULER_ANGLES => (),
-            sensor::HEADING_MAGN_DECL => (),
+            sensor::EULER_ROLL_NICK => {
+                if let Some(roll) = rdr.pop_f32() {
+                    cm.sensor.euler_roll = roll.rad();
+                }
+                if let Some(pitch) = rdr.pop_f32() {
+                    cm.sensor.euler_pitch = pitch.rad();
+                }
+            },
+            sensor::EULER_YAW_TURN_RATE => {
+                if let Some(yaw) = rdr.pop_f32() {
+                    cm.sensor.euler_yaw = yaw.rad();
+                }
+                if let Some(turn_rate) = rdr.pop_f32() {
+                    cm.sensor.turn_rate = turn_rate.rad_s();
+                }
+            },
             sensor::TAS_IAS => {
-                let (tas_ok, tas) = (rdr.f32_is_finite(), rdr.pop_f32());
-                let (ias_ok, ias) = (rdr.f32_is_finite(), rdr.pop_f32());
-                if tas_ok && ias_ok {
-                    cm.sensor.airspeed = AirSpeed::from_speeds(ias.m_s(), tas.m_s());
+                let tas = rdr.pop_f32();
+                let ias = rdr.pop_f32();
+                if tas.is_some() && ias.is_some() {
+                    cm.sensor.airspeed = AirSpeed::from_speeds(ias.unwrap().m_s(), tas.unwrap().m_s());
+               }
+            },
+            sensor::VARIO_AV_VARIO => {
+                if let Some(climb_rate) = rdr.pop_f32() {
+                    cm.sensor.climb_rate = climb_rate.m_s();
+                    cm.control.can_devices |= CanActive::SensorboxLegacy as u32; // vario ok -> canbus ok
+                }
+                if let Some(average_climb_rate) = rdr.pop_f32() {
+                    cm.sensor.average_climb_rate = average_climb_rate.m_s();
                 }
             },
-            sensor::VARIO_AV_VARIO => (),
-            sensor::WIND_DIR_SPEED => (),
-            sensor::AV_WIND_DIR_SPEED => (),
+            sensor::WIND_DIR_SPEED => {
+                if let Some(wind_dir) = rdr.pop_f32() {
+                    cm.sensor.wind_vector.set_angle(wind_dir.rad());
+                }
+                if let Some(wind_speed) = rdr.pop_f32() {
+                    cm.sensor.wind_vector.set_speed(wind_speed.m_s());
+                }
+            },
+            sensor::AV_WIND_DIR_SPEED => {
+                if let Some(avg_wind_dir) = rdr.pop_f32() {
+                    cm.sensor.average_wind.set_angle(avg_wind_dir.rad());
+                }
+                if let Some(avg_wind_speed) = rdr.pop_f32() {
+                    cm.sensor.average_wind.set_speed(avg_wind_speed.m_s());
+                }
+            },
             sensor::AMB_PRESS_AIR_DENS => {
-                if rdr.f32_is_finite() {
-                    cm.sensor.pressure = rdr.pop_f32().n_m2();
+                if let Some(pressure) = rdr.pop_f32() {
+                    cm.sensor.pressure = pressure.n_m2();
+                    cm.sensor
+                        .pressure_altitude
+                        .set_static_pressure(cm.sensor.pressure);
                 }
-                if rdr.f32_is_finite() {
-                    cm.sensor.density = rdr.pop_f32().g_m3();
+                if let Some(density) = rdr.pop_f32() {
+                    cm.sensor.density = density.kg_m3();
                 }
             },
-            sensor::AC_ANG_FRONT_RIGHT => (),
-            sensor::TURN_RATE_STATE => (),
-            sensor::CALC_TRIFT_ANGLE => (),
-            sensor::SYSTEM_STATE_GIT => (),
-            sensor::SUPPLY_VOLTAGE => (),
+            sensor::G_FORCE_VERTICAL_GF => {
+                if let Some(g_force) = rdr.pop_f32() {
+                    cm.sensor.g_force = g_force.m_s2();
+                }
+                if let Some(vertical_g_force) = rdr.pop_f32() {
+                    cm.sensor.vertical_g_force = vertical_g_force.m_s2();
+                }
+            },
+            sensor::SLIP_PITCH_ANGLE => {
+                if let Some(slip_angle) = rdr.pop_f32() {
+                    cm.sensor.slip_angle = slip_angle.rad();
+                }
+                if let Some(nick_angle) = rdr.pop_f32() {
+                    cm.sensor.nick_angle = nick_angle.rad();
+                }
+            },
+            sensor::UBATT_CIRCLE_MODE => {
+                if let Some(_ubatt) = rdr.pop_f32() {
+                    // we ignore ubatt from sensorbox device
+                }
+                match rdr.pop_u8() {
+                    0 => cm.control.fly_mode = FlyMode::StraightFlight,
+                    2 => cm.control.fly_mode = FlyMode::Circling,
+                    _ => (),
+                }
+            },
             _ => (),
+        }
+    }
 
-        }*/
+    fn can_frame_read_gps_values(&mut self, cm: &mut CoreModel, frame: &SpecificFrame) {
+        let mut rdr: Reader<'_> = Reader::new(frame.can_frame.data());
+        match frame.specific_id {
+            gps::DATE_TIME => {
+                let year = rdr.pop_u16();
+                let month = rdr.pop_u8();
+                let day = rdr.pop_u8();
+                let hour = rdr.pop_u8();
+                let min = rdr.pop_u8();
+                let sec = rdr.pop_u8();
+                cm.sensor
+                    .gps_date_time
+                    .set_date_time(year, month, day, hour, min, sec);
+            }
+            gps::LATITUDE => {
+                if let Some(latitude) = rdr.pop_f64() {
+                    cm.sensor.gps_lat = Latitude(latitude.rad())
+                }
+            }
+            gps::LONGITUDE => {
+                if let Some(longitude) = rdr.pop_f64() {
+                    cm.sensor.gps_lon = Longitude(longitude.rad())
+                }
+            }
+            gps::ALTITUDE_GEO_SEP => {
+                if let Some(altitude) = rdr.pop_f32() {
+                    cm.sensor.gps_altitude = altitude.m();
+                }
+                if let Some(geo_seperation) = rdr.pop_f32() {
+                    cm.sensor.gps_geo_seperation = geo_seperation.m();
+                }
+            }
+            gps::GROUND_TRACK_SPEED => {
+                if let Some(track) = rdr.pop_f32() {
+                    cm.sensor.gps_track = track.rad();
+                }
+                if let Some(speed) = rdr.pop_f32() {
+                    cm.sensor.gps_ground_speed = speed.m_s();
+                }
+            }
+            gps::NO_SAT_FIX_TYPE => {
+                cm.sensor.gps_sats = rdr.pop_u8();
+                match rdr.pop_u8() {
+                    1 => cm.sensor.gps_state = GpsState::PosAvail,
+                    3 => cm.sensor.gps_state = GpsState::HeadingAvail,
+                    _ => cm.sensor.gps_state = GpsState::NoGps,
+                }
+            }
+            _ => (),
+        }
     }
 }
 
-/* FIXME: This is an unfinished fragment
-
-missing:
-        sensor_legacy::ACCELERATION => {
-            cm.sensor.g_force = ((rdr.pop_i16() as f32) * 0.001).m_s2();
-            cm.sensor.vertical_g_force = ((rdr.pop_i16() as f32) * 0.001).m_s2();
-            cm.sensor.gps_climb_rate = ((rdr.pop_i16() as f32) * 0.001).m_s();
-            match rdr.pop_u8() {
-                0 => cm.control.fly_mode = FlyMode::StraightFlight,
-                2 => cm.control.fly_mode = FlyMode::Circling,
-                _ => (),
-            }
-        }
-        sensor_legacy::GPS_ALT => {
-            cm.sensor.gps_altitude = (rdr.pop_u32() as f32).mm();
-            cm.sensor.gps_geo_seperation = (rdr.pop_u32() as f32 * 0.1).m();
-        }
-        sensor_legacy::GPS_TRK_SPD => {
-            cm.sensor.gps_track = (rdr.pop_i16() as f32 * 0.001).rad();
-            cm.sensor.gps_ground_speed = (rdr.pop_u16() as f32).km_h();
-            if cm.sensor.gps_ground_speed < 1.0.km_h() {
-                cm.sensor.gps_track = 0.0.rad();
-            }
-            if cm.sensor.gps_track < 0.0.rad() {
-                cm.sensor.gps_track += 360.0.deg();
-            }
-        }
-
-*/
 
 struct Reader<'a> {
     data: &'a [u8],
@@ -356,32 +438,28 @@ impl<'a> Reader<'a> {
 
     #[inline]
     #[allow(unused)]
-    fn pop_f32(&mut self) -> f32 {
+    fn pop_f32(&mut self) -> Option<f32> {
         let idx = self.pos;
         self.pos += 4;
-        LE::read_f32(&self.data[idx..self.pos])
+        let value = LE::read_f32(&self.data[idx..self.pos]);
+        if value.is_finite() {
+            Some(value)
+        } else {
+            None
+        }
     }
 
     #[inline]
     #[allow(unused)]
-    fn f32_is_finite(&mut self) -> bool {
-        let idx = self.pos;
-        LE::read_f32(&self.data[self.pos..self.pos + 4]).is_finite()
-    }
-
-    #[inline]
-    #[allow(unused)]
-    fn pop_f64(&mut self) -> f64 {
+    fn pop_f64(&mut self) -> Option<f64> {
         let idx = self.pos;
         self.pos += 8;
-        LE::read_f64(&self.data[idx..self.pos])
-    }
-
-    #[inline]
-    #[allow(unused)]
-    fn f64_is_finite(&mut self) -> bool {
-        let idx = self.pos;
-        LE::read_f64(&self.data[self.pos..self.pos + 8]).is_finite()
+        let value = LE::read_f64(&self.data[idx..self.pos]);
+        if value.is_finite() {
+            Some(value)
+        } else {
+            None
+        }
     }
 }
 
