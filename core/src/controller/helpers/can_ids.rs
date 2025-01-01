@@ -97,18 +97,16 @@ pub mod object_id {
 #[rustfmt::skip]
 #[allow(unused)]
 pub mod sensor {
-    pub const EULER_ANGLES: u16 = 0;        // f32 roll, f32 nick
-    pub const HEADING_MAGN_DECL: u16 = 1;   // f32 heading, f32 magnetic_declination
+    pub const EULER_ROLL_NICK: u16 = 0;     // f32 roll, f32 nick
+    pub const EULER_YAW_TURN_RATE: u16 = 1; // f32 yaw, f32 turn rate
     pub const TAS_IAS: u16 = 2;             // f32 TAS, f32 IAS
     pub const VARIO_AV_VARIO: u16 = 3;      // f32 vario, f32 av_vario
     pub const WIND_DIR_SPEED: u16 = 4;      // f32 wind_direction, f32 wind_speed
     pub const AV_WIND_DIR_SPEED: u16 = 5;   // f32 av_wind_directin, f32 av_wind_speed
     pub const AMB_PRESS_AIR_DENS: u16 = 6;  // f32 ambient_pressure, f32 air_density,
-    pub const AC_ANG_FRONT_RIGHT: u16 = 7;  // f32 acceleration_front, f32 acceleration_right
-    pub const TURN_RATE_STATE: u16 = 8;     // f32 turnrate_to_the_right, u8 state
-    pub const CALC_TRIFT_ANGLE: u16 = 9;    // f32 rad + if track right of heading
-    pub const SYSTEM_STATE_GIT: u16 = 10;   // u32 system state, u32 git tag
-    pub const SUPPLY_VOLTAGE: u16 = 11;     // f32 volt
+    pub const G_FORCE_VERTICAL_GF: u16 = 7; // f32 g_force, f32 vertical_g_force
+    pub const SLIP_PITCH_ANGLE: u16 = 8;    // f32 slip_angle, f32 pitch_angle
+    pub const UBATT_CIRCLE_MODE: u16 = 9;   // f32 supply_voltage, u8 circle_mode
 }
 
 #[rustfmt::skip]
@@ -119,7 +117,7 @@ pub mod gps {
     pub const LONGITUDE: u16 = 2;           // f64 longitude
     pub const ALTITUDE_GEO_SEP: u16 = 3;    // f32 altitude, f32 geo_seperation
     pub const GROUND_TRACK_SPEED: u16 = 4;  // f32 ground_track, f32 ground_speed
-    pub const NO_SAT_FIX_VALID: u16 = 5;    // u8 no sats, bool sat_fix_valid, bool sad_heading_valid
+    pub const NO_SAT_FIX_TYPE: u16 = 5;     // u8 no sats, u8 sat fix type
 }
 
 #[rustfmt::skip]

@@ -211,7 +211,23 @@ fn main() -> Result<(), core::convert::Infallible> {
         while let Ok((cnt, _adr)) = socket.recv_from(&mut buf) {
             let id = LE::read_u16(&buf[..2]);
             let can_frame = CanFrame::from_slice(id, &buf[2..cnt]);
-            let frame = Frame::Legacy(can_frame);
+            let frame = if id >= 0x120 && id <= 0x12f {
+                Frame::Specific(SpecificFrame {
+                    can_frame,
+                    specific_id: id & 0x0f,
+                    object_id: 2, // Sensorbox
+
+                })
+            } else if id >= 0x140 && id <= 0x14f {
+                Frame::Specific(SpecificFrame {
+                    can_frame,
+                    specific_id: id & 0x0f,
+                    object_id: 3, // GPS
+
+                })
+            } else {
+                Frame::Legacy(can_frame)
+            };
             controller.read_can_frame(&mut core_model, &frame);
         }
 
