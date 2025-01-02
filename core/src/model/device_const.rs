@@ -129,7 +129,7 @@ impl Palette {
         Self {
             background: Colors::Black,
             scale: Colors::White,
-            needle1: Colors::Black,
+            needle1: Colors::DarkRed,
             needle2: Colors::Red,
             needle3: Colors::Green,
             needle4: Colors::Yellow,
