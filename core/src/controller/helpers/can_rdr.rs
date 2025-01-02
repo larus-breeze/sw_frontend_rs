@@ -9,7 +9,6 @@ use crate::{
     FloatToPressure, FloatToSpeed, FlyMode, Frame, GenericFrame, GenericId, Latitude, Longitude,
     PersistenceId, SpecificFrame, Variant,
 };
-use byteorder::{ByteOrder, LittleEndian as LE};
 use embedded_graphics::prelude::AngleUnit;
 
 use super::CanConfigId;
@@ -24,7 +23,7 @@ impl CoreController {
     }
 
     fn can_frame_read_generic(&mut self, cm: &mut CoreModel, frame: &GenericFrame) {
-        let mut rdr: Reader<'_> = Reader::new(frame.can_frame.data());
+        let mut rdr = frame.can_frame.reader();
         #[allow(clippy::single_match)]
         match GenericId::from(frame.generic_id) {
             GenericId::SetSysSetting => {
@@ -134,7 +133,7 @@ impl CoreController {
         }
 
         let id = frame.id();
-        let mut rdr = Reader::new(frame.data());
+        let mut rdr = frame.reader();
 
         match id {
             sensor_legacy::EULER_ANGLES => {
@@ -231,7 +230,8 @@ impl CoreController {
 
     fn can_frame_read_sensor_values(&mut self, cm: &mut CoreModel, frame: &SpecificFrame) {
 
-        let mut rdr: Reader<'_> = Reader::new(frame.can_frame.data());
+        let mut rdr = frame.can_frame.reader();
+
         match frame.specific_id {
             sensor::EULER_ROLL_NICK => {
                 if let Some(roll) = rdr.pop_f32() {
@@ -323,7 +323,8 @@ impl CoreController {
     }
 
     fn can_frame_read_gps_values(&mut self, cm: &mut CoreModel, frame: &SpecificFrame) {
-        let mut rdr: Reader<'_> = Reader::new(frame.can_frame.data());
+        let mut rdr = frame.can_frame.reader();
+
         match frame.specific_id {
             gps::DATE_TIME => {
                 let year = rdr.pop_u16();
@@ -372,102 +373,5 @@ impl CoreController {
             }
             _ => (),
         }
-    }
-}
-
-
-struct Reader<'a> {
-    data: &'a [u8],
-    pos: usize,
-}
-
-impl<'a> Reader<'a> {
-    #[inline]
-    #[allow(unused)]
-    fn new(data: &'a [u8]) -> Self {
-        Reader { data, pos: 0 }
-    }
-
-    #[inline]
-    #[allow(unused)]
-    fn pop_u32(&mut self) -> u32 {
-        let idx = self.pos;
-        self.pos += 4;
-        LE::read_u32(&self.data[idx..self.pos])
-    }
-
-    #[inline]
-    #[allow(unused)]
-    fn pop_u16(&mut self) -> u16 {
-        let idx = self.pos;
-        self.pos += 2;
-        LE::read_u16(&self.data[idx..self.pos])
-    }
-
-    #[inline]
-    #[allow(unused)]
-    fn pop_u8(&mut self) -> u8 {
-        let idx = self.pos;
-        self.pos += 1;
-        self.data[idx]
-    }
-
-    #[inline]
-    #[allow(unused)]
-    fn pop_i32(&mut self) -> i32 {
-        let idx = self.pos;
-        self.pos += 4;
-        LE::read_i32(&self.data[idx..self.pos])
-    }
-
-    #[inline]
-    #[allow(unused)]
-    fn pop_i16(&mut self) -> i16 {
-        let idx = self.pos;
-        self.pos += 2;
-        LE::read_i16(&self.data[idx..self.pos])
-    }
-
-    #[inline]
-    #[allow(unused)]
-    fn pop_i8(&mut self) -> i8 {
-        let idx = self.pos;
-        self.pos += 1;
-        self.data[idx] as i8
-    }
-
-    #[inline]
-    #[allow(unused)]
-    fn pop_f32(&mut self) -> Option<f32> {
-        let idx = self.pos;
-        self.pos += 4;
-        let value = LE::read_f32(&self.data[idx..self.pos]);
-        if value.is_finite() {
-            Some(value)
-        } else {
-            None
-        }
-    }
-
-    #[inline]
-    #[allow(unused)]
-    fn pop_f64(&mut self) -> Option<f64> {
-        let idx = self.pos;
-        self.pos += 8;
-        let value = LE::read_f64(&self.data[idx..self.pos]);
-        if value.is_finite() {
-            Some(value)
-        } else {
-            None
-        }
-    }
-}
-
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn it_works() {
-        let result = 2 + 2;
-        assert_eq!(result, 4);
     }
 }
