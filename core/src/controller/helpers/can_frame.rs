@@ -78,6 +78,10 @@ impl CanFrame {
         }
     }
 
+    pub fn reader(&self) -> Reader {
+        Reader::new(self.data())
+    }
+
     pub fn id(&self) -> u16 {
         self.id
     }
@@ -248,5 +252,92 @@ mod tests {
         assert_eq!(can_frame.specific_id(), Some(15));
         let can_frame = CanFrame::empty_from_id(0x123);
         assert_eq!(can_frame.specific_id(), Some(3));
+    }
+}
+
+pub struct Reader<'a> {
+    data: &'a [u8],
+    pos: usize,
+}
+
+impl<'a> Reader<'a> {
+    #[inline]
+    #[allow(unused)]
+    pub fn new(data: &'a [u8]) -> Self {
+        Reader { data, pos: 0 }
+    }
+
+    #[inline]
+    #[allow(unused)]
+    pub fn pop_u32(&mut self) -> u32 {
+        let idx = self.pos;
+        self.pos += 4;
+        LE::read_u32(&self.data[idx..self.pos])
+    }
+
+    #[inline]
+    #[allow(unused)]
+    pub fn pop_u16(&mut self) -> u16 {
+        let idx = self.pos;
+        self.pos += 2;
+        LE::read_u16(&self.data[idx..self.pos])
+    }
+
+    #[inline]
+    #[allow(unused)]
+    pub fn pop_u8(&mut self) -> u8 {
+        let idx = self.pos;
+        self.pos += 1;
+        self.data[idx]
+    }
+
+    #[inline]
+    #[allow(unused)]
+    pub fn pop_i32(&mut self) -> i32 {
+        let idx = self.pos;
+        self.pos += 4;
+        LE::read_i32(&self.data[idx..self.pos])
+    }
+
+    #[inline]
+    #[allow(unused)]
+    pub fn pop_i16(&mut self) -> i16 {
+        let idx = self.pos;
+        self.pos += 2;
+        LE::read_i16(&self.data[idx..self.pos])
+    }
+
+    #[inline]
+    #[allow(unused)]
+    pub fn pop_i8(&mut self) -> i8 {
+        let idx = self.pos;
+        self.pos += 1;
+        self.data[idx] as i8
+    }
+
+    #[inline]
+    #[allow(unused)]
+    pub fn pop_f32(&mut self) -> Option<f32> {
+        let idx = self.pos;
+        self.pos += 4;
+        let value = LE::read_f32(&self.data[idx..self.pos]);
+        if value.is_finite() {
+            Some(value)
+        } else {
+            None
+        }
+    }
+
+    #[inline]
+    #[allow(unused)]
+    pub fn pop_f64(&mut self) -> Option<f64> {
+        let idx = self.pos;
+        self.pos += 8;
+        let value = LE::read_f64(&self.data[idx..self.pos]);
+        if value.is_finite() {
+            Some(value)
+        } else {
+            None
+        }
     }
 }
