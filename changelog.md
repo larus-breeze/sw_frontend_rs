@@ -1,6 +1,15 @@
 Changelog
 =
 
+v.0.3.1 EMC Optimization, new can protocol and some bug fixes
+- show firmware version at startup on info_1 line
+- filter viewables depending on position
+- fix crash in debug mode
+- longer wait times when initialization the LCD
+- EMC Optimization: setting LTDC gpio output buffers to low speed
+- add new can protocol for sensorbox and gps device
+- set vario needle to dark red
+
 v.0.3.0 Support the Larus V2 hardware
 - Larus V2 hardware with large display works
 - Add menu infrastructure
