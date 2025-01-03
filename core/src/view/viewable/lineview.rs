@@ -5,8 +5,8 @@ use u8g2_fonts::types::{FontColor, HorizontalAlignment, VerticalPosition};
 #[allow(unused)]
 use micromath::F32Ext;
 
-/// This enum is also used to reload configurations saved in the EEPROM. Therefore, the sequence 
-/// must not be changed, as otherwise existing configurations would change. New viewables should 
+/// This enum is also used to reload configurations saved in the EEPROM. Therefore, the sequence
+/// must not be changed, as otherwise existing configurations would change. New viewables should
 /// always be inserted before the last enum (LastElementNotInUse)
 #[derive(Clone, Copy, PartialEq)]
 pub enum LineView {
@@ -67,17 +67,17 @@ impl LineView {
         }
     }
 
-    // This method is used by the editor to obtain the correct viewables in the correct order 
+    // This method is used by the editor to obtain the correct viewables in the correct order
     pub fn from_sorted(value: usize, placement: Placement) -> LineView {
         match placement {
             Placement::Bottom => {
                 if value < BOTTOM_LINE_VIEW.len() {
-                    return BOTTOM_LINE_VIEW[value]
+                    return BOTTOM_LINE_VIEW[value];
                 }
             }
             Placement::Top => {
                 if value < TOP_LINE_VIEW.len() {
-                    return TOP_LINE_VIEW[value]
+                    return TOP_LINE_VIEW[value];
                 }
             }
         }
@@ -89,14 +89,14 @@ impl LineView {
             Placement::Bottom => {
                 for idx in 0..BOTTOM_LINE_VIEW.len() {
                     if *self == BOTTOM_LINE_VIEW[idx] {
-                        return idx as i32
+                        return idx as i32;
                     };
                 }
             }
             Placement::Top => {
                 for idx in 0..TOP_LINE_VIEW.len() {
                     if *self == TOP_LINE_VIEW[idx] {
-                        return idx as i32
+                        return idx as i32;
                     };
                 }
             }
@@ -179,7 +179,6 @@ where
     Ok(())
 }
 
-
 fn draw_drift_angle<D>(
     display: &mut D,
     cm: &CoreModel,
@@ -196,10 +195,10 @@ where
         drift_angle = 0.0
     }
     while drift_angle > 180.0 {
-        drift_angle -= 360.0    // t: 355 h 5 => 350 correct -10
-    } 
+        drift_angle -= 360.0 // t: 355 h 5 => 350 correct -10
+    }
     while drift_angle < -180.0 {
-        drift_angle += 360.0    // t: 5 h 355 => - 350 correct +10
+        drift_angle += 360.0 // t: 5 h 355 => - 350 correct +10
     }
     let s = if drift_angle > 0.0 {
         tformat!(12, "DA +{:.0}°", drift_angle).unwrap()
@@ -227,7 +226,8 @@ where
     D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
 {
     let mut altitude = cm.sensor.pressure_altitude.qne_altitude().to_ft() / 100.0;
-    if altitude < 0.0 { // Patch to avoid -0.01 => "FL0-0"
+    if altitude < 0.0 {
+        // Patch to avoid -0.01 => "FL0-0"
         altitude = 0.0
     }
     let fl = tformat!(10, "FL{:03.0}", altitude).unwrap();

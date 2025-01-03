@@ -1,4 +1,4 @@
-use super::helpers::dialog_box::DialogBox;
+use super::viewable::dialog_box::DialogBox;
 use crate::{model::CoreModel, tformat, utils::Colors, CoreError, DeviceEvent, DrawImage};
 
 use embedded_graphics::draw_target::DrawTarget;

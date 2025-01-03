@@ -212,7 +212,8 @@ impl CoreController {
                 }
             }
         };
-        core_model.calculated.frequency = clamp(frequency, cmc.snd_min_freq as u16, cmc.snd_max_freq as u16);
+        core_model.calculated.frequency =
+            clamp(frequency, cmc.snd_min_freq as u16, cmc.snd_max_freq as u16);
         core_model.calculated.continuous = continuous;
         if gain != core_model.calculated.gain {
             core_model.calculated.gain = gain;
