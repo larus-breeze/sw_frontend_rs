@@ -303,9 +303,7 @@ impl Editable {
             Editable::Volume => Content::F32(cm.config.volume as f32),
             Editable::WaterBallast => Content::F32(cm.glider_data.water_ballast.to_kg()),
             Editable::Info1 => Content::List(cm.config.info1.sorted_as_i32(Placement::Top)),
-            Editable::Info2 => {
-                Content::List(cm.config.info2.sorted_as_i32(Placement::Bottom))
-            }
+            Editable::Info2 => Content::List(cm.config.info2.sorted_as_i32(Placement::Bottom)),
             Editable::Rotation => {
                 Content::Enum(TString::<12>::from_str(cm.control.rotation.name()))
             }

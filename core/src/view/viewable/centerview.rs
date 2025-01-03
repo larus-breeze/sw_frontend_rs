@@ -1,8 +1,8 @@
-use crate::{Colors, CoreError, CoreModel, DrawImage, FloatToSpeed, FlyMode};
-use embedded_graphics::{draw_target::DrawTarget, prelude::{Angle, Primitive}, primitives::{Polyline, PrimitiveStyle, Triangle}};
 use super::sprites::*;
+use crate::{Colors, CoreError, CoreModel, DrawImage, FloatToSpeed, FlyMode, VarioSizes};
+use embedded_graphics::{draw_target::DrawTarget, prelude::Angle};
 
-use embedded_graphics::geometry::{AngleUnit, Point};
+use embedded_graphics::geometry::AngleUnit;
 
 #[derive(Clone, Copy, PartialEq)]
 pub enum CenterView {
@@ -103,11 +103,7 @@ impl CenterView {
     }
 
     /// Draw viewable
-    pub fn draw<D>(
-        &self,
-        display: &mut D,
-        cm: &CoreModel,
-    ) -> Result<(), CoreError>
+    pub fn draw<D>(&self, display: &mut D, cm: &CoreModel) -> Result<(), CoreError>
     where
         D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
     {
@@ -124,7 +120,7 @@ impl CenterView {
 
 fn draw_and_calc_wind_basics<D>(
     display: &mut D,
-    cm: &CoreModel
+    cm: &CoreModel,
 ) -> Result<(Angle, Angle), CoreError>
 where
     D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
@@ -166,10 +162,19 @@ where
     Ok((angle, av_angle))
 }
 
-fn draw_single_arrow<D>(
-    display: &mut D,
-    cm: &CoreModel,
-) -> Result<(), CoreError>
+fn calc_len(wind_speed: f32, sizes: &VarioSizes) -> i32 {
+    match wind_speed {
+        x if x < WIND_MIN => sizes.wind_len_min, // Light wind is set to a minimum size
+        x if x > WIND_MAX => sizes.wind_len,     // Strong wind is set to a maximum size
+        _ => {
+            sizes.wind_len_min
+                + ((sizes.wind_len - sizes.wind_len_min) as f32 * (wind_speed - WIND_MIN)
+                    / (WIND_MAX - WIND_MIN)) as i32
+        }
+    }
+}
+
+fn draw_single_arrow<D>(display: &mut D, cm: &CoreModel) -> Result<(), CoreError>
 where
     D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
 {
@@ -179,16 +184,8 @@ where
     // draw wind arrow
     let wind_speed = cm.sensor.wind_vector.speed().to_km_h();
     let (angle, av_angle) = draw_and_calc_wind_basics(display, cm)?;
-    
-    let len = match wind_speed {
-        x if x < WIND_MIN => sizes.wind_len_min, // Light wind is set to a minimum size
-        x if x > WIND_MAX => sizes.wind_len,     // Strong wind is set to a maximum size
-        _ => {
-            sizes.wind_len_min
-                + ((sizes.wind_len - sizes.wind_len_min) as f32 * (wind_speed - WIND_MIN)
-                    / (WIND_MAX - WIND_MIN)) as i32
-        }
-    };
+
+    let len = calc_len(wind_speed, sizes);
     let avg_wind_spped = cm.sensor.average_wind.speed().to_km_h();
     let delta_speed = wind_speed - avg_wind_spped;
     let delta_color = if delta_speed < 0.0 {
@@ -211,67 +208,35 @@ where
     Ok(())
 }
 
-fn draw_double_arrow<D>(
-    display: &mut D,
-    cm: &CoreModel,
-) -> Result<(), CoreError>
+fn draw_double_arrow<D>(display: &mut D, cm: &CoreModel) -> Result<(), CoreError>
 where
     D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
 {
-    let _sizes = &cm.device_const.sizes.vario;
+    let sizes = &cm.device_const.sizes.vario;
     let d_sizes = &cm.device_const.sizes.display;
 
     // draw wind arrow
-    let (angle, _av_angle) = draw_and_calc_wind_basics(display, cm)?;
-    arrow(display, d_sizes.center, angle, 150, cm.palette().sprite1_fill, cm.palette().sprite1_stroke)?;
-//    arrow(display, d_sizes.center, angle, 100, cm.palette().sprite2_fill, cm.palette().sprite2_stroke)?;
-    Ok(())
-}
+    let (angle, av_angle) = draw_and_calc_wind_basics(display, cm)?;
 
-#[allow(unused_imports)]
-use micromath::F32Ext;
-use embedded_graphics::Drawable;
-pub fn arrow<D>(
-    display: &mut D,
-    ctr: Point,
-    _angle: Angle,
-    len: i32,
-    fill_color: Colors,
-    stroke_color: Colors,
-) -> Result<(), CoreError>
-where
-    D: DrawTarget<Color = Colors, Error = CoreError>,
-{
-    let l_2 = len / 2;
-    let ah = len / 5;
-    let w = len / 14;
-    let p1 = Point::new(0, -l_2);
-    let p2 = Point::new(ah, ah - l_2);
-    let p3 = Point::new(w, p2.y);
-    let p4 = Point::new(p3.x, l_2);
-    let p5 = Point::new(-w, p4.y);
-    let p6 = Point::new(p5.x, p3.y);
-    let p7 = Point::new(-ah, p3.y);
+    let len = calc_len(cm.sensor.average_wind.speed().to_km_h(), sizes);
+    arrow(
+        display,
+        d_sizes.center,
+        av_angle,
+        len,
+        cm.palette().sprite2_fill,
+        cm.palette().sprite2_fill,
+    )?;
 
-    //let sin_a = angle.to_radians().sin();
-    //let cos_a = angle.to_radians().cos();
-
-    let p1 = p1 + ctr;
-    let p2 = p2 + ctr;
-    let p3 = p3 + ctr;
-    let p4 = p4 + ctr;
-    let p5 = p5 + ctr;
-    let p6 = p6 + ctr;
-    let p7 = p7 + ctr;
-
-    let style = PrimitiveStyle::with_fill(fill_color);
-    Triangle::new(p1, p2, p7).into_styled(style).draw(display)?;
-    Triangle::new(p3, p4, p6).into_styled(style).draw(display)?;
-    Triangle::new(p4, p5, p6).into_styled(style).draw(display)?;
-
-    let points = [p1, p2, p3, p4, p5, p6, p7, p1];
-    let style = PrimitiveStyle::with_stroke(stroke_color, 1);
-    Polyline::new(&points).into_styled(style).draw(display)?;
+    let len = calc_len(cm.sensor.wind_vector.speed().to_km_h(), sizes);
+    arrow(
+        display,
+        d_sizes.center,
+        angle,
+        len,
+        cm.palette().sprite1_fill,
+        cm.palette().sprite2_stroke,
+    )?;
 
     Ok(())
 }
