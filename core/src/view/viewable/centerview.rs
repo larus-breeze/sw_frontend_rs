@@ -93,10 +93,10 @@ impl CenterView {
     /// Get the name of a viewable
     pub fn name(&self) -> &'static str {
         match self {
-            CenterView::SingleArrowCircling => "Arrow Circling",
-            CenterView::SingleArrowStraight => "Arrow Straight",
-            CenterView::DoubleArrowCircling => "Double Circling",
-            CenterView::DoubleArrowStraight => "Double Straight",
+            CenterView::SingleArrowCircling => "Single Arrow",
+            CenterView::SingleArrowStraight => "Single Arrow",
+            CenterView::DoubleArrowCircling => "Double Arrow",
+            CenterView::DoubleArrowStraight => "Double Arrow",
             CenterView::None => "None",
             CenterView::LastElemntNotInUse => "",
         }

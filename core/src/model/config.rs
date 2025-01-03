@@ -70,8 +70,8 @@ impl Config {
             uuid,
             info1: LineView::None,
             info2: LineView::WindAndDelta,
-            center_circling: CenterView::DoubleArrowCircling,
-            center_straignt: CenterView::DoubleArrowStraight,
+            center_circling: CenterView::SingleArrowCircling,
+            center_straignt: CenterView::SingleArrowStraight,
         }
     }
 }
