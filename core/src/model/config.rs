@@ -1,9 +1,6 @@
 use crate::{
     system_of_units::{FloatToSpeed, Speed},
-    view::viewable::{
-        lineview::LineView,
-        centerview::CenterView,
-    },
+    view::viewable::{centerview::CenterView, lineview::LineView},
     Palette,
 };
 use core::{convert::From, mem::transmute};

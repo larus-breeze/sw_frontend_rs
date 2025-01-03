@@ -2,7 +2,7 @@ use crate::dev_const::{DISPLAY_HEIGHT, DISPLAY_WIDTH};
 use corelib::*;
 use embedded_graphics::{
     draw_target::DrawTarget,
-    geometry::{OriginDimensions, Point, Size, Dimensions},
+    geometry::{Dimensions, OriginDimensions, Point, Size},
     primitives::Rectangle,
     Pixel,
 };
@@ -19,7 +19,10 @@ impl MockDisplay {
     /// The display is filled with `C::from(BinaryColor::Off)`.
     pub fn new(size: Size) -> Self {
         let display = SimulatorDisplay::with_default_color(size, Colors::Black);
-        MockDisplay { display, rotation: Rotation::Rotate0 }
+        MockDisplay {
+            display,
+            rotation: Rotation::Rotate0,
+        }
     }
 
     pub fn save_png(&mut self, img_path: &str) {
@@ -38,12 +41,12 @@ impl DrawImage for MockDisplay {
     }
 
     fn draw_line_unchecked(&mut self, idx: usize, len: usize, color: Colors) {
-            let x = (idx % (DISPLAY_WIDTH as usize)) as i32;
-            let y = (idx / (DISPLAY_WIDTH as usize)) as i32;
-            let top_left = Point::new(x, y);
-            let size = Size::new(len as u32, 1);
-            let area = Rectangle::new(top_left, size);
-            let _ = self.fill_solid(&area, color);
+        let x = (idx % (DISPLAY_WIDTH as usize)) as i32;
+        let y = (idx / (DISPLAY_WIDTH as usize)) as i32;
+        let top_left = Point::new(x, y);
+        let size = Size::new(len as u32, 1);
+        let area = Rectangle::new(top_left, size);
+        let _ = self.fill_solid(&area, color);
     }
 }
 
@@ -58,8 +61,13 @@ impl DrawTarget for MockDisplay {
         match self.rotation {
             Rotation::Rotate180 => {
                 for pixel in pixels {
-                    let (x, y) = (DISPLAY_WIDTH as i32 - 1 - pixel.0.x, DISPLAY_HEIGHT as i32 - 1 - pixel.0.y);
-                    self.display.draw_iter(core::iter::once(Pixel(Point::new(x, y), pixel.1))).unwrap();
+                    let (x, y) = (
+                        DISPLAY_WIDTH as i32 - 1 - pixel.0.x,
+                        DISPLAY_HEIGHT as i32 - 1 - pixel.0.y,
+                    );
+                    self.display
+                        .draw_iter(core::iter::once(Pixel(Point::new(x, y), pixel.1)))
+                        .unwrap();
                 }
             }
             _ => {
@@ -85,7 +93,6 @@ impl DrawTarget for MockDisplay {
             _ => {
                 self.display.fill_solid(&area, color).unwrap();
             }
-
         }
         Ok(())
     }

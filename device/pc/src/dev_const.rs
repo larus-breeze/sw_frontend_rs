@@ -51,7 +51,6 @@ const fn display_sizes() -> DisplaySizes {
         screen_center: Point::new(240, 240),
         m_s: Size::new(45, 29),
         km_h: Size::new(56, 36),
-
     }
 }
 
@@ -88,7 +87,7 @@ const fn vario_sizes() -> VarioSizes {
         unit_pos: Point::new(208, 432),
         info1_pos: Point::new(240, 120),
         info2_pos: Point::new(240, 360),
-        wind_len: 120,
+        wind_len: 150,
         wind_len_min: 80,
         angle_m_s: 25.0,
         wp_vario_scale: [
@@ -124,5 +123,5 @@ const fn images() -> Images {
     }
 }
 
-pub const SMALL_FONT: FontRenderer = FontRenderer::new::<fonts::u8g2_font_fub17_tf>();
+pub const SMALL_FONT: FontRenderer = FontRenderer::new::<fonts::u8g2_font_fub25_tf>();
 pub const BIG_FONT: FontRenderer = FontRenderer::new::<fonts::u8g2_font_fub30_tf>();
