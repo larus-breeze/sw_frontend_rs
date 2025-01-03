@@ -14,7 +14,7 @@
 use crate::{
     model::VarioModeControl,
     utils::{TString, Variant},
-    view::viewable::lineview::{LineView, Placement},
+    view::viewable::{centerview::{CenterType, CenterView}, lineview::{LineView, Placement}},
     CoreController, CoreModel, Echo, FloatToMass, FloatToSpeed, PersistenceId, Polar, Rotation,
     POLARS, POLAR_COUNT,
 };
@@ -42,6 +42,8 @@ pub enum Editable {
     Info2,
     Rotation,
     CenterFrequency,
+    CenterViewCircling,
+    CenterViewStraight,
 }
 
 #[derive(Clone, Copy)]
@@ -205,6 +207,12 @@ impl Editable {
                 dec_places: 0,
                 unit: TString::<5>::from_str("Hz"),
             }),
+            Editable::CenterViewCircling => Params::List(ListParams {
+                max: CenterView::max(CenterType::Circling) as i32
+            }),
+            Editable::CenterViewStraight => Params::List(ListParams {
+                max: CenterView::max(CenterType::Straight) as i32
+            }),
         }
     }
 
@@ -227,6 +235,8 @@ impl Editable {
             Editable::Info2 => TString::<16>::from_str("Info 2 Content"),
             Editable::Rotation => TString::<16>::from_str("Display Rotation"),
             Editable::CenterFrequency => TString::<16>::from_str("Center Frequency"),
+            Editable::CenterViewCircling => TString::<16>::from_str("Center Circling"),
+            Editable::CenterViewStraight => TString::<16>::from_str("Center Straight"),
         }
     }
 
@@ -258,6 +268,12 @@ impl Editable {
                             .write_str(
                                 LineView::from_sorted(val as usize, Placement::Bottom).name(),
                             )
+                            .unwrap(),
+                        Editable::CenterViewCircling => conv
+                            .write_str(CenterView::from_sorted(val as usize,CenterType::Circling).name())
+                            .unwrap(),
+                        Editable::CenterViewStraight => conv
+                            .write_str(CenterView::from_sorted(val as usize,CenterType::Straight).name())
                             .unwrap(),
                         _ => (),
                     }
@@ -308,6 +324,8 @@ impl Editable {
                 Content::Enum(TString::<12>::from_str(cm.control.rotation.name()))
             }
             Editable::CenterFrequency => Content::F32(cm.config.snd_center_freq as f32),
+            Editable::CenterViewCircling => Content::List(cm.config.center_circling.sorted_as_i32(CenterType::Circling)),
+            Editable::CenterViewStraight => Content::List(cm.config.center_straignt.sorted_as_i32(CenterType::Straight)),
         }
     }
 
@@ -421,6 +439,14 @@ impl Editable {
             Editable::Info2 => {
                 let variant = LineView::from_sorted(val as usize, Placement::Bottom) as i32;
                 cc.persist_set(cm, Variant::I32(variant), PersistenceId::Info2, Echo::None)
+            }
+            Editable::CenterViewCircling => {
+                let variant = CenterView::from_sorted(val as usize, CenterType::Circling) as i32;
+                cc.persist_set(cm, Variant::I32(variant), PersistenceId::CenterViewCircling, Echo::None)
+            }
+            Editable::CenterViewStraight => {
+                let variant = CenterView::from_sorted(val as usize, CenterType::Straight) as i32;
+                cc.persist_set(cm, Variant::I32(variant), PersistenceId::CenterViewStraight, Echo::None)
             }
             _ => (),
         }
