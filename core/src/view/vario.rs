@@ -1,23 +1,18 @@
-use super::helpers::sprites::*;
+use super::viewable::sprites::*;
 use crate::{
     model::{CoreModel, FlyMode, SystemState, VarioMode},
-    system_of_units::FloatToSpeed,
     tformat,
     utils::Colors,
     CoreError, DrawImage,
 };
 
-use num::clamp;
 use embedded_graphics::{
     geometry::AngleUnit,
     prelude::*,
     primitives::{Arc, PrimitiveStyle},
 };
+use num::clamp;
 use u8g2_fonts::types::{FontColor, HorizontalAlignment, VerticalPosition};
-
-// Limits of the wind arrow
-const WIND_MIN: f32 = 10.0; // 10 km/h
-const WIND_MAX: f32 = 30.0; // 30 km/h
 
 pub fn draw_thermal_climb<D>(display: &mut D, cm: &CoreModel) -> Result<(), CoreError>
 where
@@ -127,80 +122,17 @@ impl Vario {
             cm.palette().needle2,
         )?;
 
-        // draw wind arrow
-        let wind_speed = cm.sensor.wind_vector.speed().to_km_h();
-        let (mut angle, mut av_angle, fill_color, stroke_color) = match cm.control.fly_mode {
-            FlyMode::Circling => {
-                // draw north symbol
-                display.draw_img(
-                    &cm.device_const.images.north,
-                    sizes.north_pos,
-                    Some(cm.palette().background),
-                )?;
-                // return absolut wind vector
-                (
-                    cm.sensor.wind_vector.angle(),
-                    cm.sensor.average_wind.angle(),
-                    cm.palette().sprite2_fill,
-                    cm.palette().sprite2_stroke,
-                )
-            }
-            FlyMode::StraightFlight => {
-                // draw glider symbol
-                display.draw_img(
-                    &cm.device_const.images.glider,
-                    sizes.glider_pos,
-                    Some(cm.palette().scale),
-                )?;
-                (
-                    // return relativ wind vector
-                    cm.sensor.wind_vector.angle() - cm.sensor.gps_track,
-                    cm.sensor.average_wind.angle() - cm.sensor.gps_track,
-                    cm.palette().sprite1_fill,
-                    cm.palette().sprite1_stroke,
-                )
-            }
-        };
-
-        if cm.sensor.airspeed.ias() < 30.0.km_h() {
-            angle = 180.0.deg(); // The sensor box should actually do this
-            av_angle = 180.0.deg();
-        }
-
-        let len = match wind_speed {
-            x if x < WIND_MIN => sizes.wind_len_min, // Light wind is set to a minimum size
-            x if x > WIND_MAX => sizes.wind_len,     // Strong wind is set to a maximum size
-            _ => {
-                sizes.wind_len_min
-                    + ((sizes.wind_len - sizes.wind_len_min) as f32 * (wind_speed - WIND_MIN)
-                        / (WIND_MAX - WIND_MIN)) as i32
-            }
-        };
-        let avg_wind_spped = cm.sensor.average_wind.speed().to_km_h();
-        let delta_speed = wind_speed - avg_wind_spped;
-        let delta_color = if delta_speed < 0.0 {
-            cm.palette().vario_wind_minus
-        } else {
-            cm.palette().vario_wind_plus
-        };
-        let tail_thick = (num::clamp(num::abs(delta_speed), 1.0, 10.0)) as u32;
-        wind_arrow(
-            display,
-            d_sizes.center,
-            angle,
-            av_angle,
-            len,
-            fill_color,
-            stroke_color,
-            tail_thick,
-            delta_color,
-        )?;
+        // draw center view
+        match cm.control.fly_mode {
+            FlyMode::Circling => cm.config.center_circling.draw(display, cm),
+            FlyMode::StraightFlight => cm.config.center_straignt.draw(display, cm),
+        }?;
 
         // draw info1 and info2 fields
         if cm.control.alive_secs > 7 {
             cm.config
-            .info1_content
-            .draw(display, cm, sizes.info1_pos, cm.palette().scale)?;
+                .info1
+                .draw(display, cm, sizes.info1_pos, cm.palette().scale)?;
         } else {
             // draw software version during the first N seconds
             let s = cm.device_const.misc.sw_version.as_string();
@@ -214,7 +146,7 @@ impl Vario {
             )?;
         }
         cm.config
-            .info2_content
+            .info2
             .draw(display, cm, sizes.info2_pos, cm.palette().scale)?;
 
         // dependend on vario_mode draw speed_to_fly or average_climb_rate

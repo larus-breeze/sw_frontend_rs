@@ -2,7 +2,6 @@ use embedded_graphics::draw_target::DrawTarget;
 
 pub mod editor;
 pub mod fw_update;
-pub mod helpers;
 
 pub(crate) mod horizon;
 pub(crate) mod menu;
