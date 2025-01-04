@@ -58,27 +58,27 @@ impl FileIo {
             sdcard_pins
                 .1
                 .into_alternate::<12>()
-                .internal_pull_up(false)
+                .internal_pull_up(true)
                 .speed(Speed::VeryHigh),
             sdcard_pins
                 .2
                 .into_alternate::<12>()
-                .internal_pull_up(false)
+                .internal_pull_up(true)
                 .speed(Speed::VeryHigh),
             sdcard_pins
                 .3
                 .into_alternate::<12>()
-                .internal_pull_up(false)
+                .internal_pull_up(true)
                 .speed(Speed::VeryHigh),
             sdcard_pins
                 .4
                 .into_alternate::<12>()
-                .internal_pull_up(false)
+                .internal_pull_up(true)
                 .speed(Speed::VeryHigh),
             sdcard_pins
                 .5
                 .into_alternate::<12>()
-                .internal_pull_up(false)
+                .internal_pull_up(true)
                 .speed(Speed::VeryHigh),
             sdcard_pins.6.into_input(),
         );
