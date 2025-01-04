@@ -1,6 +1,11 @@
 Changelog
 =
 
+v.0.3.1.3 Bug fix "Firmware Update via SdCard broken"
+- This problem only affects the Larus Frontend V2 hardware.
+- The error already existed in the firmware v.0.3.0.0
+- The firmware update will only work as expected when upgrading from v.0.3.1.3 to a higher version. 
+
 v.0.3.1 EMC Optimization, new can protocol and some bug fixes
 - show firmware version at startup on info_1 line
 - filter viewables depending on position
