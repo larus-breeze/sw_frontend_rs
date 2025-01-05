@@ -1,5 +1,7 @@
-use super::sprites::*;
+use crate::view::sprites::{pos, Arrow, DrawStyled, Rotate};
+use super::sprites2::wind_arrow;
 use crate::{Colors, CoreError, CoreModel, DrawImage, FloatToSpeed, FlyMode, VarioSizes};
+use embedded_graphics::primitives::{PrimitiveStyle, PrimitiveStyleBuilder};
 use embedded_graphics::{draw_target::DrawTarget, prelude::Angle};
 
 use embedded_graphics::geometry::AngleUnit;
@@ -219,24 +221,22 @@ where
     let (angle, av_angle) = draw_and_calc_wind_basics(display, cm)?;
 
     let len = calc_len(cm.sensor.average_wind.speed().to_km_h(), sizes);
-    arrow(
-        display,
-        d_sizes.center,
-        av_angle,
-        len,
-        cm.palette().sprite2_fill,
-        cm.palette().sprite2_fill,
-    )?;
+    let style = PrimitiveStyle::with_fill(cm.palette().sprite2_fill);
+    Arrow::new(len, d_sizes.center)
+        .zero_pos(pos::SIX_O_CLOCK)
+        .rotate(av_angle.to_radians())
+        .draw_styled(style, display)?;
 
     let len = calc_len(cm.sensor.wind_vector.speed().to_km_h(), sizes);
-    arrow(
-        display,
-        d_sizes.center,
-        angle,
-        len,
-        cm.palette().sprite1_fill,
-        cm.palette().sprite2_stroke,
-    )?;
+    let style = PrimitiveStyleBuilder::new()
+        .fill_color(cm.palette().sprite1_fill)
+        .stroke_color(cm.palette().sprite2_stroke)
+        .stroke_width(1)
+        .build();
+    Arrow::new(len, d_sizes.center)
+        .zero_pos(pos::SIX_O_CLOCK)
+        .rotate(angle.to_radians())
+        .draw_styled(style, display)?;
 
     Ok(())
 }

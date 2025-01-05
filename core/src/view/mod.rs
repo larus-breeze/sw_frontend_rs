@@ -5,6 +5,7 @@ pub mod fw_update;
 
 pub(crate) mod horizon;
 pub(crate) mod menu;
+pub(crate) mod sprites;
 pub(crate) mod vario;
 pub(crate) mod viewable;
 
