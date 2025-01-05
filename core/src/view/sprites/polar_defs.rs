@@ -1,0 +1,23 @@
+// Created by 'create_sprite_coors.py' - do not edit
+
+use super::PolarCoordinate;
+
+pub const ARROW_PCOORDS: [PolarCoordinate; 7] = [
+    PolarCoordinate{ len: 0.5, alpha: -0.0 },
+    PolarCoordinate{ len: 0.3757658845611187, alpha: 0.4398425828157362 },
+    PolarCoordinate{ len: 0.34365680554879163, alpha: 0.1460122577112754 },
+    PolarCoordinate{ len: 0.5024937810560445, alpha: 3.0419240010986313 },
+    PolarCoordinate{ len: 0.5024937810560445, alpha: -3.0419240010986313 },
+    PolarCoordinate{ len: 0.34365680554879163, alpha: -0.1460122577112754 },
+    PolarCoordinate{ len: 0.3757658845611187, alpha: -0.4398425828157362 },
+];
+
+
+pub const WIND_ARROW_PCOORDS: [PolarCoordinate; 4] = [
+    PolarCoordinate{ len: 0.66, alpha: -0.0 },
+    PolarCoordinate{ len: 0.4220189569201838, alpha: 2.507569933926371 },
+    PolarCoordinate{ len: 0.0, alpha: 0.0 },
+    PolarCoordinate{ len: 0.4220189569201838, alpha: -2.507569933926371 },
+];
+
+
