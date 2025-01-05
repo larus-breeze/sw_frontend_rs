@@ -1,5 +1,4 @@
-use crate::view::sprites::{pos, Arrow, DrawStyled, Rotate};
-use super::sprites2::wind_arrow;
+use crate::view::sprites::{pos, Arrow, DrawStyled, Rotate, WindArrow};
 use crate::{Colors, CoreError, CoreModel, DrawImage, FloatToSpeed, FlyMode, VarioSizes};
 use embedded_graphics::primitives::{PrimitiveStyle, PrimitiveStyleBuilder};
 use embedded_graphics::{draw_target::DrawTarget, prelude::Angle};
@@ -196,17 +195,18 @@ where
         cm.palette().vario_wind_plus
     };
     let tail_thick = (num::clamp(num::abs(delta_speed), 1.0, 10.0)) as u32;
-    wind_arrow(
-        display,
-        d_sizes.center,
-        angle,
-        av_angle,
-        len,
-        cm.palette().sprite1_fill,
-        cm.palette().sprite1_stroke,
-        tail_thick,
-        delta_color,
-    )?;
+    let style = PrimitiveStyleBuilder::new()
+        .fill_color(cm.palette().sprite1_fill)
+        .stroke_color(cm.palette().sprite1_stroke)
+        .stroke_width(1)
+        .build();
+
+    WindArrow::new(len, d_sizes.center)
+        .zero_pos(pos::SIX_O_CLOCK)
+        .rotate(angle.to_radians())
+        .add_tail(angle - av_angle, tail_thick, delta_color)
+        .draw_styled(style, display)?;
+
     Ok(())
 }
 

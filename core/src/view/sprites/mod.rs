@@ -1,6 +1,10 @@
+pub(crate) mod polar_defs;
 pub(crate) mod arrow;
+pub(crate) mod wind_arrow;
 
 pub(crate) use arrow::Arrow;
+pub(crate) use wind_arrow::WindArrow;
+pub(crate) use polar_defs::*;
 
 use embedded_graphics::{
     prelude::{Point, DrawTarget},
@@ -8,9 +12,11 @@ use embedded_graphics::{
 };
 use crate::{utils::Colors, CoreError};
 
+
 #[allow(unused_imports)]
 use micromath::F32Ext;
 
+#[derive(Clone, Copy)]
 pub struct PolarCoordinate {
     pub len: f32,
     pub alpha: f32,
@@ -24,6 +30,12 @@ impl PolarCoordinate {
         let y = -a.cos() * l;
         Point::new(x as i32, y as i32)
     }
+
+    pub fn scale_rotate(&self, scale: f32, rotation: f32) -> PolarCoordinate {
+        let alpha = self.alpha + rotation;
+        let len = self.len * scale;
+        PolarCoordinate {len, alpha}
+   }
 }
 
 pub trait Rotate {

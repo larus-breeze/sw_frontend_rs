@@ -1,4 +1,4 @@
-use super::{pos, DrawStyled, PolarCoordinate, Rotate};
+use super::{DrawStyled, Rotate, ARROW_PCOORDS};
 use embedded_graphics::{
     prelude::*,
     primitives::{Polyline, PrimitiveStyle, Triangle},
@@ -80,14 +80,3 @@ impl Rotate for Arrow {
         self
     }
 }
-
-// Normalized polar coordinates created by 'create_sprite_coords.py'
-const ARROW_PCOORDS: [PolarCoordinate; 7] = [
-    PolarCoordinate{ len: 0.5, alpha: -0.0 },
-    PolarCoordinate{ len: 0.37267799624996495, alpha: 0.4636476090008061 },
-    PolarCoordinate{ len: 0.33706247360261143, alpha: 0.14888994760949725 },
-    PolarCoordinate{ len: 0.5024937810560445, alpha: 3.0419240010986313 },
-    PolarCoordinate{ len: 0.5024937810560445, alpha: -3.0419240010986313 },
-    PolarCoordinate{ len: 0.33706247360261143, alpha: -0.14888994760949725 },
-    PolarCoordinate{ len: 0.37267799624996495, alpha: -0.4636476090008061 },
-];
