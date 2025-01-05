@@ -1,4 +1,4 @@
-use super::viewable::sprites::*;
+use super::viewable::sprites2::*;
 use crate::{
     model::{CoreModel, FlyMode, SystemState, VarioMode},
     tformat,

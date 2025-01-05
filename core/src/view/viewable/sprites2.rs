@@ -1,12 +1,12 @@
 use embedded_graphics::{
     geometry::Angle,
     prelude::*,
-    primitives::{Arc, Line, Polyline, PrimitiveStyle, Triangle},
+    primitives::{Arc, Line, PrimitiveStyle, Triangle},
 };
 #[allow(unused_imports)]
 use micromath::F32Ext;
 
-use crate::{utils::Colors, CoreError};
+use crate::utils::{Colors, CoreError};
 
 /// Draw an indicator
 ///
@@ -189,57 +189,5 @@ where
     Triangle::new(p1, p2, p3)
         .into_styled(PrimitiveStyle::with_fill(color))
         .draw(display)?;
-    Ok(())
-}
-
-const ARROW_VALS: [[f32; 2]; 7] = [
-    [0.5, -0.0],
-    [0.37267799624996495, 0.4636476090008061],
-    [0.33706247360261143, 0.14888994760949725],
-    [0.5024937810560445, 3.0419240010986313],
-    [0.5024937810560445, -3.0419240010986313],
-    [0.33706247360261143, -0.14888994760949725],
-    [0.37267799624996495, -0.4636476090008061],
-];
-
-use embedded_graphics::Drawable;
-
-/// Draw an Arror arround center with len
-pub fn arrow<D>(
-    display: &mut D,
-    center: Point,
-    angle: Angle,
-    len: i32,
-    fill_color: Colors,
-    stroke_color: Colors,
-) -> Result<(), CoreError>
-where
-    D: DrawTarget<Color = Colors, Error = CoreError>,
-{
-    fn to_x_y(l_a: [f32; 2], angle: Angle, len: f32) -> Point {
-        let (l, a) = (l_a[0] * len, angle.to_radians() + l_a[1]);
-        let x = -a.sin() * l;
-        let y = a.cos() * l;
-        Point::new(x as i32, y as i32)
-    }
-
-    let len = len as f32;
-    let p1 = to_x_y(ARROW_VALS[0], angle, len) + center;
-    let p2 = to_x_y(ARROW_VALS[1], angle, len) + center;
-    let p3 = to_x_y(ARROW_VALS[2], angle, len) + center;
-    let p4 = to_x_y(ARROW_VALS[3], angle, len) + center;
-    let p5 = to_x_y(ARROW_VALS[4], angle, len) + center;
-    let p6 = to_x_y(ARROW_VALS[5], angle, len) + center;
-    let p7 = to_x_y(ARROW_VALS[6], angle, len) + center;
-
-    let style = PrimitiveStyle::with_fill(fill_color);
-    Triangle::new(p1, p2, p7).into_styled(style).draw(display)?;
-    Triangle::new(p3, p4, p6).into_styled(style).draw(display)?;
-    Triangle::new(p4, p5, p6).into_styled(style).draw(display)?;
-
-    let points = [p1, p2, p3, p4, p5, p6, p7, p1];
-    let style = PrimitiveStyle::with_stroke(stroke_color, 1);
-    Polyline::new(&points).into_styled(style).draw(display)?;
-
     Ok(())
 }
