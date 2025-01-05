@@ -1,7 +1,7 @@
 use embedded_graphics::{
     geometry::Angle,
     prelude::*,
-    primitives::{Arc, Line, PrimitiveStyle, Triangle},
+    primitives::{Line, PrimitiveStyle, Triangle},
 };
 #[allow(unused_imports)]
 use micromath::F32Ext;
@@ -43,81 +43,6 @@ where
     Line::new(p_start, p_r3).into_styled(style).draw(display)?;
     let style = PrimitiveStyle::with_fill(color);
     Triangle::new(p_end, p_r3 + p_thick, p_r3 - p_thick)
-        .into_styled(style)
-        .draw(display)
-}
-
-/// Draw a wind arrow
-///
-/// The wind arrow is pointed at the front and open at the back. It has a length and a width. An angle of 0 means that the
-/// arrow points upwards.
-#[allow(clippy::too_many_arguments)]
-pub fn wind_arrow<D>(
-    display: &mut D,
-    center: Point,
-    angle: Angle,
-    av_angle: Angle,
-    len: i32,
-    fill_color: Colors,
-    stroke_color: Colors,
-    tail_thick: u32,
-    tail_color: Colors,
-) -> Result<(), CoreError>
-where
-    D: DrawTarget<Color = Colors, Error = CoreError>,
-{
-    let l1 = len as f32 * 0.666;
-    let l2 = l1 / 2.0;
-    let t2 = len as f32 * 0.25;
-    let sin_a = angle.to_radians().sin();
-    let cos_a = angle.to_radians().cos();
-    let p_end = center + Point::new((-sin_a * l1) as i32, (cos_a * l1) as i32);
-
-    let style = PrimitiveStyle::with_fill(fill_color);
-    let p3 = Point::new(
-        (-t2 * cos_a + l2 * sin_a) as i32,
-        (-t2 * sin_a - l2 * cos_a) as i32,
-    );
-    Triangle::new(p_end, center, center + p3)
-        .into_styled(style)
-        .draw(display)?;
-    let p4 = Point::new(
-        (t2 * cos_a + l2 * sin_a) as i32,
-        (t2 * sin_a - l2 * cos_a) as i32,
-    );
-    Triangle::new(p_end, center, center + p4)
-        .into_styled(style)
-        .draw(display)?;
-
-    let style = PrimitiveStyle::with_stroke(stroke_color, 2);
-    Line::new(p_end, center + p3)
-        .into_styled(style)
-        .draw(display)?;
-    Line::new(center, center + p3)
-        .into_styled(style)
-        .draw(display)?;
-    Line::new(p_end, center + p4)
-        .into_styled(style)
-        .draw(display)?;
-    Line::new(center, center + p4)
-        .into_styled(style)
-        .draw(display)?;
-
-    let (w1, w2) = if angle > av_angle {
-        (angle, av_angle)
-    } else {
-        (av_angle, angle)
-    };
-    let dif = w1 - w2;
-    let (w1, w2) = if dif > 180.0.deg() {
-        (w1, w2 + 360.0.deg())
-    } else {
-        (w2, w1)
-    };
-
-    // Draw wind tail
-    let style = PrimitiveStyle::with_stroke(tail_color, tail_thick);
-    Arc::with_center(center, (2.0 * l1) as u32, 90.0.deg() + w1, w2 - w1)
         .into_styled(style)
         .draw(display)
 }
