@@ -52,7 +52,7 @@ class PCoordSprites:
 
 
 ARROW = (
-    'ARROW_PCOORDS',        # const name                 
+    'ARROW_PCOORDS',        # name                 
     0.01,                   # scale
         [                   # xy coords
             (0, -50),
@@ -66,7 +66,7 @@ ARROW = (
 )
     
 WIND_ARROW = (
-    'WIND_ARROW_PCOORDS',   # const name                 
+    'WIND_ARROW_PCOORDS',   # name                 
     0.01,                   # scale
         [                   # xy coords
             (0, -66),
@@ -75,10 +75,45 @@ WIND_ARROW = (
             (-25, 34),
         ]
 )
+
+SCALE_MARKER = (
+    'SCALE_MARKER_PCOORDS', # name
+    1/237,                  # scale
+    [                       # xy coords
+        (-14, -240),
+        (14, -240),
+        (0, -208)
+    ]
+)
+    
+SIMPLE_INDICATOR = (
+    'SIMPLE_INDICATOR_PCOORDS', # name
+    1/166,                  # scale
+    [                       # xy coords
+        (0, -203),
+        (-18, -167),
+        (18, -167)
+    ]
+)
+    
+CLASSIC_INDICATOR = (
+    'CLASSIC_INDICATOR_PCOORDS', # name
+    1/238,                  # scale
+    [                       # xy coords
+        (0, -238),
+        (9, -222),
+        (9, -167),
+        (-9, -167),
+        (-9, -222),
+    ]
+)
     
 sprites = PCoordSprites()
 sprites.add(PCoordSprite(*ARROW))
 sprites.add(PCoordSprite(*WIND_ARROW))
+sprites.add(PCoordSprite(*SCALE_MARKER))
+sprites.add(PCoordSprite(*SIMPLE_INDICATOR))
+sprites.add(PCoordSprite(*CLASSIC_INDICATOR))
 
 file_name = 'core/src/view/sprites/polar_defs.rs'
 sprites.to_file(file_name)

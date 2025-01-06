@@ -1,8 +1,14 @@
 pub(crate) mod polar_defs;
 pub(crate) mod arrow;
+pub(crate) mod classic_indicator;
+pub(crate) mod scale_marker;
+pub(crate) mod simple_indicator;
 pub(crate) mod wind_arrow;
 
 pub(crate) use arrow::Arrow;
+pub(crate) use classic_indicator::ClassicIndicator;
+pub(crate) use scale_marker::ScaleMarker;
+pub(crate) use simple_indicator::SimpleIndicator;
 pub(crate) use wind_arrow::WindArrow;
 pub(crate) use polar_defs::*;
 
@@ -46,6 +52,12 @@ pub trait Rotate {
 
 pub trait DrawStyled {
     fn draw_styled<D>(&self, style: PrimitiveStyle<Colors>, display: &mut D) -> Result<(), CoreError>
+    where
+        D: DrawTarget<Color = Colors, Error = CoreError>;
+}
+
+pub trait DrawColored {
+    fn draw_colored<D>(&self, color: Colors, display: &mut D) -> Result<(), CoreError>
     where
         D: DrawTarget<Color = Colors, Error = CoreError>;
 }

@@ -1,4 +1,4 @@
-use super::viewable::sprites2::*;
+use super::sprites::*;
 use crate::{
     model::{CoreModel, FlyMode, SystemState, VarioMode},
     tformat,
@@ -22,19 +22,19 @@ where
 
     display.draw_img(
         &cm.device_const.images.spiral,
-        sizes.pic_info_1_pos,
+        sizes.pic_info3_pos,
         Some(cm.palette().vario_pic_info1),
     )?;
     display.draw_img(
         &cm.device_const.images.m_s,
-        sizes.info_1_pos,
+        sizes.info3_pos,
         Some(cm.palette().scale),
     )?;
     let acr = num::clamp(cm.calculated.thermal_climb_rate.to_m_s(), -9.9, 99.9);
     let txt = tformat!(10, "{:.1}", acr).unwrap();
     cm.device_const.big_font.render_aligned(
         txt.as_str(),
-        sizes.info_1_pos,
+        sizes.info3_pos,
         VerticalPosition::Top,
         HorizontalAlignment::Right,
         FontColor::Transparent(cm.palette().scale),
@@ -110,17 +110,10 @@ impl Vario {
         };
         display.draw_img(&cm.device_const.images.sat, sizes.sat_pos, Some(color))?;
 
-        // draw mc_ready marker
-        scale_marker(
-            display,
-            d_sizes.center,
-            cm.config.mc_cready.to_m_s(),
-            d_sizes.radius as i32 + 1,
-            sizes.mc_len as i32,
-            sizes.mc_width,
-            sizes.angle_m_s,
-            cm.palette().needle2,
-        )?;
+        ScaleMarker::new(d_sizes.radius as i32, d_sizes.center)
+            .zero_pos(pos::NINE_O_CLOCK)
+            .rotate((cm.config.mc_cready.to_m_s() * sizes.angle_m_s).to_radians())
+            .draw_colored(cm.palette().needle2, display)?;
 
         // draw center view
         match cm.control.fly_mode {
@@ -165,19 +158,19 @@ impl Vario {
                 if cm.config.alt_stf_thermal_climb {
                     display.draw_img(
                         &cm.device_const.images.straight,
-                        sizes.pic_info_1_pos,
+                        sizes.pic_info3_pos,
                         Some(cm.palette().scale),
                     )?;
                     display.draw_img(
                         &cm.device_const.images.km_h,
-                        sizes.info_1_pos,
+                        sizes.info3_pos,
                         Some(cm.palette().scale),
                     )?;
                     let stf = num::clamp(cm.calculated.speed_to_fly_1s.to_km_h(), 0.0, 999.0);
                     let txt = tformat!(10, "{:.0}", stf).unwrap();
                     cm.device_const.big_font.render_aligned(
                         txt.as_str(),
-                        sizes.info_1_pos,
+                        sizes.info3_pos,
                         VerticalPosition::Top,
                         HorizontalAlignment::Right,
                         FontColor::Transparent(col),
@@ -191,28 +184,17 @@ impl Vario {
 
         // draw average climb rate marker
         let av_climb_rate_limited = clamp(cm.calculated.av2_climb_rate.to_m_s(), -5.0, 5.0);
-        inverted_scale_marker(
-            display,
-            d_sizes.center,
-            av_climb_rate_limited,
-            (d_sizes.radius - sizes.indicator_len) as i32,
-            sizes.tcr_len as i32,
-            sizes.tcr_width,
-            sizes.angle_m_s,
-            cm.palette().needle3,
-        )?;
+        SimpleIndicator::at_base((d_sizes.radius - sizes.indicator_len) as i32, d_sizes.center)
+            .zero_pos(pos::NINE_O_CLOCK)
+            .rotate((av_climb_rate_limited * sizes.angle_m_s).to_radians())
+            .draw_colored(cm.palette().needle3, display)?;
 
         // draw climb rate indicator
         let angle = (sizes.angle_m_s * num::clamp(cm.sensor.climb_rate.to_m_s(), -5.1, 5.1)).deg();
-        classic_indicator(
-            display,
-            d_sizes.center,
-            angle,
-            sizes.indicator_width as i32,
-            (d_sizes.radius - sizes.indicator_len) as i32,
-            d_sizes.radius as i32,
-            cm.palette().needle1,
-        )?;
+        ClassicIndicator::new(d_sizes.radius as i32, d_sizes.center)
+            .zero_pos(pos::NINE_O_CLOCK)
+            .rotate(angle.to_radians())
+            .draw_colored(cm.palette().needle1, display)?;
         Ok(())
     }
 }
