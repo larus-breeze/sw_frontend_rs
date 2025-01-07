@@ -103,7 +103,6 @@ fn set_date_time(cm: &mut CoreModel, cc: &mut CoreController) {
     // Sets time and date for the log of a crash
     let event = IdleEvent::DateTime(cm.sensor.gps_date_time);
     cc.send_idle_event(event);
-    cm.control.alive_secs += 1;
 
     let _ = cc.scheduler.chain(send_can_nmea);
 }

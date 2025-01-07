@@ -37,10 +37,14 @@ impl PolarCoordinate {
         Point::new(x as i32, y as i32)
     }
 
-    pub fn scale_rotate(&self, scale: f32, rotation: f32) -> PolarCoordinate {
+    pub fn get_scaled_rotated(&self, scale: f32, rotation: f32) -> PolarCoordinate {
         let alpha = self.alpha + rotation;
         let len = self.len * scale;
         PolarCoordinate {len, alpha}
+   }
+
+   pub fn rotate(&mut self, rotation: f32) {
+        self.alpha += rotation;
    }
 }
 

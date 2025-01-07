@@ -78,8 +78,8 @@ pub enum SystemState {
 /// Metastructure for different control variables
 #[derive(Clone, Copy)]
 pub struct Control {
-    /// Count secs the firmware is alive
-    pub alive_secs: u32,
+    /// Count ticks the firmware is alive (100ms)
+    pub alive_ticks: u32,
     /// State of the Larus system
     pub system_state: SystemState,
     /// Bit pattern of all can bus devices
@@ -117,7 +117,7 @@ pub struct Control {
 impl Default for Control {
     fn default() -> Self {
         Self {
-            alive_secs: 0,
+            alive_ticks: 0,
             system_state: SystemState::NoCom,
             can_devices: CanActive::None as u32,
             fly_mode: FlyMode::StraightFlight,

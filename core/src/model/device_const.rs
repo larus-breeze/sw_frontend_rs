@@ -53,7 +53,7 @@ pub struct HorizonSizes {
 }
 
 pub struct VarioSizes {
-    pub stf_diameter: u32,
+    pub stf_diameter: u32, // stf speed to fly
     pub stf_width: u32,
     pub indicator_len: u32,
     pub glider_pos: Point,
@@ -65,6 +65,9 @@ pub struct VarioSizes {
     pub info2_pos: Point,
     pub info3_pos: Point,
     pub pic_info3_pos: Point,
+    pub small_gld_size: Size,
+    pub ta_circle_radius: u32,  // ta thermal assistant
+    pub ta_point_diameter: u32,
     pub wind_len: i32,
     pub wind_len_min: i32,
     pub angle_m_s: f32,
@@ -82,6 +85,7 @@ pub struct Images {
     pub km_h: &'static [u8],
     pub m_s: &'static [u8],
     pub sat: &'static [u8],
+    pub small_glider: &'static [u8],
     pub wp_horizon: &'static [u8],
     pub wp_vario: &'static [u8],
 }
@@ -117,6 +121,11 @@ pub struct Palette {
     pub vario_pic_info1: Colors,
     pub vario_wind_plus: Colors,
     pub vario_wind_minus: Colors,
+
+    pub therm_ass_best: Colors,
+    pub therm_ass_good: Colors,
+    pub therm_ass_bad: Colors,
+
 }
 
 impl Palette {
@@ -151,6 +160,10 @@ impl Palette {
             vario_pic_info1: Colors::Orange,
             vario_wind_plus: Colors::Orange,
             vario_wind_minus: Colors::LightPink,
+
+            therm_ass_best: Colors::White,
+            therm_ass_good: Colors::Red,
+            therm_ass_bad: Colors::Blue,
         }
     }
 }
