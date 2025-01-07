@@ -2,6 +2,7 @@ use embedded_graphics::draw_target::DrawTarget;
 
 pub mod editor;
 pub mod fw_update;
+pub(crate) mod thermal_data;
 
 pub(crate) mod horizon;
 pub(crate) mod menu;
@@ -24,6 +25,7 @@ pub const FRAME_RATE: u32 = 10;
 #[cfg(not(debug_assertions))]
 pub const FRAME_RATE: u32 = 20;
 
+#[derive(PartialEq)]
 enum PrimaryView {
     Vario(Vario),
     Horizon(Horizon),
@@ -43,6 +45,7 @@ where
     primary_view: PrimaryView,
     secondary_view: Option<SecondaryView>,
     core_model: CoreModel,
+    last_display_active: DisplayActive,
 }
 
 impl<D> CoreView<D>
@@ -57,6 +60,7 @@ where
             primary_view,
             secondary_view: None,
             core_model,
+            last_display_active: DisplayActive::Vario,
         }
     }
 
@@ -67,15 +71,19 @@ where
         // set the orientation
         self.display.set_rotation(core_model.control.rotation);
 
-        self.primary_view = match core_model.config.display_active {
-            DisplayActive::Horizon => PrimaryView::Horizon(Horizon::new()),
-            DisplayActive::FirmwareUpdate => {
-                let update_state = core_model.control.firmware_update_state;
-                PrimaryView::SwUpade(SwUpdate::new(update_state))
-            }
-            DisplayActive::Menu => PrimaryView::MenuView(MenuView::new()),
-            _ => PrimaryView::Vario(Vario::new()),
-        };
+        if core_model.config.display_active != self.last_display_active {
+            self.last_display_active = core_model.config.display_active;
+
+            self.primary_view = match core_model.config.display_active {
+                DisplayActive::Horizon => PrimaryView::Horizon(Horizon::new()),
+                DisplayActive::FirmwareUpdate => {
+                    let update_state = core_model.control.firmware_update_state;
+                    PrimaryView::SwUpade(SwUpdate::new(update_state))
+                }
+                DisplayActive::Menu => PrimaryView::MenuView(MenuView::new()),
+                _ => PrimaryView::Vario(Vario::new()),
+            };
+        }
 
         self.secondary_view = if core_model.control.editor.mode == EditMode::Section {
             Some(SecondaryView::Edit(Edit::new(core_model)))
@@ -85,7 +93,7 @@ where
     }
 
     pub fn draw(&mut self) -> Result<(), CoreError> {
-        match &self.primary_view {
+        match &mut self.primary_view {
             PrimaryView::Vario(vario) => vario.draw(&mut self.display, &self.core_model)?,
             PrimaryView::Horizon(horizon) => horizon.draw(&mut self.display, &self.core_model)?,
             PrimaryView::MenuView(menu_view) => {

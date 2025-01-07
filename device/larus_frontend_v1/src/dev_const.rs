@@ -82,6 +82,9 @@ const fn vario_sizes() -> VarioSizes {
         info2_pos: Point::new(160, 240),
         info3_pos: Point::new(47, 290),
         pic_info3_pos: Point::new(9, 254),
+        small_gld_size: Size::new(30, 13),
+        ta_circle_radius: 50,
+        ta_point_diameter: 12,
         wind_len: 105,
         wind_len_min: 50,
         angle_m_s: 24.0,
@@ -113,6 +116,7 @@ const fn images() -> Images {
         km_h: include_bytes_aligned!(4, "../assets/km_h.lif"),
         m_s: include_bytes_aligned!(4, "../assets/m_s.lif"),
         sat: include_bytes_aligned!(4, "../assets/sat.lif"),
+        small_glider: include_bytes_aligned!(4, "../assets/small_glider.lif"),
         wp_horizon: include_bytes_aligned!(4, "../assets/wp_horizon.lif"),
         wp_vario: include_bytes_aligned!(4, "../assets/wp_vario.lif"),
     }

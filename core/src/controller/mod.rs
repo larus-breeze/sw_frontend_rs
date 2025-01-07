@@ -173,6 +173,8 @@ impl CoreController {
     }
 
     fn tick_100ms(&mut self, core_model: &mut CoreModel) {
+        core_model.control.alive_ticks = core_model.control.alive_ticks.wrapping_add(1);
+
         if core_model.control.vario_mode == VarioMode::Vario {
             self.av2_climb_rate.tick(core_model.sensor.climb_rate);
             core_model.calculated.av2_climb_rate = self.av2_climb_rate.value();

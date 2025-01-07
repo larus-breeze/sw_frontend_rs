@@ -4,6 +4,7 @@ use crate::{model::CoreModel, tformat, utils::Colors, CoreError, DeviceEvent, Dr
 use embedded_graphics::draw_target::DrawTarget;
 use heapless::String;
 
+#[derive(PartialEq)]
 pub struct SwUpdate {
     text: String<100>,
 }

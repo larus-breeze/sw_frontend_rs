@@ -1,9 +1,20 @@
-use crate::view::sprites::{pos, Arrow, DrawStyled, Rotate, WindArrow};
+use crate::view::{
+    sprites::{pos, Arrow, DrawStyled, PolarCoordinate, Rotate, WindArrow},
+    thermal_data::{ThermalData, DELTA_ALPHA, THERMAL_DATA_CNT},
+};
 use crate::{Colors, CoreError, CoreModel, DrawImage, FloatToSpeed, FlyMode, VarioSizes};
-use embedded_graphics::primitives::{PrimitiveStyle, PrimitiveStyleBuilder};
-use embedded_graphics::{draw_target::DrawTarget, prelude::Angle};
 
-use embedded_graphics::geometry::AngleUnit;
+use embedded_graphics::{
+    prelude::Primitive, primitives::{Circle, PrimitiveStyle, PrimitiveStyleBuilder},
+    draw_target::DrawTarget, prelude::Angle,
+    geometry::{AngleUnit, Point},
+    Drawable,
+};
+use num::clamp;
+
+#[allow(unused_imports)]
+use micromath::F32Ext;
+
 
 #[derive(Clone, Copy, PartialEq)]
 pub enum CenterView {
@@ -12,6 +23,7 @@ pub enum CenterView {
     SingleArrowStraight,
     DoubleArrowCircling,
     DoubleArrowStraight,
+    ThermalAssistant1,
     LastElemntNotInUse,
 }
 
@@ -27,9 +39,10 @@ impl core::convert::From<u32> for CenterView {
     }
 }
 
-const CIRCLING_CENTER_VIEW: [CenterView; 2] = [
+const CIRCLING_CENTER_VIEW: [CenterView; 3] = [
     CenterView::SingleArrowCircling,
     CenterView::DoubleArrowCircling,
+    CenterView::ThermalAssistant1,
 ];
 
 const STRAIGHT_CENTER_VIEW: [CenterView; 2] = [
@@ -98,13 +111,14 @@ impl CenterView {
             CenterView::SingleArrowStraight => "Single Arrow",
             CenterView::DoubleArrowCircling => "Double Arrow",
             CenterView::DoubleArrowStraight => "Double Arrow",
+            CenterView::ThermalAssistant1 => "Thermal Assistant",
             CenterView::None => "None",
             CenterView::LastElemntNotInUse => "",
         }
     }
 
     /// Draw viewable
-    pub fn draw<D>(&self, display: &mut D, cm: &CoreModel) -> Result<(), CoreError>
+    pub fn draw<D>(&self, display: &mut D, cm: &CoreModel, thermal_data: &mut ThermalData) -> Result<(), CoreError>
     where
         D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
     {
@@ -114,9 +128,59 @@ impl CenterView {
             CenterView::SingleArrowStraight => draw_single_arrow(display, cm),
             CenterView::DoubleArrowCircling => draw_double_arrow(display, cm),
             CenterView::DoubleArrowStraight => draw_double_arrow(display, cm),
+            CenterView::ThermalAssistant1 => draw_thermal_assitant1(display, cm, thermal_data),
             CenterView::LastElemntNotInUse => Ok(()),
         }
     }
+}
+
+fn draw_thermal_assitant1<D>(
+    display: &mut D,
+    cm: &CoreModel,
+    thermal_data: &mut ThermalData
+) -> Result<(), CoreError>
+where
+    D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
+{
+    let sizes = &cm.device_const.sizes;
+    let mut pcoord = PolarCoordinate{
+        alpha: 0.0,
+        len: sizes.vario.ta_circle_radius as f32,
+    };
+    let delta = DELTA_ALPHA;// * cm.sensor.euler_yaw.to_radians().signum();
+
+    let rotation = if cm.sensor.euler_roll.to_radians() > 0.0 {
+        -cm.sensor.euler_yaw.to_radians() + pos::NINE_O_CLOCK
+    } else {
+        -cm.sensor.euler_yaw.to_radians() + pos::THREE_O_CLOCK
+    };
+    thermal_data.prepare();
+    for _cnt in 0..THERMAL_DATA_CNT {
+        let (fill_color, delta_climb) = thermal_data.get_item(pcoord.alpha, cm);
+        let center = pcoord.to_xy(1.0, rotation) + sizes.display.center;
+        let diameter = clamp(
+            (delta_climb.abs() * 5.0) as u32, 
+            sizes.vario.ta_point_diameter / 5, 
+            sizes.vario.ta_point_diameter);
+        Circle::with_center(center, diameter)
+            .into_styled(PrimitiveStyle::with_fill(fill_color))
+            .draw(display)?;
+        pcoord.rotate(delta);
+    }
+
+    let dy = (sizes.vario.small_gld_size.height / 2) as i32;
+    let p_gld = if cm.sensor.euler_roll.to_radians() > 0.0 {
+        let dx = (sizes.vario.ta_circle_radius + sizes.vario.small_gld_size.width / 2) as i32;
+        sizes.display.center + Point::new(-dx, -dy)
+    } else {
+        let dx = (sizes.vario.ta_circle_radius - sizes.vario.small_gld_size.width / 2) as i32;
+        sizes.display.center + Point::new(dx, -dy)
+    };
+    display.draw_img(
+        &cm.device_const.images.small_glider, 
+        p_gld, 
+        Some(cm.palette().scale))?;
+    Ok(())
 }
 
 fn draw_and_calc_wind_basics<D>(

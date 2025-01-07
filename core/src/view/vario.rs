@@ -1,4 +1,4 @@
-use super::sprites::*;
+use super::{sprites::*, thermal_data::ThermalData};
 use crate::{
     model::{CoreModel, FlyMode, SystemState, VarioMode},
     tformat,
@@ -43,14 +43,17 @@ where
     Ok(())
 }
 
-pub struct Vario {}
+#[derive(PartialEq)]
+pub struct Vario {
+    thermal_data: ThermalData,
+}
 
 impl Vario {
     pub fn new() -> Vario {
-        Vario {}
+        Vario { thermal_data: ThermalData::default(), }
     }
 
-    pub fn draw<D>(&self, display: &mut D, cm: &CoreModel) -> Result<(), CoreError>
+    pub fn draw<D>(&mut self, display: &mut D, cm: &CoreModel) -> Result<(), CoreError>
     where
         D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
     {
@@ -110,19 +113,15 @@ impl Vario {
         };
         display.draw_img(&cm.device_const.images.sat, sizes.sat_pos, Some(color))?;
 
-        ScaleMarker::new(d_sizes.radius as i32, d_sizes.center)
-            .zero_pos(pos::NINE_O_CLOCK)
-            .rotate((cm.config.mc_cready.to_m_s() * sizes.angle_m_s).to_radians())
-            .draw_colored(cm.palette().needle2, display)?;
-
         // draw center view
+        self.thermal_data.update(cm);
         match cm.control.fly_mode {
-            FlyMode::Circling => cm.config.center_circling.draw(display, cm),
-            FlyMode::StraightFlight => cm.config.center_straignt.draw(display, cm),
+            FlyMode::Circling => cm.config.center_circling.draw(display, cm, &mut self.thermal_data),
+            FlyMode::StraightFlight => cm.config.center_straignt.draw(display, cm, &mut self.thermal_data),
         }?;
 
-        // draw info1 and info2 fields
-        if cm.control.alive_secs > 7 {
+        // draw info1 field or firmware version
+        if cm.control.alive_ticks > 70 {
             cm.config
                 .info1
                 .draw(display, cm, sizes.info1_pos, cm.palette().scale)?;
@@ -138,11 +137,13 @@ impl Vario {
                 display,
             )?;
         }
+
+        // draw info2 field
         cm.config
             .info2
             .draw(display, cm, sizes.info2_pos, cm.palette().scale)?;
 
-        // dependend on vario_mode draw speed_to_fly or average_climb_rate
+        // draw info3 field
         match cm.control.vario_mode {
             VarioMode::Vario => {
                 draw_thermal_climb(display, cm)?;
@@ -182,18 +183,25 @@ impl Vario {
             }
         }
 
+        // draw mc_cready indicator
+        ScaleMarker::new(d_sizes.radius as i32, d_sizes.center)
+            .zero_pos(pos::NINE_O_CLOCK)
+            .rotate((cm.config.mc_cready.to_m_s() * sizes.angle_m_s).to_radians())
+            .draw_colored(cm.palette().needle2, display)?;
+
+    
         // draw average climb rate marker
-        let av_climb_rate_limited = clamp(cm.calculated.av2_climb_rate.to_m_s(), -5.0, 5.0);
+        let av_climb_rate = clamp(cm.calculated.av2_climb_rate.to_m_s(), -5.0, 5.0);
         SimpleIndicator::at_base((d_sizes.radius - sizes.indicator_len) as i32, d_sizes.center)
             .zero_pos(pos::NINE_O_CLOCK)
-            .rotate((av_climb_rate_limited * sizes.angle_m_s).to_radians())
+            .rotate((av_climb_rate * sizes.angle_m_s).to_radians())
             .draw_colored(cm.palette().needle3, display)?;
 
         // draw climb rate indicator
-        let angle = (sizes.angle_m_s * num::clamp(cm.sensor.climb_rate.to_m_s(), -5.1, 5.1)).deg();
+        let climb_rate = num::clamp(cm.sensor.climb_rate.to_m_s(), -5.1, 5.1);
         ClassicIndicator::new(d_sizes.radius as i32, d_sizes.center)
             .zero_pos(pos::NINE_O_CLOCK)
-            .rotate(angle.to_radians())
+            .rotate((climb_rate * sizes.angle_m_s).to_radians())
             .draw_colored(cm.palette().needle1, display)?;
         Ok(())
     }

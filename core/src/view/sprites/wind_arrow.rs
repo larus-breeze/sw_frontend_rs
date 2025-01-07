@@ -83,7 +83,7 @@ impl DrawStyled for WindArrow {
         }
 
         if self.tail_angle != 0.0 {
-            let tip = WIND_ARROW_PCOORDS[0].scale_rotate(scale, rotation);
+            let tip = WIND_ARROW_PCOORDS[0].get_scaled_rotated(scale, rotation);
             let style = PrimitiveStyle::with_stroke(self.tail_color, self.tail_thick);
             Arc::with_center(
                     center, 
