@@ -71,7 +71,6 @@ pub struct VarioSizes {
     pub wind_len: i32,
     pub wind_len_min: i32,
     pub angle_m_s: f32,
-    pub wp_vario_scale: [(i32, i32, &'static str); 11],
 }
 
 pub struct Images {

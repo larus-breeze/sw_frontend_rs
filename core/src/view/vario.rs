@@ -73,17 +73,6 @@ impl Vario {
             Some(cm.palette().background),
         )?;
 
-        for (pos_x, pos_y, txt) in sizes.wp_vario_scale {
-            let pos = Point::new(pos_x, pos_y);
-            cm.device_const.big_font.render(
-                txt,
-                pos,
-                VerticalPosition::Baseline,
-                FontColor::Transparent(cm.palette().background),
-                display,
-            )?;
-        }
-
         // draw battery symbol
         if cm.device.supply_voltage > cm.device.voltage_limit_good {
             display.draw_img(
