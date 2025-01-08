@@ -124,6 +124,8 @@ pub struct Palette {
     pub therm_ass_best: Colors,
     pub therm_ass_good: Colors,
     pub therm_ass_bad: Colors,
+    pub therm2_ass_good: Colors,
+    pub therm2_ass_bad: Colors,
 
 }
 
@@ -163,6 +165,8 @@ impl Palette {
             therm_ass_best: Colors::White,
             therm_ass_good: Colors::Red,
             therm_ass_bad: Colors::Blue,
+            therm2_ass_good: Colors::Maroon,
+            therm2_ass_bad: Colors::DarkBlue,
         }
     }
 }

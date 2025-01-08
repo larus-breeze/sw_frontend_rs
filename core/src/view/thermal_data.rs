@@ -54,7 +54,8 @@ impl ThermalData {
             }
         }
     }
-    pub fn get_item(&mut self, alpha: f32, cm: &CoreModel) -> (Colors, f32) {
+
+    pub fn get_dotted_item(&mut self, alpha: f32, cm: &CoreModel) -> (Colors, f32) {
         let idx = Self::get_idx(alpha);
         let color = if idx == self.best_pos {
             cm.palette().therm_ass_best
@@ -62,6 +63,19 @@ impl ThermalData {
             cm.palette().therm_ass_good
         } else {
             cm.palette().therm_ass_bad
+        };
+        let value = self.climb_data[idx];
+        ( color, value )
+    }
+
+    pub fn get_spider_item(&mut self, alpha: f32, cm: &CoreModel) -> (Colors, f32) {
+        let idx = Self::get_idx(alpha);
+        let color = if idx == self.best_pos {
+            cm.palette().therm_ass_best
+        } else if self.climb_data[idx] > 0.0 {
+            cm.palette().therm2_ass_good
+        } else {
+            cm.palette().therm2_ass_bad
         };
         let value = self.climb_data[idx];
         ( color, value )
