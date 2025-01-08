@@ -138,6 +138,7 @@ impl Statistics {
             let low_prio_stats = &mut self.stats[low_prio_task_idx];
             low_prio_stats.last_start = now;
         } else if app::monotonics::now() > self.next_show {
+            self.next_show += DevDuration::secs(INTERVAL as u64);
             let mut workload: u32 = 0;
             info!("TaskCalls[/sec] Sum[ms/sec] Max[µs/loop]");
             for (idx, task_name) in TASK_NAMES.iter().enumerate().take(TASK_CNT) {
@@ -163,7 +164,6 @@ impl Statistics {
             }
             let workload = workload / (1_000_000 * INTERVAL as u32 / 100);
             info!("Workload {}%", workload);
-            self.next_show += DevDuration::secs(INTERVAL as u64);
         }
     }
 
