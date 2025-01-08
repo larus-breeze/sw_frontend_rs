@@ -71,7 +71,7 @@ impl ThermalData {
     pub fn get_spider_item(&mut self, alpha: f32, cm: &CoreModel) -> (Colors, f32) {
         let idx = Self::get_idx(alpha);
         let color = if idx == self.best_pos {
-            cm.palette().therm_ass_best
+            cm.palette().therm2_ass_best
         } else if self.climb_data[idx] > 0.0 {
             cm.palette().therm2_ass_good
         } else {
