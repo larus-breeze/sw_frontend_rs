@@ -59,7 +59,7 @@ impl From<u16> for PersistenceId {
             // Safety: Only valid or possible values are transmuted
             unsafe { core::mem::transmute::<u16, PersistenceId>(src) }
         } else {
-            panic!()
+            PersistenceId::DoNotStore
         }
     }
 }
