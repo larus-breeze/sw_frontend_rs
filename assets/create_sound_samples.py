@@ -1,100 +1,104 @@
 import math
 
-SAMPLES_COUNT = 40
+SAMPLES_COUNT = 20
 MAX_AMPLITUDE = 4095
-OFFSET = MAX_AMPLITUDE // 2
+HALF_AMPLITUDE = MAX_AMPLITUDE // 2
 
-def silent_wave(_reduced):
-    samples = []
-    for _ in range(SAMPLES_COUNT):
-        samples.append(str(OFFSET))
-    return samples
-
-def triangular_wave(reduced):
-    value = OFFSET
-    if reduced:
-        delta = 4 * OFFSET / SAMPLES_COUNT / 10
-    else:
-        delta = 4 * OFFSET / SAMPLES_COUNT
+def triangular_wave():
+    value = 0.0
+    delta = 4 * HALF_AMPLITUDE / SAMPLES_COUNT
     count = SAMPLES_COUNT // 4
     samples = []
     for _ in range(count):
         value += delta
-        samples.append(str(int(value)))
+        samples.append(value)
     for _ in range(count):
         value -= delta
-        samples.append(str(int(value)))
+        samples.append(value)
     for _ in range(count):
         value -= delta
-        samples.append(str(int(value)))
+        samples.append(value)
     for _ in range(count):
         value += delta
-        samples.append(str(int(value)))
+        samples.append(value)
     return samples
 
-def sawtooth_wave(reduced):
-    if reduced:
-        delta = 2 * OFFSET / SAMPLES_COUNT / 10
-    else:
-        delta = 2 * OFFSET / SAMPLES_COUNT
+def sawtooth_wave():
+    delta = 2 * HALF_AMPLITUDE / SAMPLES_COUNT
     count = SAMPLES_COUNT // 2
     samples = []
 
-    value = OFFSET
+    value = 0.0
     for _ in range(count):
         value += delta
-        samples.append(str(int(value)))
+        samples.append(value)
 
-    if reduced:
-        value = OFFSET - OFFSET / 10
-    else:
-        value = OFFSET
+    value = float(-HALF_AMPLITUDE - delta)
 
     for _ in range(count):
         value += delta
-        samples.append(str(int(value)))
+        samples.append(value)
     return samples
 
-def rectangular_wave(reduced):
-    if reduced:
-        delta = OFFSET / 10
-    else:
-        delta = OFFSET
+def rectangular_wave():
+    delta = float(HALF_AMPLITUDE)
     count = SAMPLES_COUNT // 2
     samples = []
     for _ in range(count):
-        samples.append(str(int(OFFSET + delta)))
+        samples.append( + delta)
     for _ in range(count):
-        samples.append(str(int(OFFSET - delta)))
+        samples.append( - delta)
     return samples
     
-def sine_wave(reduced):
-    if reduced:
-        factor = 204.7
-    else:
-        factor = 2047
+def sine_wave():
+    factor = 2047.0
     count = SAMPLES_COUNT
     dy = 2 * math.pi / count
     samples = []
-    y = 0
+    y = 0.0
     for _ in range(count):
         y += dy
-        samples.append(str(int(OFFSET + factor * math.sin(y))))
+        samples.append(factor * math.sin(y))
     return samples
 
-def print_samples(f, reduced, name):
-    samples = f(reduced)
-    print("#[allow(unused)]")
-    print(f"const {name}: [u16; SAMPLES_CNT] = [" )
-    print("    " + ", ".join(samples))
-    print("];\n")
+def volume():
+    samples = []
+    for idx in range(SAMPLES_COUNT):
+        samples.append(0.9659363**(19 - idx))
+    return samples
 
-print_samples(silent_wave, False, "SILENT_WAVE")
-print_samples(triangular_wave, False, "TRIANGULAR_WAVE")
-print_samples(triangular_wave, True, "TRIANGULAR_20DB_WAVE")
-print_samples(sawtooth_wave, False, "SAWTOOTH_WAVE")
-print_samples(sawtooth_wave, True, "SAWTOOTH_20DB_WAVE")
-print_samples(rectangular_wave, False, "RECTANGULAR_WAVE")
-print_samples(rectangular_wave, True, "RECTANGULAR_20DB_WAVE")
-print_samples(sine_wave, False, "SINE_WAVE")
-print_samples(sine_wave, True, "SINE_20DB_WAVE")
+def get_samples(f, name, exact):
+    to_store = []
+    
+    if exact:
+        for sample in f():
+            to_store.append(f"{sample:0.5f}")
+    else:
+        for sample in f():
+            to_store.append(f"{sample:0.1f}")
+    
+    s = '\n'
+    s += "#[allow(unused)]\n"
+    s += f"pub const {name}: [f32; SAMPLES_COUNT] = [\n" 
+    s += "    " + ", ".join(to_store)
+    s += "];\n"
+    return s
+
+def get_file_content():
+    content = "// Created by 'create_sound_samples.py' - do not edit\n\n"
+    content += f"pub const SAMPLES_COUNT: usize = {SAMPLES_COUNT};\n"
+    content += get_samples(triangular_wave, "TRIANGULAR_WAVE", False)
+    content += get_samples(sawtooth_wave, "SAWTOOTH_WAVE", False)
+    content += get_samples(rectangular_wave, "RECTANGULAR_WAVE", False)
+    content += get_samples(sine_wave, "SINE_WAVE", False)
+    content += get_samples(volume, "VOLUME_FACTORS", True)
+    return content
+
+def write_to_file(file_name, content):
+    with open(file_name, 'w') as f:
+        f.write(content)
+    print(f"file '{file_name}' created")
+
+content = get_file_content()
+write_to_file('device/larus_frontend_v1/src/utils/samples.rs', content)
+write_to_file('device/larus_frontend_v2/src/utils/samples.rs', content)
