@@ -1,3 +1,4 @@
+pub mod samples;
 mod statistics;
 mod update;
 mod version;

@@ -26,52 +26,8 @@ use stm32h7xx_hal::{
     pac,
     pac::{DAC, DMA1},
 };
-
-const SAMPLES_CNT: usize = 20;
-#[allow(unused)]
-const SILENT_WAVE: [u16; SAMPLES_CNT] = [
-    2047, 2047, 2047, 2047, 2047, 2047, 2047, 2047, 2047, 2047, 2047, 2047, 2047, 2047, 2047, 2047,
-    2047, 2047, 2047, 2047,
-];
-#[allow(unused)]
-const TRIANGULAR_WAVE: [u16; SAMPLES_CNT] = [
-    2456, 2866, 3275, 3685, 4094, 3685, 3275, 2866, 2456, 2047, 1637, 1228, 818, 409, 0, 409, 818,
-    1228, 1637, 2047,
-];
-#[allow(unused)]
-const TRIANGULAR_20DB_WAVE: [u16; SAMPLES_CNT] = [
-    2087, 2128, 2169, 2210, 2251, 2210, 2169, 2128, 2087, 2046, 2006, 1965, 1924, 1883, 1842, 1883,
-    1924, 1965, 2006, 2046,
-];
-#[allow(unused)]
-const SAWTOOTH_WAVE: [u16; SAMPLES_CNT] = [
-    2251, 2456, 2661, 2866, 3070, 3275, 3480, 3685, 3889, 4094, 204, 409, 614, 819, 1023, 1228,
-    1433, 1638, 1842, 2047,
-];
-#[allow(unused)]
-const SAWTOOTH_20DB_WAVE: [u16; SAMPLES_CNT] = [
-    2067, 2087, 2108, 2128, 2149, 2169, 2190, 2210, 2231, 2251, 1863, 1883, 1904, 1924, 1945, 1965,
-    1986, 2006, 2027, 2047,
-];
-#[allow(unused)]
-const RECTANGULAR_WAVE: [u16; SAMPLES_CNT] = [
-    4094, 4094, 4094, 4094, 4094, 4094, 4094, 4094, 4094, 4094, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-];
-#[allow(unused)]
-const RECTANGULAR_20DB_WAVE: [u16; SAMPLES_CNT] = [
-    2251, 2251, 2251, 2251, 2251, 2251, 2251, 2251, 2251, 2251, 1843, 1843, 1843, 1843, 1843, 1843,
-    1843, 1843, 1843, 1843,
-];
-#[allow(unused)]
-const SINE_WAVE: [u16; SAMPLES_CNT] = [
-    2680, 3251, 3704, 3995, 4095, 3995, 3704, 3251, 2680, 2048, 1415, 844, 391, 100, 0, 100, 391,
-    844, 1415, 2047,
-];
-#[allow(unused)]
-const SINE_20DB_WAVE: [u16; SAMPLES_CNT] = [
-    2111, 2168, 2213, 2242, 2252, 2242, 2213, 2168, 2111, 2048, 1984, 1927, 1882, 1853, 1843, 1853,
-    1882, 1927, 1984, 2047,
-];
+use super::H7_HCLK;
+use crate::utils::samples::*;
 
 #[derive(Clone, Copy, Format)]
 pub enum Waveform {
@@ -101,6 +57,10 @@ impl Waveform {
     }
 }
 
+#[link_section = ".axisram.AXISRAM"]
+static mut SAMPLES: [u16; SAMPLES_COUNT] = [2047; SAMPLES_COUNT];
+const SILENCE: [u16; SAMPLES_COUNT] = [2047; SAMPLES_COUNT];
+
 #[allow(unused)]
 pub struct Sound {
     dac: C1<DAC, Disabled>,
@@ -116,12 +76,12 @@ pub struct Sound {
     continous: bool,
     gain: i8,
     waveform: Waveform,
+    old_gain: i8,
+    buffer: [u16; SAMPLES_COUNT],
 }
 
 impl Sound {
     pub fn new(dac: C1<DAC, Disabled>, tim: pac::TIM6, dma1_stream0: Stream0<DMA1>) -> Self {
-        let wave_ptr = TRIANGULAR_WAVE.as_ptr();
-
         unsafe {
             tim.cr2.write(|w| w.mms().bits(0b010)); // update event trigger output
             tim.arr.write(|w| w.arr().bits(11363)); // preload register
@@ -146,9 +106,9 @@ impl Sound {
             dmamux1.ccr[0].write(|w| w.dmareq_id().bits(0x43));
 
             let dma1 = &(*pac::DMA1::ptr());
-            dma1.st[0].ndtr.write(|w| w.bits(SAMPLES_CNT as u32)); // cnt dma
+            dma1.st[0].ndtr.write(|w| w.bits(SAMPLES_COUNT as u32)); // cnt dma
             dma1.st[0].par.write(|w| w.bits(0x4000_7408)); // dst 12 Bit DAC register
-            dma1.st[0].m0ar.write(|w| w.bits(wave_ptr as u32));
+            dma1.st[0].m0ar.write(|w| w.bits(SAMPLES.as_ptr() as u32));
             // Bit 4     transfer complete ie
             // Bit 7:6   0b01 memory to peripheral
             // Bit 8     circular mode
@@ -172,6 +132,8 @@ impl Sound {
             continous: false,
             gain: 0,
             waveform: Waveform::Triangular,
+            buffer: [2047; SAMPLES_COUNT],
+            old_gain: 0,
         }
     }
 
@@ -182,14 +144,34 @@ impl Sound {
     pub fn set_params(&mut self, fq: u16, continous: bool, gain: i8) {
         let devider = self.tim.arr.read().bits();
         self.wave_ctr = 0;
-        self.curr_f = 100_000_000.0 / SAMPLES_CNT as f32 / devider as f32;
+        self.curr_f = H7_HCLK as f32 / SAMPLES_COUNT as f32 / devider as f32;
         // Calculate delta frequency asume 10 Hz tick rate
         self.next_f = fq as f32;
         self.delta_f = (self.next_f - self.curr_f) / self.curr_f * 10.0;
-        // let devider = (100_000_000 / SAMPLES_CNT as u32 / fq as u32) as u16;
+        // let devider = (100_000_000 / SAMPLES_COUNT as u32 / fq as u32) as u16;
         // self.tim.arr.write(|w| w.arr().bits(devider)); // preload register
         self.continous = continous;
         self.gain = gain;
+
+        // get source pointer of sound samples
+        let wave = match self.waveform {
+            Waveform::Triangular => TRIANGULAR_WAVE,
+            Waveform::Sawtooth => SAWTOOTH_WAVE,
+            Waveform::Rectangular => RECTANGULAR_WAVE,
+            Waveform::SineWave => SINE_WAVE,
+        };
+
+        // get volume_factor 
+        let volume_factor = if self.gain > 30 && self.gain <= 50 {
+            VOLUME_FACTORS[self.gain as usize - 31] // 31..
+        } else {
+            0.5
+        };
+
+        // copy changes into buffer
+        for idx in 0..(SAMPLES_COUNT) {
+                self.buffer[idx] = 2047 + (wave[idx] * volume_factor) as u16;
+        }
     }
 
     pub fn set_waveform(&mut self, waveform: Waveform) {
@@ -202,6 +184,7 @@ impl Sound {
     }
 
     pub fn on_interrupt(&mut self) {
+        // we have accept the dam interrupt request, so unsafe is necessary here
         let dma1 = unsafe { &(*pac::DMA1::ptr()) };
         dma1.lifcr.write(|w| w.ctcif0().set_bit());
 
@@ -209,7 +192,7 @@ impl Sound {
         self.curr_f += self.delta_f;
         self.wave_ctr += 1;
         if self.curr_f > 200.0 && self.curr_f < 2000.0 {
-            let devider = (100_000_000 / SAMPLES_CNT as u32 / self.curr_f as u32) as u16;
+            let devider = (H7_HCLK / SAMPLES_COUNT as u32 / self.curr_f as u32) as u16;
             self.tim.arr.write(|w| w.arr().bits(devider)); // preload register
         }
 
@@ -234,36 +217,22 @@ impl Sound {
                     true => self.set_wave(false),
                     false => self.set_wave(true),
                 },
-            }
+            } 
+        } else if self.old_gain != self.gain {
+            self.set_wave(self.on);
         }
     }
 
+
     fn set_wave(&mut self, sound_on: bool) {
         self.on = sound_on;
-        let wave_ptr = if sound_on {
-            if self.gain > 30 {
-                match self.waveform {
-                    Waveform::Triangular => TRIANGULAR_WAVE.as_ptr(),
-                    Waveform::Sawtooth => SAWTOOTH_WAVE.as_ptr(),
-                    Waveform::Rectangular => RECTANGULAR_WAVE.as_ptr(),
-                    Waveform::SineWave => SINE_WAVE.as_ptr(),
-                }
-            } else {
-                match self.waveform {
-                    Waveform::Triangular => TRIANGULAR_20DB_WAVE.as_ptr(),
-                    Waveform::Sawtooth => SAWTOOTH_20DB_WAVE.as_ptr(),
-                    Waveform::Rectangular => RECTANGULAR_20DB_WAVE.as_ptr(),
-                    Waveform::SineWave => SINE_20DB_WAVE.as_ptr(),
-                }
-            }
+        self.old_gain = self.gain;
+
+        // unsafe ist ok her becaus the access ist synchronized to dma access
+        if sound_on {
+            unsafe { SAMPLES = self.buffer; }
         } else {
-            SILENT_WAVE.as_ptr()
-        };
-        let dma1 = unsafe { &(*pac::DMA1::ptr()) };
-        dma1.st[0].cr.modify(|_, w| w.en().clear_bit()); // stop dma transfer
-        dma1.st[0]
-            .m0ar
-            .write(|w| unsafe { w.bits(wave_ptr as u32) }); // src
-        dma1.st[0].cr.modify(|_, w| w.en().set_bit()); // start dma transfer
+            unsafe {  SAMPLES = SILENCE; }
+        }
     }
 }

@@ -5,6 +5,7 @@ use corelib::{
 };
 use cortex_m::peripheral::Peripherals as CorePeripherals;
 use defmt::*;
+use fugit::RateExtU32;
 use heapless::{mpmc::MpMcQueue, spsc::Queue};
 use st7789::ST7789;
 use stm32h7xx_hal::{
@@ -17,6 +18,8 @@ use stm32h7xx_hal::{
 };
 
 pub type DevCanDispatch = CanDispatch<VDA, 8, MAX_TX_FRAMES, MAX_RX_FRAMES, DevRng>;
+
+pub const H7_HCLK: u32 = 100_000_000;
 
 pub fn hw_init(
     dp: DevicePeripherals,
@@ -81,7 +84,7 @@ pub fn hw_init(
         .constrain()
         .use_hse(16.MHz())
         .sys_ck(200.MHz())
-        .hclk(100.MHz())
+        .hclk(H7_HCLK.Hz())
         .pll1_q_ck(50.MHz()) // CAN
         .pll2_p_ck(100.MHz()) // ?
         .pll2_r_ck(50.MHz()) // LCD
