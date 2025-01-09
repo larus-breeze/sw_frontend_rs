@@ -1,6 +1,14 @@
 Changelog
 =
 
+v0.3.2 Add Thermal Assistants and Two-Arrow Wind Display 
+- add thermal assistant "dotted"
+- add thermal assistant "spider"
+- add hawk-like two arrow wind display
+- bugfix sound hang-up in debog mode (Larus V1)
+- bugfix incrementing volume from 30 to 31 show anomalies (Larus V1 and Larus V2)
+- bugfix hangup when updated fw version has fewer persistence data
+
 v.0.3.1.3 Bug fix "Firmware Update via SdCard broken"
 - This problem only affects the Larus Frontend V2 hardware.
 - The error already existed in the firmware v.0.3.0.0
