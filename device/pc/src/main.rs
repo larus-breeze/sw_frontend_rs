@@ -216,14 +216,12 @@ fn main() -> Result<(), core::convert::Infallible> {
                     can_frame,
                     specific_id: id & 0x0f,
                     object_id: 2, // Sensorbox
-
                 })
             } else if id >= 0x140 && id <= 0x14f {
                 Frame::Specific(SpecificFrame {
                     can_frame,
                     specific_id: id & 0x0f,
                     object_id: 3, // GPS
-
                 })
             } else {
                 Frame::Legacy(can_frame)

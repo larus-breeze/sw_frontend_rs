@@ -13,6 +13,7 @@ use u8g2_fonts::{
     FontRenderer,
 };
 
+#[derive(PartialEq)]
 pub struct Horizon {}
 
 impl Horizon {
