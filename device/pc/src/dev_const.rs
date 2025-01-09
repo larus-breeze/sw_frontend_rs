@@ -51,7 +51,6 @@ const fn display_sizes() -> DisplaySizes {
         screen_center: Point::new(240, 240),
         m_s: Size::new(45, 29),
         km_h: Size::new(56, 36),
-
     }
 }
 
@@ -74,36 +73,21 @@ const fn vario_sizes() -> VarioSizes {
         stf_diameter: 346,
         stf_width: 10,
         indicator_len: 71,
-        indicator_width: 18,
-        info_1_pos: Point::new(420, 200),
-        pic_info_1_pos: Point::new(390, 125),
-        mc_width: 0.14,
-        mc_len: 33,
-        tcr_width: 0.25,
-        tcr_len: 33,
         glider_pos: Point::new(129, 205),
         north_pos: Point::new(216, 14),
-        bat_pos: Point::new(375, 300),
-        sat_pos: Point::new(410, 300),
+        bat_pos: Point::new(385, 130),
+        sat_pos: Point::new(420, 130),
         unit_pos: Point::new(208, 432),
         info1_pos: Point::new(240, 120),
         info2_pos: Point::new(240, 360),
-        wind_len: 120,
+        info3_pos: Point::new(410, 280),
+        pic_info3_pos: Point::new(380, 205),
+        small_gld_size: Size::new(40, 17),
+        ta_circle_radius: 65,
+        ta_point_diameter: 15,
+        wind_len: 150,
         wind_len_min: 80,
         angle_m_s: 25.0,
-        wp_vario_scale: [
-            (338, 413, "5"),
-            (261, 445, "4"),
-            (178, 441, "3"),
-            (104, 402, "2"),
-            (54, 336, "1"),
-            (36, 255, "0"),
-            (54, 174, "1"),
-            (104, 108, "2"),
-            (178, 69, "3"),
-            (261, 65, "4"),
-            (338, 97, "5"),
-        ],
     }
 }
 
@@ -119,10 +103,11 @@ const fn images() -> Images {
         km_h: include_bytes_aligned!(4, "../assets/km_h.lif"),
         m_s: include_bytes_aligned!(4, "../assets/m_s.lif"),
         sat: include_bytes_aligned!(4, "../assets/sat.lif"),
+        small_glider: include_bytes_aligned!(4, "../assets/small_glider.lif"),
         wp_horizon: include_bytes_aligned!(4, "../assets/wp_horizon.lif"),
         wp_vario: include_bytes_aligned!(4, "../assets/wp_vario.lif"),
     }
 }
 
-pub const SMALL_FONT: FontRenderer = FontRenderer::new::<fonts::u8g2_font_fub17_tf>();
+pub const SMALL_FONT: FontRenderer = FontRenderer::new::<fonts::u8g2_font_fub25_tf>();
 pub const BIG_FONT: FontRenderer = FontRenderer::new::<fonts::u8g2_font_fub30_tf>();

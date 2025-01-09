@@ -1,6 +1,6 @@
 use crate::{
     system_of_units::{FloatToSpeed, Speed},
-    view::viewable::LineView,
+    view::viewable::{centerview::CenterView, lineview::LineView},
     Palette,
 };
 use core::{convert::From, mem::transmute};
@@ -44,8 +44,10 @@ pub struct Config {
     pub alt_stf_thermal_climb: bool,
     pub theme: &'static Palette,
     pub uuid: u32,
-    pub info1_content: LineView,
-    pub info2_content: LineView,
+    pub info1: LineView,
+    pub info2: LineView,
+    pub center_circling: CenterView,
+    pub center_straignt: CenterView,
 }
 
 impl Config {
@@ -66,8 +68,10 @@ impl Config {
             alt_stf_thermal_climb: false,
             theme,
             uuid,
-            info1_content: LineView::None,
-            info2_content: LineView::WindAndDelta,
+            info1: LineView::None,
+            info2: LineView::WindAndDelta,
+            center_circling: CenterView::SingleArrowCircling,
+            center_straignt: CenterView::SingleArrowStraight,
         }
     }
 }

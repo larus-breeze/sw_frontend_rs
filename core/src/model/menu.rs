@@ -43,8 +43,14 @@ impl MenuItem {
 pub const ROOT_IDX: usize = 0;
 pub const FLIGHT_MENU_IDX: usize = 1;
 pub const VARIO_SETINGS_IDX: usize = 2;
+pub const VIEW_SETINGS_IDX: usize = 3;
 
-pub const MENU_LIST: &[Menu] = &[ROOT, FLIGHT_MENU, VARIO_SETTINGS];
+pub const MENU_LIST: &[Menu] = &[
+    ROOT, 
+    FLIGHT_MENU, 
+    VARIO_SETTINGS,
+    VIEW_SETTINGS
+];
 
 pub const ROOT: Menu = Menu {
     name: "Root",
@@ -84,27 +90,15 @@ pub const FLIGHT_MENU: Menu = Menu {
 };
 
 pub const VARIO_SETTINGS: Menu = Menu {
-    name: "Vario Settings",
+    name: "Settings",
     level: 1,
     items: &[
-        MenuItem {
-            content: MenuItemContent::EditItem(Editable::Display),
-            next_menu_idx: VARIO_SETINGS_IDX,
-        },
         MenuItem {
             content: MenuItemContent::EditItem(Editable::Glider),
             next_menu_idx: VARIO_SETINGS_IDX,
         },
         MenuItem {
-            content: MenuItemContent::EditItem(Editable::Info1),
-            next_menu_idx: VARIO_SETINGS_IDX,
-        },
-        MenuItem {
-            content: MenuItemContent::EditItem(Editable::Info2),
-            next_menu_idx: VARIO_SETINGS_IDX,
-        },
-        MenuItem {
-            content: MenuItemContent::EditItem(Editable::Rotation),
+            content: MenuItemContent::EditItem(Editable::Display),
             next_menu_idx: VARIO_SETINGS_IDX,
         },
         MenuItem {
@@ -120,8 +114,43 @@ pub const VARIO_SETTINGS: Menu = Menu {
             next_menu_idx: VARIO_SETINGS_IDX,
         },
         MenuItem {
+            content: MenuItemContent::MenuItem(),
+            next_menu_idx: VIEW_SETINGS_IDX,
+        },
+        MenuItem {
             content: MenuItemContent::EditItem(Editable::Return),
             next_menu_idx: ROOT_IDX,
+        },
+    ],
+};
+
+pub const VIEW_SETTINGS: Menu = Menu {
+    name: "Views",
+    level: 1,
+    items: &[
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::Info1),
+            next_menu_idx: VIEW_SETINGS_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::Info2),
+            next_menu_idx: VIEW_SETINGS_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::CenterViewCircling),
+            next_menu_idx: VIEW_SETINGS_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::CenterViewStraight),
+            next_menu_idx: VIEW_SETINGS_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::Rotation),
+            next_menu_idx: VIEW_SETINGS_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::Return),
+            next_menu_idx: VARIO_SETINGS_IDX,
         },
     ],
 };

@@ -9,7 +9,7 @@ pub enum Rotation {
     Rotate0,
     Rotate90,
     Rotate180,
-    Rotate270
+    Rotate270,
 }
 
 impl Rotation {

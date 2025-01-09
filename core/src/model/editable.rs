@@ -12,7 +12,11 @@
 ///   - Then the enum Editable is extended by the new element (see below)
 ///   - Extend necessary mehtods params(), name(), content(), set_...()
 use crate::{
-    model::VarioModeControl, utils::{TString, Variant}, view::viewable::{Placement, LineView}, CoreController, CoreModel, Echo, FloatToMass, FloatToSpeed, PersistenceId, Polar, Rotation, POLARS, POLAR_COUNT
+    model::VarioModeControl,
+    utils::{TString, Variant},
+    view::viewable::{centerview::{CenterType, CenterView}, lineview::{LineView, Placement}},
+    CoreController, CoreModel, Echo, FloatToMass, FloatToSpeed, PersistenceId, Polar, Rotation,
+    POLARS, POLAR_COUNT,
 };
 
 use super::DisplayActive;
@@ -38,6 +42,8 @@ pub enum Editable {
     Info2,
     Rotation,
     CenterFrequency,
+    CenterViewCircling,
+    CenterViewStraight,
 }
 
 #[derive(Clone, Copy)]
@@ -181,7 +187,7 @@ impl Editable {
             Editable::Info1 => Params::List(ListParams {
                 max: LineView::max(Placement::Top) as i32,
             }),
-            Editable::Info2 =>  Params::List(ListParams {
+            Editable::Info2 => Params::List(ListParams {
                 max: LineView::max(Placement::Bottom) as i32,
             }),
             Editable::Rotation => Params::Enum(EnumParams {
@@ -200,6 +206,12 @@ impl Editable {
                 big_inc: 10.0,
                 dec_places: 0,
                 unit: TString::<5>::from_str("Hz"),
+            }),
+            Editable::CenterViewCircling => Params::List(ListParams {
+                max: CenterView::max(CenterType::Circling) as i32
+            }),
+            Editable::CenterViewStraight => Params::List(ListParams {
+                max: CenterView::max(CenterType::Straight) as i32
             }),
         }
     }
@@ -223,6 +235,8 @@ impl Editable {
             Editable::Info2 => TString::<16>::from_str("Info 2 Content"),
             Editable::Rotation => TString::<16>::from_str("Display Rotation"),
             Editable::CenterFrequency => TString::<16>::from_str("Center Frequency"),
+            Editable::CenterViewCircling => TString::<16>::from_str("Center Circling"),
+            Editable::CenterViewStraight => TString::<16>::from_str("Center Straight"),
         }
     }
 
@@ -247,12 +261,20 @@ impl Editable {
                 if let Content::List(val) = content {
                     match self {
                         Editable::Glider => conv.write_str(POLARS[val as usize].name).unwrap(),
-                        Editable::Info1 => {
-                            conv.write_str(LineView::from_sorted(val as usize, Placement::Top).name()).unwrap()
-                        }
-                        Editable::Info2 => {
-                            conv.write_str(LineView::from_sorted(val as usize, Placement::Bottom).name()).unwrap()
-                        }
+                        Editable::Info1 => conv
+                            .write_str(LineView::from_sorted(val as usize, Placement::Top).name())
+                            .unwrap(),
+                        Editable::Info2 => conv
+                            .write_str(
+                                LineView::from_sorted(val as usize, Placement::Bottom).name(),
+                            )
+                            .unwrap(),
+                        Editable::CenterViewCircling => conv
+                            .write_str(CenterView::from_sorted(val as usize,CenterType::Circling).name())
+                            .unwrap(),
+                        Editable::CenterViewStraight => conv
+                            .write_str(CenterView::from_sorted(val as usize,CenterType::Straight).name())
+                            .unwrap(),
                         _ => (),
                     }
                 }
@@ -296,10 +318,14 @@ impl Editable {
             },
             Editable::Volume => Content::F32(cm.config.volume as f32),
             Editable::WaterBallast => Content::F32(cm.glider_data.water_ballast.to_kg()),
-            Editable::Info1 => Content::List(cm.config.info1_content.sorted_as_i32(Placement::Top)),
-            Editable::Info2 => Content::List(cm.config.info2_content.sorted_as_i32(Placement::Bottom)),
-            Editable::Rotation => Content::Enum(TString::<12>::from_str(cm.control.rotation.name())),
+            Editable::Info1 => Content::List(cm.config.info1.sorted_as_i32(Placement::Top)),
+            Editable::Info2 => Content::List(cm.config.info2.sorted_as_i32(Placement::Bottom)),
+            Editable::Rotation => {
+                Content::Enum(TString::<12>::from_str(cm.control.rotation.name()))
+            }
             Editable::CenterFrequency => Content::F32(cm.config.snd_center_freq as f32),
+            Editable::CenterViewCircling => Content::List(cm.config.center_circling.sorted_as_i32(CenterType::Circling)),
+            Editable::CenterViewStraight => Content::List(cm.config.center_straignt.sorted_as_i32(CenterType::Straight)),
         }
     }
 
@@ -338,14 +364,12 @@ impl Editable {
                     Echo::NmeaAndCan,
                 );
             }
-            Editable::Rotation => {
-                cc.persist_set(
-                    cm,
-                    Variant::Rotation(Rotation::from(val.as_str())),
-                    PersistenceId::Rotation,
-                    Echo::None,
-                )
-            }
+            Editable::Rotation => cc.persist_set(
+                cm,
+                Variant::Rotation(Rotation::from(val.as_str())),
+                PersistenceId::Rotation,
+                Echo::None,
+            ),
             _ => (),
         }
     }
@@ -396,7 +420,7 @@ impl Editable {
                 Variant::F32(val),
                 PersistenceId::CenterFrequency,
                 Echo::Can,
-            ),            
+            ),
             _ => (),
         }
     }
@@ -415,6 +439,14 @@ impl Editable {
             Editable::Info2 => {
                 let variant = LineView::from_sorted(val as usize, Placement::Bottom) as i32;
                 cc.persist_set(cm, Variant::I32(variant), PersistenceId::Info2, Echo::None)
+            }
+            Editable::CenterViewCircling => {
+                let variant = CenterView::from_sorted(val as usize, CenterType::Circling) as i32;
+                cc.persist_set(cm, Variant::I32(variant), PersistenceId::CenterViewCircling, Echo::None)
+            }
+            Editable::CenterViewStraight => {
+                let variant = CenterView::from_sorted(val as usize, CenterType::Straight) as i32;
+                cc.persist_set(cm, Variant::I32(variant), PersistenceId::CenterViewStraight, Echo::None)
             }
             _ => (),
         }

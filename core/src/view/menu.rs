@@ -13,6 +13,7 @@ use embedded_graphics::{
     Drawable,
 };
 
+#[derive(PartialEq)]
 pub struct MenuView {}
 
 impl MenuView {

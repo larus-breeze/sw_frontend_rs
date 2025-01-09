@@ -1,13 +1,16 @@
 use crate::{
     controller::{
-        helpers::{object_id, CanActive, can_ids::{gps, sensor, sensor_legacy}},
+        helpers::{
+            can_ids::{gps, sensor, sensor_legacy},
+            object_id, CanActive,
+        },
         Echo,
     },
     model::{GpsState, VarioModeControl},
-    AirSpeed, Angle, CanFrame, CoreController, CoreModel, F64ToCoord,
-    FloatToAcceleration, FloatToAngularVelocity, FloatToDensity, FloatToLength, FloatToMass,
-    FloatToPressure, FloatToSpeed, FlyMode, Frame, GenericFrame, GenericId, Latitude, Longitude,
-    PersistenceId, SpecificFrame, Variant,
+    AirSpeed, Angle, CanFrame, CoreController, CoreModel, F64ToCoord, FloatToAcceleration,
+    FloatToAngularVelocity, FloatToDensity, FloatToLength, FloatToMass, FloatToPressure,
+    FloatToSpeed, FlyMode, Frame, GenericFrame, GenericId, Latitude, Longitude, PersistenceId,
+    SpecificFrame, Variant,
 };
 use embedded_graphics::prelude::AngleUnit;
 
@@ -229,7 +232,6 @@ impl CoreController {
     }
 
     fn can_frame_read_sensor_values(&mut self, cm: &mut CoreModel, frame: &SpecificFrame) {
-
         let mut rdr = frame.can_frame.reader();
 
         match frame.specific_id {
@@ -240,7 +242,7 @@ impl CoreController {
                 if let Some(pitch) = rdr.pop_f32() {
                     cm.sensor.euler_pitch = pitch.rad();
                 }
-            },
+            }
             sensor::EULER_YAW_TURN_RATE => {
                 if let Some(yaw) = rdr.pop_f32() {
                     cm.sensor.euler_yaw = yaw.rad();
@@ -248,23 +250,25 @@ impl CoreController {
                 if let Some(turn_rate) = rdr.pop_f32() {
                     cm.sensor.turn_rate = turn_rate.rad_s();
                 }
-            },
+            }
             sensor::TAS_IAS => {
                 let tas = rdr.pop_f32();
                 let ias = rdr.pop_f32();
                 if tas.is_some() && ias.is_some() {
-                    cm.sensor.airspeed = AirSpeed::from_speeds(ias.unwrap().m_s(), tas.unwrap().m_s());
-               }
-            },
+                    cm.sensor.airspeed =
+                        AirSpeed::from_speeds(ias.unwrap().m_s(), tas.unwrap().m_s());
+                }
+            }
             sensor::VARIO_AV_VARIO => {
                 if let Some(climb_rate) = rdr.pop_f32() {
                     cm.sensor.climb_rate = climb_rate.m_s();
-                    cm.control.can_devices |= CanActive::SensorboxLegacy as u32; // vario ok -> canbus ok
+                    cm.control.can_devices |= CanActive::SensorboxLegacy as u32;
+                    // vario ok -> canbus ok
                 }
                 if let Some(average_climb_rate) = rdr.pop_f32() {
                     cm.sensor.average_climb_rate = average_climb_rate.m_s();
                 }
-            },
+            }
             sensor::WIND_DIR_SPEED => {
                 if let Some(wind_dir) = rdr.pop_f32() {
                     cm.sensor.wind_vector.set_angle(wind_dir.rad());
@@ -272,7 +276,7 @@ impl CoreController {
                 if let Some(wind_speed) = rdr.pop_f32() {
                     cm.sensor.wind_vector.set_speed(wind_speed.m_s());
                 }
-            },
+            }
             sensor::AV_WIND_DIR_SPEED => {
                 if let Some(avg_wind_dir) = rdr.pop_f32() {
                     cm.sensor.average_wind.set_angle(avg_wind_dir.rad());
@@ -280,7 +284,7 @@ impl CoreController {
                 if let Some(avg_wind_speed) = rdr.pop_f32() {
                     cm.sensor.average_wind.set_speed(avg_wind_speed.m_s());
                 }
-            },
+            }
             sensor::AMB_PRESS_AIR_DENS => {
                 if let Some(pressure) = rdr.pop_f32() {
                     cm.sensor.pressure = pressure.n_m2();
@@ -291,7 +295,7 @@ impl CoreController {
                 if let Some(density) = rdr.pop_f32() {
                     cm.sensor.density = density.kg_m3();
                 }
-            },
+            }
             sensor::G_FORCE_VERTICAL_GF => {
                 if let Some(g_force) = rdr.pop_f32() {
                     cm.sensor.g_force = g_force.m_s2();
@@ -299,7 +303,7 @@ impl CoreController {
                 if let Some(vertical_g_force) = rdr.pop_f32() {
                     cm.sensor.vertical_g_force = vertical_g_force.m_s2();
                 }
-            },
+            }
             sensor::SLIP_PITCH_ANGLE => {
                 if let Some(slip_angle) = rdr.pop_f32() {
                     cm.sensor.slip_angle = slip_angle.rad();
@@ -307,7 +311,7 @@ impl CoreController {
                 if let Some(nick_angle) = rdr.pop_f32() {
                     cm.sensor.nick_angle = nick_angle.rad();
                 }
-            },
+            }
             sensor::UBATT_CIRCLE_MODE => {
                 if let Some(_ubatt) = rdr.pop_f32() {
                     // we ignore ubatt from sensorbox device
@@ -317,7 +321,7 @@ impl CoreController {
                     2 => cm.control.fly_mode = FlyMode::Circling,
                     _ => (),
                 }
-            },
+            }
             _ => (),
         }
     }
