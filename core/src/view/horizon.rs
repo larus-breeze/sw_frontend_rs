@@ -39,16 +39,20 @@ impl Horizon {
         //
         let m_roll = -clamp(cm.sensor.euler_roll.to_radians(), -1.55, 1.55).tan();
         let m_pitch = clamp(cm.sensor.euler_pitch.to_radians(), -1.55, 1.55).tan();
-        let ah_center_y = (m_pitch * sizes.display.center.y as f32) as i32 + sizes.display.center.y;
+
+        // the y coordinate is not height / 2 because on rectangle display only quadratic content is used
+        let ah_center_x = sizes.display.width as i32 /2;
+        let ah_center_y = ah_center_x;
+        let ah_pitch_center_y = (m_pitch * ah_center_x as f32) as i32 + ah_center_y;
 
         if m_roll == 0.0 {
-            let corner_1 = Point::new(0, ah_center_y);
+            let corner_1 = Point::new(0, ah_pitch_center_y);
             let corner_2 = Point::new(sizes.display.width as i32, sizes.display.height as i32); 
             Rectangle::with_corners(corner_1, corner_2)
                 .into_styled(PrimitiveStyle::with_fill(cm.palette().horizon_earth))
                 .draw(display)?;
         } else if m_roll > 0.0 {
-            let start_y = ah_center_y - (m_roll * sizes.display.center.x as f32) as i32;
+            let start_y = ah_pitch_center_y - (m_roll * sizes.display.center.x as f32) as i32;
             let mut y = clamp(start_y, 0, sizes.display.height as i32 - 1) as usize;
             let m2_roll = 1.0 / m_roll; 
             while y < sizes.display.height as usize {
@@ -62,7 +66,7 @@ impl Horizon {
                 y += 1;
             }
         } else {
-            let start_y = ah_center_y + (m_roll * sizes.display.center.x as f32) as i32;
+            let start_y = ah_pitch_center_y + (m_roll * sizes.display.center.x as f32) as i32;
             let mut y = clamp(start_y, 0, sizes.display.height as i32 - 1) as usize;
             let m2_roll = 1.0 / m_roll;
             while y < sizes.display.height as usize {
@@ -95,7 +99,7 @@ impl Horizon {
 
         // draw roll marker
         //
-        SimpleIndicator::at_tip(sizes.display.center.y as i32 - 3, sizes.display.center)
+        SimpleIndicator::at_tip(ah_center_y - 3, Point::new(ah_center_x, ah_center_y))
             .rotate(roll_angle)
             .draw_colored(cm.palette().needle2, display)?;
 
@@ -109,15 +113,14 @@ impl Horizon {
         let dcy = sin_alpha * (sizes.display.width / 9) as f32;
 
         let style = PrimitiveStyle::with_stroke(cm.palette().scale, 2);
-        let (center_x, center_y) = (sizes.display.center.x, sizes.display.center.y);
         for mul in 1_i32..4 {
             let mul_dcx = (mul as f32 * dcx) as i32;
             let mul_dcy = (mul as f32 * dcy) as i32;
-            let p1 = Point::new(center_x - dx - mul_dcx, center_y - mul_dcy + dy);
-            let p2 = Point::new(center_x + dx - mul_dcx, center_y - mul_dcy - dy);
+            let p1 = Point::new(ah_center_x - dx - mul_dcx, ah_center_y - mul_dcy + dy);
+            let p2 = Point::new(ah_center_x + dx - mul_dcx, ah_center_y - mul_dcy - dy);
             Line::new(p1, p2).into_styled(style).draw(display)?;
-            let p1 = Point::new(center_x - dx + mul_dcx, center_y + mul_dcy + dy);
-            let p2 = Point::new(center_x + dx + mul_dcx, center_y + mul_dcy - dy);
+            let p1 = Point::new(ah_center_x - dx + mul_dcx, ah_center_y + mul_dcy + dy);
+            let p2 = Point::new(ah_center_x + dx + mul_dcx, ah_center_y + mul_dcy - dy);
             Line::new(p1, p2).into_styled(style).draw(display)?;
         }
 
@@ -128,7 +131,7 @@ impl Horizon {
         boxed_text(
             display,
             th_txt.as_str(),
-            Point::new(sizes.display.center.x, sizes.display.height as i32 - sizes.horizon.box_height / 2),
+            Point::new(ah_center_x, sizes.display.width as i32 - sizes.horizon.box_height / 2),
             &cm.device_const.big_font,
             sizes.horizon.t_width,
             sizes.horizon.box_height,
@@ -151,7 +154,7 @@ impl Horizon {
         }
         let t_col = cm.palette().needle5;
         let scale_inc = sizes.display.width as i32 / 10;
-        let x = ((diff * scale_inc as f32) / 10.0) as i32 + sizes.display.center.x;
+        let x = ((diff * scale_inc as f32) / 10.0) as i32 + ah_center_x;
         let p1 = Point::new(x, sizes.horizon.tc_needle_y);
         let p2 = Point::new(x + 10, sizes.horizon.tc_needle_y + sizes.horizon.tc_needle_delta);
         let p3 = Point::new(x - 10, sizes.horizon.tc_needle_y + sizes.horizon.tc_needle_delta);

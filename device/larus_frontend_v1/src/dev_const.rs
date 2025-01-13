@@ -63,7 +63,7 @@ const fn horizon_sizes() -> HorizonSizes {
         box_height: 32,
         tc_pos_y: 290,
         tc_needle_y: 240,
-        tc_needle_delta: -18,
+        tc_needle_delta: 18,
         pitch_scale_len: 20,
     }
 }
