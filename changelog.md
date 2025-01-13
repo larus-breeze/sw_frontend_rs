@@ -1,6 +1,10 @@
 Changelog
 =
 
+v0.3.2.5 Bug fix "AHRS display flickers massively"
+- better performance to horizon to avoid flickering
+- make fn draw_line_unchecked() unsafe to reflect missing range checks
+
 v0.3.2 Add Thermal Assistants and Two-Arrow Wind Display 
 - add thermal assistant "dotted"
 - add thermal assistant "spider"
