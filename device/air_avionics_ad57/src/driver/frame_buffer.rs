@@ -263,7 +263,7 @@ impl DrawImage for Display {
         self.rotation = rotation;
     }
 
-    fn draw_line_unchecked(&mut self, idx: usize, len: usize, color: Colors) {
+    unsafe fn draw_line_unchecked(&mut self, idx: usize, len: usize, color: Colors) {
         match self.rotation {
             Rotation::Rotate180 => {
                 let idx = AVAIL_PIXELS - idx - 1;
