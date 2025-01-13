@@ -84,7 +84,7 @@ impl DrawImage for Display {
     fn set_rotation(&mut self, _rotation: Rotation) {
     }
 
-    fn draw_line_unchecked(&mut self, idx: usize, len: usize, color: Colors) {
+    unsafe fn draw_line_unchecked(&mut self, idx: usize, len: usize, color: Colors) {
         for dx in 0..len {
             self.buf[idx + dx] = color.into_storage();
         }

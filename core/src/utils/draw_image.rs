@@ -52,7 +52,8 @@ pub trait DrawImage {
     const DISPLAY_WIDTH: u32;
     const DISPLAY_HEIGHT: u32;
 
-    fn draw_line_unchecked(&mut self, idx: usize, len: usize, color: Colors);
+    /// unsafe in this context means, that the caller has to check display limits
+    unsafe fn draw_line_unchecked(&mut self, idx: usize, len: usize, color: Colors);
 
     fn set_rotation(&mut self, rotation: Rotation);
 
@@ -161,7 +162,10 @@ pub trait DrawImage {
                 let n = img[idx] & 0b0011_1111;
                 match img[idx] & 0b1100_0000 {
                     0b0000_0000 => {
-                        self.draw_line_unchecked(img_idx as usize, n as usize, color);
+                        // We know, that we are within the display limits, so unsafe is ok
+                        unsafe {
+                            self.draw_line_unchecked(img_idx as usize, n as usize, color);
+                        }
                         img_idx += n as u32;
                     }
                     0b0100_0000 => img_idx += n as u32,

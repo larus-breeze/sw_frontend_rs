@@ -40,7 +40,7 @@ impl DrawImage for MockDisplay {
         self.rotation = rotation;
     }
 
-    fn draw_line_unchecked(&mut self, idx: usize, len: usize, color: Colors) {
+    unsafe fn draw_line_unchecked(&mut self, idx: usize, len: usize, color: Colors) {
         let x = (idx % (DISPLAY_WIDTH as usize)) as i32;
         let y = (idx / (DISPLAY_WIDTH as usize)) as i32;
         let top_left = Point::new(x, y);

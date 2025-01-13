@@ -143,7 +143,7 @@ impl DrawImage for Display {
         self.rotation = rotation;
     }
 
-    fn draw_line_unchecked(&mut self, idx: usize, len: usize, color: Colors) {
+    unsafe fn draw_line_unchecked(&mut self, idx: usize, len: usize, color: Colors) {
         match self.rotation {
             Rotation::Rotate0 => {
                 for dx in 0..len {
