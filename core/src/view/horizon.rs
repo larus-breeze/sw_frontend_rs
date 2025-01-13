@@ -45,6 +45,7 @@ impl Horizon {
         let ah_center_y = ah_center_x;
         let ah_pitch_center_y = (m_pitch * ah_center_x as f32) as i32 + ah_center_y;
 
+        // to achieve a good performance, we have to use draw_line_unchecked()
         if m_roll == 0.0 {
             let corner_1 = Point::new(0, ah_pitch_center_y);
             let corner_2 = Point::new(sizes.display.width as i32, sizes.display.height as i32); 
@@ -52,7 +53,7 @@ impl Horizon {
                 .into_styled(PrimitiveStyle::with_fill(cm.palette().horizon_earth))
                 .draw(display)?;
         } else if m_roll > 0.0 {
-            let start_y = ah_pitch_center_y - (m_roll * sizes.display.center.x as f32) as i32;
+            let start_y = ah_pitch_center_y - (m_roll * ah_center_x as f32) as i32;
             let mut y = clamp(start_y, 0, sizes.display.height as i32 - 1) as usize;
             let m2_roll = 1.0 / m_roll; 
             while y < sizes.display.height as usize {
@@ -61,12 +62,11 @@ impl Horizon {
                 // We know, that we are within the display limits, so unsafe is ok
                 unsafe {
                     display.draw_line_unchecked(y * sizes.display.width as usize, len, cm.palette().horizon_earth);
-
                 }
                 y += 1;
             }
         } else {
-            let start_y = ah_pitch_center_y + (m_roll * sizes.display.center.x as f32) as i32;
+            let start_y = ah_pitch_center_y + (m_roll * ah_center_x as f32) as i32;
             let mut y = clamp(start_y, 0, sizes.display.height as i32 - 1) as usize;
             let m2_roll = 1.0 / m_roll;
             while y < sizes.display.height as usize {
