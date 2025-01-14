@@ -105,14 +105,14 @@ impl MenuView {
 
         cm.device_const.big_font.render_aligned(
             menu.name,
-            Point::new(d_sizes.width as i32 / 2, d_sizes.height as i32 / 14),
+            Point::new(d_sizes.width as i32 / 2, d_sizes.height as i32 * 12 / 100),
             VerticalPosition::Top,
             HorizontalAlignment::Center,
             FontColor::Transparent(cm.palette().scale),
             display,
         )?;
 
-        let y = d_sizes.height as i32 / 5;
+        let y = d_sizes.height as i32 * 22 / 100;
 
         Line::new(Point::new(0, y), Point::new(d_sizes.width as i32, y))
             .into_styled(PrimitiveStyle::with_stroke(cm.palette().scale, 1))
