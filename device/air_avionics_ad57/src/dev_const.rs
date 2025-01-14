@@ -1,5 +1,5 @@
 use crate::{HW_VERSION, SW_VERSION};
-use corelib::{DeviceConst, DisplaySizes, HorizonSizes, Images, Misc, Palette, Sizes, VarioSizes};
+use corelib::{DeviceConst, DisplaySizes, EditMode, HorizonSizes, Images, Misc, Palette, Sizes, VarioSizes};
 use embedded_graphics::geometry::{Point, Size};
 use u8g2_fonts::{fonts, FontRenderer};
 
@@ -38,6 +38,7 @@ const fn misc() -> Misc {
     Misc {
         sw_version: SW_VERSION,
         hw_version: HW_VERSION,
+        edit_mode: EditMode::Fullscreen,
     }
 }
 
@@ -104,6 +105,7 @@ const fn images() -> Images {
         m_s: include_bytes_aligned!(4, "../assets/m_s.lif"),
         sat: include_bytes_aligned!(4, "../assets/sat.lif"),
         small_glider: include_bytes_aligned!(4, "../assets/small_glider.lif"),
+        wp_editor: include_bytes_aligned!(4, "../assets/wp_editor.lif"),
         wp_horizon: include_bytes_aligned!(4, "../assets/wp_horizon.lif"),
         wp_vario: include_bytes_aligned!(4, "../assets/wp_vario.lif"),
     }

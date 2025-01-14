@@ -1,7 +1,7 @@
 use crate::{
     basic_config::SECTION_EDITOR_TIMEOUT,
     controller::{helpers::IntToDuration, KeyEvent, Timer},
-    model::{editable::*, DisplayActive, EditMode},
+    model::{editable::*, DisplayActive, EditMode, OverlayActive},
     utils::TString,
     CoreController, CoreModel, Editable,
 };
@@ -94,7 +94,7 @@ fn edit_list_content(
 }
 
 pub fn key_action(key_event: &mut KeyEvent, cm: &mut CoreModel, cc: &mut CoreController) {
-    if cm.control.editor.mode == EditMode::Section {
+    if cm.control.editor.mode != EditMode::Off {
         if *key_event == KeyEvent::BtnEnc {
             let _ = cc.scheduler.stop(Timer::CloseEditFrame, true); // finish edit session
         } else {
@@ -113,7 +113,7 @@ pub fn key_action(key_event: &mut KeyEvent, cm: &mut CoreModel, cc: &mut CoreCon
             Params::F32(params) => edit_f32_content(cm, cc, key_event, target, &params),
         }
     }
-    if cm.config.display_active != DisplayActive::Menu {
+    if cm.config.display_active != DisplayActive::Menu && cm.config.overlay_active != OverlayActive::Menu {
         match key_event {
             KeyEvent::Rotary1Left
             | KeyEvent::Rotary1Right
@@ -133,7 +133,12 @@ pub fn activate_editable(editable: Editable, cm: &mut CoreModel, cc: &mut CoreCo
     cm.control.editor.target = editable;
     cm.control.editor.params = editable.params();
     cm.control.editor.content = editable.content(cm);
-    cm.control.editor.mode = EditMode::Section;
+    if cm.config.display_active == DisplayActive::Menu {
+        cm.control.editor.mode = EditMode::Fullscreen
+    } else {
+        cm.control.editor.mode = cm.device_const.misc.edit_mode;
+    }
+    cm.config.overlay_active = OverlayActive::Editor;
     cc.scheduler
         .after(crate::Timer::CloseEditFrame, SECTION_EDITOR_TIMEOUT.secs());
 }
@@ -141,6 +146,7 @@ pub fn activate_editable(editable: Editable, cm: &mut CoreModel, cc: &mut CoreCo
 pub fn close_edit_frame(cm: &mut CoreModel, _cc: &mut CoreController) {
     // Close Editor if open
     cm.control.editor.mode = EditMode::Off;
+    cm.config.overlay_active = OverlayActive::None;
 }
 
 #[derive(Clone, Copy)]

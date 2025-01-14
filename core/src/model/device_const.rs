@@ -2,6 +2,8 @@ use crate::{utils::Colors, CoreModel, HwVersion, SwVersion};
 use embedded_graphics::geometry::{Point, Size};
 use u8g2_fonts::FontRenderer;
 
+use super::EditMode;
+
 pub struct DeviceConst {
     pub dark_theme: Palette,
     pub bright_theme: Palette,
@@ -27,6 +29,7 @@ pub struct Sizes {
 pub struct Misc {
     pub sw_version: SwVersion,
     pub hw_version: HwVersion,
+    pub edit_mode: EditMode,
 }
 
 pub struct DisplaySizes {
@@ -85,6 +88,7 @@ pub struct Images {
     pub m_s: &'static [u8],
     pub sat: &'static [u8],
     pub small_glider: &'static [u8],
+    pub wp_editor: &'static [u8],
     pub wp_horizon: &'static [u8],
     pub wp_vario: &'static [u8],
 }

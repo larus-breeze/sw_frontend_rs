@@ -55,8 +55,9 @@ impl From<u8> for VarioModeControl {
 #[derive(Clone, Copy, PartialEq)]
 pub enum EditMode {
     Off,
-    Section,
+    Window,
     Fullscreen,
+    CircleArea,
 }
 
 /// Enum for calculation of thermal climb rate
