@@ -50,6 +50,7 @@
 from PIL import Image
 import struct, os
 
+BLACK = 7
 DARK_GRAY = 24
 GOLD = 47
 LIME = 75
@@ -138,7 +139,6 @@ class LifGen():
                 idx_backgroud = None
 
                 def write_line(idx_col, px_cnt):
-                    # print(f"write_line cnt {px_cnt}, col {idx_col}")
                     nonlocal last_color
                     nonlocal file_size
                     nonlocal idx_backgroud
@@ -179,6 +179,7 @@ class LifGen():
                 file_size += len(color_dict) + 1
 
                 idx_col = None
+                idx_col_old = None
                 px_cnt = 0
                 delta = self.width - width
 
@@ -194,6 +195,9 @@ class LifGen():
                                 write_line(idx_col, px_cnt)
                                 idx_col = src_px[x, y]
                                 px_cnt = 1
+                        if idx_col != idx_col_old:
+                            # print(f"{idx_col} ", end='')
+                            idx_col_old = idx_col
 
                     if idx_col == idx_backgroud:
                         write_line(idx_col, px_cnt + delta)
@@ -219,6 +223,7 @@ lif_gen.generate(3, 'straight.png', {0: DARK_GRAY, 1: BACKGROUND})
 lif_gen.generate(3, 'km_h.png', {0: DARK_GRAY, 1: BACKGROUND})
 lif_gen.generate(3, 'm_s.png', {0: DARK_GRAY, 1: BACKGROUND})
 lif_gen.generate(3, 'sat.png', {0: DARK_GRAY, 2: BACKGROUND})
+lif_gen.generate(3, 'wp_editor.png', {1: RED, 2: BLACK, 0: BACKGROUND})
 lif_gen.generate(3, 'wp_vario.png', {0: DARK_GRAY, 255: BACKGROUND})
 lif_gen.generate(3, 'wp_horizon.png', {0: DARK_GRAY, 255: BACKGROUND})
 
@@ -234,6 +239,7 @@ lif_gen.generate(3, 'straight.png', {0: DARK_GRAY, 1: BACKGROUND})
 lif_gen.generate(3, 'km_h.png', {0: DARK_GRAY, 1: BACKGROUND})
 lif_gen.generate(3, 'm_s.png', {0: DARK_GRAY, 1: BACKGROUND})
 lif_gen.generate(3, 'sat.png', {0: DARK_GRAY, 1: BACKGROUND})
+lif_gen.generate(3, 'wp_editor.png', {1: RED, 2: BLACK, 0: BACKGROUND})
 lif_gen.generate(3, 'wp_vario.png', {0: WHITE, 255: BACKGROUND})
 lif_gen.generate(3, 'wp_horizon.png', {0: WHITE, 255: BACKGROUND})
 
@@ -249,5 +255,6 @@ lif_gen.generate(3, 'straight.png', {0: DARK_GRAY, 1: BACKGROUND})
 lif_gen.generate(3, 'km_h.png', {0: DARK_GRAY, 1: BACKGROUND})
 lif_gen.generate(3, 'm_s.png', {0: DARK_GRAY, 1: BACKGROUND})
 lif_gen.generate(3, 'sat.png', {0: DARK_GRAY, 1: BACKGROUND})
+lif_gen.generate(3, 'wp_editor.png', {1: RED, 2: BLACK, 0: BACKGROUND})
 lif_gen.generate(3, 'wp_vario.png', {0: WHITE, 255: BACKGROUND})
 lif_gen.generate(3, 'wp_horizon.png', {0: WHITE, 255: BACKGROUND})

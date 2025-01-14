@@ -6,7 +6,6 @@ use crate::{
 use core::{convert::From, mem::transmute};
 
 /// Possible displays
-#[repr(u8)]
 #[derive(Clone, Copy, PartialEq)]
 pub enum DisplayActive {
     Vario,
@@ -26,10 +25,18 @@ impl From<u8> for DisplayActive {
     }
 }
 
+#[derive(Clone, Copy, PartialEq)]
+pub enum OverlayActive {
+    None,
+    Editor,
+    Menu,
+}
+
 /// Metastructur for config variables
 #[derive(Clone, Copy)]
 pub struct Config {
     pub display_active: DisplayActive,
+    pub overlay_active: OverlayActive,
     pub last_display_active: DisplayActive,
     pub glider_idx: i32,
     pub volume: i8,
@@ -54,6 +61,7 @@ impl Config {
     pub fn default(theme: &'static Palette, uuid: u32) -> Self {
         Self {
             display_active: DisplayActive::Vario,
+            overlay_active: OverlayActive::None,
             last_display_active: DisplayActive::Vario,
             glider_idx: 104,
             volume: 2,

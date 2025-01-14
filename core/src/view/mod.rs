@@ -11,7 +11,7 @@ pub(crate) mod vario;
 pub(crate) mod viewable;
 
 use crate::{
-    model::{CoreModel, DisplayActive, EditMode},
+    model::{CoreModel, DisplayActive, OverlayActive},
     utils::Colors,
     view::{editor::Edit, fw_update::SwUpdate, horizon::Horizon, menu::MenuView, vario::Vario},
     CoreError, DrawImage,
@@ -35,6 +35,7 @@ enum PrimaryView {
 
 enum SecondaryView {
     Edit(Edit),
+    MenuView(MenuView),
 }
 
 pub struct CoreView<D>
@@ -85,10 +86,10 @@ where
             };
         }
 
-        self.secondary_view = if core_model.control.editor.mode == EditMode::Section {
-            Some(SecondaryView::Edit(Edit::new(core_model)))
-        } else {
-            None
+        self.secondary_view = match core_model.config.overlay_active {
+            OverlayActive::Editor => Some(SecondaryView::Edit(Edit::new(core_model))),
+            OverlayActive::Menu => Some(SecondaryView::MenuView(MenuView::new())),
+            OverlayActive::None => None,
         };
     }
 
@@ -97,7 +98,7 @@ where
             PrimaryView::Vario(vario) => vario.draw(&mut self.display, &self.core_model)?,
             PrimaryView::Horizon(horizon) => horizon.draw(&mut self.display, &self.core_model)?,
             PrimaryView::MenuView(menu_view) => {
-                menu_view.draw(&mut self.display, &self.core_model)?
+                menu_view.draw(&mut self.display, &self.core_model, false)?
             }
             PrimaryView::SwUpade(sw_update) => {
                 sw_update.draw(&mut self.display, &self.core_model)?
@@ -107,9 +108,9 @@ where
         if let Some(secondary_view) = &self.secondary_view {
             match secondary_view {
                 SecondaryView::Edit(edit) => edit.draw(&mut self.display, &self.core_model)?,
+                SecondaryView::MenuView(menu) => menu.draw(&mut self.display, &self.core_model, true)?,
             }
         }
-
         Ok(())
     }
 }

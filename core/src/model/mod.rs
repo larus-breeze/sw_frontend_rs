@@ -9,7 +9,7 @@ mod sensor;
 
 use crate::flight_physics::GliderData;
 use calculated::Calculated;
-pub use config::{Config, DisplayActive};
+pub use config::{Config, DisplayActive, OverlayActive};
 pub use control::{Control, EditMode, FlyMode, SystemState, TcrMode, VarioMode, VarioModeControl};
 use device::Device;
 pub use device_const::{
