@@ -113,6 +113,8 @@ pub struct Control {
     pub menu_control: MenuControl,
     /// Screen Rotation
     pub rotation: Rotation,
+    /// Reset Config
+    pub reset_config: i8,
 }
 
 impl Default for Control {
@@ -135,6 +137,7 @@ impl Default for Control {
             editor: Editor::new(),
             menu_control: MenuControl::new(),
             rotation: Rotation::Rotate0,
+            reset_config: 0,
         }
     }
 }

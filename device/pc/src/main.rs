@@ -15,6 +15,7 @@ use heapless::spsc::Queue;
 use std::{
     net::UdpSocket,
     time::{Duration, SystemTime, UNIX_EPOCH},
+    process,
 };
 use tcp::TcpServer;
 
@@ -186,8 +187,12 @@ fn main() -> Result<(), core::convert::Infallible> {
                 _ => (), // println!("IdleEvent {:?}", &idle_event),
             }
             match idle_event {
-                IdleEvent::EepromItem(item) => {
+                IdleEvent::SetEepromItem(item) => {
                     eeprom.write_item(item).unwrap();
+                }
+                IdleEvent::ClearEepromItem(item_id) => {
+                    eeprom.delete_item_id(item_id).unwrap();
+                    println!("ItemId {} deleted", item_id as u32);
                 }
                 IdleEvent::SdCardItem(item) => {
                     if item == SdCardCmd::SwUpdateCanceled {
@@ -197,6 +202,10 @@ fn main() -> Result<(), core::convert::Infallible> {
                 IdleEvent::FeedTheDog => (), // No Watchdog in this demo app
                 IdleEvent::SetGain(_) => (), // Sound is done via can datagram
                 IdleEvent::DateTime(_) => (), // Date and time for crash reports are not required
+                IdleEvent::ResetDevice => {
+                    println!("Device reset - please restart!");
+                    process::exit(1);
+                }
             }
         }
 

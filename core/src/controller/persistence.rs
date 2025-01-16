@@ -32,6 +32,7 @@ use crate::{
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum PersistenceId {
     DoNotStore = 65535,
+    DeleteAll = 65534,
     Volume = 0,
     McCready = 1,
     WaterBallast = 2,
@@ -63,6 +64,26 @@ impl From<u16> for PersistenceId {
         }
     }
 }
+
+const DELETE_CONFIG_LIST: [PersistenceId; 17] = [
+    PersistenceId::Volume,
+    PersistenceId::McCready,
+    PersistenceId::WaterBallast,
+    PersistenceId::PilotWeight,
+    PersistenceId::VarioModeControl,
+    PersistenceId::DisplayTheme,
+    PersistenceId::Qnh,
+    PersistenceId::Bugs,
+    PersistenceId::Display,
+    PersistenceId::TcClimbRate,
+    PersistenceId::TcSpeedToFly,
+    PersistenceId::Info1,
+    PersistenceId::Info2,
+    PersistenceId::Rotation,
+    PersistenceId::CenterFrequency,
+    PersistenceId::CenterViewCircling,
+    PersistenceId::CenterViewStraight,
+];
 
 #[derive(PartialEq)]
 pub enum Echo {
@@ -163,7 +184,7 @@ impl CoreController {
             PersistenceId::CenterViewStraight => PersistenceItem::from_u32(id, cm.config.center_straignt as u32),
             _ => PersistenceItem::do_not_store(),
         };
-        self.send_idle_event(crate::IdleEvent::EepromItem(p_item));
+        self.send_idle_event(crate::IdleEvent::SetEepromItem(p_item));
     }
 
     pub fn persist_set(
@@ -287,6 +308,19 @@ impl CoreController {
         self.scheduler
             .after(crate::Timer::PersistSetting, PERSISTENCE_TIMEOUT.millis());
         let _ = self.pers_vals.insert(id);
+    }
+
+    pub fn persist_delete_config(&mut self) {
+        for persistence_id in DELETE_CONFIG_LIST {
+            self.send_idle_event(crate::IdleEvent::ClearEepromItem(persistence_id));
+        }
+        self.send_idle_event(crate::IdleEvent::ResetDevice);
+    }
+
+    pub fn persist_factory_reset(&mut self) {
+        let item = PersistenceItem::from_i8(PersistenceId::DeleteAll, 0);
+        self.send_idle_event(crate::IdleEvent::SetEepromItem(item));
+        self.send_idle_event(crate::IdleEvent::ResetDevice);
     }
 }
 
