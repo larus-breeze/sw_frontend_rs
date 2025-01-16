@@ -311,9 +311,7 @@ impl CoreController {
     }
 
     pub fn persist_delete_config(&mut self) {
-        for persistence_id in DELETE_CONFIG_LIST {
-            self.send_idle_event(crate::IdleEvent::ClearEepromItem(persistence_id));
-        }
+        self.send_idle_event(crate::IdleEvent::ClearEepromItems(&DELETE_CONFIG_LIST));
         self.send_idle_event(crate::IdleEvent::ResetDevice);
     }
 

@@ -190,9 +190,8 @@ fn main() -> Result<(), core::convert::Infallible> {
                 IdleEvent::SetEepromItem(item) => {
                     eeprom.write_item(item).unwrap();
                 }
-                IdleEvent::ClearEepromItem(item_id) => {
-                    eeprom.delete_item_id(item_id).unwrap();
-                    println!("ItemId {} deleted", item_id as u32);
+                IdleEvent::ClearEepromItems(items_list) => {
+                    eeprom.delete_items_list(items_list).unwrap();
                 }
                 IdleEvent::SdCardItem(item) => {
                     if item == SdCardCmd::SwUpdateCanceled {

@@ -70,9 +70,8 @@ impl IdleLoop {
                         trace!("Stored id {:?}", item.id as u32);
                         self.eeprom.write_item(item).unwrap();
                     }
-                    IdleEvent::ClearEepromItem(item_id) => {
-                        trace!("Deleted id {:?}", item_id as u32);
-                        self.eeprom.delete_item_id(item_id).unwrap();
+                    IdleEvent::ClearEepromItems(items_list) => {
+                        self.eeprom.delete_items_list(items_list).unwrap();
                     }
                     IdleEvent::FeedTheDog => self.watchdog.feed(),
                     IdleEvent::SetGain(gain) => {

@@ -266,8 +266,16 @@ where
         PersistenceIterator::new(start_id, end_id, self)
     }
 
+    /// Delete all items of the given list
+    pub fn delete_items_list(&mut self, items_list: &[PersistenceId]) -> Result<(), CoreError> {
+        for item_id in items_list {
+            self.delete_item_id(*item_id)?;
+        }
+        Ok(())
+    }
+
     /// Deletes the bit in DAT => deletes the item in store 
-    pub fn delete_item_id(&mut self, id: PersistenceId) -> Result<(), CoreError> {
+    fn delete_item_id(&mut self, id: PersistenceId) -> Result<(), CoreError> {
         let byte_adr = eeprom::DAT + (id as u32) / 8;
         let bit_pattern: u8 = !(1 << ((id as u32) % 8));
         let found = self
