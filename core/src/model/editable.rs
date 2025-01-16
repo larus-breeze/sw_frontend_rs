@@ -44,7 +44,13 @@ pub enum Editable {
     CenterFrequency,
     CenterViewCircling,
     CenterViewStraight,
+    ResetConfig,
 }
+
+
+const DEFAULT_CONFIG: &str = "Default Config";
+const FACTORY_RESET: &str = "Factory Reset";
+const DO_NOT_CHANGE: &str = "Do not change";
 
 #[derive(Clone, Copy)]
 pub struct F32Params {
@@ -60,7 +66,7 @@ pub const MAX_ENUM_VARIANTS: usize = 5;
 
 #[derive(Clone, Copy)]
 pub struct EnumParams {
-    pub variants: [TString<12>; MAX_ENUM_VARIANTS],
+    pub variants: [TString<16>; MAX_ENUM_VARIANTS],
 }
 
 #[derive(Clone, Copy)]
@@ -84,7 +90,7 @@ pub enum Params {
 #[derive(Clone, Copy)]
 pub enum Content {
     F32(f32),
-    Enum(TString<12>),
+    Enum(TString<16>),
     String(TString<12>),
     List(i32),
 }
@@ -102,11 +108,11 @@ impl Editable {
             }),
             Editable::Display => Params::Enum(EnumParams {
                 variants: [
-                    TString::<12>::from_str("Vario"),
-                    TString::<12>::from_str("Horizon"),
-                    TString::<12>::from_str(""),
-                    TString::<12>::from_str(""),
-                    TString::<12>::from_str(""),
+                    TString::<16>::from_str("Vario"),
+                    TString::<16>::from_str("Horizon"),
+                    TString::<16>::from_str(""),
+                    TString::<16>::from_str(""),
+                    TString::<16>::from_str(""),
                 ],
             }),
             Editable::Glider => Params::List(ListParams {
@@ -152,20 +158,20 @@ impl Editable {
             }),
             Editable::Theme => Params::Enum(EnumParams {
                 variants: [
-                    TString::<12>::from_str("Dark"),
-                    TString::<12>::from_str("Bright"),
-                    TString::<12>::from_str(""),
-                    TString::<12>::from_str(""),
-                    TString::<12>::from_str(""),
+                    TString::<16>::from_str("Dark"),
+                    TString::<16>::from_str("Bright"),
+                    TString::<16>::from_str(""),
+                    TString::<16>::from_str(""),
+                    TString::<16>::from_str(""),
                 ],
             }),
             Editable::VarioModeControl => Params::Enum(EnumParams {
                 variants: [
-                    TString::<12>::from_str("Auto"),
-                    TString::<12>::from_str("SpeedToFly"),
-                    TString::<12>::from_str("Vario"),
-                    TString::<12>::from_str(""),
-                    TString::<12>::from_str(""),
+                    TString::<16>::from_str("Auto"),
+                    TString::<16>::from_str("SpeedToFly"),
+                    TString::<16>::from_str("Vario"),
+                    TString::<16>::from_str(""),
+                    TString::<16>::from_str(""),
                 ],
             }),
             Editable::Volume => Params::F32(F32Params {
@@ -192,11 +198,11 @@ impl Editable {
             }),
             Editable::Rotation => Params::Enum(EnumParams {
                 variants: [
-                    TString::<12>::from_str(Rotation::Rotate0.name()),
-                    TString::<12>::from_str(Rotation::Rotate90.name()),
-                    TString::<12>::from_str(Rotation::Rotate180.name()),
-                    TString::<12>::from_str(Rotation::Rotate270.name()),
-                    TString::<12>::from_str(""),
+                    TString::<16>::from_str(Rotation::Rotate0.name()),
+                    TString::<16>::from_str(Rotation::Rotate90.name()),
+                    TString::<16>::from_str(Rotation::Rotate180.name()),
+                    TString::<16>::from_str(Rotation::Rotate270.name()),
+                    TString::<16>::from_str(""),
                 ],
             }),
             Editable::CenterFrequency => Params::F32(F32Params {
@@ -212,6 +218,15 @@ impl Editable {
             }),
             Editable::CenterViewStraight => Params::List(ListParams {
                 max: CenterView::max(CenterType::Straight) as i32
+            }),
+            Editable::ResetConfig => Params::Enum(EnumParams {
+                variants: [
+                    TString::<16>::from_str(DEFAULT_CONFIG),
+                    TString::<16>::from_str(FACTORY_RESET),
+                    TString::<16>::from_str(DO_NOT_CHANGE),
+                    TString::<16>::from_str(""),
+                    TString::<16>::from_str(""),
+                ],
             }),
         }
     }
@@ -237,6 +252,7 @@ impl Editable {
             Editable::CenterFrequency => TString::<16>::from_str("Center Frequency"),
             Editable::CenterViewCircling => TString::<16>::from_str("Center Circling"),
             Editable::CenterViewStraight => TString::<16>::from_str("Center Straight"),
+            Editable::ResetConfig => TString::<16>::from_str("Configuration"),
         }
     }
 
@@ -292,8 +308,8 @@ impl Editable {
         match self {
             Editable::Bugs => Content::F32((cm.glider_data.bugs - 1.0) * 100.0),
             Editable::Display => match cm.config.last_display_active {
-                DisplayActive::Horizon => Content::Enum(TString::<12>::from_str("Horizon")),
-                _ => Content::Enum(TString::<12>::from_str("Vario")),
+                DisplayActive::Horizon => Content::Enum(TString::<16>::from_str("Horizon")),
+                _ => Content::Enum(TString::<16>::from_str("Vario")),
             },
             Editable::Glider => Content::List(cm.config.glider_idx),
             Editable::McCready => Content::F32(cm.config.mc_cready.to_m_s()),
@@ -304,16 +320,16 @@ impl Editable {
             Editable::TcSpeedToFly => Content::F32(cm.config.av_speed_to_fly_tc),
             Editable::Theme => {
                 if cm.config.theme == &cm.device_const.dark_theme {
-                    Content::Enum(TString::<12>::from_str("Dark"))
+                    Content::Enum(TString::<16>::from_str("Dark"))
                 } else {
-                    Content::Enum(TString::<12>::from_str("Bright"))
+                    Content::Enum(TString::<16>::from_str("Bright"))
                 }
             }
             Editable::VarioModeControl => match cm.control.vario_mode_control {
-                VarioModeControl::Auto => Content::Enum(TString::<12>::from_str("Auto")),
-                VarioModeControl::Vario => Content::Enum(TString::<12>::from_str("Vario")),
+                VarioModeControl::Auto => Content::Enum(TString::<16>::from_str("Auto")),
+                VarioModeControl::Vario => Content::Enum(TString::<16>::from_str("Vario")),
                 VarioModeControl::SpeedToFly => {
-                    Content::Enum(TString::<12>::from_str("SpeedToFly"))
+                    Content::Enum(TString::<16>::from_str("SpeedToFly"))
                 }
             },
             Editable::Volume => Content::F32(cm.config.volume as f32),
@@ -321,15 +337,23 @@ impl Editable {
             Editable::Info1 => Content::List(cm.config.info1.sorted_as_i32(Placement::Top)),
             Editable::Info2 => Content::List(cm.config.info2.sorted_as_i32(Placement::Bottom)),
             Editable::Rotation => {
-                Content::Enum(TString::<12>::from_str(cm.control.rotation.name()))
+                Content::Enum(TString::<16>::from_str(cm.control.rotation.name()))
             }
             Editable::CenterFrequency => Content::F32(cm.config.snd_center_freq as f32),
             Editable::CenterViewCircling => Content::List(cm.config.center_circling.sorted_as_i32(CenterType::Circling)),
             Editable::CenterViewStraight => Content::List(cm.config.center_straignt.sorted_as_i32(CenterType::Straight)),
+            Editable::ResetConfig =>{
+                let s = match cm.control.reset_config {
+                    0 => DEFAULT_CONFIG,
+                    1 => FACTORY_RESET,
+                    _ => DO_NOT_CHANGE,
+                };
+                Content::Enum(TString::<16>::from_str(s))
+            }
         }
     }
 
-    pub fn set_enum_content(&self, cm: &mut CoreModel, cc: &mut CoreController, val: &TString<12>) {
+    pub fn set_enum_content(&self, cm: &mut CoreModel, cc: &mut CoreController, val: &TString<16>) {
         match self {
             Editable::Display => match val.as_str() {
                 "Horizon" => cc.persist_set(
@@ -370,6 +394,21 @@ impl Editable {
                 PersistenceId::Rotation,
                 Echo::None,
             ),
+            Editable::ResetConfig => {
+                cm.control.reset_config = match val.as_str() {
+                    DEFAULT_CONFIG => 0,
+                    FACTORY_RESET => 1,
+                    _ => 2,
+                };
+                if cm.control.editor.enter_pushed {
+                    match cm.control.reset_config {
+                        0 => cc.persist_delete_config(),
+                        1 => cc.persist_factory_reset(),
+                        _ => (),
+                    }
+                } else {
+                }
+            },
             _ => (),
         }
     }
@@ -425,6 +464,7 @@ impl Editable {
         }
     }
 
+   
     #[allow(clippy::single_match)]
     pub fn set_list_content(&self, cm: &mut CoreModel, cc: &mut CoreController, val: i32) {
         match self {

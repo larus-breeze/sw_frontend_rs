@@ -44,12 +44,14 @@ pub const ROOT_IDX: usize = 0;
 pub const FLIGHT_MENU_IDX: usize = 1;
 pub const VARIO_SETINGS_IDX: usize = 2;
 pub const VIEW_SETINGS_IDX: usize = 3;
+pub const ADVANCED_SETINGS_IDX: usize = 4;
 
 pub const MENU_LIST: &[Menu] = &[
     ROOT, 
     FLIGHT_MENU, 
     VARIO_SETTINGS,
-    VIEW_SETTINGS
+    VIEW_SETTINGS,
+    ADVANCED_SETTINGS,
 ];
 
 pub const ROOT: Menu = Menu {
@@ -102,20 +104,12 @@ pub const VARIO_SETTINGS: Menu = Menu {
             next_menu_idx: VARIO_SETINGS_IDX,
         },
         MenuItem {
-            content: MenuItemContent::EditItem(Editable::TcClimbRate),
-            next_menu_idx: VARIO_SETINGS_IDX,
-        },
-        MenuItem {
-            content: MenuItemContent::EditItem(Editable::TcSpeedToFly),
-            next_menu_idx: VARIO_SETINGS_IDX,
-        },
-        MenuItem {
-            content: MenuItemContent::EditItem(Editable::CenterFrequency),
-            next_menu_idx: VARIO_SETINGS_IDX,
+            content: MenuItemContent::MenuItem(),
+            next_menu_idx: VIEW_SETINGS_IDX,
         },
         MenuItem {
             content: MenuItemContent::MenuItem(),
-            next_menu_idx: VIEW_SETINGS_IDX,
+            next_menu_idx: ADVANCED_SETINGS_IDX,
         },
         MenuItem {
             content: MenuItemContent::EditItem(Editable::Return),
@@ -147,6 +141,33 @@ pub const VIEW_SETTINGS: Menu = Menu {
         MenuItem {
             content: MenuItemContent::EditItem(Editable::Rotation),
             next_menu_idx: VIEW_SETINGS_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::Return),
+            next_menu_idx: VARIO_SETINGS_IDX,
+        },
+    ],
+};
+
+pub const ADVANCED_SETTINGS: Menu = Menu {
+    name: "Advanced",
+    level: 1,
+    items: &[
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::TcClimbRate),
+            next_menu_idx: ADVANCED_SETINGS_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::TcSpeedToFly),
+            next_menu_idx: ADVANCED_SETINGS_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::CenterFrequency),
+            next_menu_idx: ADVANCED_SETINGS_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::ResetConfig),
+            next_menu_idx: ADVANCED_SETINGS_IDX,
         },
         MenuItem {
             content: MenuItemContent::EditItem(Editable::Return),

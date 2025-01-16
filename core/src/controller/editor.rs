@@ -39,6 +39,7 @@ fn edit_enum_content(
                     idx += 1
                 }
             }
+            KeyEvent::BtnEnc => (),
             _ => return,
         }
         let idx = clamp(idx, 0, max) as usize;
@@ -62,6 +63,7 @@ fn edit_f32_content(
             KeyEvent::Rotary2Right => val += params.small_inc,
             KeyEvent::Rotary1Left => val -= params.big_inc,
             KeyEvent::Rotary1Right => val += params.big_inc,
+            KeyEvent::BtnEnc => (),
             _ => return,
         }
         let val = clamp(val, params.min, params.max);
@@ -84,6 +86,7 @@ fn edit_list_content(
             KeyEvent::Rotary2Right => val += 1,
             KeyEvent::Rotary1Left => val -= 10,
             KeyEvent::Rotary1Right => val += 10,
+            KeyEvent::BtnEnc => (),
             _ => return,
         }
         let val = clamp(val, 0, params.max);
@@ -96,6 +99,7 @@ fn edit_list_content(
 pub fn key_action(key_event: &mut KeyEvent, cm: &mut CoreModel, cc: &mut CoreController) {
     if cm.control.editor.mode != EditMode::Off {
         if *key_event == KeyEvent::BtnEnc {
+            cm.control.editor.enter_pushed = true;
             let _ = cc.scheduler.stop(Timer::CloseEditFrame, true); // finish edit session
         } else {
             cc.scheduler
@@ -133,6 +137,7 @@ pub fn activate_editable(editable: Editable, cm: &mut CoreModel, cc: &mut CoreCo
     cm.control.editor.target = editable;
     cm.control.editor.params = editable.params();
     cm.control.editor.content = editable.content(cm);
+    cm.control.editor.enter_pushed = false;
     if cm.config.display_active == DisplayActive::Menu {
         cm.control.editor.mode = EditMode::Fullscreen
     } else {
@@ -155,6 +160,7 @@ pub struct Editor {
     pub mode: EditMode,
     pub params: Params,
     pub content: Content,
+    pub enter_pushed: bool,
 }
 
 impl Default for Editor {
@@ -170,6 +176,7 @@ impl Editor {
             mode: EditMode::Off,
             params: Editable::None.params(),
             content: Content::String(TString::new()),
+            enter_pushed: false,
         }
     }
 

@@ -133,6 +133,31 @@ pub trait EepromTrait {
 
     /// Read starting in an address as many bytes as necessary to fill the data array provided.
     fn read_data(&mut self, address: u32, data: &mut [u8]) -> Result<(), CoreError>;
+
+    /// Clears the dat (data allocation table) == clear all data
+    fn clear_dat(&mut self) -> Result<(), CoreError> {
+        let mut address = eeprom::DAT;
+        let data = [0_u8; 8];
+        while address < (eeprom::DAT + eeprom::DAT_LEN) {
+            self
+                .write_page(address, &data)
+                .map_err(|_| CoreError::EepromOrI2c1)?;
+            address += 8;
+        }
+        Ok(())
+    }
+
+    /// check magic number, if not ok, eeprom will be deleted
+    fn check_magic(&mut self) -> Result<(), CoreError> {
+        let mut magic = [0_u8; 8];
+        self.read_data(eeprom::IDENTIFICATION_BLOCK, &mut magic)?;
+        if magic != eeprom::MAGIC {
+            // Write magic number
+            self.write_page(eeprom::IDENTIFICATION_BLOCK, &eeprom::MAGIC)?;
+            self.clear_dat()?;
+        }
+        Ok(())
+    }
 }
 
 pub struct Eeprom<S>
@@ -182,26 +207,9 @@ where
 {
     /// Create a Persistence Instance
     pub fn new(mut eeprom: S) -> Result<Self, CoreError> {
-        let mut magic = [0_u8; 8];
-        eeprom
-            .read_data(eeprom::IDENTIFICATION_BLOCK, &mut magic)
+        eeprom.check_magic()
             .map_err(|_| CoreError::EepromOrI2c1)?;
-        if magic != eeprom::MAGIC {
-            // Write magic number
-            eeprom
-                .write_page(eeprom::IDENTIFICATION_BLOCK, &eeprom::MAGIC)
-                .map_err(|_| CoreError::EepromOrI2c1)?;
 
-            // Clear DAT
-            let mut address = eeprom::DAT;
-            let data = [0_u8; 8];
-            while address < (eeprom::DAT + eeprom::DAT_LEN) {
-                eeprom
-                    .write_page(address, &data)
-                    .map_err(|_| CoreError::EepromOrI2c1)?;
-                address += 8;
-            }
-        }
         Ok(Eeprom { eeprom })
     }
 
@@ -211,6 +219,10 @@ where
     /// allocation table (DAT), if desired (dat_bit in PersitentItem).
     pub fn write_item(&mut self, item: PersistenceItem) -> Result<(), CoreError> {
         if item.id == PersistenceId::DoNotStore {
+            return Ok(());
+        }
+        if item.id == PersistenceId::DeleteAll {
+            self.eeprom.clear_dat()?;
             return Ok(());
         }
         let address = eeprom::DATA_STORAGE + item.id as u32 * 4;
@@ -252,6 +264,23 @@ where
             EepromTopic::ConfigValues => (CONFIG_VALUES_START, CONFIG_VALUES_END),
         };
         PersistenceIterator::new(start_id, end_id, self)
+    }
+
+    /// Deletes the bit in DAT => deletes the item in store 
+    pub fn delete_item_id(&mut self, id: PersistenceId) -> Result<(), CoreError> {
+        let byte_adr = eeprom::DAT + (id as u32) / 8;
+        let bit_pattern: u8 = !(1 << ((id as u32) % 8));
+        let found = self
+            .eeprom
+            .read_byte(byte_adr)
+            .map_err(|_| CoreError::EepromOrI2c1)?;
+        let target = found & bit_pattern;
+        if found != target {
+            self.eeprom
+                .write_byte(byte_adr, target)
+                .map_err(|_| CoreError::EepromOrI2c1)?;
+        }
+        Ok(())
     }
 
     /// Returns a byte of the DAT

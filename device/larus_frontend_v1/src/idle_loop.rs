@@ -66,9 +66,13 @@ impl IdleLoop {
             while self.c_idle_events.len() > 0 {
                 let idle_event = self.c_idle_events.dequeue().unwrap();
                 match idle_event {
-                    IdleEvent::EepromItem(item) => {
+                    IdleEvent::SetEepromItem(item) => {
                         trace!("Stored id {:?}", item.id as u32);
                         self.eeprom.write_item(item).unwrap();
+                    }
+                    IdleEvent::ClearEepromItem(item_id) => {
+                        trace!("Deleted id {:?}", item_id as u32);
+                        self.eeprom.delete_item_id(item_id).unwrap();
                     }
                     IdleEvent::FeedTheDog => self.watchdog.feed(),
                     IdleEvent::SetGain(gain) => {
@@ -96,6 +100,10 @@ impl IdleLoop {
                         if let Some(reset_watch) = ResetWatch::init() {
                             reset_watch.date_time().clone_from(&date_time);
                         }
+                    }
+                    IdleEvent::ResetDevice => {
+                        trace!("Reset Device");
+                        loop {}; // Wait until watchdog reset the device
                     }
                 }
             }
