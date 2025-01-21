@@ -253,6 +253,7 @@ impl CoreController {
             }
             PersistenceId::Display => {
                 if let Variant::DisplayActive(display_active) = variant {
+                    cm.config.display_active = display_active;
                     cm.config.last_display_active = display_active;
                 }
             }

@@ -129,7 +129,7 @@ impl Editable {
                 min: 0.0,
                 max: 5.0,
                 small_inc: 0.1,
-                big_inc: 0.5,
+                big_inc: 0.1,
                 dec_places: 1,
                 unit: TString::<5>::from_str("m/s"),
             }),

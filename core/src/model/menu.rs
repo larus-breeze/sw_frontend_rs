@@ -65,10 +65,6 @@ pub const FLIGHT_MENU: Menu = Menu {
     level: 1,
     items: &[
         MenuItem {
-            content: MenuItemContent::EditItem(Editable::McCready),
-            next_menu_idx: ROOT_IDX,
-        },
-        MenuItem {
             content: MenuItemContent::EditItem(Editable::WaterBallast),
             next_menu_idx: ROOT_IDX,
         },
@@ -85,6 +81,10 @@ pub const FLIGHT_MENU: Menu = Menu {
             next_menu_idx: ROOT_IDX,
         },
         MenuItem {
+            content: MenuItemContent::EditItem(Editable::Display),
+            next_menu_idx: ROOT_IDX,
+        },
+        MenuItem {
             content: MenuItemContent::EditItem(Editable::Return),
             next_menu_idx: ROOT_IDX,
         },
@@ -97,10 +97,6 @@ pub const VARIO_SETTINGS: Menu = Menu {
     items: &[
         MenuItem {
             content: MenuItemContent::EditItem(Editable::Glider),
-            next_menu_idx: VARIO_SETINGS_IDX,
-        },
-        MenuItem {
-            content: MenuItemContent::EditItem(Editable::Display),
             next_menu_idx: VARIO_SETINGS_IDX,
         },
         MenuItem {
