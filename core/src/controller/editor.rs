@@ -120,8 +120,8 @@ pub fn key_action(key_event: &mut KeyEvent, cm: &mut CoreModel, cc: &mut CoreCon
     if cm.config.display_active != DisplayActive::Menu && cm.config.overlay_active != OverlayActive::Menu {
         match key_event {
             KeyEvent::Rotary1Left
-            | KeyEvent::Rotary1Right
-            | KeyEvent::Rotary2Left
+            | KeyEvent::Rotary1Right => activate_editable(Editable::McCready, cm, cc),
+            KeyEvent::Rotary2Left
             | KeyEvent::Rotary2Right => activate_editable(Editable::Volume, cm, cc),
             KeyEvent::Btn1 => activate_editable(Editable::McCready, cm, cc),
             KeyEvent::Btn2 => activate_editable(Editable::WaterBallast, cm, cc),
