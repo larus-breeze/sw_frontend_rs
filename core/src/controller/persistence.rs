@@ -16,7 +16,11 @@
 /// The module also ensures that the Nmea interface and the EEPROM are not overloaded by too much
 /// data. This is achieved by initially storing the data in an index set and only forwarding it
 /// after a pause of incoming data of at least 500 ms.
-use crate::{utils::Variant, view::viewable::{centerview::CenterView, lineview::LineView}, Rotation};
+use crate::{
+    utils::Variant, 
+    view::viewable::{centerview::CenterView, lineview::LineView}, 
+    Rotation, IdleEvent, ResetReason, 
+};
 
 use heapless::Vec;
 
@@ -33,6 +37,7 @@ use crate::{
 pub enum PersistenceId {
     DoNotStore = 65535,
     DeleteAll = 65534,
+    UserProfile = 65533,
     Volume = 0,
     McCready = 1,
     WaterBallast = 2,
@@ -99,6 +104,7 @@ impl CoreController {
     /// This method is called directly from the idle-loop during start-up
     pub fn persist_restore_item(&mut self, cm: &mut CoreModel, item: PersistenceItem) {
         match item.id {
+            PersistenceId::UserProfile => cm.config.user_profile = item.to_u8(),
             PersistenceId::Volume => cm.config.volume = item.to_i8(),
             PersistenceId::McCready => cm.config.mc_cready = Speed::from_m_s(item.to_f32()),
             PersistenceId::WaterBallast => {
@@ -141,6 +147,7 @@ impl CoreController {
     /// This method pushs the content into a queue, which is connected to the hardware
     pub fn persist_store_item(&mut self, cm: &mut CoreModel, id: PersistenceId) {
         let p_item = match id {
+            PersistenceId::UserProfile => PersistenceItem::from_u8(id, cm.config.user_profile),
             PersistenceId::Volume => PersistenceItem::from_i8(id, cm.config.volume),
             PersistenceId::McCready => PersistenceItem::from_f32(id, cm.config.mc_cready.to_m_s()),
             PersistenceId::WaterBallast => {
@@ -184,7 +191,7 @@ impl CoreController {
             PersistenceId::CenterViewStraight => PersistenceItem::from_u32(id, cm.config.center_straignt as u32),
             _ => PersistenceItem::do_not_store(),
         };
-        self.send_idle_event(crate::IdleEvent::SetEepromItem(p_item));
+        self.send_idle_event(IdleEvent::SetEepromItem(p_item));
     }
 
     pub fn persist_set(
@@ -311,14 +318,20 @@ impl CoreController {
     }
 
     pub fn persist_delete_config(&mut self) {
-        self.send_idle_event(crate::IdleEvent::ClearEepromItems(&DELETE_CONFIG_LIST));
-        self.send_idle_event(crate::IdleEvent::ResetDevice);
+        self.send_idle_event(IdleEvent::ClearEepromItems(&DELETE_CONFIG_LIST));
+        self.send_idle_event(IdleEvent::ResetDevice(ResetReason::ConfigChanged));
     }
 
     pub fn persist_factory_reset(&mut self) {
         let item = PersistenceItem::from_i8(PersistenceId::DeleteAll, 0);
-        self.send_idle_event(crate::IdleEvent::SetEepromItem(item));
-        self.send_idle_event(crate::IdleEvent::ResetDevice);
+        self.send_idle_event(IdleEvent::SetEepromItem(item));
+        self.send_idle_event(IdleEvent::ResetDevice(ResetReason::ConfigChanged));
+    }
+
+    pub fn persist_user_profile(&mut self, cm: &CoreModel) {
+        let item = PersistenceItem::from_u8(PersistenceId::UserProfile, cm.config.user_profile);
+        self.send_idle_event(IdleEvent::SetEepromItem(item));
+        self.send_idle_event(IdleEvent::ResetDevice(ResetReason::ConfigChanged));
     }
 }
 
