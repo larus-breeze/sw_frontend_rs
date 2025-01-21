@@ -201,7 +201,7 @@ fn main() -> Result<(), core::convert::Infallible> {
                 IdleEvent::FeedTheDog => (), // No Watchdog in this demo app
                 IdleEvent::SetGain(_) => (), // Sound is done via can datagram
                 IdleEvent::DateTime(_) => (), // Date and time for crash reports are not required
-                IdleEvent::ResetDevice => {
+                IdleEvent::ResetDevice(_reason) => {
                     println!("Device reset - please restart!");
                     process::exit(1);
                 }

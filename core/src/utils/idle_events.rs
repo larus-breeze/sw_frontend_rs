@@ -9,7 +9,13 @@ pub enum IdleEvent {
     FeedTheDog,
     SetGain(u8),
     DateTime(DateTime),
-    ResetDevice,
+    ResetDevice(ResetReason),
+}
+
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub enum ResetReason {
+    NoReason,
+    ConfigChanged,
 }
 
 #[derive(Debug, Copy, Clone, PartialEq)]
