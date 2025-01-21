@@ -45,12 +45,19 @@ pub enum Editable {
     CenterViewCircling,
     CenterViewStraight,
     ResetConfig,
+    UserProfile,
 }
 
 
 const DEFAULT_CONFIG: &str = "Default Config";
 const FACTORY_RESET: &str = "Factory Reset";
 const DO_NOT_CHANGE: &str = "Do not change";
+
+const USER_1: &str = "User 1";
+const USER_2: &str = "User 2";
+const USER_3: &str = "User 3";
+const USER_4: &str = "User 4";
+const RETURN: &str = "Return";
 
 #[derive(Clone, Copy)]
 pub struct F32Params {
@@ -228,6 +235,15 @@ impl Editable {
                     TString::<16>::from_str(""),
                 ],
             }),
+            Editable::UserProfile => Params::Enum(EnumParams {
+                variants: [
+                    TString::<16>::from_str(USER_1),
+                    TString::<16>::from_str(USER_2),
+                    TString::<16>::from_str(USER_3),
+                    TString::<16>::from_str(USER_4),
+                    TString::<16>::from_str(RETURN),
+                ],
+            }),
         }
     }
 
@@ -253,6 +269,7 @@ impl Editable {
             Editable::CenterViewCircling => TString::<16>::from_str("Center Circling"),
             Editable::CenterViewStraight => TString::<16>::from_str("Center Straight"),
             Editable::ResetConfig => TString::<16>::from_str("Configuration"),
+            Editable::UserProfile => TString::<16>::from_str("User Profile"),
         }
     }
 
@@ -342,11 +359,21 @@ impl Editable {
             Editable::CenterFrequency => Content::F32(cm.config.snd_center_freq as f32),
             Editable::CenterViewCircling => Content::List(cm.config.center_circling.sorted_as_i32(CenterType::Circling)),
             Editable::CenterViewStraight => Content::List(cm.config.center_straignt.sorted_as_i32(CenterType::Straight)),
-            Editable::ResetConfig =>{
+            Editable::ResetConfig => {
                 let s = match cm.control.reset_config {
                     0 => DEFAULT_CONFIG,
                     1 => FACTORY_RESET,
                     _ => DO_NOT_CHANGE,
+                };
+                Content::Enum(TString::<16>::from_str(s))
+            }
+            Editable::UserProfile => {
+                let s = match cm.config.user_profile {
+                    0 => USER_1,
+                    1 => USER_2,
+                    2 => USER_3,
+                    3 => USER_4,
+                    _ => RETURN,
                 };
                 Content::Enum(TString::<16>::from_str(s))
             }
@@ -406,9 +433,20 @@ impl Editable {
                         1 => cc.persist_factory_reset(),
                         _ => (),
                     }
-                } else {
                 }
             },
+            Editable::UserProfile => {
+                cm.config.user_profile = match val.as_str() {
+                    USER_1 => 0,
+                    USER_2 => 1,
+                    USER_3 => 2,
+                    USER_4 => 3,
+                    _ => 4,
+                };
+                if cm.control.editor.enter_pushed && val.as_str() != RETURN {
+                    cc.persist_user_profile(cm); // store value and reset device
+                }
+           },
             _ => (),
         }
     }

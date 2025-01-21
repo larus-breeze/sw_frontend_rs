@@ -154,6 +154,10 @@ pub const ADVANCED_SETTINGS: Menu = Menu {
     level: 1,
     items: &[
         MenuItem {
+            content: MenuItemContent::EditItem(Editable::UserProfile),
+            next_menu_idx: ADVANCED_SETINGS_IDX,
+        },
+        MenuItem {
             content: MenuItemContent::EditItem(Editable::TcClimbRate),
             next_menu_idx: ADVANCED_SETINGS_IDX,
         },

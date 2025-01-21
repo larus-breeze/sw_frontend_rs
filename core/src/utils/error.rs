@@ -12,6 +12,7 @@ pub enum CoreError {
     ConversionError,
     ParseError,
     SchedulerQueueOverflow,
+    PersistenceIdNotInDat,
 }
 
 impl From<u8g2_fonts::Error<CoreError>> for CoreError {
