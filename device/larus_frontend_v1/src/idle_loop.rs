@@ -100,7 +100,7 @@ impl IdleLoop {
                             reset_watch.date_time().clone_from(&date_time);
                         }
                     }
-                    IdleEvent::ResetDevice => {
+                    IdleEvent::ResetDevice(_reason) => {
                         trace!("Reset Device");
                         loop {}; // Wait until watchdog reset the device
                     }
