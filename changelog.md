@@ -1,6 +1,14 @@
 Changelog
 =
 
+v0.3.3 Extended Setting Options and Nicer Menues
+- Introduction of user profiles #56
+- Settings can be deleted per user profile #12
+- Device can be reset to factory settings #12
+- Flight menu now inside the Vario display (Larus V2 display) #60
+- Volume and Mac Cready value can be changed directly #65
+- Display selection (vario, horizon) moved to the flight menu #65
+
 v0.3.2.5 Bug fix "AHRS display flickers massively"
 - better performance to horizon to avoid flickering
 - make fn draw_line_unchecked() unsafe to reflect missing range checks
