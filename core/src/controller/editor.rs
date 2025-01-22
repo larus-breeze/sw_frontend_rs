@@ -98,6 +98,19 @@ pub fn key_action(key_event: &mut KeyEvent, cm: &mut CoreModel, cc: &mut CoreCon
 
         let target = cm.control.editor.target;
 
+        // change volume and mc cready independently of the selection
+        match target {
+            Editable::Volume => if *key_event == KeyEvent::Rotary1Left || *key_event == KeyEvent::Rotary1Right {
+                activate_editable(Editable::McCready, cm, cc);
+                *key_event = KeyEvent::NoEvent;
+            }
+            Editable::McCready => if *key_event == KeyEvent::Rotary2Left || *key_event == KeyEvent::Rotary2Right {
+                activate_editable(Editable::Volume, cm, cc);
+                *key_event = KeyEvent::NoEvent;
+            }
+            _ => ()
+        }
+
         match cm.control.editor.params {
             Params::Enum(params) => edit_enum_content(cm, cc, key_event, target, &params),
             Params::String(_) => (),
