@@ -57,7 +57,6 @@ const USER_1: &str = "User 1";
 const USER_2: &str = "User 2";
 const USER_3: &str = "User 3";
 const USER_4: &str = "User 4";
-const RETURN: &str = "Return";
 
 #[derive(Clone, Copy)]
 pub struct F32Params {
@@ -241,7 +240,7 @@ impl Editable {
                     TString::<16>::from_str(USER_2),
                     TString::<16>::from_str(USER_3),
                     TString::<16>::from_str(USER_4),
-                    TString::<16>::from_str(RETURN),
+                    TString::<16>::from_str(DO_NOT_CHANGE),
                 ],
             }),
         }
@@ -373,7 +372,7 @@ impl Editable {
                     1 => USER_2,
                     2 => USER_3,
                     3 => USER_4,
-                    _ => RETURN,
+                    _ => DO_NOT_CHANGE,
                 };
                 Content::Enum(TString::<16>::from_str(s))
             }
@@ -436,7 +435,7 @@ impl Editable {
                 }
             },
             Editable::UserProfile => {
-                if cm.control.editor.enter_pushed && val.as_str() != RETURN {
+                if cm.control.editor.enter_pushed && val.as_str() != DO_NOT_CHANGE {
                     cm.config.user_profile = match val.as_str() {
                         USER_1 => 0,
                         USER_2 => 1,
