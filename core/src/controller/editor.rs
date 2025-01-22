@@ -107,8 +107,6 @@ pub fn key_action(key_event: &mut KeyEvent, cm: &mut CoreModel, cc: &mut CoreCon
         }
 
         let target = cm.control.editor.target;
-        cm.control.editor.params = target.params();
-        cm.control.editor.content = target.content(cm);
 
         match cm.control.editor.params {
             Params::Enum(params) => edit_enum_content(cm, cc, key_event, target, &params),

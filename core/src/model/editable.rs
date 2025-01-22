@@ -436,14 +436,14 @@ impl Editable {
                 }
             },
             Editable::UserProfile => {
-                cm.config.user_profile = match val.as_str() {
-                    USER_1 => 0,
-                    USER_2 => 1,
-                    USER_3 => 2,
-                    USER_4 => 3,
-                    _ => 4,
-                };
                 if cm.control.editor.enter_pushed && val.as_str() != RETURN {
+                    cm.config.user_profile = match val.as_str() {
+                        USER_1 => 0,
+                        USER_2 => 1,
+                        USER_3 => 2,
+                        USER_4 => 3,
+                        _ => 0,
+                    };
                     cc.persist_user_profile(cm); // store value and reset device
                 }
            },
