@@ -116,7 +116,7 @@ pub const VARIO_SETTINGS: Menu = Menu {
 
 pub const VIEW_SETTINGS: Menu = Menu {
     name: "Views",
-    level: 1,
+    level: 2,
     items: &[
         MenuItem {
             content: MenuItemContent::EditItem(Editable::Info1),
@@ -147,7 +147,7 @@ pub const VIEW_SETTINGS: Menu = Menu {
 
 pub const ADVANCED_SETTINGS: Menu = Menu {
     name: "Advanced",
-    level: 1,
+    level: 2,
     items: &[
         MenuItem {
             content: MenuItemContent::EditItem(Editable::UserProfile),
