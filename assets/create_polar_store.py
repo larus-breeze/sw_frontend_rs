@@ -73,7 +73,7 @@ ADDITONAL = (
     [b"LS-3 WL", 396, 121, 80, -0.604, 105, -0.700, 180, -1.939, 10.5, 250/3.6, 108, 295],
     [b"ASG-32", 807, 125, 100, -0.582, 126, -0.648, 185, -1.450, 15.7, 250/3.6, 120, 650],
     [b"Ventus 2b 15m", 339, 200, 85, -0.576, 110, -0.648, 200, -2.230, 9.7, 250/3.6, 115, 248],
-    [b"AS-33 18m", 400, 220, 81.6, -0.5109, 97.2, -0.5560, 180, -1.3694, 10.0, 270/3.6, 122, 285],
+    [b"AS-33 18m", 400, 220, 97.2, -0.5109, 111.6, -0.5560, 180, -1.3694, 10.0, 270/3.6, 122, 285],
     [b"AS-33 15m", 352, 180, 86.4, -0.5834, 115.2, -0.6422, 180, -1.4728, 8.8, 270/3.6, 116, 275],
 )
 
@@ -102,14 +102,19 @@ template = f"""// created by create_polar_store.py
 
 use super::BasicGliderData;
 
-pub const POLAR_COUNT: usize = {len(gliders)};
+pub const POLAR_COUNT: usize = @glider_count@;
 
 #[allow(unused)]
 pub const POLARS: [BasicGliderData; POLAR_COUNT] = [
-"""
+@glider_data@];"""
+
+glider_data = ""
+for idx, glider in enumerate(sorted(gliders)):
+    glider_data += glider.to_string(idx)
+
 
 with open("core/src/flight_physics/polar_store.rs", "w") as f:
-    f.write(template)
-    for idx, glider in enumerate(sorted(gliders)):
-        f.write(glider.to_string(idx))
-    f.write("];")
+    polar_storre = template \
+        .replace('@glider_count@', str(len(gliders))) \
+        .replace('@glider_data@', glider_data)
+    f.write(polar_storre)
