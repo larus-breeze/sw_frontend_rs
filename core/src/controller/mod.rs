@@ -29,7 +29,7 @@ use crate::{
     model::{DisplayActive, EditMode, VarioModeControl},
     system_of_units::{FloatToSpeed, Speed},
     utils::{KeyEvent, PIdleEvents, Pt1},
-    CoreModel, DeviceEvent, Editable, IdleEvent, SdCardCmd, VarioMode, POLARS,
+    CoreModel, DeviceEvent, Editable, IdleEvent, SdCardCmd, VarioMode, polar_store,
 };
 use helpers::nmea_cyclic_200ms;
 
@@ -83,7 +83,7 @@ impl CoreController {
         p_tx_frames: PTxFrames<MAX_TX_FRAMES>,
     ) -> Self {
         let polar_idx = core_model.config.glider_idx as usize;
-        let polar = Polar::new(&POLARS[polar_idx], &mut core_model.glider_data);
+        let polar = Polar::new(&polar_store::POLARS[polar_idx], &mut core_model.glider_data);
         let av2_climb_rate = Pt1::new(
             0.0.m_s(),
             CONTROLLER_TICK_RATE,

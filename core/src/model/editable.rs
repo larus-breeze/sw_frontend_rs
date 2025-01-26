@@ -16,7 +16,7 @@ use crate::{
     utils::{TString, Variant},
     view::viewable::{centerview::{CenterType, CenterView}, lineview::{LineView, Placement}},
     CoreController, CoreModel, Echo, FloatToMass, FloatToSpeed, PersistenceId, Polar, Rotation,
-    POLARS, POLAR_COUNT,
+    polar_store,
 };
 
 use super::DisplayActive;
@@ -122,7 +122,7 @@ impl Editable {
                 ],
             }),
             Editable::Glider => Params::List(ListParams {
-                max: POLAR_COUNT as i32 - 1,
+                max: polar_store::size() as i32 - 1,
             }),
             Editable::McCready => Params::F32(F32Params {
                 min: 0.0,
@@ -292,7 +292,11 @@ impl Editable {
             Params::List(_params) => {
                 if let Content::List(val) = content {
                     match self {
-                        Editable::Glider => conv.write_str(POLARS[val as usize].name).unwrap(),
+                        Editable::Glider => {
+                            let raw_idx = polar_store::to_raw_idx(val as usize);
+                            let name = polar_store::from_raw_idx(raw_idx).name;
+                            conv.write_str(name).unwrap()
+                        },
                         Editable::Info1 => conv
                             .write_str(LineView::from_sorted(val as usize, Placement::Top).name())
                             .unwrap(),
@@ -327,7 +331,10 @@ impl Editable {
                 DisplayActive::Horizon => Content::Enum(TString::<16>::from_str("Horizon")),
                 _ => Content::Enum(TString::<16>::from_str("Vario")),
             },
-            Editable::Glider => Content::List(cm.config.glider_idx),
+            Editable::Glider => {
+                let sorted_idx = polar_store::to_sorted_idx(cm.config.glider_idx as usize);
+                Content::List(sorted_idx as i32)
+            },
             Editable::McCready => Content::F32(cm.config.mc_cready.to_m_s()),
             Editable::None => Content::String(TString::<12>::from_str("")),
             Editable::PilotWeight => Content::F32(cm.glider_data.pilot_weight.to_kg()),
@@ -506,8 +513,9 @@ impl Editable {
     pub fn set_list_content(&self, cm: &mut CoreModel, cc: &mut CoreController, val: i32) {
         match self {
             Editable::Glider => {
-                cc.polar = Polar::new(&POLARS[val as usize], &mut cm.glider_data);
-                cc.persist_set(cm, Variant::I32(val), PersistenceId::Glider, Echo::None)
+                let raw_idx = polar_store::to_raw_idx(val as usize);
+                cc.polar = Polar::new(&polar_store::POLARS[raw_idx], &mut cm.glider_data);
+                cc.persist_set(cm, Variant::I32(raw_idx as i32), PersistenceId::Glider, Echo::None)
             }
             Editable::Info1 => {
                 let variant = LineView::from_sorted(val as usize, Placement::Top) as i32;
