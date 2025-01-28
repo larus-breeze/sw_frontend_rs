@@ -28,8 +28,8 @@ class PCoordSprite():
         s = f"pub const {self.name}: [PolarCoordinate; {c_cnt}] = [\n"
         for x, y in self.xy_coords:
             l, a = self.to_l_rad(x, y)
-            s += f"    PolarCoordinate{{ len: {l}, alpha: {a} }},\n"
-        s += "];\n\n\n"
+            s += f"    PolarCoordinate {{\n        len: {l},\n        alpha: {a},\n    }},\n"
+        s += "];\n\n"
         return s
 
 class PCoordSprites:
@@ -45,7 +45,7 @@ class PCoordSprites:
         s += "use super::PolarCoordinate;\n\n"
         for sprite in self.sprites:
             s += str(sprite)
-        return s
+        return s[:-1]
 
     def to_file(self, filepath):
         with open(filepath, 'w') as f:
