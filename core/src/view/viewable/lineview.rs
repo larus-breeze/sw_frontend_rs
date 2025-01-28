@@ -87,14 +87,14 @@ impl LineView {
     pub fn sorted_as_i32(&self, placement: Placement) -> i32 {
         match placement {
             Placement::Bottom => {
-                for (idx, view_item) in BOTTOM_LINE_VIEW.iter().enumerate() { 
+                for (idx, view_item) in BOTTOM_LINE_VIEW.iter().enumerate() {
                     if *self == *view_item {
                         return idx as i32;
                     };
                 }
             }
             Placement::Top => {
-                for (idx, view_item) in TOP_LINE_VIEW.iter().enumerate() { 
+                for (idx, view_item) in TOP_LINE_VIEW.iter().enumerate() {
                     if *self == *view_item {
                         return idx as i32;
                     };

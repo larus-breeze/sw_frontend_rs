@@ -1,6 +1,8 @@
 use crate::{
-    controller::Echo, model::GpsState, utils::ParseSlice, CoreController, CoreError, CoreModel,
-    FloatToPressure, FloatToSpeed, PersistenceId, Variant,
+    controller::{persist, Echo},
+    model::GpsState,
+    utils::ParseSlice,
+    CoreController, CoreError, CoreModel, FloatToPressure, FloatToSpeed, PersistenceId, Variant,
 };
 use heapless::Vec;
 use tfmt::uwrite;
@@ -42,13 +44,20 @@ impl CoreController {
         match cmd.as_slice() {
             b"MC" => {
                 let val = in_range(val, 0.0, 9.9)?.m_s();
-                self.persist_set(cm, Variant::Speed(val), PersistenceId::McCready, Echo::Can)
+                persist::persist_set(
+                    self,
+                    cm,
+                    Variant::Speed(val),
+                    PersistenceId::McCready,
+                    Echo::Can,
+                )
             }
             b"BAL" => {
                 cm.glider_data
                     .set_ballast_fraction(in_range(val, 0.00, 1.00)?);
                 let val = cm.glider_data.water_ballast;
-                self.persist_set(
+                persist::persist_set(
+                    self,
                     cm,
                     Variant::Mass(val),
                     PersistenceId::WaterBallast,
@@ -57,11 +66,17 @@ impl CoreController {
             }
             b"BUGS" => {
                 let val = 1.0 + in_range(val, 0.0, 50.0)? / 100.0;
-                self.persist_set(cm, Variant::F32(val), PersistenceId::Bugs, Echo::Can);
+                persist::persist_set(self, cm, Variant::F32(val), PersistenceId::Bugs, Echo::Can);
             }
             b"QNH" => {
                 let val = in_range(val, 900.0, 1100.0)?.hpa();
-                self.persist_set(cm, Variant::Pressure(val), PersistenceId::Qnh, Echo::Can);
+                persist::persist_set(
+                    self,
+                    cm,
+                    Variant::Pressure(val),
+                    PersistenceId::Qnh,
+                    Echo::Can,
+                );
             }
             _ => return Err(CoreError::ParseError),
         }

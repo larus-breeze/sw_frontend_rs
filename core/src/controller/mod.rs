@@ -19,8 +19,8 @@ use fw_update::SwUpdateController;
 mod tick_1s;
 use tick_1s::*;
 
-mod persistence;
-pub use persistence::{store_persistence_ids, Echo, PersistenceId};
+pub mod persist;
+pub use persist::{store_persistence_ids, Echo, PersistenceId};
 
 use crate::{
     basic_config::{CONTROLLER_TICK_RATE, MAX_TX_FRAMES},

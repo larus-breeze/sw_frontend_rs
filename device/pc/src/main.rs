@@ -79,7 +79,7 @@ fn main() -> Result<(), core::convert::Infallible> {
 
     let mut controller = CoreController::new(&mut core_model, p_idle_events, p_tx_frames);
     for item in eeprom.iter_over(EepromTopic::ConfigValues) {
-        controller.persist_restore_item(&mut core_model, item);
+        persist::restore_item(&mut controller, &mut core_model, item);
         // println!("Restored {:?}", item);
     }
 

@@ -3,7 +3,7 @@ use core::cell::RefCell;
 use defmt::trace;
 
 use crate::{driver::*, install_and_restart, update_available, DevController};
-use corelib::{CIdleEvents, CoreModel, DeviceEvent, Eeprom, Event, IdleEvent, SdCardCmd};
+use corelib::{CIdleEvents, CoreModel, DeviceEvent, Eeprom, Event, IdleEvent, SdCardCmd, persist};
 use fugit::ExtU32;
 use stm32h7xx_hal::{
     device::I2C1,
@@ -38,7 +38,7 @@ impl IdleLoop {
             )
         };
         for item in eeprom.iter_over(corelib::EepromTopic::ConfigValues) {
-            dc.core().persist_restore_item(cm, item);
+            persist::restore_item(dc.core(), cm, item);
         }
         dc.core().recalc_glider(cm);
 
