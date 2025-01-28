@@ -57,6 +57,15 @@ pub enum PersistenceId {
     CenterFrequency = 15,
     CenterViewCircling = 16,
     CenterViewStraight = 17,
+    EmptyMass = 18,
+    MaxBallast = 19,
+    ReferenceWeight = 20,
+    PolarValueV1 = 21,
+    PolarValueV2 = 22,
+    PolarValueV3 = 23,
+    PolarValueSi1 = 24,
+    PolarValueSi2 = 25,
+    PolarValueSi3 = 26,
     LastItem,
 }
 
@@ -71,7 +80,7 @@ impl From<u16> for PersistenceId {
     }
 }
 
-const DELETE_CONFIG_LIST: [PersistenceId; 17] = [
+const DELETE_CONFIG_LIST: &[PersistenceId] = &[
     PersistenceId::Volume,
     PersistenceId::McCready,
     PersistenceId::WaterBallast,
@@ -91,6 +100,18 @@ const DELETE_CONFIG_LIST: [PersistenceId; 17] = [
     PersistenceId::CenterViewStraight,
 ];
 
+const SPECIFIC_POLAR_SETTINGS: &[PersistenceId] = &[
+    PersistenceId::EmptyMass,
+    PersistenceId::MaxBallast,
+    PersistenceId::ReferenceWeight,
+    PersistenceId::PolarValueV1,
+    PersistenceId::PolarValueV2,
+    PersistenceId::PolarValueV3,
+    PersistenceId::PolarValueSi1,
+    PersistenceId::PolarValueSi2,
+    PersistenceId::PolarValueSi3,
+];
+
 #[derive(PartialEq)]
 pub enum Echo {
     None,
@@ -102,14 +123,19 @@ pub enum Echo {
 /// Restore Items from EEPROM
 ///
 /// This method is called directly from the idle-loop during start-up
-pub fn restore_item(_cc: &mut CoreController, cm: &mut CoreModel, item: PersistenceItem) {
+pub fn restore_item(cc: &mut CoreController, cm: &mut CoreModel, item: PersistenceItem) {
     match item.id {
         PersistenceId::UserProfile => cm.config.user_profile = item.to_u8(),
         PersistenceId::Volume => cm.config.volume = item.to_i8(),
         PersistenceId::McCready => cm.config.mc_cready = Speed::from_m_s(item.to_f32()),
         PersistenceId::WaterBallast => cm.glider_data.water_ballast = Mass::from_kg(item.to_f32()),
         PersistenceId::PilotWeight => cm.glider_data.pilot_weight = Mass::from_kg(item.to_f32()),
-        PersistenceId::Glider => cm.config.glider_idx = item.to_i32(),
+        PersistenceId::Glider => {
+            let raw_idx = item.to_i32();
+            cm.config.glider_idx = raw_idx;
+            cm.glider_data.basic_glider_data = polar_store::POLARS[raw_idx as usize];
+            cc.recalc_glider(cm);
+    }
         PersistenceId::VarioModeControl => {
             cm.control.vario_mode_control = VarioModeControl::from(item.to_u8())
         }
@@ -138,6 +164,30 @@ pub fn restore_item(_cc: &mut CoreController, cm: &mut CoreModel, item: Persiste
         PersistenceId::CenterViewStraight => {
             cm.config.center_straignt = CenterView::from(item.to_u32())
         }
+        PersistenceId::EmptyMass => cm.glider_data.basic_glider_data.empty_mass = item.to_f32(),
+        PersistenceId::MaxBallast => cm.glider_data.basic_glider_data.max_ballast = item.to_f32(),
+        PersistenceId::ReferenceWeight => {
+            cm.glider_data.basic_glider_data.reference_weight = item.to_f32()
+        }
+        PersistenceId::PolarValueV1 => {
+            cm.glider_data.basic_glider_data.polar_values[0][0] = item.to_f32()
+        }
+        PersistenceId::PolarValueV2 => {
+            cm.glider_data.basic_glider_data.polar_values[1][0] = item.to_f32()
+        }
+        PersistenceId::PolarValueV3 => {
+            cm.glider_data.basic_glider_data.polar_values[2][0] = item.to_f32()
+        }
+        PersistenceId::PolarValueSi1 => {
+            cm.glider_data.basic_glider_data.polar_values[0][1] = item.to_f32()
+        }
+        PersistenceId::PolarValueSi2 => {
+            cm.glider_data.basic_glider_data.polar_values[1][1] = item.to_f32()
+        }
+        PersistenceId::PolarValueSi3 => {
+            cm.glider_data.basic_glider_data.polar_values[2][1] = item.to_f32()
+        }
+
         _ => (),
     }
 }
@@ -185,6 +235,33 @@ pub fn store_item(cc: &mut CoreController, cm: &mut CoreModel, id: PersistenceId
         PersistenceId::CenterViewStraight => {
             PersistenceItem::from_u32(id, cm.config.center_straignt as u32)
         }
+        PersistenceId::EmptyMass => {
+            PersistenceItem::from_f32(id, cm.glider_data.basic_glider_data.empty_mass)
+        }
+        PersistenceId::MaxBallast => {
+            PersistenceItem::from_f32(id, cm.glider_data.basic_glider_data.max_ballast)
+        }
+        PersistenceId::ReferenceWeight => {
+            PersistenceItem::from_f32(id, cm.glider_data.basic_glider_data.reference_weight)
+        }
+        PersistenceId::PolarValueV1 => {
+            PersistenceItem::from_f32(id, cm.glider_data.basic_glider_data.polar_values[0][0])
+        }
+        PersistenceId::PolarValueV2 => {
+            PersistenceItem::from_f32(id, cm.glider_data.basic_glider_data.polar_values[1][0])
+        }
+        PersistenceId::PolarValueV3 => {
+            PersistenceItem::from_f32(id, cm.glider_data.basic_glider_data.polar_values[2][0])
+        }
+        PersistenceId::PolarValueSi1 => {
+            PersistenceItem::from_f32(id, cm.glider_data.basic_glider_data.polar_values[0][1])
+        }
+        PersistenceId::PolarValueSi2 => {
+            PersistenceItem::from_f32(id, cm.glider_data.basic_glider_data.polar_values[1][1])
+        }
+        PersistenceId::PolarValueSi3 => {
+            PersistenceItem::from_f32(id, cm.glider_data.basic_glider_data.polar_values[2][1])
+        }
         _ => PersistenceItem::do_not_store(),
     };
     cc.send_idle_event(IdleEvent::SetEepromItem(p_item));
@@ -223,6 +300,7 @@ pub fn persist_set(
                 cm.config.glider_idx = raw_idx as i32;
                 cm.glider_data.basic_glider_data = polar_store::POLARS[raw_idx];
                 cc.recalc_glider(cm);
+                cc.send_idle_event(IdleEvent::ClearEepromItems(SPECIFIC_POLAR_SETTINGS));
             }
         }
         PersistenceId::VarioModeControl => {
@@ -295,6 +373,61 @@ pub fn persist_set(
                 cm.config.center_straignt = CenterView::from(view as u32);
             }
         }
+        PersistenceId::EmptyMass => {
+            if let Variant::F32(value) = variant {
+                cm.glider_data.basic_glider_data.empty_mass = value;
+                cc.recalc_glider(cm);
+            }
+        }
+        PersistenceId::MaxBallast => {
+            if let Variant::F32(value) = variant {
+                cm.glider_data.basic_glider_data.max_ballast = value;
+                cc.recalc_glider(cm);
+            }
+        }
+        PersistenceId::ReferenceWeight => {
+            if let Variant::F32(value) = variant {
+                cm.glider_data.basic_glider_data.reference_weight = value;
+                cc.recalc_glider(cm);
+            }
+        }
+        PersistenceId::PolarValueV1 => {
+            if let Variant::F32(value) = variant {
+                cm.glider_data.basic_glider_data.polar_values[0][0] = value;
+                cc.recalc_glider(cm);
+            }
+        }
+        PersistenceId::PolarValueV2 => {
+            if let Variant::F32(value) = variant {
+                cm.glider_data.basic_glider_data.polar_values[1][0] = value;
+                cc.recalc_glider(cm);
+            }
+        }
+        PersistenceId::PolarValueV3 => {
+            if let Variant::F32(value) = variant {
+                cm.glider_data.basic_glider_data.polar_values[2][0] = value;
+                cc.recalc_glider(cm);
+            }
+        }
+        PersistenceId::PolarValueSi1 => {
+            if let Variant::F32(value) = variant {
+                cm.glider_data.basic_glider_data.polar_values[0][1] = value;
+                cc.recalc_glider(cm);
+            }
+        }
+        PersistenceId::PolarValueSi2 => {
+            if let Variant::F32(value) = variant {
+                cm.glider_data.basic_glider_data.polar_values[1][1] = value;
+                cc.recalc_glider(cm);
+            }
+        }
+        PersistenceId::PolarValueSi3 => {
+            if let Variant::F32(value) = variant {
+                cm.glider_data.basic_glider_data.polar_values[2][1] = value;
+                cc.recalc_glider(cm);
+            }
+        }
+
         _ => (),
     }
     finish_push(cc, cm, id, echo);
@@ -317,7 +450,7 @@ fn finish_push(cc: &mut CoreController, cm: &mut CoreModel, id: PersistenceId, e
 }
 
 pub fn delete_config(cc: &mut CoreController) {
-    cc.send_idle_event(IdleEvent::ClearEepromItems(&DELETE_CONFIG_LIST));
+    cc.send_idle_event(IdleEvent::ClearEepromItems(DELETE_CONFIG_LIST));
     cc.send_idle_event(IdleEvent::ResetDevice(ResetReason::ConfigChanged));
 }
 
