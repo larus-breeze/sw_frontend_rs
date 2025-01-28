@@ -7,7 +7,7 @@ pub mod editable;
 pub mod menu;
 mod sensor;
 
-use crate::flight_physics::GliderData;
+use crate::flight_physics::{polar_store, GliderData};
 use calculated::Calculated;
 pub use config::{Config, DisplayActive, OverlayActive};
 pub use control::{Control, EditMode, FlyMode, SystemState, TcrMode, VarioMode, VarioModeControl};
@@ -42,7 +42,9 @@ impl CoreModel {
         let config = Config::default(&device_const.dark_theme, uuid);
         let control = Control::default();
         let device = Device::default();
-        let glider_data = GliderData::default();
+        let mut glider_data = GliderData::default();
+        glider_data.basic_glider_data = *polar_store::from_raw_idx(config.glider_idx as usize);
+
         let sensor = Sensor::default();
         CoreModel {
             calculated,
