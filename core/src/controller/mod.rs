@@ -27,6 +27,7 @@ use crate::{
     common::PTxFrames,
     flight_physics::Polar,
     model::{DisplayActive, EditMode, VarioModeControl},
+    polar_store,
     system_of_units::{FloatToSpeed, Speed},
     utils::{KeyEvent, PIdleEvents, Pt1},
     CoreModel, DeviceEvent, Editable, IdleEvent, SdCardCmd, VarioMode,
@@ -170,7 +171,9 @@ impl CoreController {
         self.ms = time_ms;
     }
 
-    pub fn recalc_glider(&mut self, cm: &CoreModel) {
+    pub fn recalc_glider(&mut self, cm: &mut CoreModel) {
+        cm.glider_data.basic_glider_data =
+            *polar_store::from_raw_idx(cm.config.glider_idx as usize);
         self.polar.recalc_glider(&cm.glider_data);
     }
 
