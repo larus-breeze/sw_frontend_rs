@@ -45,6 +45,7 @@ pub const FLIGHT_MENU_IDX: usize = 1;
 pub const VARIO_SETINGS_IDX: usize = 2;
 pub const VIEW_SETINGS_IDX: usize = 3;
 pub const ADVANCED_SETINGS_IDX: usize = 4;
+pub const POLAR_SETTINGS_IDX: usize = 5;
 
 pub const MENU_LIST: &[Menu] = &[
     ROOT,
@@ -52,6 +53,7 @@ pub const MENU_LIST: &[Menu] = &[
     VARIO_SETTINGS,
     VIEW_SETTINGS,
     ADVANCED_SETTINGS,
+    POLAR_SETTINGS,
 ];
 
 pub const ROOT: Menu = Menu {
@@ -96,16 +98,16 @@ pub const VARIO_SETTINGS: Menu = Menu {
     level: 1,
     items: &[
         MenuItem {
-            content: MenuItemContent::EditItem(Editable::Glider),
-            next_menu_idx: VARIO_SETINGS_IDX,
-        },
-        MenuItem {
             content: MenuItemContent::MenuItem(),
             next_menu_idx: VIEW_SETINGS_IDX,
         },
         MenuItem {
             content: MenuItemContent::MenuItem(),
             next_menu_idx: ADVANCED_SETINGS_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::MenuItem(),
+            next_menu_idx: POLAR_SETTINGS_IDX,
         },
         MenuItem {
             content: MenuItemContent::EditItem(Editable::Return),
@@ -168,6 +170,57 @@ pub const ADVANCED_SETTINGS: Menu = Menu {
         MenuItem {
             content: MenuItemContent::EditItem(Editable::ResetConfig),
             next_menu_idx: ADVANCED_SETINGS_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::Return),
+            next_menu_idx: VARIO_SETINGS_IDX,
+        },
+    ],
+};
+
+pub const POLAR_SETTINGS: Menu = Menu {
+    name: "Polar Settings",
+    level: 2,
+    items: &[
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::Glider),
+            next_menu_idx: POLAR_SETTINGS_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::EmptyMass),
+            next_menu_idx: POLAR_SETTINGS_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::MaxBallast),
+            next_menu_idx: POLAR_SETTINGS_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::ReferenceWeight),
+            next_menu_idx: POLAR_SETTINGS_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::PolarValueV1),
+            next_menu_idx: POLAR_SETTINGS_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::PolarValueV2),
+            next_menu_idx: POLAR_SETTINGS_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::PolarValueV3),
+            next_menu_idx: POLAR_SETTINGS_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::PolarValueSi1),
+            next_menu_idx: POLAR_SETTINGS_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::PolarValueSi2),
+            next_menu_idx: POLAR_SETTINGS_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::PolarValueSi3),
+            next_menu_idx: POLAR_SETTINGS_IDX,
         },
         MenuItem {
             content: MenuItemContent::EditItem(Editable::Return),

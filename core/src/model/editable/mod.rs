@@ -53,6 +53,15 @@ pub enum Editable {
     CenterViewStraight,
     ResetConfig,
     UserProfile,
+    EmptyMass,
+    MaxBallast,
+    ReferenceWeight,
+    PolarValueV1,
+    PolarValueV2,
+    PolarValueV3,
+    PolarValueSi1,
+    PolarValueSi2,
+    PolarValueSi3,
 }
 
 const DEFAULT_CONFIG: &str = "Default Config";
@@ -96,6 +105,15 @@ impl Editable {
             Editable::CenterViewStraight => TString::<16>::from_str("Center Straight"),
             Editable::ResetConfig => TString::<16>::from_str("Configuration"),
             Editable::UserProfile => TString::<16>::from_str("User Profile"),
+            Editable::EmptyMass => TString::<16>::from_str("Empty Mass"),
+            Editable::MaxBallast => TString::<16>::from_str("Max Ballast"),
+            Editable::ReferenceWeight => TString::<16>::from_str("Reference Weight"),
+            Editable::PolarValueV1 => TString::<16>::from_str("Polar V 1"),
+            Editable::PolarValueV2 => TString::<16>::from_str("Polar V 2"),
+            Editable::PolarValueV3 => TString::<16>::from_str("Polar V 3"),
+            Editable::PolarValueSi1 => TString::<16>::from_str("Polar Si 1"),
+            Editable::PolarValueSi2 => TString::<16>::from_str("Polar Si 2"),
+            Editable::PolarValueSi3 => TString::<16>::from_str("Polar Si 3"),
         }
     }
 
@@ -221,6 +239,29 @@ impl Editable {
                     _ => DO_NOT_CHANGE,
                 };
                 Content::Enum(TString::<16>::from_str(s))
+            }
+            Editable::EmptyMass => Content::F32(cm.glider_data.basic_glider_data.empty_mass),
+            Editable::MaxBallast => Content::F32(cm.glider_data.basic_glider_data.max_ballast),
+            Editable::ReferenceWeight => {
+                Content::F32(cm.glider_data.basic_glider_data.reference_weight)
+            }
+            Editable::PolarValueV1 => {
+                Content::F32(cm.glider_data.basic_glider_data.polar_values[0][0])
+            }
+            Editable::PolarValueV2 => {
+                Content::F32(cm.glider_data.basic_glider_data.polar_values[1][0])
+            }
+            Editable::PolarValueV3 => {
+                Content::F32(cm.glider_data.basic_glider_data.polar_values[2][0])
+            }
+            Editable::PolarValueSi1 => {
+                Content::F32(cm.glider_data.basic_glider_data.polar_values[0][1])
+            }
+            Editable::PolarValueSi2 => {
+                Content::F32(cm.glider_data.basic_glider_data.polar_values[1][1])
+            }
+            Editable::PolarValueSi3 => {
+                Content::F32(cm.glider_data.basic_glider_data.polar_values[2][1])
             }
         }
     }
