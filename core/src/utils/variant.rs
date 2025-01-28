@@ -11,6 +11,7 @@ pub enum Variant<'a> {
     F32(f32),
     Str(&'a str),
     U32(u32),
+    Usize(usize),
 
     DisplayActive(DisplayActive),
     Mass(Mass),

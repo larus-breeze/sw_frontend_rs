@@ -544,12 +544,10 @@ impl Editable {
         match self {
             Editable::Glider => {
                 let raw_idx = polar_store::to_raw_idx(val as usize);
-                cm.glider_data.basic_glider_data = polar_store::POLARS[raw_idx];
-                cc.recalc_glider(cm);
                 persist::persist_set(
                     cc,
                     cm,
-                    Variant::I32(raw_idx as i32),
+                    Variant::Usize(raw_idx),
                     PersistenceId::Glider,
                     Echo::None,
                 )
