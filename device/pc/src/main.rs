@@ -14,8 +14,8 @@ use embedded_graphics_simulator::{sdl2::Keycode, OutputSettings, SimulatorEvent,
 use heapless::spsc::Queue;
 use std::{
     net::UdpSocket,
-    time::{Duration, SystemTime, UNIX_EPOCH},
     process,
+    time::{Duration, SystemTime, UNIX_EPOCH},
 };
 use tcp::TcpServer;
 
@@ -92,7 +92,7 @@ fn main() -> Result<(), core::convert::Infallible> {
     let mut img_no = 0_u32;
     let mut sw_update_status = 0_u32;
     controller.set_ms(millis());
-    controller.recalc_glider(&core_model);    
+    controller.recalc_glider(&core_model);
 
     'running: loop {
         window.update(&view.display.display);
