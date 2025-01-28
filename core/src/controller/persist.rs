@@ -17,6 +17,7 @@
 /// data. This is achieved by initially storing the data in an index set and only forwarding it
 /// after a pause of incoming data of at least 500 ms.
 use crate::{
+    flight_physics::polar_store,
     utils::Variant,
     view::viewable::{centerview::CenterView, lineview::LineView},
     IdleEvent, ResetReason, Rotation,
@@ -218,8 +219,10 @@ pub fn persist_set(
             }
         }
         PersistenceId::Glider => {
-            if let Variant::I32(glider_idx) = variant {
-                cm.config.glider_idx = glider_idx;
+            if let Variant::Usize(raw_idx) = variant {
+                cm.config.glider_idx = raw_idx as i32;
+                cm.glider_data.basic_glider_data = polar_store::POLARS[raw_idx];
+                cc.recalc_glider(cm);
             }
         }
         PersistenceId::VarioModeControl => {
