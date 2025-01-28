@@ -1,4 +1,4 @@
-use crate::flight_physics::{AirSpeed, BasicGliderData};
+use crate::flight_physics::{polar_store::BasicGliderData, AirSpeed};
 use crate::system_of_units::{Density, Float, FloatToMass, Mass, Speed};
 
 #[allow(unused_imports)]
@@ -48,6 +48,29 @@ pub struct Polar {
     refer: PolarKoefs,    // reference coefs
 }
 
+impl Default for Polar {
+    fn default() -> Self {
+        Self {
+            curr: PolarKoefs {
+                a: 0.0,
+                b: 0.0,
+                c: 0.0,
+                v_min: 0.0,
+                weight: 0.0,
+            },
+            refer: PolarKoefs {
+                a: 0.0,
+                b: 0.0,
+                c: 0.0,
+                v_min: 0.0,
+                weight: 0.0,
+            },
+            max_speed: 0.0,
+            density_ratio: 1.0,
+        }
+    }
+}
+
 /// Simple model of the polar curve for a glider
 ///
 /// The polar of the glider is mapped with a simple model, a quadratic approximation. The
@@ -57,10 +80,12 @@ pub struct Polar {
 /// or air density changes, the polar curve is recalculated. Airspeeds are output as type
 /// [AirSpeed], which contains both TAS and IAS.
 impl Polar {
-    pub fn new(gd: &BasicGliderData, glider_data: &mut GliderData) -> Self {
-        let (v1, w1) = (gd.polar_values[0][0] / 3.6, gd.polar_values[0][1]);
-        let (v2, w2) = (gd.polar_values[1][0] / 3.6, gd.polar_values[1][1]);
-        let (v3, w3) = (gd.polar_values[2][0] / 3.6, gd.polar_values[2][1]);
+    /// calc polar coefficients
+    pub fn recalc_glider(&mut self, glider_data: &GliderData) {
+        let bgd = &glider_data.basic_glider_data;
+        let (v1, w1) = (bgd.polar_values[0][0] / 3.6, bgd.polar_values[0][1]);
+        let (v2, w2) = (bgd.polar_values[1][0] / 3.6, bgd.polar_values[1][1]);
+        let (v3, w3) = (bgd.polar_values[2][0] / 3.6, bgd.polar_values[2][1]);
 
         let a = ((v2 - v3) * (w1 - w3) + (v3 - v1) * (w2 - w3))
             / (v1 * v1 * (v2 - v3) + v2 * v2 * (v3 - v1) + v3 * v3 * (v1 - v2));
@@ -68,29 +93,36 @@ impl Polar {
         let c = w3 - a * v3 * v3 - b * v3;
 
         let v_min = -b / a / 2.0;
-        let weight = gd.reference_weight;
+        let weight = bgd.reference_weight;
 
-        let curr = PolarKoefs {
+        self.curr = PolarKoefs {
             a,
             b,
             c,
             v_min,
             weight,
         };
-        let refer = curr.clone();
+        self.refer = self.curr.clone();
+        self.max_speed = bgd.max_speed / 3.6;
+        self.density_ratio = 1.0;
+    }
 
-        glider_data.basic_glider_data = *gd;
-        glider_data.water_ballast = 0.0.kg();
-        glider_data.water_ballast = 0.0.kg();
-        glider_data.bugs = 1.0;
-        let density_ratio = 1.0;
+    /// recalc polar to adopt weight and density changes
+    pub fn recalc(&mut self, glider_data: &GliderData, density: Density) {
+        let weight = (glider_data.basic_glider_data.empty_mass.kg()
+            + glider_data.pilot_weight
+            + glider_data.water_ballast)
+            .to_kg();
+        let ratio_weight = (weight / self.refer.weight).sqrt();
+        self.density_ratio = (Density::AT_NN().0 / density.to_kg_m3()).sqrt();
+        let ratio = ratio_weight * self.density_ratio;
 
-        Self {
-            max_speed: gd.max_speed / 3.6,
-            density_ratio,
-            curr,
-            refer,
-        }
+        self.curr.a = glider_data.bugs * self.refer.a / ratio;
+        self.curr.b = glider_data.bugs * self.refer.b;
+        self.curr.c = glider_data.bugs * self.refer.c * ratio;
+
+        self.curr.v_min = self.refer.v_min * ratio;
+        self.curr.weight = weight;
     }
 
     /// Returns the sink rate of the glider
@@ -130,23 +162,6 @@ impl Polar {
         -v / sink_rate
     }
 
-    pub fn recalc(&mut self, glider_data: &GliderData, density: Density) {
-        let weight = (glider_data.basic_glider_data.empty_mass.kg()
-            + glider_data.pilot_weight
-            + glider_data.water_ballast)
-            .to_kg();
-        let ratio_weight = (weight / self.refer.weight).sqrt();
-        self.density_ratio = (Density::AT_NN().0 / density.to_kg_m3()).sqrt();
-        let ratio = ratio_weight * self.density_ratio;
-
-        self.curr.a = glider_data.bugs * self.refer.a / ratio;
-        self.curr.b = glider_data.bugs * self.refer.b;
-        self.curr.c = glider_data.bugs * self.refer.c * ratio;
-
-        self.curr.v_min = self.refer.v_min * ratio;
-        self.curr.weight = weight;
-    }
-
     fn clamp_speed(&self, speed: Float) -> Float {
         match speed {
             v if v > self.max_speed => self.max_speed,
@@ -183,9 +198,11 @@ mod tests {
     #[test]
     fn test_basic_functions() {
         let mut glider_data = GliderData::default();
+        glider_data.basic_glider_data = BASIC_GLIDER_DATA;
 
         #[allow(unused_mut)]
-        let mut polar = Polar::new(&BASIC_GLIDER_DATA, &mut glider_data);
+        let mut polar = Polar::default();
+        polar.recalc_glider(&glider_data);
         polar.recalc(&glider_data, Density::AT_NN());
 
         assert_float_eq!(

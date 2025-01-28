@@ -1,9 +1,9 @@
 use super::{DrawStyled, Rotate, WIND_ARROW_PCOORDS};
+use core::f32::consts::PI;
 use embedded_graphics::{
     prelude::*,
-    primitives::{Polyline, PrimitiveStyle, Triangle, Arc},
+    primitives::{Arc, Polyline, PrimitiveStyle, Triangle},
 };
-use core::f32::consts::PI;
 
 #[allow(unused_imports)]
 use micromath::F32Ext;
@@ -20,7 +20,7 @@ pub struct WindArrow {
     tail_angle: f32,
 }
 
-impl WindArrow{
+impl WindArrow {
     pub const fn new(len: i32, center: Point) -> Self {
         Self {
             zero_pos: 0.0,
@@ -49,7 +49,11 @@ impl WindArrow{
 }
 
 impl DrawStyled for WindArrow {
-    fn draw_styled<D>(&self, style: PrimitiveStyle<Colors>, display: &mut D) -> Result<(), CoreError>
+    fn draw_styled<D>(
+        &self,
+        style: PrimitiveStyle<Colors>,
+        display: &mut D,
+    ) -> Result<(), CoreError>
     where
         D: DrawTarget<Color = Colors, Error = CoreError>,
     {
@@ -73,8 +77,12 @@ impl DrawStyled for WindArrow {
 
         if let Some(fill_color) = style.fill_color {
             let style = PrimitiveStyle::with_fill(fill_color);
-            Triangle::new(px[0], px[1], px[2]).into_styled(style).draw(display)?;
-            Triangle::new(px[0], px[2], px[3]).into_styled(style).draw(display)?;
+            Triangle::new(px[0], px[1], px[2])
+                .into_styled(style)
+                .draw(display)?;
+            Triangle::new(px[0], px[2], px[3])
+                .into_styled(style)
+                .draw(display)?;
         }
 
         if let Some(stroke_color) = style.stroke_color {
@@ -86,26 +94,25 @@ impl DrawStyled for WindArrow {
             let tip = WIND_ARROW_PCOORDS[0].get_scaled_rotated(scale, rotation);
             let style = PrimitiveStyle::with_stroke(self.tail_color, self.tail_thick);
             Arc::with_center(
-                    center, 
-                    (2.0*tip.len) as u32 , 
-                    tip.alpha.rad() - 90.0.deg(), 
-                    self.tail_angle.rad())
-                .into_styled(style)
-                .draw(display)?;
+                center,
+                (2.0 * tip.len) as u32,
+                tip.alpha.rad() - 90.0.deg(),
+                self.tail_angle.rad(),
+            )
+            .into_styled(style)
+            .draw(display)?;
         }
 
         Ok(())
     }
 }
 
-
-
 impl Rotate for WindArrow {
     fn rotate(&mut self, rotation: f32) -> &mut Self {
         self.rotation = rotation;
         self
     }
-    fn zero_pos(&mut self, zero_pos: f32) -> &mut Self{
+    fn zero_pos(&mut self, zero_pos: f32) -> &mut Self {
         self.zero_pos = zero_pos;
         self
     }

@@ -20,7 +20,7 @@ pub struct ThermalData {
 impl ThermalData {
     pub fn update(&mut self, cm: &CoreModel) {
         if cm.control.alive_ticks == self.last_tick {
-            return
+            return;
         }
         self.last_tick = cm.control.alive_ticks;
 
@@ -33,10 +33,10 @@ impl ThermalData {
             self.last_vario_mode = cm.control.vario_mode;
         }
         if cm.control.vario_mode == VarioMode::SpeedToFly {
-            return
+            return;
         }
 
-        let idx = Self::get_idx(cm.sensor.euler_yaw.to_radians()) ;
+        let idx = Self::get_idx(cm.sensor.euler_yaw.to_radians());
         self.climb_data[idx] = (cm.sensor.climb_rate - cm.calculated.av2_climb_rate).to_m_s();
     }
 
@@ -65,7 +65,7 @@ impl ThermalData {
             cm.palette().therm_ass_bad
         };
         let value = self.climb_data[idx];
-        ( color, value )
+        (color, value)
     }
 
     pub fn get_spider_item(&mut self, alpha: f32, cm: &CoreModel) -> (Colors, f32) {
@@ -78,13 +78,13 @@ impl ThermalData {
             cm.palette().therm2_ass_bad
         };
         let value = self.climb_data[idx];
-        ( color, value )
+        (color, value)
     }
 }
 
 impl Default for ThermalData {
     fn default() -> Self {
-        ThermalData { 
+        ThermalData {
             climb_data: [0.0; THERMAL_DATA_CNT],
             last_vario_mode: VarioMode::SpeedToFly,
             last_tick: 0,

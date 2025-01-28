@@ -35,7 +35,9 @@ pub fn key_action(key_event: &mut KeyEvent, cm: &mut CoreModel, cc: &mut CoreCon
     if cm.control.editor.mode == EditMode::Window {
         return;
     }
-    if cm.config.display_active == DisplayActive::Menu || cm.config.overlay_active == OverlayActive::Menu {
+    if cm.config.display_active == DisplayActive::Menu
+        || cm.config.overlay_active == OverlayActive::Menu
+    {
         cc.scheduler
             .after(crate::Timer::CloseMenu, MENU_TIMEOUT.secs());
         let level = cm.control.menu_control.menu.level;

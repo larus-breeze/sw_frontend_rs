@@ -81,21 +81,21 @@ impl LineView {
                 }
             }
         }
-        return LineView::None; // should never happen
+        LineView::None // should never happen
     }
 
     pub fn sorted_as_i32(&self, placement: Placement) -> i32 {
         match placement {
             Placement::Bottom => {
-                for idx in 0..BOTTOM_LINE_VIEW.len() {
-                    if *self == BOTTOM_LINE_VIEW[idx] {
+                for (idx, view_item) in BOTTOM_LINE_VIEW.iter().enumerate() { 
+                    if *self == *view_item {
                         return idx as i32;
                     };
                 }
             }
             Placement::Top => {
-                for idx in 0..TOP_LINE_VIEW.len() {
-                    if *self == TOP_LINE_VIEW[idx] {
+                for (idx, view_item) in TOP_LINE_VIEW.iter().enumerate() { 
+                    if *self == *view_item {
                         return idx as i32;
                     };
                 }
@@ -171,7 +171,7 @@ where
         let pic_x = txt_x + 2 + (rectangle.size.width / 2) as i32;
         let pic_y = pos.y - (cm.device_const.sizes.display.m_s.height as i32) / 2;
         display.draw_img(
-            &cm.device_const.images.m_s,
+            cm.device_const.images.m_s,
             Point::new(pic_x, pic_y),
             Some(color),
         )?;
@@ -322,7 +322,7 @@ where
     if let Some(rectangle) = result {
         let pic_x = wind_x + 2 + (rectangle.size.width / 2) as i32;
         display.draw_img(
-            &cm.device_const.images.km_h,
+            cm.device_const.images.km_h,
             Point::new(pic_x, wind_y),
             Some(color),
         )?;
@@ -391,7 +391,7 @@ where
     if let Some(rectangle) = result {
         let pic_x = wind_x + 2 + (rectangle.size.width / 2) as i32;
         display.draw_img(
-            &cm.device_const.images.km_h,
+            cm.device_const.images.km_h,
             Point::new(pic_x, wind_y),
             Some(color),
         )?;

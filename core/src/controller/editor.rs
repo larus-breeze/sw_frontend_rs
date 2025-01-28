@@ -100,15 +100,19 @@ pub fn key_action(key_event: &mut KeyEvent, cm: &mut CoreModel, cc: &mut CoreCon
 
         // change volume and mc cready independently of the selection
         match target {
-            Editable::Volume => if *key_event == KeyEvent::Rotary1Left || *key_event == KeyEvent::Rotary1Right {
-                activate_editable(Editable::McCready, cm, cc);
-                *key_event = KeyEvent::NoEvent;
+            Editable::Volume => {
+                if *key_event == KeyEvent::Rotary1Left || *key_event == KeyEvent::Rotary1Right {
+                    activate_editable(Editable::McCready, cm, cc);
+                    *key_event = KeyEvent::NoEvent;
+                }
             }
-            Editable::McCready => if *key_event == KeyEvent::Rotary2Left || *key_event == KeyEvent::Rotary2Right {
-                activate_editable(Editable::Volume, cm, cc);
-                *key_event = KeyEvent::NoEvent;
+            Editable::McCready => {
+                if *key_event == KeyEvent::Rotary2Left || *key_event == KeyEvent::Rotary2Right {
+                    activate_editable(Editable::Volume, cm, cc);
+                    *key_event = KeyEvent::NoEvent;
+                }
             }
-            _ => ()
+            _ => (),
         }
 
         match cm.control.editor.params {
@@ -118,12 +122,16 @@ pub fn key_action(key_event: &mut KeyEvent, cm: &mut CoreModel, cc: &mut CoreCon
             Params::F32(params) => edit_f32_content(cm, cc, key_event, target, &params),
         }
     }
-    if cm.config.display_active != DisplayActive::Menu && cm.config.overlay_active != OverlayActive::Menu {
+    if cm.config.display_active != DisplayActive::Menu
+        && cm.config.overlay_active != OverlayActive::Menu
+    {
         match key_event {
-            KeyEvent::Rotary1Left
-            | KeyEvent::Rotary1Right => activate_editable(Editable::McCready, cm, cc),
-            KeyEvent::Rotary2Left
-            | KeyEvent::Rotary2Right => activate_editable(Editable::Volume, cm, cc),
+            KeyEvent::Rotary1Left | KeyEvent::Rotary1Right => {
+                activate_editable(Editable::McCready, cm, cc)
+            }
+            KeyEvent::Rotary2Left | KeyEvent::Rotary2Right => {
+                activate_editable(Editable::Volume, cm, cc)
+            }
             KeyEvent::Btn1 => activate_editable(Editable::McCready, cm, cc),
             KeyEvent::Btn2 => activate_editable(Editable::WaterBallast, cm, cc),
             KeyEvent::Btn3 => activate_editable(Editable::PilotWeight, cm, cc),

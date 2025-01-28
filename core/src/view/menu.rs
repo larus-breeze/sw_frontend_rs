@@ -1,7 +1,7 @@
 use crate::{
-    model::{menu::Menu, CoreModel}, 
-    utils::Colors, 
-    CoreError, DrawImage, EditMode, TString
+    model::{menu::Menu, CoreModel},
+    utils::Colors,
+    CoreError, DrawImage, EditMode, TString,
 };
 use u8g2_fonts::types::{FontColor, HorizontalAlignment, VerticalPosition};
 
@@ -21,7 +21,12 @@ impl MenuView {
         MenuView {}
     }
 
-    pub fn draw<D>(&self, display: &mut D, cm: &CoreModel, secondary_view: bool) -> Result<(), CoreError>
+    pub fn draw<D>(
+        &self,
+        display: &mut D,
+        cm: &CoreModel,
+        secondary_view: bool,
+    ) -> Result<(), CoreError>
     where
         D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
     {
@@ -36,14 +41,11 @@ impl MenuView {
         }
     }
 
-
-    fn draw_circle_area_menu<D>(
-        &self, display: 
-        &mut D, cm: &CoreModel) -> Result<(), CoreError>
+    fn draw_circle_area_menu<D>(&self, display: &mut D, cm: &CoreModel) -> Result<(), CoreError>
     where
         D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
     {
-        display.draw_img(&cm.device_const.images.wp_editor, Point::new(0, 0), None)?;
+        display.draw_img(cm.device_const.images.wp_editor, Point::new(0, 0), None)?;
 
         let menu = cm.control.menu_control.menu;
         let pos = cm.control.menu_control.pos[menu.level];
@@ -55,19 +57,16 @@ impl MenuView {
 
         let p_start = Point::new(
             d_sizes.width as i32 * 15 / 100,
-            d_sizes.center.y - delta_y / 2 - 1
+            d_sizes.center.y - delta_y / 2 - 1,
         );
-        let p_delta = Point::new(
-            d_sizes.width as i32 * 70 / 100,
-            0
-        );
+        let p_delta = Point::new(d_sizes.width as i32 * 70 / 100, 0);
         Line::with_delta(p_start, p_delta)
             .into_styled(PrimitiveStyle::with_stroke(cm.palette().scale, 1))
             .draw(display)?;
 
         let p_start = Point::new(
             d_sizes.width as i32 * 15 / 100,
-            d_sizes.center.y + delta_y / 2 - 1
+            d_sizes.center.y + delta_y / 2 - 1,
         );
         Line::with_delta(p_start, p_delta)
             .into_styled(PrimitiveStyle::with_stroke(cm.palette().scale, 1))
@@ -91,7 +90,6 @@ impl MenuView {
         }
         Ok(())
     }
-
 
     pub fn draw_fullscreen_menu<D>(&self, display: &mut D, cm: &CoreModel) -> Result<(), CoreError>
     where
@@ -168,5 +166,4 @@ impl MenuView {
             (menu_item.name(), color)
         }
     }
-
 }

@@ -15,19 +15,23 @@ pub struct Arrow {
     center: Point,
 }
 
-impl Arrow{
+impl Arrow {
     pub const fn new(len: i32, center: Point) -> Self {
         Self {
             zero_pos: 0.0,
             rotation: 0.0,
             len,
-            center
+            center,
         }
     }
 }
 
 impl DrawStyled for Arrow {
-    fn draw_styled<D>(&self, style: PrimitiveStyle<Colors>, display: &mut D) -> Result<(), CoreError>
+    fn draw_styled<D>(
+        &self,
+        style: PrimitiveStyle<Colors>,
+        display: &mut D,
+    ) -> Result<(), CoreError>
     where
         D: DrawTarget<Color = Colors, Error = CoreError>,
     {
@@ -54,9 +58,15 @@ impl DrawStyled for Arrow {
 
         if let Some(fill_color) = style.fill_color {
             let style = PrimitiveStyle::with_fill(fill_color);
-            Triangle::new(px[0], px[1], px[6]).into_styled(style).draw(display)?;
-            Triangle::new(px[2], px[3], px[5]).into_styled(style).draw(display)?;
-            Triangle::new(px[3], px[4], px[5]).into_styled(style).draw(display)?;
+            Triangle::new(px[0], px[1], px[6])
+                .into_styled(style)
+                .draw(display)?;
+            Triangle::new(px[2], px[3], px[5])
+                .into_styled(style)
+                .draw(display)?;
+            Triangle::new(px[3], px[4], px[5])
+                .into_styled(style)
+                .draw(display)?;
         }
 
         if let Some(stroke_color) = style.stroke_color {
@@ -68,14 +78,12 @@ impl DrawStyled for Arrow {
     }
 }
 
-
-
 impl Rotate for Arrow {
     fn rotate(&mut self, rotation: f32) -> &mut Self {
         self.rotation = rotation;
         self
     }
-    fn zero_pos(&mut self, zero_pos: f32) -> &mut Self{
+    fn zero_pos(&mut self, zero_pos: f32) -> &mut Self {
         self.zero_pos = zero_pos;
         self
     }

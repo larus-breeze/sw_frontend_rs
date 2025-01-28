@@ -14,7 +14,7 @@ pub mod eeprom {
     pub const ADR_RESET_REASON: u32 = 9;
     //...
 
-    // start adress of data allocation table 
+    // start adress of data allocation table
     pub const ADR_DAT: u32 = 32;
     // len of DAT in bytes
     pub const DAT_LEN: u32 = SIZE / 8 / 4;
@@ -213,14 +213,17 @@ where
     /// Create a Persistence Instance
     pub fn new(mut eeprom: S) -> Result<Self, CoreError> {
         eeprom.check_magic()?;
-        
-        let user_profile =  eeprom.read_byte(ADR_USER_PROFILE)?;
+
+        let user_profile = eeprom.read_byte(ADR_USER_PROFILE)?;
         let user_profile = match user_profile {
             0..=3 => user_profile,
             _ => 0,
         };
 
-        Ok(Eeprom { eeprom, user_profile })
+        Ok(Eeprom {
+            eeprom,
+            user_profile,
+        })
     }
 
     /// Write a PersistentItem into the data store
@@ -229,9 +232,11 @@ where
     /// allocation table (DAT), if desired (dat_bit in PersitentItem).
     pub fn write_item(&mut self, item: PersistenceItem) -> Result<(), CoreError> {
         match item.id {
-            PersistenceId::DoNotStore => return Ok(()),
+            PersistenceId::DoNotStore => Ok(()),
             PersistenceId::DeleteAll => self.eeprom.clear_all_data(),
-            PersistenceId::UserProfile => self.eeprom.write_byte(eeprom::ADR_USER_PROFILE, item.data[0]),
+            PersistenceId::UserProfile => self
+                .eeprom
+                .write_byte(eeprom::ADR_USER_PROFILE, item.data[0]),
             _ => {
                 let address = self.item_address(item.id);
                 self.set_id(item.id)?;
@@ -247,10 +252,7 @@ where
         self.eeprom
             .read_data(address, &mut data)
             .map_err(|_| CoreError::EepromOrI2c1)?;
-        Ok(PersistenceItem {
-            id,
-            data,
-        })
+        Ok(PersistenceItem { id, data })
     }
 
     /// Read data from storage - return error if DAT bit is not set
@@ -292,7 +294,7 @@ where
     fn read_bitfield_byte(&mut self, id: PersistenceId) -> Result<u8, CoreError> {
         if id as u32 >= PersistenceId::LastItem as u32 {
             return Err(CoreError::PersistenceIdNotInDat);
-        } 
+        }
         let byte_adr = self.data_byte_adr_from_id(id);
         self.eeprom.read_byte(byte_adr)
     }
@@ -319,14 +321,14 @@ where
         Ok(())
     }
 
-    /// Deletes the bit in DAT => deletes the item in store 
+    /// Deletes the bit in DAT => deletes the item in store
     fn clear_id(&mut self, id: PersistenceId) -> Result<(), CoreError> {
         let byte_adr = self.data_byte_adr_from_id(id);
         let bit_pattern: u8 = !(1 << ((id as u32) % 8));
         let found = self.eeprom.read_byte(byte_adr)?;
         let target = found & bit_pattern;
-        if found != target { 
-            self.eeprom.write_byte(byte_adr, target)?; 
+        if found != target {
+            self.eeprom.write_byte(byte_adr, target)?;
         }
         Ok(())
     }
@@ -369,14 +371,12 @@ where
         if self.user_profile_sent {
             while self.cur_id < self.end_id {
                 if self.cur_id % 8 == 0 {
-                    self.cur_byte = self
-                        .persistence
-                        .read_bitfield_byte(self.cur_id.into());
+                    self.cur_byte = self.persistence.read_bitfield_byte(self.cur_id.into());
                 }
                 if let Ok(cur_byte) = self.cur_byte {
                     let cur_bit = 0x01 << (self.cur_id % 8);
                     let id_exists = (cur_bit & cur_byte) != 0;
-        
+
                     if id_exists {
                         let r = self
                             .persistence
@@ -387,7 +387,7 @@ where
                     } else {
                         self.cur_id += 1;
                     }
-                } else  {
+                } else {
                     self.cur_id += 1;
                 }
             }

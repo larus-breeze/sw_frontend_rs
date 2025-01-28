@@ -15,21 +15,21 @@ pub struct ClassicIndicator {
     center: Point,
 }
 
-impl ClassicIndicator{
+impl ClassicIndicator {
     pub const fn new(radius: i32, center: Point) -> Self {
         Self {
             zero_pos: 0.0,
             rotation: 0.0,
             len: radius,
-            center
+            center,
         }
     }
 }
 
 impl DrawColored for ClassicIndicator {
     fn draw_colored<D>(&self, color: Colors, display: &mut D) -> Result<(), CoreError>
-        where
-            D: DrawTarget<Color = Colors, Error = CoreError>
+    where
+        D: DrawTarget<Color = Colors, Error = CoreError>,
     {
         let scale = self.len as f32;
         let rotation = self.zero_pos + self.rotation;
@@ -45,21 +45,26 @@ impl DrawColored for ClassicIndicator {
         ];
 
         let style = PrimitiveStyle::with_fill(color);
-        Triangle::new(px[0], px[1], px[4]).into_styled(style).draw(display)?;
-        Triangle::new(px[1], px[2], px[3]).into_styled(style).draw(display)?;
-        Triangle::new(px[1], px[3], px[4]).into_styled(style).draw(display)?;
+        Triangle::new(px[0], px[1], px[4])
+            .into_styled(style)
+            .draw(display)?;
+        Triangle::new(px[1], px[2], px[3])
+            .into_styled(style)
+            .draw(display)?;
+        Triangle::new(px[1], px[3], px[4])
+            .into_styled(style)
+            .draw(display)?;
 
         Ok(())
     }
 }
 
-
-impl Rotate for ClassicIndicator{
+impl Rotate for ClassicIndicator {
     fn rotate(&mut self, rotation: f32) -> &mut Self {
         self.rotation = rotation;
         self
     }
-    fn zero_pos(&mut self, zero_pos: f32) -> &mut Self{
+    fn zero_pos(&mut self, zero_pos: f32) -> &mut Self {
         self.zero_pos = zero_pos;
         self
     }

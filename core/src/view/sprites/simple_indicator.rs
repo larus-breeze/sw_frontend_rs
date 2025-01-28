@@ -15,13 +15,13 @@ pub struct SimpleIndicator {
     center: Point,
 }
 
-impl SimpleIndicator{
+impl SimpleIndicator {
     pub const fn at_base(radius: i32, center: Point) -> Self {
         Self {
             zero_pos: 0.0,
             rotation: 0.0,
             radius,
-            center
+            center,
         }
     }
 
@@ -31,15 +31,15 @@ impl SimpleIndicator{
             zero_pos: 0.0,
             rotation: 0.0,
             radius: radius * 823 / 1000,
-            center
+            center,
         }
     }
 }
 
 impl DrawColored for SimpleIndicator {
     fn draw_colored<D>(&self, color: Colors, display: &mut D) -> Result<(), CoreError>
-        where
-            D: DrawTarget<Color = Colors, Error = CoreError>
+    where
+        D: DrawTarget<Color = Colors, Error = CoreError>,
     {
         let scale = self.radius as f32;
         let rotation = self.zero_pos + self.rotation;
@@ -53,19 +53,20 @@ impl DrawColored for SimpleIndicator {
         ];
 
         let style = PrimitiveStyle::with_fill(color);
-        Triangle::new(px[0], px[1], px[2]).into_styled(style).draw(display)?;
+        Triangle::new(px[0], px[1], px[2])
+            .into_styled(style)
+            .draw(display)?;
 
         Ok(())
     }
 }
 
-
-impl Rotate for SimpleIndicator{
+impl Rotate for SimpleIndicator {
     fn rotate(&mut self, rotation: f32) -> &mut Self {
         self.rotation = rotation;
         self
     }
-    fn zero_pos(&mut self, zero_pos: f32) -> &mut Self{
+    fn zero_pos(&mut self, zero_pos: f32) -> &mut Self {
         self.zero_pos = zero_pos;
         self
     }

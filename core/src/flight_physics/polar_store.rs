@@ -1,12 +1,43 @@
 /// This file contains all polars in any order. Please note:
-/// 
+///
 /// Do not delete any polars, as these could have been selected by a user
-/// 
-/// When adding, append the new polars to the end and then start the script 
-/// “assets/crate_polar_idx.py”. This script creates an index that enables alphabetical 
+///
+/// When adding, append the new polars to the end and then start the script
+/// “assets/crate_polar_idx.py”. This script creates an index that enables alphabetical
 /// selection in the menu.
- 
-use super::BasicGliderData;
+
+/// Structure with the basic data of a sailplane
+///
+/// The contents are kept as natural Rust data types and not in the physical sizes. This data
+/// structure is used as the basis for the polar. The contents correspond to the polar store
+/// in XCSoar
+#[derive(Copy, Clone)]
+pub struct BasicGliderData {
+    pub name: &'static str,
+    pub wing_area: f32,        // m²
+    pub max_speed: f32,        // km/h
+    pub empty_mass: f32,       // km/h
+    pub max_ballast: f32,      // kg
+    pub reference_weight: f32, // kg
+    pub handicap: u16,
+    pub polar_values: [[f32; 2]; 3], // (km/h, m/s) * 3
+}
+
+impl Default for BasicGliderData {
+    fn default() -> Self {
+        BasicGliderData {
+            name: "",
+            wing_area: 0.0,
+            max_speed: 0.0,
+            empty_mass: 0.0,
+            max_ballast: 0.0,
+            reference_weight: 0.0,
+            handicap: 0,
+            polar_values: [[0.0, 0.0], [0.0, 0.0], [0.0, 0.0]],
+        }
+    }
+}
+
 use super::polar_store_idx::{TO_RAW, TO_SORTED};
 
 pub fn to_sorted_idx(raw_idx: usize) -> usize {
@@ -26,9 +57,8 @@ pub fn size() -> usize {
     TO_RAW.len()
 }
 
-
 #[allow(unused)]
-pub const POLARS: &'static [BasicGliderData] = &[
+pub const POLARS: &[BasicGliderData] = &[
     BasicGliderData {
         // No 0,  imported from XCSoar
         name: "206 Hornet",

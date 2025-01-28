@@ -40,6 +40,7 @@ impl IdleLoop {
         for item in eeprom.iter_over(corelib::EepromTopic::ConfigValues) {
             dc.core().persist_restore_item(cm, item);
         }
+        dc.core().recalc_glider(cm);
 
         if let Some(version) = update_available() {
             // When software update is on the way, no watchdog is used

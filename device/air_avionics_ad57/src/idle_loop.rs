@@ -33,6 +33,9 @@ impl IdleLoop {
             trace!("Start watchdog");
         }
 
+        // Todo iter over eeprom items and restore them
+        // Todo recalc_dlider()
+
         IdleLoop {
             eeprom,
             c_idle_events,
