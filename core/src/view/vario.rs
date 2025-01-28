@@ -21,12 +21,12 @@ where
     let sizes = &cm.device_const.sizes.vario;
 
     display.draw_img(
-        &cm.device_const.images.spiral,
+        cm.device_const.images.spiral,
         sizes.pic_info3_pos,
         Some(cm.palette().vario_pic_info1),
     )?;
     display.draw_img(
-        &cm.device_const.images.m_s,
+        cm.device_const.images.m_s,
         sizes.info3_pos,
         Some(cm.palette().scale),
     )?;
@@ -50,7 +50,9 @@ pub struct Vario {
 
 impl Vario {
     pub fn new() -> Vario {
-        Vario { thermal_data: ThermalData::default(), }
+        Vario {
+            thermal_data: ThermalData::default(),
+        }
     }
 
     pub fn draw<D>(&mut self, display: &mut D, cm: &CoreModel) -> Result<(), CoreError>
@@ -63,12 +65,12 @@ impl Vario {
         // draaw wallpaper
         display.clear(cm.palette().background)?;
         display.draw_img(
-            &cm.device_const.images.wp_vario,
+            cm.device_const.images.wp_vario,
             Point::new(0, 0),
             Some(cm.palette().scale),
         )?;
         display.draw_img(
-            &cm.device_const.images.m_s,
+            cm.device_const.images.m_s,
             sizes.unit_pos,
             Some(cm.palette().background),
         )?;
@@ -76,19 +78,19 @@ impl Vario {
         // draw battery symbol
         if cm.device.supply_voltage > cm.device.voltage_limit_good {
             display.draw_img(
-                &cm.device_const.images.bat_full,
+                cm.device_const.images.bat_full,
                 sizes.bat_pos,
                 Some(cm.palette().signal_go),
             )?;
         } else if cm.device.supply_voltage < cm.device.voltage_limit_bad {
             display.draw_img(
-                &cm.device_const.images.bat_empty,
+                cm.device_const.images.bat_empty,
                 sizes.bat_pos,
                 Some(cm.palette().signal_stop),
             )?;
         } else {
             display.draw_img(
-                &cm.device_const.images.bat_half,
+                cm.device_const.images.bat_half,
                 sizes.bat_pos,
                 Some(cm.palette().signal_warning),
             )?;
@@ -100,13 +102,21 @@ impl Vario {
             SystemState::CanOk => cm.palette().signal_warning,
             SystemState::CanAndGpsOk => cm.palette().signal_go,
         };
-        display.draw_img(&cm.device_const.images.sat, sizes.sat_pos, Some(color))?;
+        display.draw_img(cm.device_const.images.sat, sizes.sat_pos, Some(color))?;
 
         // draw center view
         self.thermal_data.update(cm);
         match cm.control.fly_mode {
-            FlyMode::Circling => cm.config.center_circling.draw(display, cm, &mut self.thermal_data),
-            FlyMode::StraightFlight => cm.config.center_straignt.draw(display, cm, &mut self.thermal_data),
+            FlyMode::Circling => {
+                cm.config
+                    .center_circling
+                    .draw(display, cm, &mut self.thermal_data)
+            }
+            FlyMode::StraightFlight => {
+                cm.config
+                    .center_straignt
+                    .draw(display, cm, &mut self.thermal_data)
+            }
         }?;
 
         // draw info1 field or firmware version
@@ -147,12 +157,12 @@ impl Vario {
 
                 if cm.config.alt_stf_thermal_climb {
                     display.draw_img(
-                        &cm.device_const.images.straight,
+                        cm.device_const.images.straight,
                         sizes.pic_info3_pos,
                         Some(cm.palette().scale),
                     )?;
                     display.draw_img(
-                        &cm.device_const.images.km_h,
+                        cm.device_const.images.km_h,
                         sizes.info3_pos,
                         Some(cm.palette().scale),
                     )?;
@@ -178,13 +188,15 @@ impl Vario {
             .rotate((cm.config.mc_cready.to_m_s() * sizes.angle_m_s).to_radians())
             .draw_colored(cm.palette().needle2, display)?;
 
-    
         // draw average climb rate marker
         let av_climb_rate = clamp(cm.calculated.av2_climb_rate.to_m_s(), -5.0, 5.0);
-        SimpleIndicator::at_base((d_sizes.radius - sizes.indicator_len) as i32, d_sizes.center)
-            .zero_pos(pos::NINE_O_CLOCK)
-            .rotate((av_climb_rate * sizes.angle_m_s).to_radians())
-            .draw_colored(cm.palette().needle3, display)?;
+        SimpleIndicator::at_base(
+            (d_sizes.radius - sizes.indicator_len) as i32,
+            d_sizes.center,
+        )
+        .zero_pos(pos::NINE_O_CLOCK)
+        .rotate((av_climb_rate * sizes.angle_m_s).to_radians())
+        .draw_colored(cm.palette().needle3, display)?;
 
         // draw climb rate indicator
         let climb_rate = num::clamp(cm.sensor.climb_rate.to_m_s(), -5.1, 5.1);

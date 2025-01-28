@@ -23,6 +23,7 @@ def parse_polar_store(file_name):
     return items
 
 template = """// Created by create_polar_idx.py
+#![allow(clippy::all)]
 
 pub const TO_SORTED: &'static[u8] = &[
 @to_sorted@];

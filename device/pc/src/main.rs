@@ -92,6 +92,7 @@ fn main() -> Result<(), core::convert::Infallible> {
     let mut img_no = 0_u32;
     let mut sw_update_status = 0_u32;
     controller.set_ms(millis());
+    controller.recalc_glider(&core_model);    
 
     'running: loop {
         window.update(&view.display.display);

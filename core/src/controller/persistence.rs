@@ -17,9 +17,9 @@
 /// data. This is achieved by initially storing the data in an index set and only forwarding it
 /// after a pause of incoming data of at least 500 ms.
 use crate::{
-    utils::Variant, 
-    view::viewable::{centerview::CenterView, lineview::LineView}, 
-    Rotation, IdleEvent, ResetReason, 
+    utils::Variant,
+    view::viewable::{centerview::CenterView, lineview::LineView},
+    IdleEvent, ResetReason, Rotation,
 };
 
 use heapless::Vec;
@@ -136,8 +136,12 @@ impl CoreController {
             PersistenceId::Info2 => cm.config.info2 = LineView::from(item.to_u32()),
             PersistenceId::Rotation => cm.control.rotation = Rotation::from(item.to_u32()),
             PersistenceId::CenterFrequency => cm.config.snd_center_freq = item.to_f32(),
-            PersistenceId::CenterViewCircling => cm.config.center_circling = CenterView::from(item.to_u32()),
-            PersistenceId::CenterViewStraight => cm.config.center_straignt = CenterView::from(item.to_u32()),
+            PersistenceId::CenterViewCircling => {
+                cm.config.center_circling = CenterView::from(item.to_u32())
+            }
+            PersistenceId::CenterViewStraight => {
+                cm.config.center_straignt = CenterView::from(item.to_u32())
+            }
             _ => (),
         }
     }
@@ -187,8 +191,12 @@ impl CoreController {
             PersistenceId::CenterFrequency => {
                 PersistenceItem::from_f32(id, cm.config.snd_center_freq)
             }
-            PersistenceId::CenterViewCircling => PersistenceItem::from_u32(id, cm.config.center_circling as u32),
-            PersistenceId::CenterViewStraight => PersistenceItem::from_u32(id, cm.config.center_straignt as u32),
+            PersistenceId::CenterViewCircling => {
+                PersistenceItem::from_u32(id, cm.config.center_circling as u32)
+            }
+            PersistenceId::CenterViewStraight => {
+                PersistenceItem::from_u32(id, cm.config.center_straignt as u32)
+            }
             _ => PersistenceItem::do_not_store(),
         };
         self.send_idle_event(IdleEvent::SetEepromItem(p_item));

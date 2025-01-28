@@ -108,7 +108,9 @@ where
         if let Some(secondary_view) = &self.secondary_view {
             match secondary_view {
                 SecondaryView::Edit(edit) => edit.draw(&mut self.display, &self.core_model)?,
-                SecondaryView::MenuView(menu) => menu.draw(&mut self.display, &self.core_model, true)?,
+                SecondaryView::MenuView(menu) => {
+                    menu.draw(&mut self.display, &self.core_model, true)?
+                }
             }
         }
         Ok(())

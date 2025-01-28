@@ -5,13 +5,16 @@ use crate::view::{
 use crate::{Colors, CoreError, CoreModel, DrawImage, FloatToSpeed, FlyMode, VarioSizes};
 
 use embedded_graphics::{
-    draw_target::DrawTarget, geometry::{AngleUnit, Point}, prelude::{Angle, Primitive}, primitives::{Circle, Line, PrimitiveStyle, PrimitiveStyleBuilder, Triangle}, Drawable
+    draw_target::DrawTarget,
+    geometry::{AngleUnit, Point},
+    prelude::{Angle, Primitive},
+    primitives::{Circle, Line, PrimitiveStyle, PrimitiveStyleBuilder, Triangle},
+    Drawable,
 };
 use num::clamp;
 
 #[allow(unused_imports)]
 use micromath::F32Ext;
-
 
 #[derive(Clone, Copy, PartialEq)]
 pub enum CenterView {
@@ -86,15 +89,15 @@ impl CenterView {
     pub fn sorted_as_i32(&self, center_type: CenterType) -> i32 {
         match center_type {
             CenterType::Circling => {
-                for idx in 0..CIRCLING_CENTER_VIEW.len() {
-                    if *self == CIRCLING_CENTER_VIEW[idx] {
+                for (idx, view_item) in CIRCLING_CENTER_VIEW.iter().enumerate() {
+                    if *self == *view_item {
                         return idx as i32;
                     };
                 }
             }
             CenterType::Straight => {
-                for idx in 0..STRAIGHT_CENTER_VIEW.len() {
-                    if *self == STRAIGHT_CENTER_VIEW[idx] {
+                for (idx, view_item) in STRAIGHT_CENTER_VIEW.iter().enumerate() {
+                    if *self == *view_item {
                         return idx as i32;
                     };
                 }
@@ -118,7 +121,12 @@ impl CenterView {
     }
 
     /// Draw viewable
-    pub fn draw<D>(&self, display: &mut D, cm: &CoreModel, thermal_data: &mut ThermalData) -> Result<(), CoreError>
+    pub fn draw<D>(
+        &self,
+        display: &mut D,
+        cm: &CoreModel,
+        thermal_data: &mut ThermalData,
+    ) -> Result<(), CoreError>
     where
         D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
     {
@@ -138,13 +146,13 @@ impl CenterView {
 fn draw_thermal_assitant1<D>(
     display: &mut D,
     cm: &CoreModel,
-    thermal_data: &mut ThermalData
+    thermal_data: &mut ThermalData,
 ) -> Result<(), CoreError>
 where
     D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
 {
     let sizes = &cm.device_const.sizes;
-    let mut pcoord = PolarCoordinate{
+    let mut pcoord = PolarCoordinate {
         alpha: 0.0,
         len: sizes.vario.ta_circle_radius as f32,
     };
@@ -160,9 +168,10 @@ where
         let (fill_color, delta_climb) = thermal_data.get_dotted_item(pcoord.alpha, cm);
         let center = pcoord.to_xy(1.0, rotation) + sizes.display.center;
         let diameter = clamp(
-            (delta_climb.abs() * 5.0) as u32, 
-            sizes.vario.ta_point_diameter / 5, 
-            sizes.vario.ta_point_diameter);
+            (delta_climb.abs() * 5.0) as u32,
+            sizes.vario.ta_point_diameter / 5,
+            sizes.vario.ta_point_diameter,
+        );
         Circle::with_center(center, diameter)
             .into_styled(PrimitiveStyle::with_fill(fill_color))
             .draw(display)?;
@@ -178,22 +187,23 @@ where
         sizes.display.center + Point::new(dx, -dy)
     };
     display.draw_img(
-        &cm.device_const.images.small_glider, 
-        p_gld, 
-        Some(cm.palette().scale))?;
+        cm.device_const.images.small_glider,
+        p_gld,
+        Some(cm.palette().scale),
+    )?;
     Ok(())
 }
 
 fn draw_thermal_assitant2<D>(
     display: &mut D,
     cm: &CoreModel,
-    thermal_data: &mut ThermalData
+    thermal_data: &mut ThermalData,
 ) -> Result<(), CoreError>
 where
     D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
 {
     let sizes = &cm.device_const.sizes;
-    let mut pcoord = PolarCoordinate{
+    let mut pcoord = PolarCoordinate {
         alpha: 0.0,
         len: sizes.vario.ta_circle_radius as f32,
     };
@@ -213,10 +223,7 @@ where
     let mut delta_climb;
     for _cnt in 0..THERMAL_DATA_CNT {
         (fill_color, delta_climb) = thermal_data.get_spider_item(pcoord.alpha, cm);
-        let scale = clamp(
-            (delta_climb + 3.0)*0.15 + 0.4,
-            0.4,
-            1.3);
+        let scale = clamp((delta_climb + 3.0) * 0.15 + 0.4, 0.4, 1.3);
         let p2 = pcoord.to_xy(scale, rotation) + center;
         if let Some(p1) = p1 {
             Triangle::new(center, p1, p2)
@@ -248,9 +255,10 @@ where
         sizes.display.center + Point::new(dx, -dy)
     };
     display.draw_img(
-        &cm.device_const.images.small_glider, 
-        p_gld, 
-        Some(cm.palette().scale))?;
+        cm.device_const.images.small_glider,
+        p_gld,
+        Some(cm.palette().scale),
+    )?;
     Ok(())
 }
 
@@ -266,7 +274,7 @@ where
         FlyMode::Circling => {
             // draw north symbol
             display.draw_img(
-                &cm.device_const.images.north,
+                cm.device_const.images.north,
                 sizes.north_pos,
                 Some(cm.palette().background),
             )?;
@@ -279,7 +287,7 @@ where
         FlyMode::StraightFlight => {
             // draw glider symbol
             display.draw_img(
-                &cm.device_const.images.glider,
+                cm.device_const.images.glider,
                 sizes.glider_pos,
                 Some(cm.palette().scale),
             )?;

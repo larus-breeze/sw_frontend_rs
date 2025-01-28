@@ -30,7 +30,7 @@ mod view;
 // The core components
 pub use controller::*;
 pub use model::{
-    CoreModel, DeviceConst, DisplaySizes, Editable, EditMode, FlyMode, HorizonSizes, Images, Misc, 
+    CoreModel, DeviceConst, DisplaySizes, EditMode, Editable, FlyMode, HorizonSizes, Images, Misc,
     Palette, Sizes, VarioMode, VarioSizes,
 };
 pub use view::{CoreView, FRAME_RATE};

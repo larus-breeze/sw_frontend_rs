@@ -1,16 +1,14 @@
 use crate::{
-    model::CoreModel, 
-    utils::Colors,
-    view::sprites::SimpleIndicator, 
-    CoreError, DrawImage, tformat};
+    model::CoreModel, tformat, utils::Colors, view::sprites::SimpleIndicator, CoreError, DrawImage,
+};
 
 #[allow(unused_imports)]
 use micromath::F32Ext;
 
 use embedded_graphics::{
-    prelude::*,
-    primitives::{PrimitiveStyle, Line, Rectangle, Triangle},
     geometry::AngleUnit,
+    prelude::*,
+    primitives::{Line, PrimitiveStyle, Rectangle, Triangle},
 };
 use num::clamp;
 use u8g2_fonts::{
@@ -41,27 +39,31 @@ impl Horizon {
         let m_pitch = clamp(cm.sensor.euler_pitch.to_radians(), -1.55, 1.55).tan();
 
         // the y coordinate is not height / 2 because on rectangle display only quadratic content is used
-        let ah_center_x = sizes.display.width as i32 /2;
+        let ah_center_x = sizes.display.width as i32 / 2;
         let ah_center_y = ah_center_x;
         let ah_pitch_center_y = (m_pitch * ah_center_x as f32) as i32 + ah_center_y;
 
         // to achieve a good performance, we have to use draw_line_unchecked()
         if m_roll == 0.0 {
             let corner_1 = Point::new(0, ah_pitch_center_y);
-            let corner_2 = Point::new(sizes.display.width as i32, sizes.display.height as i32); 
+            let corner_2 = Point::new(sizes.display.width as i32, sizes.display.height as i32);
             Rectangle::with_corners(corner_1, corner_2)
                 .into_styled(PrimitiveStyle::with_fill(cm.palette().horizon_earth))
                 .draw(display)?;
         } else if m_roll > 0.0 {
             let start_y = ah_pitch_center_y - (m_roll * ah_center_x as f32) as i32;
             let mut y = clamp(start_y, 0, sizes.display.height as i32 - 1) as usize;
-            let m2_roll = 1.0 / m_roll; 
+            let m2_roll = 1.0 / m_roll;
             while y < sizes.display.height as usize {
-                let x = (m2_roll * (y as i32- start_y) as f32) as i32;
+                let x = (m2_roll * (y as i32 - start_y) as f32) as i32;
                 let len = clamp(x, 0, sizes.display.width as i32) as usize;
                 // We know, that we are within the display limits, so unsafe is ok
                 unsafe {
-                    display.draw_line_unchecked(y * sizes.display.width as usize, len, cm.palette().horizon_earth);
+                    display.draw_line_unchecked(
+                        y * sizes.display.width as usize,
+                        len,
+                        cm.palette().horizon_earth,
+                    );
                 }
                 y += 1;
             }
@@ -71,13 +73,15 @@ impl Horizon {
             let m2_roll = 1.0 / m_roll;
             while y < sizes.display.height as usize {
                 let x = clamp(
-                    sizes.display.width as i32 - 1 + (m2_roll * (y as i32 - start_y) as f32) as i32, 
-                    0, 
-                    (sizes.display.width) as i32);
+                    sizes.display.width as i32 - 1 + (m2_roll * (y as i32 - start_y) as f32) as i32,
+                    0,
+                    (sizes.display.width) as i32,
+                );
                 let len = clamp(
-                    sizes.display.width as i32 - x, 
-                    0, 
-                    sizes.display.width as i32) as usize;
+                    sizes.display.width as i32 - x,
+                    0,
+                    sizes.display.width as i32,
+                ) as usize;
                 let p_idx = y * sizes.display.width as usize + x as usize;
                 // We know, that we are within the display limits, so unsafe is ok
                 unsafe {
@@ -90,7 +94,7 @@ impl Horizon {
         // draw background image / scale
         //
         display.draw_img(
-            &cm.device_const.images.wp_horizon,
+            cm.device_const.images.wp_horizon,
             Point::new(0, 0),
             Some(cm.palette().scale),
         )?;
@@ -131,7 +135,10 @@ impl Horizon {
         boxed_text(
             display,
             th_txt.as_str(),
-            Point::new(ah_center_x, sizes.display.width as i32 - sizes.horizon.box_height / 2),
+            Point::new(
+                ah_center_x,
+                sizes.display.width as i32 - sizes.horizon.box_height / 2,
+            ),
             &cm.device_const.big_font,
             sizes.horizon.t_width,
             sizes.horizon.box_height,
@@ -156,8 +163,14 @@ impl Horizon {
         let scale_inc = sizes.display.width as i32 / 10;
         let x = ((diff * scale_inc as f32) / 10.0) as i32 + ah_center_x;
         let p1 = Point::new(x, sizes.horizon.tc_needle_y);
-        let p2 = Point::new(x + 10, sizes.horizon.tc_needle_y + sizes.horizon.tc_needle_delta);
-        let p3 = Point::new(x - 10, sizes.horizon.tc_needle_y + sizes.horizon.tc_needle_delta);
+        let p2 = Point::new(
+            x + 10,
+            sizes.horizon.tc_needle_y + sizes.horizon.tc_needle_delta,
+        );
+        let p3 = Point::new(
+            x - 10,
+            sizes.horizon.tc_needle_y + sizes.horizon.tc_needle_delta,
+        );
         Triangle::new(p1, p2, p3)
             .into_styled(PrimitiveStyle::with_fill(t_col))
             .draw(display)?;

@@ -69,7 +69,7 @@ pub struct VarioSizes {
     pub info3_pos: Point,
     pub pic_info3_pos: Point,
     pub small_gld_size: Size,
-    pub ta_circle_radius: u32,  // ta thermal assistant
+    pub ta_circle_radius: u32, // ta thermal assistant
     pub ta_point_diameter: u32,
     pub wind_len: i32,
     pub wind_len_min: i32,
@@ -131,7 +131,6 @@ pub struct Palette {
     pub therm2_ass_best: Colors,
     pub therm2_ass_good: Colors,
     pub therm2_ass_bad: Colors,
-
 }
 
 impl Palette {

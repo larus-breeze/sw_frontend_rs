@@ -47,8 +47,8 @@ pub const VIEW_SETINGS_IDX: usize = 3;
 pub const ADVANCED_SETINGS_IDX: usize = 4;
 
 pub const MENU_LIST: &[Menu] = &[
-    ROOT, 
-    FLIGHT_MENU, 
+    ROOT,
+    FLIGHT_MENU,
     VARIO_SETTINGS,
     VIEW_SETTINGS,
     ADVANCED_SETTINGS,

@@ -26,25 +26,25 @@ impl Edit {
     where
         D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
     {
-        if cm.config.display_active == DisplayActive::Vario || cm.config.display_active == DisplayActive::Horizon {
+        if cm.config.display_active == DisplayActive::Vario
+            || cm.config.display_active == DisplayActive::Horizon
+        {
             match cm.device_const.misc.edit_mode {
                 EditMode::Off => Ok(()),
                 EditMode::CircleArea => self.draw_circle_area_editor(display, cm),
                 EditMode::Fullscreen => self.draw_rectangle_editor(display, cm, true),
                 EditMode::Window => self.draw_rectangle_editor(display, cm, false),
-            }   
+            }
         } else {
             self.draw_rectangle_editor(display, cm, true)
         }
     }
 
-    fn draw_circle_area_editor<D>(
-        &self, display: 
-        &mut D, cm: &CoreModel) -> Result<(), CoreError>
+    fn draw_circle_area_editor<D>(&self, display: &mut D, cm: &CoreModel) -> Result<(), CoreError>
     where
         D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
     {
-        display.draw_img(&cm.device_const.images.wp_editor, Point::new(0, 0), None)?;
+        display.draw_img(cm.device_const.images.wp_editor, Point::new(0, 0), None)?;
 
         let d_sizes = &cm.device_const.sizes.display;
         let delta_y = cm.device_const.sizes.display.height as i32 / 15;
@@ -69,9 +69,11 @@ impl Edit {
     }
 
     fn draw_rectangle_editor<D>(
-        &self, display: 
-        &mut D, cm: &CoreModel,
-        fullscreen: bool) -> Result<(), CoreError>
+        &self,
+        display: &mut D,
+        cm: &CoreModel,
+        fullscreen: bool,
+    ) -> Result<(), CoreError>
     where
         D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
     {
@@ -88,11 +90,10 @@ impl Edit {
             let d_sizes = &cm.device_const.sizes.display;
             let width = d_sizes.width * 80 / 100;
             let height = d_sizes.height * 50 / 100;
-    
+
             Rectangle::with_center(d_sizes.screen_center, Size::new(width, height))
                 .into_styled(style)
                 .draw(display)?;
-
         };
 
         let delta_y = cm.device_const.sizes.display.height as i32 / 15;
