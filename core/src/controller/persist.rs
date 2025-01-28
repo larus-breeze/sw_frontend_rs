@@ -135,7 +135,7 @@ pub fn restore_item(cc: &mut CoreController, cm: &mut CoreModel, item: Persisten
             cm.config.glider_idx = raw_idx;
             cm.glider_data.basic_glider_data = polar_store::POLARS[raw_idx as usize];
             cc.recalc_glider(cm);
-    }
+        }
         PersistenceId::VarioModeControl => {
             cm.control.vario_mode_control = VarioModeControl::from(item.to_u8())
         }
