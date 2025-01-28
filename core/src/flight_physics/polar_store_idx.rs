@@ -1,105 +1,105 @@
 // Created by create_polar_idx.py
 #![allow(clippy::all)]
 
-pub const TO_SORTED: &'static[u8] = &[
-    0, // &'static str
-    1, // 206 Hornet
-    2, // 303 Mosquito
-    3, // 304CZ
-    4, // 401 Kestrel 17m
-    5, // 604 Kestrel
-    6, // AK-8
-    9, // ASG-29 (15m)
-    10, // ASG-29 (18m)
-    11, // ASG-29E (15m)
-    12, // ASG-29E (18m)
-    13, // ASG-32
-    14, // ASH-25
-    15, // ASH-26
-    16, // ASH-26E
-    17, // ASK-13
-    18, // ASK-18
-    19, // ASK-21
-    20, // ASK-23
-    21, // ASW-12
-    22, // ASW-15
-    23, // ASW-17
-    24, // ASW-19
-    25, // ASW-20
-    26, // ASW-20BL
-    27, // ASW-22B
-    28, // ASW-22BLE
-    29, // ASW-24
-    30, // ASW-27
-    31, // ASW-28 (15m)
-    32, // ASW-28 (18m)
-    33, // Antares 18S
-    34, // Antares 18T
-    35, // Antares 20E
-    36, // Apis (13m)
-    37, // Apis 2 (15m)
-    38, // Arcus
-    39, // Blanik L13
-    40, // Blanik L13-AC
-    41, // Blanik L23
-    42, // Carat
-    43, // Cirrus (18m)
-    44, // DG-100
-    45, // DG-1000 (20m)
-    46, // DG-200
-    47, // DG-300
-    48, // DG-400 (15m)
-    49, // DG-400 (17m)
-    50, // DG-500 (20m)
-    51, // DG-600 (15m)
-    52, // DG-800B (15m)
-    53, // DG-800B (18m)
-    54, // DG-800S (15m)
-    55, // DG-800S (18m)
-    56, // Delta USHPA-2
-    57, // Delta USHPA-3
-    58, // Delta USHPA-4
-    59, // Dimona
-    60, // Discus
-    61, // Discus 2b
-    62, // Discus 2c (18m)
-    63, // Duo Discus
-    64, // Duo Discus T
-    65, // Duo Discus xT
-    66, // EB 28
-    67, // EB 28 Edition
-    68, // G 102 Astir CS
-    69, // G 103 Twin 2
-    70, // G102 Club Astir
-    71, // G102 Std Astir
-    72, // G104 Speed Astir
-    73, // Genesis II
-    74, // Glasfluegel 304
-    75, // H-301 Libelle
-    76, // H201 Std Libelle
-    77, // H205 Club Libelle
-    78, // IS-28B2
-    79, // IS-29D2 Lark
-    80, // JS-1B (18m)
-    81, // JS-1C (21m)
-    82, // JS-3 (15m)
-    83, // JS-3 (18m)
-    84, // Janus (18m)
-    85, // Janus C FG
-    86, // Janus C RG
-    87, // Ka 2b
-    88, // Ka 4
-    89, // Ka 6CR
-    90, // Ka 6E
-    91, // Ka 7
-    92, // Ka 8
-    93, // L 33 Solo
-    94, // LAK-12
-    95, // LAK-17 (15m)
-    96, // LAK-17 (18m)
-    97, // LAK-19 (15m)
-    98, // LAK-19 (18m)
-    99, // LAK17a (15m)
+pub const TO_SORTED: &'static [u8] = &[
+    0,   // &'static str
+    1,   // 206 Hornet
+    2,   // 303 Mosquito
+    3,   // 304CZ
+    4,   // 401 Kestrel 17m
+    5,   // 604 Kestrel
+    6,   // AK-8
+    9,   // ASG-29 (15m)
+    10,  // ASG-29 (18m)
+    11,  // ASG-29E (15m)
+    12,  // ASG-29E (18m)
+    13,  // ASG-32
+    14,  // ASH-25
+    15,  // ASH-26
+    16,  // ASH-26E
+    17,  // ASK-13
+    18,  // ASK-18
+    19,  // ASK-21
+    20,  // ASK-23
+    21,  // ASW-12
+    22,  // ASW-15
+    23,  // ASW-17
+    24,  // ASW-19
+    25,  // ASW-20
+    26,  // ASW-20BL
+    27,  // ASW-22B
+    28,  // ASW-22BLE
+    29,  // ASW-24
+    30,  // ASW-27
+    31,  // ASW-28 (15m)
+    32,  // ASW-28 (18m)
+    33,  // Antares 18S
+    34,  // Antares 18T
+    35,  // Antares 20E
+    36,  // Apis (13m)
+    37,  // Apis 2 (15m)
+    38,  // Arcus
+    39,  // Blanik L13
+    40,  // Blanik L13-AC
+    41,  // Blanik L23
+    42,  // Carat
+    43,  // Cirrus (18m)
+    44,  // DG-100
+    45,  // DG-1000 (20m)
+    46,  // DG-200
+    47,  // DG-300
+    48,  // DG-400 (15m)
+    49,  // DG-400 (17m)
+    50,  // DG-500 (20m)
+    51,  // DG-600 (15m)
+    52,  // DG-800B (15m)
+    53,  // DG-800B (18m)
+    54,  // DG-800S (15m)
+    55,  // DG-800S (18m)
+    56,  // Delta USHPA-2
+    57,  // Delta USHPA-3
+    58,  // Delta USHPA-4
+    59,  // Dimona
+    60,  // Discus
+    61,  // Discus 2b
+    62,  // Discus 2c (18m)
+    63,  // Duo Discus
+    64,  // Duo Discus T
+    65,  // Duo Discus xT
+    66,  // EB 28
+    67,  // EB 28 Edition
+    68,  // G 102 Astir CS
+    69,  // G 103 Twin 2
+    70,  // G102 Club Astir
+    71,  // G102 Std Astir
+    72,  // G104 Speed Astir
+    73,  // Genesis II
+    74,  // Glasfluegel 304
+    75,  // H-301 Libelle
+    76,  // H201 Std Libelle
+    77,  // H205 Club Libelle
+    78,  // IS-28B2
+    79,  // IS-29D2 Lark
+    80,  // JS-1B (18m)
+    81,  // JS-1C (21m)
+    82,  // JS-3 (15m)
+    83,  // JS-3 (18m)
+    84,  // Janus (18m)
+    85,  // Janus C FG
+    86,  // Janus C RG
+    87,  // Ka 2b
+    88,  // Ka 4
+    89,  // Ka 6CR
+    90,  // Ka 6E
+    91,  // Ka 7
+    92,  // Ka 8
+    93,  // L 33 Solo
+    94,  // LAK-12
+    95,  // LAK-17 (15m)
+    96,  // LAK-17 (18m)
+    97,  // LAK-19 (15m)
+    98,  // LAK-19 (18m)
+    99,  // LAK17a (15m)
     100, // LAK17a (18m)
     101, // LS-10s (15m)
     102, // LS-10s (18m)
@@ -170,113 +170,113 @@ pub const TO_SORTED: &'static[u8] = &[
     167, // Ventus cM (17.6)
     168, // WA 26 P Squale
     169, // Zuni II
-    8, // AS-33 18m
-    7, // AS-33 15m
+    8,   // AS-33 18m
+    7,   // AS-33 15m
 ];
 
-pub const TO_RAW: &'static[u8] = &[
-    0, //&'static str
-    1, //206 Hornet
-    2, //303 Mosquito
-    3, //304CZ
-    4, //401 Kestrel 17m
-    5, //604 Kestrel
-    6, //AK-8
+pub const TO_RAW: &'static [u8] = &[
+    0,   //&'static str
+    1,   //206 Hornet
+    2,   //303 Mosquito
+    3,   //304CZ
+    4,   //401 Kestrel 17m
+    5,   //604 Kestrel
+    6,   //AK-8
     169, //AS-33 15m
     168, //AS-33 18m
-    7, //ASG-29 (15m)
-    8, //ASG-29 (18m)
-    9, //ASG-29E (15m)
-    10, //ASG-29E (18m)
-    11, //ASG-32
-    12, //ASH-25
-    13, //ASH-26
-    14, //ASH-26E
-    15, //ASK-13
-    16, //ASK-18
-    17, //ASK-21
-    18, //ASK-23
-    19, //ASW-12
-    20, //ASW-15
-    21, //ASW-17
-    22, //ASW-19
-    23, //ASW-20
-    24, //ASW-20BL
-    25, //ASW-22B
-    26, //ASW-22BLE
-    27, //ASW-24
-    28, //ASW-27
-    29, //ASW-28 (15m)
-    30, //ASW-28 (18m)
-    31, //Antares 18S
-    32, //Antares 18T
-    33, //Antares 20E
-    34, //Apis (13m)
-    35, //Apis 2 (15m)
-    36, //Arcus
-    37, //Blanik L13
-    38, //Blanik L13-AC
-    39, //Blanik L23
-    40, //Carat
-    41, //Cirrus (18m)
-    42, //DG-100
-    43, //DG-1000 (20m)
-    44, //DG-200
-    45, //DG-300
-    46, //DG-400 (15m)
-    47, //DG-400 (17m)
-    48, //DG-500 (20m)
-    49, //DG-600 (15m)
-    50, //DG-800B (15m)
-    51, //DG-800B (18m)
-    52, //DG-800S (15m)
-    53, //DG-800S (18m)
-    54, //Delta USHPA-2
-    55, //Delta USHPA-3
-    56, //Delta USHPA-4
-    57, //Dimona
-    58, //Discus
-    59, //Discus 2b
-    60, //Discus 2c (18m)
-    61, //Duo Discus
-    62, //Duo Discus T
-    63, //Duo Discus xT
-    64, //EB 28
-    65, //EB 28 Edition
-    66, //G 102 Astir CS
-    67, //G 103 Twin 2
-    68, //G102 Club Astir
-    69, //G102 Std Astir
-    70, //G104 Speed Astir
-    71, //Genesis II
-    72, //Glasfluegel 304
-    73, //H-301 Libelle
-    74, //H201 Std Libelle
-    75, //H205 Club Libelle
-    76, //IS-28B2
-    77, //IS-29D2 Lark
-    78, //JS-1B (18m)
-    79, //JS-1C (21m)
-    80, //JS-3 (15m)
-    81, //JS-3 (18m)
-    82, //Janus (18m)
-    83, //Janus C FG
-    84, //Janus C RG
-    85, //Ka 2b
-    86, //Ka 4
-    87, //Ka 6CR
-    88, //Ka 6E
-    89, //Ka 7
-    90, //Ka 8
-    91, //L 33 Solo
-    92, //LAK-12
-    93, //LAK-17 (15m)
-    94, //LAK-17 (18m)
-    95, //LAK-19 (15m)
-    96, //LAK-19 (18m)
-    97, //LAK17a (15m)
-    98, //LAK17a (18m)
-    99, //LS-10s (15m)
+    7,   //ASG-29 (15m)
+    8,   //ASG-29 (18m)
+    9,   //ASG-29E (15m)
+    10,  //ASG-29E (18m)
+    11,  //ASG-32
+    12,  //ASH-25
+    13,  //ASH-26
+    14,  //ASH-26E
+    15,  //ASK-13
+    16,  //ASK-18
+    17,  //ASK-21
+    18,  //ASK-23
+    19,  //ASW-12
+    20,  //ASW-15
+    21,  //ASW-17
+    22,  //ASW-19
+    23,  //ASW-20
+    24,  //ASW-20BL
+    25,  //ASW-22B
+    26,  //ASW-22BLE
+    27,  //ASW-24
+    28,  //ASW-27
+    29,  //ASW-28 (15m)
+    30,  //ASW-28 (18m)
+    31,  //Antares 18S
+    32,  //Antares 18T
+    33,  //Antares 20E
+    34,  //Apis (13m)
+    35,  //Apis 2 (15m)
+    36,  //Arcus
+    37,  //Blanik L13
+    38,  //Blanik L13-AC
+    39,  //Blanik L23
+    40,  //Carat
+    41,  //Cirrus (18m)
+    42,  //DG-100
+    43,  //DG-1000 (20m)
+    44,  //DG-200
+    45,  //DG-300
+    46,  //DG-400 (15m)
+    47,  //DG-400 (17m)
+    48,  //DG-500 (20m)
+    49,  //DG-600 (15m)
+    50,  //DG-800B (15m)
+    51,  //DG-800B (18m)
+    52,  //DG-800S (15m)
+    53,  //DG-800S (18m)
+    54,  //Delta USHPA-2
+    55,  //Delta USHPA-3
+    56,  //Delta USHPA-4
+    57,  //Dimona
+    58,  //Discus
+    59,  //Discus 2b
+    60,  //Discus 2c (18m)
+    61,  //Duo Discus
+    62,  //Duo Discus T
+    63,  //Duo Discus xT
+    64,  //EB 28
+    65,  //EB 28 Edition
+    66,  //G 102 Astir CS
+    67,  //G 103 Twin 2
+    68,  //G102 Club Astir
+    69,  //G102 Std Astir
+    70,  //G104 Speed Astir
+    71,  //Genesis II
+    72,  //Glasfluegel 304
+    73,  //H-301 Libelle
+    74,  //H201 Std Libelle
+    75,  //H205 Club Libelle
+    76,  //IS-28B2
+    77,  //IS-29D2 Lark
+    78,  //JS-1B (18m)
+    79,  //JS-1C (21m)
+    80,  //JS-3 (15m)
+    81,  //JS-3 (18m)
+    82,  //Janus (18m)
+    83,  //Janus C FG
+    84,  //Janus C RG
+    85,  //Ka 2b
+    86,  //Ka 4
+    87,  //Ka 6CR
+    88,  //Ka 6E
+    89,  //Ka 7
+    90,  //Ka 8
+    91,  //L 33 Solo
+    92,  //LAK-12
+    93,  //LAK-17 (15m)
+    94,  //LAK-17 (18m)
+    95,  //LAK-19 (15m)
+    96,  //LAK-19 (18m)
+    97,  //LAK17a (15m)
+    98,  //LAK17a (18m)
+    99,  //LS-10s (15m)
     100, //LS-10s (18m)
     101, //LS-1c
     102, //LS-1f

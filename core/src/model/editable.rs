@@ -12,6 +12,7 @@
 ///   - Then the enum Editable is extended by the new element (see below)
 ///   - Extend necessary mehtods params(), name(), content(), set_...()
 use crate::{
+    controller::persist,
     model::VarioModeControl,
     polar_store,
     utils::{TString, Variant},
@@ -403,20 +404,23 @@ impl Editable {
     pub fn set_enum_content(&self, cm: &mut CoreModel, cc: &mut CoreController, val: &TString<16>) {
         match self {
             Editable::Display => match val.as_str() {
-                "Horizon" => cc.persist_set(
+                "Horizon" => persist::persist_set(
+                    cc,
                     cm,
                     Variant::DisplayActive(DisplayActive::Horizon),
                     PersistenceId::Display,
                     Echo::None,
                 ),
-                _ => cc.persist_set(
+                _ => persist::persist_set(
+                    cc,
                     cm,
                     Variant::DisplayActive(DisplayActive::Vario),
                     PersistenceId::Display,
                     Echo::None,
                 ),
             },
-            Editable::Theme => cc.persist_set(
+            Editable::Theme => persist::persist_set(
+                cc,
                 cm,
                 Variant::Str(val.as_str()),
                 PersistenceId::DisplayTheme,
@@ -428,14 +432,16 @@ impl Editable {
                     "SpeedToFly" => VarioModeControl::SpeedToFly,
                     _ => VarioModeControl::Auto,
                 };
-                cc.persist_set(
+                persist::persist_set(
+                    cc,
                     cm,
                     Variant::VarioModeControl(mode),
                     PersistenceId::VarioModeControl,
                     Echo::NmeaAndCan,
                 );
             }
-            Editable::Rotation => cc.persist_set(
+            Editable::Rotation => persist::persist_set(
+                cc,
                 cm,
                 Variant::Rotation(Rotation::from(val.as_str())),
                 PersistenceId::Rotation,
@@ -449,8 +455,8 @@ impl Editable {
                 };
                 if cm.control.editor.enter_pushed {
                     match cm.control.reset_config {
-                        0 => cc.persist_delete_config(),
-                        1 => cc.persist_factory_reset(),
+                        0 => persist::delete_config(cc),
+                        1 => persist::factory_reset(cc),
                         _ => (),
                     }
                 }
@@ -464,7 +470,7 @@ impl Editable {
                         USER_4 => 3,
                         _ => 0,
                     };
-                    cc.persist_user_profile(cm); // store value and reset device
+                    persist::user_profile(cc, cm); // store value and reset device
                 }
             }
             _ => (),
@@ -473,46 +479,57 @@ impl Editable {
 
     pub fn set_f32_content(&self, cm: &mut CoreModel, cc: &mut CoreController, val: f32) {
         match self {
-            Editable::Bugs => cc.persist_set(
+            Editable::Bugs => persist::persist_set(
+                cc,
                 cm,
                 Variant::F32(1.0 + val / 100.0),
                 PersistenceId::Bugs,
                 Echo::NmeaAndCan,
             ),
-            Editable::McCready => cc.persist_set(
+            Editable::McCready => persist::persist_set(
+                cc,
                 cm,
                 Variant::Speed(val.m_s()),
                 PersistenceId::McCready,
                 Echo::NmeaAndCan,
             ),
-            Editable::PilotWeight => cc.persist_set(
+            Editable::PilotWeight => persist::persist_set(
+                cc,
                 cm,
                 Variant::Mass(val.kg()),
                 PersistenceId::PilotWeight,
                 Echo::NmeaAndCan,
             ),
-            Editable::TcClimbRate => {
-                cc.persist_set(cm, Variant::F32(val), PersistenceId::TcClimbRate, Echo::Can)
-            }
-            Editable::TcSpeedToFly => cc.persist_set(
+            Editable::TcClimbRate => persist::persist_set(
+                cc,
+                cm,
+                Variant::F32(val),
+                PersistenceId::TcClimbRate,
+                Echo::Can,
+            ),
+            Editable::TcSpeedToFly => persist::persist_set(
+                cc,
                 cm,
                 Variant::F32(val),
                 PersistenceId::TcSpeedToFly,
                 Echo::Can,
             ),
-            Editable::Volume => cc.persist_set(
+            Editable::Volume => persist::persist_set(
+                cc,
                 cm,
                 Variant::I8(val as i8),
                 PersistenceId::Volume,
                 Echo::NmeaAndCan,
             ),
-            Editable::WaterBallast => cc.persist_set(
+            Editable::WaterBallast => persist::persist_set(
+                cc,
                 cm,
                 Variant::Mass(val.kg()),
                 PersistenceId::WaterBallast,
                 Echo::NmeaAndCan,
             ),
-            Editable::CenterFrequency => cc.persist_set(
+            Editable::CenterFrequency => persist::persist_set(
+                cc,
                 cm,
                 Variant::F32(val),
                 PersistenceId::CenterFrequency,
@@ -529,7 +546,8 @@ impl Editable {
                 let raw_idx = polar_store::to_raw_idx(val as usize);
                 cm.glider_data.basic_glider_data = polar_store::POLARS[raw_idx];
                 cc.recalc_glider(cm);
-                cc.persist_set(
+                persist::persist_set(
+                    cc,
                     cm,
                     Variant::I32(raw_idx as i32),
                     PersistenceId::Glider,
@@ -538,15 +556,28 @@ impl Editable {
             }
             Editable::Info1 => {
                 let variant = LineView::from_sorted(val as usize, Placement::Top) as i32;
-                cc.persist_set(cm, Variant::I32(variant), PersistenceId::Info1, Echo::None)
+                persist::persist_set(
+                    cc,
+                    cm,
+                    Variant::I32(variant),
+                    PersistenceId::Info1,
+                    Echo::None,
+                )
             }
             Editable::Info2 => {
                 let variant = LineView::from_sorted(val as usize, Placement::Bottom) as i32;
-                cc.persist_set(cm, Variant::I32(variant), PersistenceId::Info2, Echo::None)
+                persist::persist_set(
+                    cc,
+                    cm,
+                    Variant::I32(variant),
+                    PersistenceId::Info2,
+                    Echo::None,
+                )
             }
             Editable::CenterViewCircling => {
                 let variant = CenterView::from_sorted(val as usize, CenterType::Circling) as i32;
-                cc.persist_set(
+                persist::persist_set(
+                    cc,
                     cm,
                     Variant::I32(variant),
                     PersistenceId::CenterViewCircling,
@@ -555,7 +586,8 @@ impl Editable {
             }
             Editable::CenterViewStraight => {
                 let variant = CenterView::from_sorted(val as usize, CenterType::Straight) as i32;
-                cc.persist_set(
+                persist::persist_set(
+                    cc,
                     cm,
                     Variant::I32(variant),
                     PersistenceId::CenterViewStraight,

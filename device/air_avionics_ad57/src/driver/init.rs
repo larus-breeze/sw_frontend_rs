@@ -8,6 +8,7 @@ use crate::{
 use corelib::{
     basic_config::{MAX_RX_FRAMES, MAX_TX_FRAMES, VDA},
     CanDispatch, CoreModel, Event, QIdleEvents, QRxFrames, QTxFrames, QTxIrqFrames,
+    persist,
 };
 /// In the embedded rust ecosystem, hardware resources can only be used in one place. For this
 /// reason, a careful distribution of the required hardware resources to corresponding software
@@ -164,9 +165,7 @@ pub fn hw_init(
         c_rx_frames,
     );
     for item in eeprom.iter_over(corelib::EepromTopic::ConfigValues) {
-        dev_controller
-            .core()
-            .persist_restore_item(&mut core_model, item);
+        persist::restore_item(dev_controller.core(), &mut core_model, item);
     }
 
     let rcc_ = unsafe { &*pac::RCC::ptr() };

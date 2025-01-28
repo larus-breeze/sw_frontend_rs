@@ -53,7 +53,7 @@ pub trait DrawImage {
     const DISPLAY_HEIGHT: u32;
 
     /// # Safety
-    /// 
+    ///
     /// unsafe in this context means, that the caller has to check display limits
     unsafe fn draw_line_unchecked(&mut self, idx: usize, len: usize, color: Colors);
 

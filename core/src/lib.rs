@@ -28,6 +28,7 @@ mod utils;
 mod view;
 
 // The core components
+pub use controller::persist;
 pub use controller::*;
 pub use model::{
     CoreModel, DeviceConst, DisplaySizes, EditMode, Editable, FlyMode, HorizonSizes, Images, Misc,
