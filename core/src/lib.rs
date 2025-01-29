@@ -46,13 +46,20 @@ pub use utils::*;
 #[allow(unused_imports)]
 use micromath::F32Ext;
 
-// basic_config
 pub mod basic_config {
+    /// The output queue has the following size
     pub const MAX_TX_FRAMES: usize = 10;
+    /// The input queue has the size
     pub const MAX_RX_FRAMES: usize = 30;
-    pub const VDA: u16 = 40; // heartbeat at 0x680
+    /// Virtual device address, the default address of the device
+    /// that means heartbeat at ßx680
+    pub const VDA: u16 = 40;
+    /// Controller component is called N times per second
     pub const CONTROLLER_TICK_RATE: u32 = 10;
-    pub const SECTION_EDITOR_TIMEOUT: u16 = 7;
+    /// Timeout for the section editor in seconds (single click editor)
+    pub const SECTION_EDITOR_TIMEOUT: u16 = 4;
+    /// Timeout for the menu in seconds to switch back to normal display
     pub const MENU_TIMEOUT: u16 = 30;
+    /// Timeout in milliseconds before data is written to the EEPROM or the CAN bus
     pub const PERSISTENCE_TIMEOUT: u16 = 500;
 }

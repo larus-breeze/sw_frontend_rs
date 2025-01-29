@@ -51,10 +51,16 @@ enum OpMode {
 }
 
 pub struct CanDispatch<
+    // Virtual Device Address of the device
     const VDA: u16,
+    // Maximum possible number of legacy and current devices that can be
+    // filtered from the CAN bus data stream.
     const FILTER_ELEMENTS: usize,
+    // Size of the send queue
     const MAX_TX: usize,
+    // Size of the receive queue
     const MAX_RX: usize,
+    // Random number generator as specified above per trait
     RNG: CanRng,
 > {
     op_mode: OpMode,
