@@ -8,6 +8,7 @@ use crate::PersistenceId;
 pub enum SpecialId {
     Sound = 0,
     VoltTemp = 1,
+    AvgClimbRates = 2,
     Ignore,
 }
 
@@ -162,6 +163,12 @@ pub mod audio_legacy {
     pub const PRESSURE: u16 = 0x205;        // u32 as float press * 1000
     pub const FLAPS_DATA: u16 = 0x206;      // u16 position [percent * 100]
                                             // + u8 switch pattern [0b0000-0b1111]*/
+}
+
+#[rustfmt::skip]
+#[allow(unused)]
+pub mod frontend_masster {
+    pub const AVG_CLIMB_RATES: u16 = 0x282; // Climb rates fromt the virtual master device
 }
 
 #[rustfmt::skip]

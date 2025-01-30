@@ -53,12 +53,16 @@ fn speed_to_fly(cm: &mut CoreModel, cc: &mut CoreController) {
                 }
             }
             cm.control.tcr_mode = TcrMode::Climbing;
-            // Calculate thermal climb rate
-            let tcr = {
-                let diff_h = (cm.sensor.gps_altitude - cm.control.tcr_start).to_m();
-                (diff_h / cm.control.tcr_1s_climb_ticks as f32).m_s()
-            };
-            cm.calculated.thermal_climb_rate = tcr;
+            // Calculate thermal climb rate if not in slave mode
+            if cm.control.avg_climb_slave_ticks > 0 {
+                cm.control.avg_climb_slave_ticks -= 1;
+            } else {
+                let tcr = {
+                    let diff_h = (cm.sensor.gps_altitude - cm.control.tcr_start).to_m();
+                    (diff_h / cm.control.tcr_1s_climb_ticks as f32).m_s()
+                };
+                cm.calculated.thermal_climb_rate = tcr;
+            }
         }
         FlyMode::StraightFlight => match cm.control.tcr_mode {
             TcrMode::Climbing => {

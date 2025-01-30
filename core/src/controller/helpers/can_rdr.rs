@@ -1,8 +1,7 @@
 use crate::{
     controller::{
         helpers::{
-            can_ids::{gps, sensor, sensor_legacy},
-            object_id, CanActive,
+            can_ids::{gps, sensor, sensor_legacy}, frontend_masster, object_id, CanActive
         },
         persist, Echo,
     },
@@ -161,96 +160,106 @@ impl CoreController {
         let id = frame.id();
         let mut rdr = frame.reader();
 
-        match id {
-            sensor_legacy::EULER_ANGLES => {
-                cm.sensor.euler_roll = norm_mpi_ppi(rdr.pop_i16());
-                cm.sensor.euler_pitch = norm_mpi_ppi(rdr.pop_i16());
-                cm.sensor.euler_yaw = norm_0_2pi(rdr.pop_i16());
+        if id == frontend_masster::AVG_CLIMB_RATES {
+            cm.control.avg_climb_slave_ticks = 3; // 3s timeout for slave mode
+            if let Some(av2_climb_rate) = rdr.pop_f32() {
+                cm.calculated.av2_climb_rate = av2_climb_rate.m_s();
             }
-            sensor_legacy::ACCELERATION => {
-                cm.sensor.g_force = ((rdr.pop_i16() as f32) * 0.001).m_s2();
-                cm.sensor.vertical_g_force = ((rdr.pop_i16() as f32) * 0.001).m_s2();
-                let _ = ((rdr.pop_i16() as f32) * 0.001).m_s(); // gps_climb_rate
-                match rdr.pop_u8() {
-                    0 => cm.control.fly_mode = FlyMode::StraightFlight,
-                    2 => cm.control.fly_mode = FlyMode::Circling,
-                    _ => (),
+            if let Some(thermal_climb_rate) = rdr.pop_f32() {
+                cm.calculated.thermal_climb_rate = thermal_climb_rate.m_s();
+            }
+        } else {
+            match id {
+                sensor_legacy::EULER_ANGLES => {
+                    cm.sensor.euler_roll = norm_mpi_ppi(rdr.pop_i16());
+                    cm.sensor.euler_pitch = norm_mpi_ppi(rdr.pop_i16());
+                    cm.sensor.euler_yaw = norm_0_2pi(rdr.pop_i16());
                 }
-            }
-            sensor_legacy::AIRSPEED => {
-                let tas = (rdr.pop_i16() as f32).km_h();
-                let ias = (rdr.pop_i16() as f32).km_h();
-                cm.sensor.airspeed = AirSpeed::from_speeds(ias, tas);
-            }
-            sensor_legacy::ATHMOSPHERE => {
-                cm.sensor.pressure = (rdr.pop_u32() as f32).n_m2();
-                cm.sensor.density = (rdr.pop_u32() as f32).g_m3();
-                cm.sensor
-                    .pressure_altitude
-                    .set_static_pressure(cm.sensor.pressure);
-            }
-            sensor_legacy::GPS_DATE_TIME => {
-                let year = 2000 + rdr.pop_u8() as u16;
-                let month = rdr.pop_u8();
-                let day = rdr.pop_u8();
-                let hour = rdr.pop_u8();
-                let min = rdr.pop_u8();
-                let sec = rdr.pop_u8();
-                cm.sensor
-                    .gps_date_time
-                    .set_date_time(year, month, day, hour, min, sec);
-            }
-            sensor_legacy::GPS_LAT_LON => {
-                cm.sensor.gps_lat = Latitude(((rdr.pop_i32() as f64) * 1.0e-7).deg());
-                cm.sensor.gps_lon = Longitude(((rdr.pop_i32() as f64) * 1.0e-7).deg());
-            }
-            sensor_legacy::GPS_ALT => {
-                cm.sensor.gps_altitude = (rdr.pop_i32() as f32).mm();
-                cm.sensor.gps_geo_seperation = (rdr.pop_i32() as f32 * 0.1).m();
-            }
-            sensor_legacy::GPS_TRK_SPD => {
-                cm.sensor.gps_track = (rdr.pop_i16() as f32 * 0.001).rad();
-                cm.sensor.gps_ground_speed = (rdr.pop_u16() as f32).km_h();
-                if cm.sensor.gps_ground_speed < 1.0.km_h() {
-                    cm.sensor.gps_track = 0.0_f32.rad();
+                sensor_legacy::ACCELERATION => {
+                    cm.sensor.g_force = ((rdr.pop_i16() as f32) * 0.001).m_s2();
+                    cm.sensor.vertical_g_force = ((rdr.pop_i16() as f32) * 0.001).m_s2();
+                    let _ = ((rdr.pop_i16() as f32) * 0.001).m_s(); // gps_climb_rate
+                    match rdr.pop_u8() {
+                        0 => cm.control.fly_mode = FlyMode::StraightFlight,
+                        2 => cm.control.fly_mode = FlyMode::Circling,
+                        _ => (),
+                    }
                 }
-                if cm.sensor.gps_track < 0.0_f32.rad() {
-                    cm.sensor.gps_track += 360.0_f32.deg();
+                sensor_legacy::AIRSPEED => {
+                    let tas = (rdr.pop_i16() as f32).km_h();
+                    let ias = (rdr.pop_i16() as f32).km_h();
+                    cm.sensor.airspeed = AirSpeed::from_speeds(ias, tas);
                 }
-            }
-            sensor_legacy::GPS_SATS => {
-                cm.sensor.gps_sats = rdr.pop_u8();
-                match rdr.pop_u8() {
-                    1 => cm.sensor.gps_state = GpsState::PosAvail,
-                    3 => cm.sensor.gps_state = GpsState::HeadingAvail,
-                    _ => cm.sensor.gps_state = GpsState::NoGps,
+                sensor_legacy::ATHMOSPHERE => {
+                    cm.sensor.pressure = (rdr.pop_u32() as f32).n_m2();
+                    cm.sensor.density = (rdr.pop_u32() as f32).g_m3();
+                    cm.sensor
+                        .pressure_altitude
+                        .set_static_pressure(cm.sensor.pressure);
                 }
+                sensor_legacy::GPS_DATE_TIME => {
+                    let year = 2000 + rdr.pop_u8() as u16;
+                    let month = rdr.pop_u8();
+                    let day = rdr.pop_u8();
+                    let hour = rdr.pop_u8();
+                    let min = rdr.pop_u8();
+                    let sec = rdr.pop_u8();
+                    cm.sensor
+                        .gps_date_time
+                        .set_date_time(year, month, day, hour, min, sec);
+                }
+                sensor_legacy::GPS_LAT_LON => {
+                    cm.sensor.gps_lat = Latitude(((rdr.pop_i32() as f64) * 1.0e-7).deg());
+                    cm.sensor.gps_lon = Longitude(((rdr.pop_i32() as f64) * 1.0e-7).deg());
+                }
+                sensor_legacy::GPS_ALT => {
+                    cm.sensor.gps_altitude = (rdr.pop_i32() as f32).mm();
+                    cm.sensor.gps_geo_seperation = (rdr.pop_i32() as f32 * 0.1).m();
+                }
+                sensor_legacy::GPS_TRK_SPD => {
+                    cm.sensor.gps_track = (rdr.pop_i16() as f32 * 0.001).rad();
+                    cm.sensor.gps_ground_speed = (rdr.pop_u16() as f32).km_h();
+                    if cm.sensor.gps_ground_speed < 1.0.km_h() {
+                        cm.sensor.gps_track = 0.0_f32.rad();
+                    }
+                    if cm.sensor.gps_track < 0.0_f32.rad() {
+                        cm.sensor.gps_track += 360.0_f32.deg();
+                    }
+                }
+                sensor_legacy::GPS_SATS => {
+                    cm.sensor.gps_sats = rdr.pop_u8();
+                    match rdr.pop_u8() {
+                        1 => cm.sensor.gps_state = GpsState::PosAvail,
+                        3 => cm.sensor.gps_state = GpsState::HeadingAvail,
+                        _ => cm.sensor.gps_state = GpsState::NoGps,
+                    }
+                }
+                sensor_legacy::TURN_COORD => {
+                    cm.sensor.slip_angle = ((rdr.pop_i16() as f32) * 0.001).rad();
+                    cm.sensor.turn_rate = ((rdr.pop_i16() as f32) * 0.001).rad_s();
+                    cm.sensor.nick_angle = ((rdr.pop_i16() as f32) * 0.001).rad();
+                }
+                sensor_legacy::VARIO => {
+                    cm.sensor.climb_rate = ((rdr.pop_i16() as f32) * 0.001).m_s();
+                    cm.sensor.average_climb_rate = ((rdr.pop_i16() as f32) * 0.001).m_s();
+                    cm.control.can_devices |= CanActive::SensorboxLegacy as u32;
+                }
+                sensor_legacy::WIND => {
+                    cm.sensor
+                        .wind_vector
+                        .set_angle(((rdr.pop_i16() as f32) * 0.001).rad());
+                    cm.sensor
+                        .wind_vector
+                        .set_speed((rdr.pop_i16() as f32).km_h());
+                    cm.sensor
+                        .average_wind
+                        .set_angle(((rdr.pop_i16() as f32) * 0.001).rad());
+                    cm.sensor
+                        .average_wind
+                        .set_speed((rdr.pop_i16() as f32).km_h());
+                }
+                _ => (), // all other frames are ignored
             }
-            sensor_legacy::TURN_COORD => {
-                cm.sensor.slip_angle = ((rdr.pop_i16() as f32) * 0.001).rad();
-                cm.sensor.turn_rate = ((rdr.pop_i16() as f32) * 0.001).rad_s();
-                cm.sensor.nick_angle = ((rdr.pop_i16() as f32) * 0.001).rad();
-            }
-            sensor_legacy::VARIO => {
-                cm.sensor.climb_rate = ((rdr.pop_i16() as f32) * 0.001).m_s();
-                cm.sensor.average_climb_rate = ((rdr.pop_i16() as f32) * 0.001).m_s();
-                cm.control.can_devices |= CanActive::SensorboxLegacy as u32;
-            }
-            sensor_legacy::WIND => {
-                cm.sensor
-                    .wind_vector
-                    .set_angle(((rdr.pop_i16() as f32) * 0.001).rad());
-                cm.sensor
-                    .wind_vector
-                    .set_speed((rdr.pop_i16() as f32).km_h());
-                cm.sensor
-                    .average_wind
-                    .set_angle(((rdr.pop_i16() as f32) * 0.001).rad());
-                cm.sensor
-                    .average_wind
-                    .set_speed((rdr.pop_i16() as f32).km_h());
-            }
-            _ => (), // all other frames are ignored
         }
     }
 
