@@ -141,6 +141,7 @@ pub fn hw_init(
 
     let mut can_dispatch = CanDispatch::new(rnd, p_tx_irq_frames, p_rx_frames, c_tx_frames);
     can_dispatch.set_legacy_filter(0x100, 0x120).unwrap();
+    can_dispatch.set_legacy_filter(0x282, 0x282).unwrap(); // Vario display master device avg_climb_rates
     let _ = can_dispatch.set_object_id_filter(2); // Sensorbox
     let _ = can_dispatch.set_object_id_filter(3); // Gps
 

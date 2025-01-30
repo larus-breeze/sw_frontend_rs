@@ -29,6 +29,26 @@ impl CoreModel {
         )
     }
 
+    pub fn can_frame_volt_temp(&self) -> Frame {
+        Frame::specific(
+            CanFrame::empty_from_id(0x00)
+                .push_f32(self.device.supply_voltage)
+                .push_f32(self.device.temperature_pcb),
+            SpecialId::VoltTemp as u16,
+            OBJECT_ID,
+        )
+    }
+
+    pub fn can_frame_avg_climb_rates(&self) -> Frame {
+        Frame::specific(
+            CanFrame::empty_from_id(0x00)
+                .push_f32(self.calculated.av2_climb_rate.to_m_s())
+                .push_f32(self.calculated.thermal_climb_rate.to_m_s()),
+            SpecialId::AvgClimbRates as u16,
+            OBJECT_ID,
+        )
+    }
+
     pub fn can_frame_sys_config(&mut self, config_id: CanConfigId) -> Option<Frame> {
         let mut data = [0u8; 6];
         match config_id {
@@ -65,15 +85,5 @@ impl CoreModel {
                 .push_slice(&data),
             GenericId::SetSysSetting as u16,
         ))
-    }
-
-    pub fn can_frame_volt_temp(&self) -> Frame {
-        Frame::specific(
-            CanFrame::empty_from_id(0x00)
-                .push_f32(self.device.supply_voltage)
-                .push_f32(self.device.temperature_pcb),
-            SpecialId::VoltTemp as u16,
-            OBJECT_ID,
-        )
     }
 }

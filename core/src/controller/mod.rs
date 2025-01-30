@@ -179,7 +179,9 @@ impl CoreController {
 
         if core_model.control.vario_mode == VarioMode::Vario {
             self.av2_climb_rate.tick(core_model.sensor.climb_rate);
-            core_model.calculated.av2_climb_rate = self.av2_climb_rate.value();
+            if core_model.control.avg_climb_slave_ticks == 0 {
+                core_model.calculated.av2_climb_rate = self.av2_climb_rate.value();
+            }
         }
 
         // Calculate speed_to_fly and speed_to_fly_dif
@@ -227,10 +229,11 @@ impl CoreController {
             self.send_idle_event(event);
         }
 
-        // create CAN frame
+        // create CAN frames
         let can_frame = core_model.can_frame_sound();
-        // add CAN frame to queue, ignore if the queue is full
-        let _ = self.p_tx_frames.enqueue(can_frame);
+        let _ = self.p_tx_frames.enqueue(can_frame); // ignore when queue is full
+        let can_frame = core_model.can_frame_avg_climb_rates();
+        let _ = self.p_tx_frames.enqueue(can_frame); // ignore when queue is full
     }
 
     pub fn send_idle_event(&mut self, idle_event: IdleEvent) {
