@@ -18,7 +18,7 @@ pub struct F32Params {
     pub small_inc: f32,
     pub big_inc: f32,
     pub dec_places: u8,
-    pub unit: TString<5>,
+    pub unit: &'static str,
 }
 
 pub const MAX_ENUM_VARIANTS: usize = 5;
@@ -55,7 +55,7 @@ impl Editable {
                 small_inc: 1.0,
                 big_inc: 10.0,
                 dec_places: 0,
-                unit: TString::<5>::from_str("%"),
+                unit: "%",
             }),
             Editable::Display => Params::Enum(EnumParams {
                 variants: [
@@ -75,7 +75,7 @@ impl Editable {
                 small_inc: 0.1,
                 big_inc: 0.1,
                 dec_places: 1,
-                unit: TString::<5>::from_str("m/s"),
+                unit: "m/s",
             }),
             Editable::None => Params::String(StringParams {
                 content: TString::<12>::from_str(""),
@@ -86,7 +86,7 @@ impl Editable {
                 small_inc: 1.0,
                 big_inc: 10.0,
                 dec_places: 0,
-                unit: TString::<5>::from_str("kg"),
+                unit: "kg",
             }),
             Editable::Return => Params::String(StringParams {
                 content: TString::<12>::from_str(""),
@@ -97,7 +97,7 @@ impl Editable {
                 small_inc: 1.0,
                 big_inc: 10.0,
                 dec_places: 0,
-                unit: TString::<5>::from_str("s"),
+                unit: "s",
             }),
             Editable::TcSpeedToFly => Params::F32(F32Params {
                 min: 1.0,
@@ -105,7 +105,7 @@ impl Editable {
                 small_inc: 1.0,
                 big_inc: 10.0,
                 dec_places: 0,
-                unit: TString::<5>::from_str("s"),
+                unit: "s",
             }),
             Editable::Theme => Params::Enum(EnumParams {
                 variants: [
@@ -131,7 +131,7 @@ impl Editable {
                 small_inc: 1.0,
                 big_inc: 3.0,
                 dec_places: 0,
-                unit: TString::<5>::from_str(""),
+                unit: "",
             }),
             Editable::WaterBallast => Params::F32(F32Params {
                 min: 0.0,
@@ -139,7 +139,7 @@ impl Editable {
                 small_inc: 1.0,
                 big_inc: 10.0,
                 dec_places: 0,
-                unit: TString::<5>::from_str("kg"),
+                unit: "kg",
             }),
             Editable::Info1 => Params::List(ListParams {
                 max: LineView::max(Placement::Top) as i32,
@@ -162,7 +162,7 @@ impl Editable {
                 small_inc: 1.0,
                 big_inc: 10.0,
                 dec_places: 0,
-                unit: TString::<5>::from_str("Hz"),
+                unit: "Hz",
             }),
             Editable::CenterViewCircling => Params::List(ListParams {
                 max: CenterView::max(CenterType::Circling) as i32,
@@ -194,7 +194,7 @@ impl Editable {
                 small_inc: 1.0,
                 big_inc: 10.0,
                 dec_places: 0,
-                unit: TString::<5>::from_str("kg"),
+                unit: "kg",
             }),
             Editable::MaxBallast => Params::F32(F32Params {
                 min: 0.0,
@@ -202,7 +202,7 @@ impl Editable {
                 small_inc: 1.0,
                 big_inc: 10.0,
                 dec_places: 0,
-                unit: TString::<5>::from_str("kg"),
+                unit: "kg",
             }),
             Editable::ReferenceWeight => Params::F32(F32Params {
                 min: 100.0,
@@ -210,7 +210,7 @@ impl Editable {
                 small_inc: 1.0,
                 big_inc: 10.0,
                 dec_places: 0,
-                unit: TString::<5>::from_str("kg"),
+                unit: "kg",
             }),
             Editable::PolarValueV1 => Params::F32(F32Params {
                 min: 50.0,
@@ -218,7 +218,7 @@ impl Editable {
                 small_inc: 1.0,
                 big_inc: 10.0,
                 dec_places: 0,
-                unit: TString::<5>::from_str("km/h"),
+                unit: "km/h",
             }),
             Editable::PolarValueV2 => Params::F32(F32Params {
                 min: 50.0,
@@ -226,7 +226,7 @@ impl Editable {
                 small_inc: 1.0,
                 big_inc: 10.0,
                 dec_places: 0,
-                unit: TString::<5>::from_str("km/h"),
+                unit: "km/h",
             }),
             Editable::PolarValueV3 => Params::F32(F32Params {
                 min: 50.0,
@@ -234,7 +234,7 @@ impl Editable {
                 small_inc: 1.0,
                 big_inc: 10.0,
                 dec_places: 0,
-                unit: TString::<5>::from_str("km/h"),
+                unit: "km/h",
             }),
             Editable::PolarValueSi1 => Params::F32(F32Params {
                 min: -5.0,
@@ -242,7 +242,7 @@ impl Editable {
                 small_inc: 0.01,
                 big_inc: 0.1,
                 dec_places: 2,
-                unit: TString::<5>::from_str("m/s"),
+                unit: "m/s",
             }),
             Editable::PolarValueSi2 => Params::F32(F32Params {
                 min: -5.0,
@@ -250,7 +250,7 @@ impl Editable {
                 small_inc: 0.01,
                 big_inc: 0.1,
                 dec_places: 2,
-                unit: TString::<5>::from_str("m/s"),
+                unit: "m/s",
             }),
             Editable::PolarValueSi3 => Params::F32(F32Params {
                 min: -5.0,
@@ -258,8 +258,68 @@ impl Editable {
                 small_inc: 0.01,
                 big_inc: 0.1,
                 dec_places: 2,
-                unit: TString::<5>::from_str("m/s"),
+                unit: "m/s",
             }),
+            Editable::SensTiltRoll | Editable::SensTiltPitch | Editable::SensTiltYaw => REMOTE_ANGLES,
+            Editable::PitotOffset | Editable::QnhDelta => REMOTE_DELTA_P,
+            Editable::PitotSpan => Params::F32(F32Params {
+                min: 0.7,
+                max: 1.3,
+                small_inc: 0.001,
+                big_inc: 0.01,
+                dec_places: 3,
+                unit: "Pa",
+            }),
+            Editable::MagAutoCalib | Editable::GnssConfig => REMOTE_ONE_ZERO,
+            Editable::VarioTc | Editable::VarioIntTc | Editable::WindTc | Editable::MeanWindTc => REMOTE_SECS,
+            Editable::AntBaselen | Editable::AntSlaveDown | Editable::AntSlaveRight => REMOTE_M,
+
+
         }
     }
 }
+
+const REMOTE_ANGLES: Params = Params::F32(F32Params {
+    min: 0.0,
+    max: 360.0,
+    small_inc: 1.0,
+    big_inc: 10.0,
+    dec_places: 0,
+    unit: "°",
+});
+
+const REMOTE_DELTA_P: Params = Params::F32(F32Params {
+    min: -50.0,
+    max: 50.0,
+    small_inc: 0.1,
+    big_inc: 1.0,
+    dec_places: 1,
+    unit: "Pa",
+});
+
+const REMOTE_ONE_ZERO: Params = Params::F32(F32Params {
+    min: 0.0,
+    max: 1.0,
+    small_inc: 1.0,
+    big_inc: 1.0,
+    dec_places: 0,
+    unit: "",
+});
+
+const REMOTE_SECS: Params = Params::F32(F32Params {
+    min: 0.0,
+    max: 100.0,
+    small_inc: 0.1,
+    big_inc: 1.0,
+    dec_places: 1,
+    unit: "s",
+});
+
+const REMOTE_M: Params = Params::F32(F32Params {
+    min: 0.0,
+    max: 10.0,
+    small_inc: 0.01,
+    big_inc: 0.1,
+    dec_places: 2,
+    unit: "m",
+});

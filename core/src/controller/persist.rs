@@ -28,7 +28,7 @@ use heapless::Vec;
 use super::{VarioModeControl, MAX_PERS_IDS};
 use crate::{
     basic_config::PERSISTENCE_TIMEOUT,
-    controller::helpers::{CanConfigId, IntToDuration},
+    controller::{RemoteConfig, helpers::{CanConfigId, IntToDuration}},
     eeprom,
     system_of_units::Speed,
     CoreController, CoreModel, Mass, PersistenceItem, Pressure,
@@ -36,9 +36,6 @@ use crate::{
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum PersistenceId {
-    DoNotStore = 65535,
-    DeleteAll = 65534,
-    UserProfile = 65533,
     Volume = 0,
     McCready = 1,
     WaterBallast = 2,
@@ -66,7 +63,11 @@ pub enum PersistenceId {
     PolarValueSi1 = 24,
     PolarValueSi2 = 25,
     PolarValueSi3 = 26,
-    LastItem,
+    LastItem = 27, // Items smaller than this can be asigned via ::from()
+
+    UserProfile = 65533, // Special function Ids
+    DeleteAll = 65534,
+    DoNotStore = 65535,
 }
 
 impl From<u16> for PersistenceId {
@@ -440,13 +441,26 @@ fn finish_push(cc: &mut CoreController, cm: &mut CoreModel, id: PersistenceId, e
     }
     if echo == Echo::Can || echo == Echo::NmeaAndCan {
         // Queue directly to canbus
-        if let Some(frame) = cm.can_frame_sys_config(CanConfigId::from(id)) {
+        let frame = cm.can_frame_sys_config(CanConfigId::from(id));
+        if let Some(frame) = frame {
             let _ = cc.p_tx_frames.enqueue(frame);
         }
-    }
+        }
     cc.scheduler
         .after(crate::Timer::PersistSetting, PERSISTENCE_TIMEOUT.millis());
     let _ = cc.pers_vals.insert(id);
+}
+
+pub fn send_can_config_frame(
+    cm: &mut CoreModel, 
+    cc: &mut CoreController, 
+    config_id: CanConfigId, 
+    get_set: RemoteConfig
+) {
+    let frame = cm.can_frame_remote_config(config_id, get_set);
+    if let Some(frame) = frame {
+        let _ = cc.p_tx_frames.enqueue(frame);
+    }
 }
 
 pub fn delete_config(cc: &mut CoreController) {

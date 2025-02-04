@@ -44,6 +44,13 @@ impl From<u16> for GenericId {
 }
 
 #[allow(dead_code)]
+#[derive(Clone, Copy, PartialEq)]
+pub enum RemoteConfig {
+    Get,
+    Set,
+}
+
+#[allow(dead_code)]
 pub enum CanConfigId {
     Volume = 0,
     MacCready = 1,
@@ -55,15 +62,32 @@ pub enum CanConfigId {
     TcClimbRate = 7,
     TcSpeedToFly = 8,
     Ignore = 9,
+
+    SensTiltRoll = 0x2000,
+    SensTiltPitch = 0x2001,
+    SensTiltYaw = 0x2002,
+    PitotOffset = 0x2003,
+    PitotSpan = 0x2004,
+    QnhDelta = 0x2005,
+    MagAutoCalib = 0x2006,
+    VarioTc = 0x2007,
+    VarioIntTc = 0x2008,
+    WindTc = 0x2009,
+    MeanWindTc = 0x200a,
+    GnssConfig = 0x200b,
+    AntBaselen = 0x200c,
+    AntSlaveDown = 0x200d,
+    AntSlaveRight = 0x200e,
 }
 
 impl From<u16> for CanConfigId {
     fn from(value: u16) -> Self {
-        if value > CanConfigId::Ignore as u16 {
-            CanConfigId::Ignore
-        } else {
+        if value < CanConfigId::Ignore as u16 ||
+           (value >= CanConfigId::SensTiltRoll as u16 && value <= CanConfigId::SensTiltRoll as u16) {
             // Saftey: only valid values are transmuted
-            unsafe { transmute::<u8, CanConfigId>(value as u8) }
+            unsafe { transmute::<u16, CanConfigId>(value) }
+        } else {
+            CanConfigId::Ignore
         }
     }
 }
@@ -108,6 +132,7 @@ pub mod sensor {
     pub const G_FORCE_VERTICAL_GF: u16 = 7; // f32 g_force, f32 vertical_g_force
     pub const SLIP_PITCH_ANGLE: u16 = 8;    // f32 slip_angle, f32 pitch_angle
     pub const UBATT_CIRCLE_MODE: u16 = 9;   // f32 supply_voltage, u8 circle_mode
+    pub const CONFIG_VALUE: u16 = 15;       // u32 config_id, f32 value
 }
 
 #[rustfmt::skip]

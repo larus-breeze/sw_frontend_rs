@@ -5,7 +5,7 @@ use crate::{
         },
         persist, Echo,
     },
-    model::{GpsState, VarioModeControl},
+    model::{editable::Content, GpsState, VarioModeControl},
     AirSpeed, Angle, CanFrame, CoreController, CoreModel, F64ToCoord, FloatToAcceleration,
     FloatToAngularVelocity, FloatToDensity, FloatToLength, FloatToMass, FloatToPressure,
     FloatToSpeed, FlyMode, Frame, GenericFrame, GenericId, Latitude, Longitude, PersistenceId,
@@ -353,6 +353,10 @@ impl CoreController {
                     2 => cm.control.fly_mode = FlyMode::Circling,
                     _ => (),
                 }
+            }
+            sensor::CONFIG_VALUE => {
+                let _config_id = rdr.pop_u32();
+                cm.control.editor.content = Content::F32(rdr.pop_f32());
             }
             _ => (),
         }

@@ -15,14 +15,11 @@ mod params;
 mod set_content;
 
 use crate::{
-    model::VarioModeControl,
-    polar_store,
-    utils::TString,
+    controller::{persist::send_can_config_frame, CanConfigId, RemoteConfig}, model::VarioModeControl, polar_store, utils::TString, 
     view::viewable::{
         centerview::{CenterType, CenterView},
         lineview::{LineView, Placement},
-    },
-    CoreModel,
+    }, CoreController, CoreModel
 };
 
 use super::DisplayActive;
@@ -62,6 +59,22 @@ pub enum Editable {
     PolarValueSi1,
     PolarValueSi2,
     PolarValueSi3,
+
+    SensTiltRoll, // These are sensorbox settings
+    SensTiltPitch,
+    SensTiltYaw,
+    PitotOffset,
+    PitotSpan,
+    QnhDelta,
+    MagAutoCalib,
+    VarioTc,
+    VarioIntTc,
+    WindTc,
+    MeanWindTc,
+    GnssConfig,
+    AntBaselen,
+    AntSlaveDown,
+    AntSlaveRight,
 }
 
 const DEFAULT_CONFIG: &str = "Default Config";
@@ -75,7 +88,7 @@ const USER_4: &str = "User 4";
 
 #[derive(Clone, Copy)]
 pub enum Content {
-    F32(f32),
+    F32(Option<f32>),
     Enum(TString<16>),
     String(TString<12>),
     List(i32),
@@ -114,6 +127,23 @@ impl Editable {
             Editable::PolarValueSi1 => "Polar Si 1",
             Editable::PolarValueSi2 => "Polar Si 2",
             Editable::PolarValueSi3 => "Polar Si 3",
+
+            Editable::SensTiltRoll => "Sensor Tilt Roll",
+            Editable::SensTiltPitch => "Sensor Tilt Pitch",
+            Editable::SensTiltYaw => "Sensor Tilt Yaw",
+            Editable::PitotOffset => "Pitot Offset",
+            Editable::PitotSpan => "Pitot Span",
+            Editable::QnhDelta => "QNH Delta",
+            Editable::MagAutoCalib => "Mag Auto Calib",
+            Editable::VarioTc => "Vario TC",
+            Editable::VarioIntTc => "Vario Int TC",
+            Editable::WindTc => "Wind TC",
+            Editable::MeanWindTc => "Mean Wind TC",
+            Editable::GnssConfig => "GNSS Config",
+            Editable::AntBaselen => "Ant Base Len",
+            Editable::AntSlaveDown => "Ant Slave Down",
+            Editable::AntSlaveRight => "Ant Slave Right",
+        
         }
     }
 
@@ -128,10 +158,12 @@ impl Editable {
                 }
             }
             Params::F32(params) => {
-                if let Content::F32(val) = content {
-                    conv.write_str(params.unit.as_str()).unwrap();
+                if let Content::F32(opt_val) = content {
+                    conv.write_str(params.unit).unwrap();
                     conv.write_u8(b' ').unwrap();
-                    conv.f32(val, params.dec_places as usize).unwrap();
+                    if let Some(val) = opt_val {
+                        conv.f32(val, params.dec_places as usize).unwrap();
+                    }
                 }
             }
             Params::List(_params) => {
@@ -173,9 +205,9 @@ impl Editable {
         TString::<20>::from_str(conv.as_str())
     }
 
-    pub fn content(&self, cm: &CoreModel) -> Content {
+    pub fn content(&self, cm: &mut CoreModel, cc: &mut CoreController) -> Content {
         match self {
-            Editable::Bugs => Content::F32((cm.glider_data.bugs - 1.0) * 100.0),
+            Editable::Bugs => Content::F32(Some((cm.glider_data.bugs - 1.0) * 100.0)),
             Editable::Display => match cm.config.last_display_active {
                 DisplayActive::Horizon => Content::Enum(TString::<16>::from_str("Horizon")),
                 _ => Content::Enum(TString::<16>::from_str("Vario")),
@@ -184,12 +216,12 @@ impl Editable {
                 let sorted_idx = polar_store::to_sorted_idx(cm.config.glider_idx as usize);
                 Content::List(sorted_idx as i32)
             }
-            Editable::McCready => Content::F32(cm.config.mc_cready.to_m_s()),
+            Editable::McCready => Content::F32(Some(cm.config.mc_cready.to_m_s())),
             Editable::None => Content::String(TString::<12>::from_str("")),
-            Editable::PilotWeight => Content::F32(cm.glider_data.pilot_weight.to_kg()),
+            Editable::PilotWeight => Content::F32(Some(cm.glider_data.pilot_weight.to_kg())),
             Editable::Return => Content::String(TString::<12>::from_str("")),
-            Editable::TcClimbRate => Content::F32(cm.config.av2_climb_rate_tc),
-            Editable::TcSpeedToFly => Content::F32(cm.config.av_speed_to_fly_tc),
+            Editable::TcClimbRate => Content::F32(Some(cm.config.av2_climb_rate_tc)),
+            Editable::TcSpeedToFly => Content::F32(Some(cm.config.av_speed_to_fly_tc)),
             Editable::Theme => {
                 if cm.config.theme == &cm.device_const.dark_theme {
                     Content::Enum(TString::<16>::from_str("Dark"))
@@ -204,14 +236,14 @@ impl Editable {
                     Content::Enum(TString::<16>::from_str("SpeedToFly"))
                 }
             },
-            Editable::Volume => Content::F32(cm.config.volume as f32),
-            Editable::WaterBallast => Content::F32(cm.glider_data.water_ballast.to_kg()),
+            Editable::Volume => Content::F32(Some(cm.config.volume as f32)),
+            Editable::WaterBallast => Content::F32(Some(cm.glider_data.water_ballast.to_kg())),
             Editable::Info1 => Content::List(cm.config.info1.sorted_as_i32(Placement::Top)),
             Editable::Info2 => Content::List(cm.config.info2.sorted_as_i32(Placement::Bottom)),
             Editable::Rotation => {
                 Content::Enum(TString::<16>::from_str(cm.control.rotation.name()))
             }
-            Editable::CenterFrequency => Content::F32(cm.config.snd_center_freq),
+            Editable::CenterFrequency => Content::F32(Some(cm.config.snd_center_freq)),
             Editable::CenterViewCircling => Content::List(
                 cm.config
                     .center_circling
@@ -240,28 +272,103 @@ impl Editable {
                 };
                 Content::Enum(TString::<16>::from_str(s))
             }
-            Editable::EmptyMass => Content::F32(cm.glider_data.basic_glider_data.empty_mass),
-            Editable::MaxBallast => Content::F32(cm.glider_data.basic_glider_data.max_ballast),
+            Editable::EmptyMass => Content::F32(Some(cm.glider_data.basic_glider_data.empty_mass)),
+            Editable::MaxBallast => Content::F32(Some(cm.glider_data.basic_glider_data.max_ballast)),
             Editable::ReferenceWeight => {
-                Content::F32(cm.glider_data.basic_glider_data.reference_weight)
+                Content::F32(Some(cm.glider_data.basic_glider_data.reference_weight))
             }
             Editable::PolarValueV1 => {
-                Content::F32(cm.glider_data.basic_glider_data.polar_values[0][0])
+                Content::F32(Some(cm.glider_data.basic_glider_data.polar_values[0][0]))
             }
             Editable::PolarValueV2 => {
-                Content::F32(cm.glider_data.basic_glider_data.polar_values[1][0])
+                Content::F32(Some(cm.glider_data.basic_glider_data.polar_values[1][0]))
             }
             Editable::PolarValueV3 => {
-                Content::F32(cm.glider_data.basic_glider_data.polar_values[2][0])
+                Content::F32(Some(cm.glider_data.basic_glider_data.polar_values[2][0]))
             }
             Editable::PolarValueSi1 => {
-                Content::F32(cm.glider_data.basic_glider_data.polar_values[0][1])
+                Content::F32(Some(cm.glider_data.basic_glider_data.polar_values[0][1]))
             }
             Editable::PolarValueSi2 => {
-                Content::F32(cm.glider_data.basic_glider_data.polar_values[1][1])
+                Content::F32(Some(cm.glider_data.basic_glider_data.polar_values[1][1]))
             }
             Editable::PolarValueSi3 => {
-                Content::F32(cm.glider_data.basic_glider_data.polar_values[2][1])
+                Content::F32(Some(cm.glider_data.basic_glider_data.polar_values[2][1]))
+            }
+            Editable::SensTiltRoll => {
+                // We have ask sensorbox for values and have no value at the moment
+                send_can_config_frame(cm, cc, CanConfigId::SensTiltRoll, RemoteConfig::Get);
+                Content::F32(None)
+            }
+            Editable::SensTiltPitch => {
+                // We have ask sensorbox for values and have no value at the moment
+                send_can_config_frame(cm, cc, CanConfigId::SensTiltPitch, RemoteConfig::Get);
+                Content::F32(None)
+            }
+            Editable::SensTiltYaw => {
+                // We have ask sensorbox for values and have no value at the moment
+                send_can_config_frame(cm, cc, CanConfigId::SensTiltYaw, RemoteConfig::Get);
+                Content::F32(None)
+            }
+            Editable::PitotOffset => {
+                // We have ask sensorbox for values and have no value at the moment
+                send_can_config_frame(cm, cc, CanConfigId::PitotOffset, RemoteConfig::Get);
+                Content::F32(None)
+            }
+            Editable::PitotSpan => {
+                // We have ask sensorbox for values and have no value at the moment
+                send_can_config_frame(cm, cc, CanConfigId::PitotSpan, RemoteConfig::Get);
+                Content::F32(None)
+            }
+            Editable::QnhDelta => {
+                // We have ask sensorbox for values and have no value at the moment
+                send_can_config_frame(cm, cc, CanConfigId::QnhDelta, RemoteConfig::Get);
+                Content::F32(None)
+            }
+            Editable::MagAutoCalib => {
+                // We have ask sensorbox for values and have no value at the moment
+                send_can_config_frame(cm, cc, CanConfigId::MagAutoCalib, RemoteConfig::Get);
+                Content::F32(None)
+            }
+            Editable::VarioTc => {
+                // We have ask sensorbox for values and have no value at the moment
+                send_can_config_frame(cm, cc, CanConfigId::VarioTc, RemoteConfig::Get);
+                Content::F32(None)
+            }
+            Editable::VarioIntTc => {
+                // We have ask sensorbox for values and have no value at the moment
+                send_can_config_frame(cm, cc, CanConfigId::VarioIntTc, RemoteConfig::Get);
+                Content::F32(None)
+            }
+            Editable::WindTc => {
+                // We have ask sensorbox for values and have no value at the moment
+                send_can_config_frame(cm, cc, CanConfigId::WindTc, RemoteConfig::Get);
+                Content::F32(None)
+            }
+            Editable::MeanWindTc => {
+                // We have ask sensorbox for values and have no value at the moment
+                send_can_config_frame(cm, cc, CanConfigId::MeanWindTc, RemoteConfig::Get);
+                Content::F32(None)
+            }
+            Editable::GnssConfig => {
+                // We have ask sensorbox for values and have no value at the moment
+                send_can_config_frame(cm, cc, CanConfigId::GnssConfig, RemoteConfig::Get);
+                Content::F32(None)
+            }
+            Editable::AntBaselen => {
+                // We have ask sensorbox for values and have no value at the moment
+                send_can_config_frame(cm, cc, CanConfigId::AntBaselen, RemoteConfig::Get);
+                Content::F32(None)
+            }
+            Editable::AntSlaveDown => {
+                // We have ask sensorbox for values and have no value at the moment
+                send_can_config_frame(cm, cc, CanConfigId::AntSlaveDown, RemoteConfig::Get);
+                Content::F32(None)
+            }
+            Editable::AntSlaveRight => {
+                // We have ask sensorbox for values and have no value at the moment
+                send_can_config_frame(cm, cc, CanConfigId::AntSlaveRight, RemoteConfig::Get);
+                Content::F32(None)
             }
         }
     }

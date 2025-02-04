@@ -3,14 +3,10 @@ use super::{
     USER_1, USER_2, USER_3, USER_4,
 };
 use crate::{
-    controller::persist,
-    flight_physics::polar_store,
-    utils::{TString, Variant},
-    view::viewable::{
+    controller::persist, flight_physics::polar_store, persist::send_can_config_frame, utils::{TString, Variant}, view::viewable::{
         centerview::{CenterType, CenterView},
         lineview::{LineView, Placement},
-    },
-    CoreController, CoreModel, Echo, FloatToMass, FloatToSpeed, PersistenceId, Rotation,
+    }, CoreController, CoreModel, Echo, FloatToMass, FloatToSpeed, PersistenceId, RemoteConfig, Rotation
 };
 
 impl Editable {
@@ -211,6 +207,51 @@ impl Editable {
                 PersistenceId::PolarValueSi3,
                 Echo::Can,
             ),
+            Editable::SensTiltRoll => {
+                send_can_config_frame(cm, cc, crate::CanConfigId::SensTiltRoll, RemoteConfig::Set);
+            }
+            Editable::SensTiltPitch => {
+                send_can_config_frame(cm, cc, crate::CanConfigId::SensTiltPitch, RemoteConfig::Set);
+            }
+            Editable::SensTiltYaw => {
+                send_can_config_frame(cm, cc, crate::CanConfigId::SensTiltYaw, RemoteConfig::Set);
+            }
+            Editable::PitotOffset => {
+                send_can_config_frame(cm, cc, crate::CanConfigId::PitotOffset, RemoteConfig::Set);
+            }
+            Editable::PitotSpan => {
+                send_can_config_frame(cm, cc, crate::CanConfigId::PitotSpan, RemoteConfig::Set);
+            }
+            Editable::QnhDelta => {
+                send_can_config_frame(cm, cc, crate::CanConfigId::QnhDelta, RemoteConfig::Set);
+            }
+            Editable::MagAutoCalib => {
+                send_can_config_frame(cm, cc, crate::CanConfigId::MagAutoCalib, RemoteConfig::Set);
+            }
+            Editable::VarioTc => {
+                send_can_config_frame(cm, cc, crate::CanConfigId::VarioTc, RemoteConfig::Set);
+            }
+            Editable::VarioIntTc => {
+                send_can_config_frame(cm, cc, crate::CanConfigId::VarioIntTc, RemoteConfig::Set);
+            }
+            Editable::WindTc => {
+                send_can_config_frame(cm, cc, crate::CanConfigId::WindTc, RemoteConfig::Set);
+            }
+            Editable::MeanWindTc => {
+                send_can_config_frame(cm, cc, crate::CanConfigId::MeanWindTc, RemoteConfig::Set);
+            }
+            Editable::GnssConfig => {
+                send_can_config_frame(cm, cc, crate::CanConfigId::GnssConfig, RemoteConfig::Set);
+            }
+            Editable::AntBaselen => {
+                send_can_config_frame(cm, cc, crate::CanConfigId::AntBaselen, RemoteConfig::Set);
+            }
+            Editable::AntSlaveDown => {
+                send_can_config_frame(cm, cc, crate::CanConfigId::AntSlaveDown, RemoteConfig::Set);
+            }
+            Editable::AntSlaveRight => {
+                send_can_config_frame(cm, cc, crate::CanConfigId::AntSlaveRight, RemoteConfig::Set);
+            }
             _ => (),
         }
     }

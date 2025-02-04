@@ -22,10 +22,11 @@ impl Edit {
         }
     }
 
-    pub fn draw<D>(&self, display: &mut D, cm: &CoreModel) -> Result<(), CoreError>
+    pub fn draw<D>(&mut self, display: &mut D, cm: &CoreModel) -> Result<(), CoreError>
     where
         D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
     {
+        self.val_str = cm.control.editor.get_value_line();
         if cm.config.display_active == DisplayActive::Vario
             || cm.config.display_active == DisplayActive::Horizon
         {

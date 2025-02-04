@@ -1,4 +1,4 @@
-use crate::{CanFrame, CoreModel, Frame, GenericId, SpecialId};
+use crate::{controller::helpers::RemoteConfig, model::editable::Content, CanFrame, CoreModel, Frame, GenericId, SpecialId};
 use byteorder::{ByteOrder, LittleEndian as LE};
 
 use super::CanConfigId;
@@ -52,14 +52,18 @@ impl CoreModel {
     pub fn can_frame_sys_config(&mut self, config_id: CanConfigId) -> Option<Frame> {
         let mut data = [0u8; 6];
         match config_id {
-            CanConfigId::Volume => data[0] = self.config.volume as u8,
+            CanConfigId::Volume => {
+                data[0] = self.config.volume as u8;
+            }
             CanConfigId::MacCready => {
                 LE::write_f32(&mut data[2..6], self.config.mc_cready.to_m_s());
             }
             CanConfigId::WaterBallast => {
                 LE::write_f32(&mut data[2..6], self.glider_data.water_ballast.to_kg());
             }
-            CanConfigId::Bugs => LE::write_f32(&mut data[2..6], self.glider_data.bugs),
+            CanConfigId::Bugs => {
+                LE::write_f32(&mut data[2..6], self.glider_data.bugs);
+            }
             CanConfigId::Qnh => {
                 LE::write_f32(
                     &mut data[2..6],
@@ -69,7 +73,9 @@ impl CoreModel {
             CanConfigId::PilotWeight => {
                 LE::write_f32(&mut data[2..6], self.glider_data.pilot_weight.to_kg());
             }
-            CanConfigId::VarioModeControl => data[0] = self.control.vario_mode_control as u8,
+            CanConfigId::VarioModeControl => {
+                data[0] = self.control.vario_mode_control as u8;
+            }
             CanConfigId::TcClimbRate => {
                 LE::write_f32(&mut data[2..6], self.config.av2_climb_rate_tc);
             }
@@ -77,13 +83,50 @@ impl CoreModel {
                 LE::write_f32(&mut data[2..6], self.config.av_speed_to_fly_tc);
             }
             _ => return None,
-        }
-
+        };
         Some(Frame::generic(
             CanFrame::empty_from_id(0)
                 .push_u16(config_id as u16)
                 .push_slice(&data),
             GenericId::SetSysSetting as u16,
         ))
+    }
+
+    pub fn can_frame_remote_config(&mut self, config_id: CanConfigId, get_set: RemoteConfig) -> Option<Frame> {
+
+        fn set_f32(data: &mut [u8; 6], content: Content) -> bool {
+            let mut r = false;
+            if let Content::F32(opt_val) = content {
+                if let Some(val) = opt_val {
+                    use defmt::info;
+                    info!("set remote config {}", val);
+                    LE::write_f32(&mut data[2..6], val);
+                    r = true;
+                } 
+            }
+            r
+        }
+
+        let mut data = [0u8; 6];
+        let available = match get_set {
+            RemoteConfig::Set => {
+                data[0] = 1;
+                set_f32(&mut data, self.control.editor.content)
+            }
+            RemoteConfig::Get => {
+                true
+            }
+        };
+
+        if available {
+            Some(Frame::generic(
+                CanFrame::empty_from_id(0)
+                    .push_u16(config_id as u16)
+                    .push_slice(&data),
+                GenericId::SetSysSetting as u16,
+            ))
+        } else {
+            None
+        }
     }
 }
