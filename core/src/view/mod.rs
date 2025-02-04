@@ -105,7 +105,7 @@ where
             }
         }
 
-        if let Some(secondary_view) = &self.secondary_view {
+        if let Some(secondary_view) = &mut self.secondary_view {
             match secondary_view {
                 SecondaryView::Edit(edit) => edit.draw(&mut self.display, &self.core_model)?,
                 SecondaryView::MenuView(menu) => {

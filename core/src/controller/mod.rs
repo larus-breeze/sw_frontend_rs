@@ -3,7 +3,7 @@ mod helpers;
 pub use helpers::{
     can_frame::*,
     can_ids::{audio_legacy, frontend_legacy, sensor_legacy, GenericId, SpecialId},
-    CanActive, IntToDuration, NmeaBuffer, Scheduler, Tim,
+    CanActive, IntToDuration, NmeaBuffer, Scheduler, Tim, CanConfigId, RemoteConfig,
 };
 use num::clamp;
 

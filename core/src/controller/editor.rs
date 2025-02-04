@@ -34,8 +34,8 @@ fn edit_enum_content(
         }
         let idx = clamp(idx, 0, max) as usize;
         let val = params.variants[idx];
-        target.set_enum_content(cm, cc, &val);
         cm.control.editor.content = Content::Enum(val);
+        target.set_enum_content(cm, cc, &val);
         *key_event = KeyEvent::NoEvent
     }
 }
@@ -47,18 +47,20 @@ fn edit_f32_content(
     target: Editable,
     params: &F32Params,
 ) {
-    if let Content::F32(mut val) = cm.control.editor.content {
-        match key_event {
-            KeyEvent::Rotary2Left => val -= params.small_inc,
-            KeyEvent::Rotary2Right => val += params.small_inc,
-            KeyEvent::Rotary1Left => val -= params.big_inc,
-            KeyEvent::Rotary1Right => val += params.big_inc,
-            KeyEvent::BtnEnc => (),
-            _ => return,
+    if let Content::F32(opt_val) = cm.control.editor.content {
+        if let Some(mut val) = opt_val {
+            match key_event {
+                KeyEvent::Rotary2Left => val -= params.small_inc,
+                KeyEvent::Rotary2Right => val += params.small_inc,
+                KeyEvent::Rotary1Left => val -= params.big_inc,
+                KeyEvent::Rotary1Right => val += params.big_inc,
+                KeyEvent::BtnEnc => (),
+                _ => return,
+            }
+            let val = clamp(val, params.min, params.max);
+            cm.control.editor.content = Content::F32(Some(val));
+            target.set_f32_content(cm, cc, val);
         }
-        let val = clamp(val, params.min, params.max);
-        target.set_f32_content(cm, cc, val);
-        cm.control.editor.content = Content::F32(val);
         *key_event = KeyEvent::NoEvent
     }
 }
@@ -80,8 +82,8 @@ fn edit_list_content(
             _ => return,
         }
         let val = clamp(val, 0, params.max);
-        target.set_list_content(cm, cc, val);
         cm.control.editor.content = Content::List(val);
+        target.set_list_content(cm, cc, val);
         *key_event = KeyEvent::NoEvent
     }
 }
@@ -145,7 +147,7 @@ pub fn key_action(key_event: &mut KeyEvent, cm: &mut CoreModel, cc: &mut CoreCon
 pub fn activate_editable(editable: Editable, cm: &mut CoreModel, cc: &mut CoreController) {
     cm.control.editor.target = editable;
     cm.control.editor.params = editable.params();
-    cm.control.editor.content = editable.content(cm);
+    cm.control.editor.content = editable.content(cm, cc);
     cm.control.editor.enter_pushed = false;
     if cm.config.display_active == DisplayActive::Menu {
         cm.control.editor.mode = EditMode::Fullscreen
