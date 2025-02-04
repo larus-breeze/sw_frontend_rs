@@ -22,12 +22,12 @@ pub struct MenuItem {
 }
 
 impl MenuItem {
-    pub fn name(&self) -> TString<16> {
+    pub fn name(&self) -> &'static str {
         match self.content {
             MenuItemContent::EditItem(editable) => editable.name(),
             MenuItemContent::MenuItem() => {
                 let menu = MENU_LIST[self.next_menu_idx];
-                TString::<16>::from_str(menu.name)
+                menu.name
             }
         }
     }
