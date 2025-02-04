@@ -10,7 +10,7 @@ use embedded_graphics::{
 use u8g2_fonts::types::{FontColor, HorizontalAlignment, VerticalPosition};
 
 pub struct Edit {
-    name_str: TString<16>,
+    name_str: &'static str,
     val_str: TString<20>,
 }
 
@@ -49,7 +49,7 @@ impl Edit {
         let d_sizes = &cm.device_const.sizes.display;
         let delta_y = cm.device_const.sizes.display.height as i32 / 15;
         cm.device_const.big_font.render_aligned(
-            self.name_str.as_str(),
+            self.name_str,
             d_sizes.screen_center + Point::new(0, -delta_y),
             VerticalPosition::Center,
             HorizontalAlignment::Center,
@@ -98,7 +98,7 @@ impl Edit {
 
         let delta_y = cm.device_const.sizes.display.height as i32 / 15;
         cm.device_const.big_font.render_aligned(
-            self.name_str.as_str(),
+            self.name_str,
             d_sizes.screen_center + Point::new(0, -delta_y),
             VerticalPosition::Center,
             HorizontalAlignment::Center,

@@ -1,7 +1,7 @@
 use crate::{
     model::{menu::Menu, CoreModel},
     utils::Colors,
-    CoreError, DrawImage, EditMode, TString,
+    CoreError, DrawImage, EditMode,
 };
 use u8g2_fonts::types::{FontColor, HorizontalAlignment, VerticalPosition};
 
@@ -75,7 +75,7 @@ impl MenuView {
         for menu_idx in 0..7 {
             let (s, color) = Self::get_str(menu, pos, menu_idx, cm);
             cm.device_const.small_font.render_aligned(
-                s.as_str(),
+                s,
                 Point::new(d_sizes.width as i32 / 2, y_pos),
                 VerticalPosition::Center,
                 HorizontalAlignment::Center,
@@ -133,7 +133,7 @@ impl MenuView {
         for menu_idx in 0..7 {
             let (s, color) = Self::get_str(menu, pos, menu_idx, cm);
             cm.device_const.big_font.render_aligned(
-                s.as_str(),
+                s,
                 Point::new(d_sizes.width as i32 / 2, y_pos),
                 VerticalPosition::Top,
                 HorizontalAlignment::Center,
@@ -145,11 +145,11 @@ impl MenuView {
         Ok(())
     }
 
-    fn get_str(menu: &Menu, pos: usize, menu_idx: isize, cm: &CoreModel) -> (TString<16>, Colors) {
+    fn get_str(menu: &Menu, pos: usize, menu_idx: isize, cm: &CoreModel) -> (&'static str, Colors) {
         let idx_max = (menu.items.len() - 1) as isize;
         let item_idx = pos as isize + menu_idx - 3;
         if item_idx < 0 || item_idx > idx_max {
-            (TString::<16>::from_str(""), cm.palette().background)
+            ("", cm.palette().background)
         } else {
             let menu_item = menu.items[item_idx as usize];
             let color = if menu_idx == 3 {

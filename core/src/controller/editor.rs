@@ -189,7 +189,7 @@ impl Editor {
         }
     }
 
-    pub fn get_head_line(&self) -> TString<16> {
+    pub fn get_head_line(&self) -> &'static str {
         self.target.name()
     }
 
