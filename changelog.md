@@ -1,6 +1,15 @@
 Changelog
 =
 
+v0.3.4 Support for Sensorbox Configuration, Polar Editor and more
+- Support for Sensorbox Configuration #71, see also
+  - [CAN Bus Specification](https://github.com/larus-breeze/doc_larus/blob/master/documentation/can_details/object_directory/sensorbox.md)
+  - Flight Player [add log window for setting commands](https://github.com/larus-breeze/sw_tools/issues/20)
+  - Flight Player [simulation of the sensor box settings](https://github.com/larus-breeze/sw_tools/issues/21)
+- Editor for Glider Polars #68
+- Add AS 33 Polar #69
+- Bugfix: Values calculated by the Frontend Differs on Two-Seater Displays #64
+
 v0.3.3 Extended Setting Options and Nicer Menues
 - Introduction of user profiles #56
 - Settings can be deleted per user profile #12
