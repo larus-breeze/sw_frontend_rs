@@ -88,8 +88,12 @@ pub enum CanConfigId {
 
 impl From<u16> for CanConfigId {
     fn from(value: u16) -> Self {
-        if value < CanConfigId::Ignore as u16 ||
-           (value >= CanConfigId::SensTiltRoll as u16 && value <= CanConfigId::SensTiltRoll as u16) {
+        if value < CanConfigId::Ignore as u16
+            || (value >= CanConfigId::SensTiltRoll as u16
+                && value <= CanConfigId::AntSlaveRight as u16)
+            || (value >= CanConfigId::CmdMeasure1 as u16
+                && value <= CanConfigId::CmdFineTuneCalibration as u16)
+        {
             // Saftey: only valid values are transmuted
             unsafe { transmute::<u16, CanConfigId>(value) }
         } else {

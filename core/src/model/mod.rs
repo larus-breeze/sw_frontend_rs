@@ -42,8 +42,10 @@ impl CoreModel {
         let config = Config::default(&device_const.dark_theme, uuid);
         let control = Control::default();
         let device = Device::default();
-        let mut glider_data = GliderData::default();
-        glider_data.basic_glider_data = *polar_store::from_raw_idx(config.glider_idx as usize);
+        let glider_data = GliderData {
+            basic_glider_data: *polar_store::from_raw_idx(config.glider_idx as usize),
+            ..Default::default()
+        };
 
         let sensor = Sensor::default();
         CoreModel {

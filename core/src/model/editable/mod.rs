@@ -15,11 +15,15 @@ mod params;
 mod set_content;
 
 use crate::{
-    controller::{persist::send_can_config_frame, CanConfigId, RemoteConfig}, model::VarioModeControl, polar_store, utils::TString, 
+    controller::{persist::send_can_config_frame, CanConfigId, RemoteConfig},
+    model::VarioModeControl,
+    polar_store,
+    utils::TString,
     view::viewable::{
         centerview::{CenterType, CenterView},
         lineview::{LineView, Placement},
-    }, CoreController, CoreModel
+    },
+    CoreController, CoreModel,
 };
 
 use super::DisplayActive;
@@ -282,7 +286,9 @@ impl Editable {
                 Content::Enum(TString::<16>::from_str(s))
             }
             Editable::EmptyMass => Content::F32(Some(cm.glider_data.basic_glider_data.empty_mass)),
-            Editable::MaxBallast => Content::F32(Some(cm.glider_data.basic_glider_data.max_ballast)),
+            Editable::MaxBallast => {
+                Content::F32(Some(cm.glider_data.basic_glider_data.max_ballast))
+            }
             Editable::ReferenceWeight => {
                 Content::F32(Some(cm.glider_data.basic_glider_data.reference_weight))
             }
