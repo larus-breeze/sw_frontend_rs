@@ -4,11 +4,12 @@ Firmware for Displaying the Larus Sensor Values
 General information
 -------------------
 
-This is a vario front end for gliders, which displays the measured values of the Larus sensor box. The display is modeled after a classic winter vario. The display is clear and easy to understand. It shows the values measured by the Larus sensor box.
+This is a vario front end for gliders that displays the measured values of the Larus sensor box. The display should be clear and easy to understand. It displays the values measured by the Larus Sensorbox.
 
-The Larus Sensorbox uses a new method which calculates the actual climb rate from many sensor data, in particular GPS, pressure, acceleration, rotation and magnetic sensors are evaluated. As a result, the pilot receives a display that is instantaneous and authentic. For the first time, the vario display matches the pilot's sense of acceleration exactly. Another outstanding feature of the sensor box is the precise calculation of the current wind accurate to the second, which should be adequately displayed.
+The Larus Sensorbox uses a new method that calculates the actual climb rate from a large amount of sensor data, whereby GPS, pressure, acceleration, rotation and magnetic sensors in particular are evaluated. As a result, the pilot receives a prompt and authentic display. For the first time, the vario display matches the pilot's sense of acceleration. Another outstanding feature of the sensor box is the calculation of the current wind, which should be adequately displayed.
 
-The following target systems are currently supported. Installation instructions for the development environment can be found there:
+The following systems and hardware variants are currently supported. Installation instructions for the development environment can be found in the respective directory:
+
 
 [A PC simulation](https://github.com/larus-breeze/sw_frontend_rs/tree/master/device/pc) (Linux, Windows) for development and testing
 ![tools](https://github.com/larus-breeze/sw_frontend_rs/assets/3678273/74c01117-cf99-40b7-b68e-ff5c3c36fc2b)
@@ -26,4 +27,4 @@ The following target systems are currently supported. Installation instructions 
 <img src="https://github.com/user-attachments/assets/28192747-6cb0-42bd-bf88-59092df5014e" width="300"><br /><br />
 
 
-The software is written in the Rust programming language. Special emphasis was placed on making the application portable and maintainable.
+The software is written in the Rust programming language.
