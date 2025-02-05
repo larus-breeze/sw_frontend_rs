@@ -1,28 +1,20 @@
+use num_enum::FromPrimitive;
+
 use crate::{
     system_of_units::{FloatToSpeed, Speed},
     view::viewable::{centerview::CenterView, lineview::LineView},
     Palette,
 };
-use core::{convert::From, mem::transmute};
 
 /// Possible displays
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, PartialEq, FromPrimitive)]
+#[repr(u8)]
 pub enum DisplayActive {
+    #[default]
     Vario,
     Horizon,
     Menu,
     FirmwareUpdate,
-    TheEnd,
-}
-
-impl From<u8> for DisplayActive {
-    fn from(value: u8) -> Self {
-        if value < DisplayActive::TheEnd as u8 {
-            unsafe { transmute::<u8, DisplayActive>(value) }
-        } else {
-            panic!()
-        }
-    }
 }
 
 #[derive(Clone, Copy, PartialEq)]

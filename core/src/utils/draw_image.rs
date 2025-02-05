@@ -1,11 +1,14 @@
 use crate::{Colors, CoreError};
 use embedded_graphics::{draw_target::DrawTarget, geometry::Point, Drawable, Pixel};
+use num_enum::FromPrimitive;
 
 #[allow(unused_imports)]
 use crate::RGB565_COLORS;
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, FromPrimitive)]
+#[repr(u8)]
 pub enum Rotation {
+    #[default]
     Rotate0,
     Rotate90,
     Rotate180,
@@ -19,17 +22,6 @@ impl Rotation {
             Rotation::Rotate90 => "Rotate 90°",
             Rotation::Rotate180 => "Rotate 180°",
             Rotation::Rotate270 => "Rotate 270°",
-        }
-    }
-}
-
-impl From<u32> for Rotation {
-    fn from(value: u32) -> Self {
-        if value <= Rotation::Rotate270 as u32 {
-            // It is garanteed, that value is in range and so safe
-            unsafe { core::mem::transmute::<u8, Rotation>(value as u8) }
-        } else {
-            Rotation::Rotate0
         }
     }
 }

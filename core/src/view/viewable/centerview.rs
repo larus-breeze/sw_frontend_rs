@@ -15,9 +15,12 @@ use num::clamp;
 
 #[allow(unused_imports)]
 use micromath::F32Ext;
+use num_enum::FromPrimitive;
 
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, PartialEq, FromPrimitive)]
+#[repr(u8)]
 pub enum CenterView {
+    #[default]
     None,
     SingleArrowCircling,
     SingleArrowStraight,
@@ -26,18 +29,6 @@ pub enum CenterView {
     ThermalAssistant1,
     ThermalAssistant2,
     LastElemntNotInUse,
-}
-
-impl core::convert::From<u32> for CenterView {
-    fn from(value: u32) -> Self {
-        let idx = if value >= Self::LastElemntNotInUse as u32 - 1 {
-            Self::LastElemntNotInUse as u8 - 1
-        } else {
-            value as u8
-        };
-        // Transmute is ok, as idx is guaranteed to be in the valid range
-        unsafe { core::mem::transmute::<u8, CenterView>(idx) }
-    }
 }
 
 const CIRCLING_CENTER_VIEW: [CenterView; 4] = [

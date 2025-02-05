@@ -39,6 +39,7 @@ impl<const CAP: usize> TString<CAP> {
     pub fn to_string(&self) -> String<CAP> {
         let mut v = Vec::<u8, CAP>::new();
         v.extend_from_slice(&self.content[0..self.length]).unwrap();
+        // self.content is proven utf8, so unsafe is ok
         unsafe { String::from_utf8_unchecked(v) }
     }
 
@@ -48,6 +49,7 @@ impl<const CAP: usize> TString<CAP> {
     }
 
     pub fn as_str(&self) -> &str {
+        // self.content is proven utf8, so unsafe is ok
         unsafe { core::str::from_utf8_unchecked(&self.content[0..self.length]) }
     }
 }

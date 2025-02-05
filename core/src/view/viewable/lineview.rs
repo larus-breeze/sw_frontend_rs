@@ -1,5 +1,6 @@
 use crate::{tformat, Colors, CoreError, CoreModel, DrawImage, FloatToSpeed};
 use embedded_graphics::{draw_target::DrawTarget, geometry::Point};
+use num_enum::FromPrimitive;
 use u8g2_fonts::types::{FontColor, HorizontalAlignment, VerticalPosition};
 
 #[allow(unused)]
@@ -8,8 +9,10 @@ use micromath::F32Ext;
 /// This enum is also used to reload configurations saved in the EEPROM. Therefore, the sequence
 /// must not be changed, as otherwise existing configurations would change. New viewables should
 /// always be inserted before the last enum (LastElementNotInUse)
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, PartialEq, FromPrimitive)]
+#[repr(u8)]
 pub enum LineView {
+    #[default]
     None,
     AverageClimbRate,
     FlightLevel,
@@ -19,18 +22,6 @@ pub enum LineView {
     DriftAngle,
     WindAndAvgWind,
     LastElemntNotInUse,
-}
-
-impl core::convert::From<u32> for LineView {
-    fn from(value: u32) -> Self {
-        let idx = if value >= Self::LastElemntNotInUse as u32 - 1 {
-            Self::LastElemntNotInUse as u8 - 1
-        } else {
-            value as u8
-        };
-        // Transmute is ok, as idx is guaranteed to be in the valid range
-        unsafe { core::mem::transmute::<u8, LineView>(idx) }
-    }
 }
 
 const TOP_LINE_VIEW: [LineView; 6] = [

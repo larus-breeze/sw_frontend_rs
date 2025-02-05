@@ -17,6 +17,7 @@
 /// data. This is achieved by initially storing the data in an index set and only forwarding it
 /// after a pause of incoming data of at least 500 ms.
 use heapless::Vec;
+use num_enum::FromPrimitive;
 
 use super::{VarioModeControl, MAX_PERS_IDS};
 use crate::{
@@ -25,7 +26,6 @@ use crate::{
         helpers::{CanConfigId, IntToDuration},
         RemoteConfig,
     },
-    eeprom,
     flight_physics::polar_store,
     system_of_units::Speed,
     utils::Variant,
@@ -33,7 +33,8 @@ use crate::{
     CoreController, CoreModel, IdleEvent, Mass, PersistenceItem, Pressure, ResetReason, Rotation,
 };
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, FromPrimitive)]
+#[repr(u16)]
 pub enum PersistenceId {
     Volume = 0,
     McCready = 1,
@@ -62,22 +63,12 @@ pub enum PersistenceId {
     PolarValueSi1 = 24,
     PolarValueSi2 = 25,
     PolarValueSi3 = 26,
-    LastItem = 27, // Items smaller than this can be asigned via ::from()
+    LastItem = 27, // Items smaller than this are stored in eeprom
 
     UserProfile = 65533, // Special function Ids
     DeleteAll = 65534,
+    #[default]
     DoNotStore = 65535,
-}
-
-impl From<u16> for PersistenceId {
-    fn from(src: u16) -> Self {
-        if src < eeprom::MAX_ITEM_COUNT as u16 && src < PersistenceId::LastItem as u16 {
-            // Safety: Only valid or possible values are transmuted
-            unsafe { core::mem::transmute::<u16, PersistenceId>(src) }
-        } else {
-            PersistenceId::DoNotStore
-        }
-    }
 }
 
 const DELETE_CONFIG_LIST: &[PersistenceId] = &[
@@ -154,15 +145,15 @@ pub fn restore_item(cc: &mut CoreController, cm: &mut CoreModel, item: Persisten
         PersistenceId::Display => cm.config.display_active = item.to_u8().into(),
         PersistenceId::TcClimbRate => cm.config.av2_climb_rate_tc = item.to_f32(),
         PersistenceId::TcSpeedToFly => cm.config.av_speed_to_fly_tc = item.to_f32(),
-        PersistenceId::Info1 => cm.config.info1 = LineView::from(item.to_u32()),
-        PersistenceId::Info2 => cm.config.info2 = LineView::from(item.to_u32()),
-        PersistenceId::Rotation => cm.control.rotation = Rotation::from(item.to_u32()),
+        PersistenceId::Info1 => cm.config.info1 = LineView::from(item.to_u8()),
+        PersistenceId::Info2 => cm.config.info2 = LineView::from(item.to_u8()),
+        PersistenceId::Rotation => cm.control.rotation = Rotation::from(item.to_u8()),
         PersistenceId::CenterFrequency => cm.config.snd_center_freq = item.to_f32(),
         PersistenceId::CenterViewCircling => {
-            cm.config.center_circling = CenterView::from(item.to_u32())
+            cm.config.center_circling = CenterView::from(item.to_u8())
         }
         PersistenceId::CenterViewStraight => {
-            cm.config.center_straignt = CenterView::from(item.to_u32())
+            cm.config.center_straignt = CenterView::from(item.to_u8())
         }
         PersistenceId::EmptyMass => cm.glider_data.basic_glider_data.empty_mass = item.to_f32(),
         PersistenceId::MaxBallast => cm.glider_data.basic_glider_data.max_ballast = item.to_f32(),
@@ -345,12 +336,12 @@ pub fn persist_set(
         }
         PersistenceId::Info1 => {
             if let Variant::I32(info) = variant {
-                cm.config.info1 = LineView::from(info as u32);
+                cm.config.info1 = LineView::from(info as u8);
             }
         }
         PersistenceId::Info2 => {
             if let Variant::I32(info) = variant {
-                cm.config.info2 = LineView::from(info as u32);
+                cm.config.info2 = LineView::from(info as u8);
             }
         }
         PersistenceId::Rotation => {
@@ -365,12 +356,12 @@ pub fn persist_set(
         }
         PersistenceId::CenterViewCircling => {
             if let Variant::I32(view) = variant {
-                cm.config.center_circling = CenterView::from(view as u32);
+                cm.config.center_circling = CenterView::from(view as u8);
             }
         }
         PersistenceId::CenterViewStraight => {
             if let Variant::I32(view) = variant {
-                cm.config.center_straignt = CenterView::from(view as u32);
+                cm.config.center_straignt = CenterView::from(view as u8);
             }
         }
         PersistenceId::EmptyMass => {
