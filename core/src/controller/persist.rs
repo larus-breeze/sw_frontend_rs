@@ -16,22 +16,21 @@
 /// The module also ensures that the Nmea interface and the EEPROM are not overloaded by too much
 /// data. This is achieved by initially storing the data in an index set and only forwarding it
 /// after a pause of incoming data of at least 500 ms.
-use crate::{
-    flight_physics::polar_store,
-    utils::Variant,
-    view::viewable::{centerview::CenterView, lineview::LineView},
-    IdleEvent, ResetReason, Rotation,
-};
-
 use heapless::Vec;
 
 use super::{VarioModeControl, MAX_PERS_IDS};
 use crate::{
     basic_config::PERSISTENCE_TIMEOUT,
-    controller::{RemoteConfig, helpers::{CanConfigId, IntToDuration}},
+    controller::{
+        helpers::{CanConfigId, IntToDuration},
+        RemoteConfig,
+    },
     eeprom,
+    flight_physics::polar_store,
     system_of_units::Speed,
-    CoreController, CoreModel, Mass, PersistenceItem, Pressure,
+    utils::Variant,
+    view::viewable::{centerview::CenterView, lineview::LineView},
+    CoreController, CoreModel, IdleEvent, Mass, PersistenceItem, Pressure, ResetReason, Rotation,
 };
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
@@ -445,17 +444,17 @@ fn finish_push(cc: &mut CoreController, cm: &mut CoreModel, id: PersistenceId, e
         if let Some(frame) = frame {
             let _ = cc.p_tx_frames.enqueue(frame);
         }
-        }
+    }
     cc.scheduler
         .after(crate::Timer::PersistSetting, PERSISTENCE_TIMEOUT.millis());
     let _ = cc.pers_vals.insert(id);
 }
 
 pub fn send_can_config_frame(
-    cm: &mut CoreModel, 
-    cc: &mut CoreController, 
-    config_id: CanConfigId, 
-    get_set: RemoteConfig
+    cm: &mut CoreModel,
+    cc: &mut CoreController,
+    config_id: CanConfigId,
+    get_set: RemoteConfig,
 ) {
     let frame = cm.can_frame_remote_config(config_id, get_set);
     if let Some(frame) = frame {

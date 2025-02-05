@@ -261,9 +261,8 @@ pub const SENSOR_BOX_COMMANDS: Menu = Menu {
             content: MenuItemContent::EditItem(Editable::Return),
             next_menu_idx: VARIO_SETINGS_IDX,
         },
-    ]
+    ],
 };
-
 
 pub const SENSOR_BOX_SETTINGS: Menu = Menu {
     name: "Ini Settings",
@@ -333,5 +332,5 @@ pub const SENSOR_BOX_SETTINGS: Menu = Menu {
             content: MenuItemContent::EditItem(Editable::Return),
             next_menu_idx: SENSOR_BOX_COMMANDS_IDX,
         },
-    ]
+    ],
 };

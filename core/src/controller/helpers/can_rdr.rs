@@ -1,7 +1,8 @@
 use crate::{
     controller::{
         helpers::{
-            can_ids::{gps, sensor, sensor_legacy}, frontend_masster, object_id, CanActive
+            can_ids::{gps, sensor, sensor_legacy},
+            frontend_masster, object_id, CanActive,
         },
         persist, Echo,
     },

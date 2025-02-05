@@ -1,4 +1,7 @@
-use crate::{controller::helpers::RemoteConfig, model::editable::Content, CanFrame, CoreModel, Frame, GenericId, SpecialId};
+use crate::{
+    controller::helpers::RemoteConfig, model::editable::Content, CanFrame, CoreModel, Frame,
+    GenericId, SpecialId,
+};
 use byteorder::{ByteOrder, LittleEndian as LE};
 
 use super::CanConfigId;
@@ -92,17 +95,18 @@ impl CoreModel {
         ))
     }
 
-    pub fn can_frame_remote_config(&mut self, config_id: CanConfigId, get_set: RemoteConfig) -> Option<Frame> {
-
+    pub fn can_frame_remote_config(
+        &mut self,
+        config_id: CanConfigId,
+        get_set: RemoteConfig,
+    ) -> Option<Frame> {
         fn set_f32(data: &mut [u8; 6], content: Content) -> bool {
             let mut r = false;
-            if let Content::F32(opt_val) = content {
-                if let Some(val) = opt_val {
-                    use defmt::info;
-                    info!("set remote config {}", val);
-                    LE::write_f32(&mut data[2..6], val);
-                    r = true;
-                } 
+            if let Content::F32(Some(val)) = content {
+                use defmt::info;
+                info!("set remote config {}", val);
+                LE::write_f32(&mut data[2..6], val);
+                r = true;
             }
             r
         }
@@ -113,9 +117,7 @@ impl CoreModel {
                 data[0] = 1;
                 set_f32(&mut data, self.control.editor.content)
             }
-            RemoteConfig::Get => {
-                true
-            }
+            RemoteConfig::Get => true,
         };
 
         if available {

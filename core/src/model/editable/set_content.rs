@@ -1,11 +1,18 @@
 use super::{
-    DisplayActive, Editable, VarioModeControl, DEFAULT_CONFIG, DO_NOT_CHANGE, FACTORY_RESET, TRIGGER_COMMAND, USER_1, USER_2, USER_3, USER_4
+    DisplayActive, Editable, VarioModeControl, DEFAULT_CONFIG, DO_NOT_CHANGE, FACTORY_RESET,
+    TRIGGER_COMMAND, USER_1, USER_2, USER_3, USER_4,
 };
 use crate::{
-    controller::persist, flight_physics::polar_store, persist::send_can_config_frame, utils::{TString, Variant}, view::viewable::{
+    controller::persist,
+    flight_physics::polar_store,
+    persist::send_can_config_frame,
+    utils::{TString, Variant},
+    view::viewable::{
         centerview::{CenterType, CenterView},
         lineview::{LineView, Placement},
-    }, CoreController, CoreModel, Echo, FloatToMass, FloatToSpeed, PersistenceId, RemoteConfig, Rotation
+    },
+    CoreController, CoreModel, Echo, FloatToMass, FloatToSpeed, PersistenceId, RemoteConfig,
+    Rotation,
 };
 
 impl Editable {
@@ -83,19 +90,44 @@ impl Editable {
             }
             Editable::CmdMeas1 => {
                 if cm.control.editor.enter_pushed && val.as_str() == TRIGGER_COMMAND {
-                    send_can_config_frame(cm, cc, crate::CanConfigId::CmdMeasure1, RemoteConfig::Get);
+                    send_can_config_frame(
+                        cm,
+                        cc,
+                        crate::CanConfigId::CmdMeasure1,
+                        RemoteConfig::Get,
+                    );
                 }
             }
             Editable::CmdMeas2 => {
                 if cm.control.editor.enter_pushed && val.as_str() == TRIGGER_COMMAND {
-                    send_can_config_frame(cm, cc, crate::CanConfigId::CmdMeasure2, RemoteConfig::Get);
-                    send_can_config_frame(cm, cc, crate::CanConfigId::CmdCalcSensorOrientation, RemoteConfig::Get);
+                    send_can_config_frame(
+                        cm,
+                        cc,
+                        crate::CanConfigId::CmdMeasure2,
+                        RemoteConfig::Get,
+                    );
+                    send_can_config_frame(
+                        cm,
+                        cc,
+                        crate::CanConfigId::CmdCalcSensorOrientation,
+                        RemoteConfig::Get,
+                    );
                 }
             }
             Editable::CmdMeas3 => {
                 if cm.control.editor.enter_pushed && val.as_str() == TRIGGER_COMMAND {
-                    send_can_config_frame(cm, cc, crate::CanConfigId::CmdMeasure3, RemoteConfig::Get);
-                    send_can_config_frame(cm, cc, crate::CanConfigId::CmdFineTuneCalibration, RemoteConfig::Get);
+                    send_can_config_frame(
+                        cm,
+                        cc,
+                        crate::CanConfigId::CmdMeasure3,
+                        RemoteConfig::Get,
+                    );
+                    send_can_config_frame(
+                        cm,
+                        cc,
+                        crate::CanConfigId::CmdFineTuneCalibration,
+                        RemoteConfig::Get,
+                    );
                 }
             }
             _ => (),
