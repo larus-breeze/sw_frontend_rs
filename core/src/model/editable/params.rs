@@ -1,5 +1,5 @@
 use super::{
-    Editable, DEFAULT_CONFIG, DO_NOT_CHANGE, FACTORY_RESET, USER_1, USER_2, USER_3, USER_4,
+    Editable, DEFAULT_CONFIG, DO_NOT_CHANGE, FACTORY_RESET, USER_1, USER_2, USER_3, USER_4, TRIGGER_COMMAND, RETURN,
 };
 use crate::{
     flight_physics::polar_store,
@@ -260,8 +260,22 @@ impl Editable {
                 dec_places: 2,
                 unit: "m/s",
             }),
-            Editable::SensTiltRoll | Editable::SensTiltPitch | Editable::SensTiltYaw => REMOTE_ANGLES,
-            Editable::PitotOffset | Editable::QnhDelta => REMOTE_DELTA_P,
+            Editable::SensTiltRoll | Editable::SensTiltPitch | Editable::SensTiltYaw => Params::F32(F32Params {
+                min: -179.0,
+                max: 359.0,
+                small_inc: 1.0,
+                big_inc: 10.0,
+                dec_places: 0,
+                unit: "°",
+            }),
+            Editable::PitotOffset | Editable::QnhDelta => Params::F32(F32Params {
+                min: -50.0,
+                max: 50.0,
+                small_inc: 0.1,
+                big_inc: 1.0,
+                dec_places: 1,
+                unit: "Pa",
+            }),
             Editable::PitotSpan => Params::F32(F32Params {
                 min: 0.7,
                 max: 1.3,
@@ -270,56 +284,40 @@ impl Editable {
                 dec_places: 3,
                 unit: "Pa",
             }),
-            Editable::MagAutoCalib | Editable::GnssConfig => REMOTE_ONE_ZERO,
-            Editable::VarioTc | Editable::VarioIntTc | Editable::WindTc | Editable::MeanWindTc => REMOTE_SECS,
-            Editable::AntBaselen | Editable::AntSlaveDown | Editable::AntSlaveRight => REMOTE_M,
-
-
+            Editable::MagAutoCalib | Editable::GnssConfig => Params::F32(F32Params {
+                min: 0.0,
+                max: 1.0,
+                small_inc: 1.0,
+                big_inc: 1.0,
+                dec_places: 0,
+                unit: "",
+            }),
+            Editable::VarioTc | Editable::VarioIntTc | Editable::WindTc | Editable::MeanWindTc => Params::F32(F32Params {
+                min: 0.0,
+                max: 100.0,
+                small_inc: 0.1,
+                big_inc: 1.0,
+                dec_places: 1,
+                unit: "s",
+            }),
+            Editable::AntBaselen | Editable::AntSlaveDown | Editable::AntSlaveRight => Params::F32(F32Params {
+                min: 0.0,
+                max: 10.0,
+                small_inc: 0.01,
+                big_inc: 0.1,
+                dec_places: 2,
+                unit: "m",
+            }),
+            Editable::CmdMeas1 | Editable::CmdMeas2 | Editable::CmdMeas3 => Params::Enum(EnumParams {
+                variants: [
+                    TString::<16>::from_str(TRIGGER_COMMAND),
+                    TString::<16>::from_str(RETURN),
+                    TString::<16>::from_str(""),
+                    TString::<16>::from_str(""),
+                    TString::<16>::from_str(""),
+                ],
+            }),
         }
     }
 }
 
-const REMOTE_ANGLES: Params = Params::F32(F32Params {
-    min: 0.0,
-    max: 360.0,
-    small_inc: 1.0,
-    big_inc: 10.0,
-    dec_places: 0,
-    unit: "°",
-});
-
-const REMOTE_DELTA_P: Params = Params::F32(F32Params {
-    min: -50.0,
-    max: 50.0,
-    small_inc: 0.1,
-    big_inc: 1.0,
-    dec_places: 1,
-    unit: "Pa",
-});
-
-const REMOTE_ONE_ZERO: Params = Params::F32(F32Params {
-    min: 0.0,
-    max: 1.0,
-    small_inc: 1.0,
-    big_inc: 1.0,
-    dec_places: 0,
-    unit: "",
-});
-
-const REMOTE_SECS: Params = Params::F32(F32Params {
-    min: 0.0,
-    max: 100.0,
-    small_inc: 0.1,
-    big_inc: 1.0,
-    dec_places: 1,
-    unit: "s",
-});
-
-const REMOTE_M: Params = Params::F32(F32Params {
-    min: 0.0,
-    max: 10.0,
-    small_inc: 0.01,
-    big_inc: 0.1,
-    dec_places: 2,
-    unit: "m",
-});

@@ -46,7 +46,8 @@ pub const VARIO_SETINGS_IDX: usize = 2;
 pub const VIEW_SETINGS_IDX: usize = 3;
 pub const ADVANCED_SETINGS_IDX: usize = 4;
 pub const POLAR_SETTINGS_IDX: usize = 5;
-pub const SENSOR_BOX_ADVANCED_SETTINGS_IDX: usize = 6;
+pub const SENSOR_BOX_COMMANDS_IDX: usize = 6;
+pub const SENSOR_BOX_SETTINGS_IDX: usize = 7;
 
 pub const MENU_LIST: &[Menu] = &[
     ROOT,
@@ -55,7 +56,8 @@ pub const MENU_LIST: &[Menu] = &[
     VIEW_SETTINGS,
     ADVANCED_SETTINGS,
     POLAR_SETTINGS,
-    SENSOR_BOX_ADVANCED_SETTINGS,
+    SENSOR_BOX_COMMANDS,
+    SENSOR_BOX_SETTINGS,
 ];
 
 pub const ROOT: Menu = Menu {
@@ -113,7 +115,7 @@ pub const VARIO_SETTINGS: Menu = Menu {
         },
         MenuItem {
             content: MenuItemContent::MenuItem(),
-            next_menu_idx: SENSOR_BOX_ADVANCED_SETTINGS_IDX,
+            next_menu_idx: SENSOR_BOX_COMMANDS_IDX,
         },
         MenuItem {
             content: MenuItemContent::EditItem(Editable::Return),
@@ -235,73 +237,101 @@ pub const POLAR_SETTINGS: Menu = Menu {
     ],
 };
 
-pub const SENSOR_BOX_ADVANCED_SETTINGS: Menu = Menu {
+pub const SENSOR_BOX_COMMANDS: Menu = Menu {
     name: "Sensorbox",
     level: 2,
     items: &[
         MenuItem {
-            content: MenuItemContent::EditItem(Editable::SensTiltRoll),
-            next_menu_idx: SENSOR_BOX_ADVANCED_SETTINGS_IDX,
+            content: MenuItemContent::EditItem(Editable::CmdMeas1),
+            next_menu_idx: SENSOR_BOX_COMMANDS_IDX,
         },
         MenuItem {
-            content: MenuItemContent::EditItem(Editable::SensTiltPitch),
-            next_menu_idx: SENSOR_BOX_ADVANCED_SETTINGS_IDX,
+            content: MenuItemContent::EditItem(Editable::CmdMeas2),
+            next_menu_idx: SENSOR_BOX_COMMANDS_IDX,
         },
         MenuItem {
-            content: MenuItemContent::EditItem(Editable::SensTiltYaw),
-            next_menu_idx: SENSOR_BOX_ADVANCED_SETTINGS_IDX,
+            content: MenuItemContent::EditItem(Editable::CmdMeas3),
+            next_menu_idx: SENSOR_BOX_COMMANDS_IDX,
         },
         MenuItem {
-            content: MenuItemContent::EditItem(Editable::PitotOffset),
-            next_menu_idx: SENSOR_BOX_ADVANCED_SETTINGS_IDX,
-        },
-        MenuItem {
-            content: MenuItemContent::EditItem(Editable::PitotSpan),
-            next_menu_idx: SENSOR_BOX_ADVANCED_SETTINGS_IDX,
-        },
-        MenuItem {
-            content: MenuItemContent::EditItem(Editable::QnhDelta),
-            next_menu_idx: SENSOR_BOX_ADVANCED_SETTINGS_IDX,
-        },
-        MenuItem {
-            content: MenuItemContent::EditItem(Editable::MagAutoCalib),
-            next_menu_idx: SENSOR_BOX_ADVANCED_SETTINGS_IDX,
-        },
-        MenuItem {
-            content: MenuItemContent::EditItem(Editable::VarioTc),
-            next_menu_idx: SENSOR_BOX_ADVANCED_SETTINGS_IDX,
-        },
-        MenuItem {
-            content: MenuItemContent::EditItem(Editable::VarioIntTc),
-            next_menu_idx: SENSOR_BOX_ADVANCED_SETTINGS_IDX,
-        },
-        MenuItem {
-            content: MenuItemContent::EditItem(Editable::WindTc),
-            next_menu_idx: SENSOR_BOX_ADVANCED_SETTINGS_IDX,
-        },
-        MenuItem {
-            content: MenuItemContent::EditItem(Editable::MeanWindTc),
-            next_menu_idx: SENSOR_BOX_ADVANCED_SETTINGS_IDX,
-        },
-        MenuItem {
-            content: MenuItemContent::EditItem(Editable::GnssConfig),
-            next_menu_idx: SENSOR_BOX_ADVANCED_SETTINGS_IDX,
-        },
-        MenuItem {
-            content: MenuItemContent::EditItem(Editable::AntBaselen),
-            next_menu_idx: SENSOR_BOX_ADVANCED_SETTINGS_IDX,
-        },
-        MenuItem {
-            content: MenuItemContent::EditItem(Editable::AntSlaveDown),
-            next_menu_idx: SENSOR_BOX_ADVANCED_SETTINGS_IDX,
-        },
-        MenuItem {
-            content: MenuItemContent::EditItem(Editable::AntSlaveRight),
-            next_menu_idx: SENSOR_BOX_ADVANCED_SETTINGS_IDX,
+            content: MenuItemContent::MenuItem(),
+            next_menu_idx: SENSOR_BOX_SETTINGS_IDX,
         },
         MenuItem {
             content: MenuItemContent::EditItem(Editable::Return),
             next_menu_idx: VARIO_SETINGS_IDX,
+        },
+    ]
+};
+
+
+pub const SENSOR_BOX_SETTINGS: Menu = Menu {
+    name: "Ini Settings",
+    level: 3,
+    items: &[
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::SensTiltRoll),
+            next_menu_idx: SENSOR_BOX_SETTINGS_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::SensTiltPitch),
+            next_menu_idx: SENSOR_BOX_SETTINGS_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::SensTiltYaw),
+            next_menu_idx: SENSOR_BOX_SETTINGS_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::PitotOffset),
+            next_menu_idx: SENSOR_BOX_SETTINGS_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::PitotSpan),
+            next_menu_idx: SENSOR_BOX_SETTINGS_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::QnhDelta),
+            next_menu_idx: SENSOR_BOX_SETTINGS_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::MagAutoCalib),
+            next_menu_idx: SENSOR_BOX_SETTINGS_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::VarioTc),
+            next_menu_idx: SENSOR_BOX_SETTINGS_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::VarioIntTc),
+            next_menu_idx: SENSOR_BOX_SETTINGS_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::WindTc),
+            next_menu_idx: SENSOR_BOX_SETTINGS_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::MeanWindTc),
+            next_menu_idx: SENSOR_BOX_SETTINGS_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::GnssConfig),
+            next_menu_idx: SENSOR_BOX_SETTINGS_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::AntBaselen),
+            next_menu_idx: SENSOR_BOX_SETTINGS_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::AntSlaveDown),
+            next_menu_idx: SENSOR_BOX_SETTINGS_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::AntSlaveRight),
+            next_menu_idx: SENSOR_BOX_SETTINGS_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::Return),
+            next_menu_idx: SENSOR_BOX_COMMANDS_IDX,
         },
     ]
 };

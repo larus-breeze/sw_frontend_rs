@@ -75,11 +75,18 @@ pub enum Editable {
     AntBaselen,
     AntSlaveDown,
     AntSlaveRight,
+
+    CmdMeas1, // These are sensorbox commands
+    CmdMeas2,
+    CmdMeas3,
 }
 
 const DEFAULT_CONFIG: &str = "Default Config";
 const FACTORY_RESET: &str = "Factory Reset";
 const DO_NOT_CHANGE: &str = "Do not change";
+
+const TRIGGER_COMMAND: &str = "Trigger Command";
+const RETURN: &str = "Return";
 
 const USER_1: &str = "User 1";
 const USER_2: &str = "User 2";
@@ -143,7 +150,9 @@ impl Editable {
             Editable::AntBaselen => "Ant Base Len",
             Editable::AntSlaveDown => "Ant Slave Down",
             Editable::AntSlaveRight => "Ant Slave Right",
-        
+            Editable::CmdMeas1 => "Left Wing down",
+            Editable::CmdMeas2 => "Right Wing down",
+            Editable::CmdMeas3 => "Straight Flight",
         }
     }
 
@@ -369,6 +378,9 @@ impl Editable {
                 // We have ask sensorbox for values and have no value at the moment
                 send_can_config_frame(cm, cc, CanConfigId::AntSlaveRight, RemoteConfig::Get);
                 Content::F32(None)
+            }
+            Editable::CmdMeas1 | Editable::CmdMeas2 | Editable::CmdMeas3 => {
+                Content::Enum(TString::<16>::from_str(TRIGGER_COMMAND))
             }
         }
     }

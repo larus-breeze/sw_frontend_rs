@@ -78,6 +78,12 @@ pub enum CanConfigId {
     AntBaselen = 0x200c,
     AntSlaveDown = 0x200d,
     AntSlaveRight = 0x200e,
+
+    CmdMeasure1 = 0x3000,
+    CmdMeasure2 = 0x3001,
+    CmdMeasure3 = 0x3002,
+    CmdCalcSensorOrientation = 0x3003,
+    CmdFineTuneCalibration = 0x3004,
 }
 
 impl From<u16> for CanConfigId {
