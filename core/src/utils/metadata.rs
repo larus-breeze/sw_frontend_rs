@@ -37,6 +37,7 @@ impl Default for MetaDataV1 {
 
 impl MetaDataV1 {
     pub fn to_bytes(&self) -> &[u8; SIZE_METADATA_V1] {
+        // unsafe is ok -> we need the binary stream of MetaDataV1 repr(C)
         unsafe { core::mem::transmute(self) }
     }
 }

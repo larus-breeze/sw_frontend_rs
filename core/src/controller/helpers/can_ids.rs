@@ -1,46 +1,30 @@
-use core::mem::transmute;
+use num_enum::FromPrimitive;
 
 use crate::PersistenceId;
 
 // Todo include configuration of center frequency
 
 /// Definition of special ids (Object Id 4 Vario Display)
+#[derive(FromPrimitive)]
+#[repr(u8)]
 pub enum SpecialId {
     Sound = 0,
     VoltTemp = 1,
     AvgClimbRates = 2,
+    #[default]
     Ignore,
 }
 
-impl From<u16> for SpecialId {
-    fn from(value: u16) -> Self {
-        if value > SpecialId::Ignore as u16 {
-            SpecialId::Ignore
-        } else {
-            // Saftey: only valid values are transmuted
-            unsafe { transmute::<u8, SpecialId>(value as u8) }
-        }
-    }
-}
-
 /// Definition of generic ids
+#[derive(FromPrimitive)]
+#[repr(u16)]
 pub enum GenericId {
     Heartbeat = 0,
     HwFwVersion = 1,
     SetSysSetting = 2,
     BinaryTransfer = 3,
+    #[default]
     Ignore = 4,
-}
-
-impl From<u16> for GenericId {
-    fn from(value: u16) -> Self {
-        if value > GenericId::Ignore as u16 {
-            GenericId::Ignore
-        } else {
-            // Saftey: only valid values are transmuted
-            unsafe { transmute::<u8, GenericId>(value as u8) }
-        }
-    }
 }
 
 #[allow(dead_code)]
@@ -51,6 +35,8 @@ pub enum RemoteConfig {
 }
 
 #[allow(dead_code)]
+#[derive(FromPrimitive)]
+#[repr(u16)]
 pub enum CanConfigId {
     Volume = 0,
     MacCready = 1,
@@ -61,6 +47,7 @@ pub enum CanConfigId {
     VarioModeControl = 6,
     TcClimbRate = 7,
     TcSpeedToFly = 8,
+    #[default]
     Ignore = 9,
 
     SensTiltRoll = 0x2000,
@@ -84,22 +71,6 @@ pub enum CanConfigId {
     CmdMeasure3 = 0x3002,
     CmdCalcSensorOrientation = 0x3003,
     CmdFineTuneCalibration = 0x3004,
-}
-
-impl From<u16> for CanConfigId {
-    fn from(value: u16) -> Self {
-        if value < CanConfigId::Ignore as u16
-            || (value >= CanConfigId::SensTiltRoll as u16
-                && value <= CanConfigId::AntSlaveRight as u16)
-            || (value >= CanConfigId::CmdMeasure1 as u16
-                && value <= CanConfigId::CmdFineTuneCalibration as u16)
-        {
-            // Saftey: only valid values are transmuted
-            unsafe { transmute::<u16, CanConfigId>(value) }
-        } else {
-            CanConfigId::Ignore
-        }
-    }
 }
 
 impl From<PersistenceId> for CanConfigId {

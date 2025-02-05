@@ -66,6 +66,7 @@ impl VersionCheck {
     }
 
     pub fn analyse(&mut self, file_name: &str, meta_data: &[u8; SIZE_METADATA_V1]) {
+        // we have to gnerate struct MetaDataV1 from binary stream, we check magic no so unsafe is ok
         let meta_data = unsafe { transmute::<&[u8; SIZE_METADATA_V1], &MetaDataV1>(meta_data) };
         if meta_data.magic != 0x1c80_73ab_2085_3579 {
             return;

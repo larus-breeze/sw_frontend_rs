@@ -10,6 +10,7 @@ embedded-graphics = "0.8.0"
 u8g2-fonts = "0.3.0"
 micromath = { version = "2.0", default-features = false }
 num = { version = "0.4.0", default-features = false }
+num_enum = { version = "0.7.3", default-features = false }
 heapless = "0.8"
 tfmt = "0.4"
 byteorder = { version = "1.4", default-features = false }
