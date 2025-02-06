@@ -119,8 +119,14 @@ fn main() -> Result<(), core::convert::Infallible> {
                         Keycode::S => {
                             img_no += 1;
                             let img_path = format!("vario_{:03}.png", img_no);
-                            println!("Image {} saved to disk", &img_path);
                             view.display.save_png(&img_path);
+                            if DISPLAY_WIDTH == 480 && DISPLAY_HEIGHT == 480 {
+                                let img_wh_path = format!("vario_wh_{:03}.png", img_no);
+                                view.display.save_png_with_housing(&img_wh_path);
+                                println!("Image '{}' and '{}' saved to disk", &img_path, &img_wh_path);
+                            } else {
+                                println!("Image '{}' saved to disk", &img_path);
+                            }
                             KeyEvent::NoEvent
                         }
                         Keycode::U => {
