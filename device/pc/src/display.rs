@@ -13,6 +13,10 @@ pub struct MockDisplay {
     rotation: Rotation,
 }
 
+use image::{ImageBuffer, ImageFormat::Png, RgbaImage, DynamicImage, imageops, io::Reader};
+
+const HOUSING_IMG: &[u8] = include_bytes!("../housing.png");
+
 impl MockDisplay {
     /// Creates a new display.
     ///
@@ -29,6 +33,23 @@ impl MockDisplay {
         let output_settings = OutputSettingsBuilder::new().build();
         let output_image = self.display.to_rgb_output_image(&output_settings);
         output_image.save_png(img_path).unwrap();
+    }
+
+    pub fn save_png_with_housing(&mut self, img_path: &str) {
+        let output_settings = OutputSettingsBuilder::new().build();
+        let output_image = self.display.to_rgb_output_image(&output_settings);
+        let buf = output_image.as_image_buffer().into_raw().to_vec();
+        let img= ImageBuffer::from_raw(480, 480, buf).unwrap();
+        let sim_img = DynamicImage::ImageRgb8(img).into_rgba8();
+
+        let mut img_with_housing = RgbaImage::new(620, 620);
+        let housing = Reader::with_format(std::io::Cursor::new(HOUSING_IMG), Png)
+            .decode()
+            .unwrap()
+            .to_rgba8();
+        imageops::overlay(&mut img_with_housing, &sim_img, 71, 70);
+        imageops::overlay(&mut img_with_housing, &housing, 0, 0);
+        img_with_housing.save_with_format(img_path, Png).unwrap();
     }
 }
 
