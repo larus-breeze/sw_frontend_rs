@@ -65,7 +65,7 @@ impl ResetWatch {
 }
 
 fn write_panic_msg(msg: &[u8]) -> Result<(), CoreError> {
-    FILE_SYS.lock(|opt_fs| {
+    FILE_SYS.lock_during_use(|opt_fs| {
         if let Some(fs) = opt_fs {
             let volume = fs
                 .vol_mgr()

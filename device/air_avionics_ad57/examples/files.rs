@@ -41,7 +41,7 @@ fn main() -> ! {
     );
     //let sd_detect = gpioc.pc0.internal_pull_up(true).into_input();
     FileSys::new(dp.SDIO, &clocks, sdio_pins).unwrap();
-    FILE_SYS.lock(|opt_fs| {
+    FILE_SYS.lock_during_use(|opt_fs| {
         if let Some(file_sys) = opt_fs {
             let volume = file_sys.vol_mgr().open_volume(VolumeIdx(0)).unwrap();
 
