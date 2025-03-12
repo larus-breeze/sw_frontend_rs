@@ -36,7 +36,7 @@ where
     pub fn set_gain(&mut self, gain: u8) {
         // Note: gain 0 is not mute for the amplifier, you always hear something. Volume 0
         // is handled by the sound modul, which mutes the sound in this case.
-        // 
+        //
         // Gain values above 30 are handled by the sound driver
         if gain <= 30 {
             self.write(5, gain);

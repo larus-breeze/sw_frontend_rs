@@ -1,6 +1,6 @@
 use super::{FrameBuffer, TBuffer, AVAIL_PIXELS};
 use core::{mem, mem::transmute, ptr::addr_of};
-use corelib::{Colors, CoreError, DrawImage, RGB565_COLORS, Rotation};
+use corelib::{Colors, CoreError, DrawImage, Rotation, RGB565_COLORS};
 use embedded_graphics::{
     draw_target::DrawTarget, geometry::OriginDimensions, prelude::*, primitives::Rectangle, Pixel,
 };
@@ -81,8 +81,7 @@ impl DrawImage for Display {
     const DISPLAY_HEIGHT: u32 = DISPLAY_HEIGHT;
     const DISPLAY_WIDTH: u32 = DISPLAY_WIDTH;
 
-    fn set_rotation(&mut self, _rotation: Rotation) {
-    }
+    fn set_rotation(&mut self, _rotation: Rotation) {}
 
     unsafe fn draw_line_unchecked(&mut self, idx: usize, len: usize, color: Colors) {
         for dx in 0..len {

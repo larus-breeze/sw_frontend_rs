@@ -14,6 +14,8 @@ mod ltdc;
 mod panic;
 #[allow(unused)]
 mod st7701s;
+#[allow(unused)]
+mod sys_timer;
 
 #[allow(unused)]
 pub use clut_colors::*;
@@ -29,6 +31,8 @@ pub use ltdc::*;
 pub use panic::*;
 #[allow(unused)]
 pub use st7701s::*;
+#[allow(unused)]
+pub use sys_timer::*;
 
 // The macro ensures, that all examples use the same clock settings
 macro_rules! set_clocksys {

@@ -39,20 +39,28 @@ unsafe fn main() -> ! {
     let gpiod = dp.GPIOD.split(ccdr.peripheral.GPIOD);
 
     let pins = SdcardPins::new(
-        gpioc.pc12, gpiod.pd2, gpioc.pc8, gpioc.pc9, gpioc.pc10, gpioc.pc11, gpioa.pa15.into(),
+        gpioc.pc12,
+        gpiod.pd2,
+        gpioc.pc8,
+        gpioc.pc9,
+        gpioc.pc10,
+        gpioc.pc11,
+        gpioa.pa15.into(),
     );
 
     FileSys::new(pins, dp.SDMMC1, ccdr.peripheral.SDMMC1, &ccdr.clocks).unwrap();
 
-    if let Some(fs) = get_filesys() {
-        let mut volume = fs.vol_mgr().open_volume(VolumeIdx(0)).unwrap();
-        let mut root_dir = volume.open_root_dir().unwrap();
-        root_dir
-            .iterate_dir(|entry| {
-                trace!("{}", defmt::Display2Format(&entry.name));
-            })
-            .unwrap();
-    }
+    FILE_SYS.lock(|opt_file_sys| {
+        if let Some(fs) = opt_file_sys {
+            let mut volume = fs.vol_mgr().open_volume(VolumeIdx(0)).unwrap();
+            let mut root_dir = volume.open_root_dir().unwrap();
+            root_dir
+                .iterate_dir(|entry| {
+                    trace!("{}", defmt::Display2Format(&entry.name));
+                })
+                .unwrap();
+        }
+    });
 
     loop {
         cortex_m::asm::nop()

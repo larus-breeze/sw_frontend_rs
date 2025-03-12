@@ -137,3 +137,15 @@ macro_rules! tformat {
         }
     }};
 }
+
+#[macro_export]
+#[allow(unused_macros)]
+macro_rules! spsc_queue {
+    ($queue_type:ty) => {{
+        let queue: *mut $queue_type = {
+            static mut Q: $queue_type = Queue::new();
+            &raw mut Q
+        };
+        unsafe { &mut *queue }.split()
+    }};
+}

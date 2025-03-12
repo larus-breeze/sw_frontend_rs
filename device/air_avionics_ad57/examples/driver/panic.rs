@@ -1,4 +1,4 @@
-use super::file_sys::get_filesys;
+use super::file_sys::FILE_SYS;
 use core::{mem::MaybeUninit, panic::PanicInfo, ptr::addr_of};
 use corelib::CoreError;
 use corelib::DateTime;
@@ -49,40 +49,42 @@ impl ResetWatch {
 }
 
 fn write_panic_msg(msg: &[u8]) -> Result<(), CoreError> {
-    if let Some(fs) = get_filesys() {
-        let mut volume = fs
-            .vol_mgr()
-            .open_volume(VolumeIdx(0))
-            .map_err(|_| CoreError::SdCard)?;
-        let root_dir = fs
-            .vol_mgr()
-            .open_root_dir(volume)
-            .map_err(|_| CoreError::SdCard)?;
-        let mut file = fs
-            .vol_mgr()
-            .open_file_in_dir(root_dir, "PANIC.LOG", Mode::ReadWriteCreateOrAppend)
-            .map_err(|_| CoreError::SdCard)?;
+    FILE_SYS.lock(|opt_fs| {
+        if let Some(fs) = opt_fs {
+            let mut volume = fs
+                .vol_mgr()
+                .open_volume(VolumeIdx(0))
+                .map_err(|_| CoreError::SdCard)?;
+            let root_dir = fs
+                .vol_mgr()
+                .open_root_dir(volume)
+                .map_err(|_| CoreError::SdCard)?;
+            let mut file = fs
+                .vol_mgr()
+                .open_file_in_dir(root_dir, "PANIC.LOG", Mode::ReadWriteCreateOrAppend)
+                .map_err(|_| CoreError::SdCard)?;
 
-        let rw = ResetWatch::init();
-        let dt = rw.date_time().to_bytes();
+            let rw = ResetWatch::init();
+            let dt = rw.date_time().to_bytes();
 
-        fs.vol_mgr()
-            .write(file, &dt)
-            .map_err(|_| CoreError::SdCard)?;
-        fs.vol_mgr()
-            .write(file, b" ")
-            .map_err(|_| CoreError::SdCard)?;
-        fs.vol_mgr()
-            .write(file, msg)
-            .map_err(|_| CoreError::SdCard)?;
-        fs.vol_mgr()
-            .write(file, b"\n")
-            .map_err(|_| CoreError::SdCard)?;
-        fs.vol_mgr().close_file(file).unwrap();
-        Ok(())
-    } else {
-        Err(CoreError::SdCard)
-    }
+            fs.vol_mgr()
+                .write(file, &dt)
+                .map_err(|_| CoreError::SdCard)?;
+            fs.vol_mgr()
+                .write(file, b" ")
+                .map_err(|_| CoreError::SdCard)?;
+            fs.vol_mgr()
+                .write(file, msg)
+                .map_err(|_| CoreError::SdCard)?;
+            fs.vol_mgr()
+                .write(file, b"\n")
+                .map_err(|_| CoreError::SdCard)?;
+            fs.vol_mgr().close_file(file).unwrap();
+            Ok(())
+        } else {
+            Err(CoreError::SdCard)
+        }
+    })
 }
 
 #[panic_handler]

@@ -1,4 +1,5 @@
 use core::cell::RefCell;
+use corelib::Lock;
 use embedded_sdmmc::{
     Block, BlockCount, BlockDevice, BlockIdx, Error as SdmmcError, VolumeManager,
 };
@@ -151,7 +152,7 @@ impl BlockDevice for FileIo {
 
 type VolMgr = VolumeManager<FileIo, TimeSource>;
 
-static mut FILE_SYS: Option<FileSys> = None;
+pub static FILE_SYS: Lock<FileSys> = Lock::new();
 
 /// Access to the file system of the SdCard
 ///
@@ -174,17 +175,11 @@ impl FileSys {
     ) -> Result<(), FileSysError> {
         let file_io = FileIo::new(pins, sdmmc1, prec, clocks)?;
         let vol_mgr = VolumeManager::new(file_io, TimeSource);
-        // ok, since access only provided from one thread
-        unsafe { FILE_SYS = Some(FileSys { vol_mgr }) }
+        FILE_SYS.set(FileSys { vol_mgr });
         Ok(())
     }
 
     pub fn vol_mgr(&mut self) -> &mut VolMgr {
         &mut self.vol_mgr
     }
-}
-
-pub fn get_filesys() -> Option<&'static mut FileSys> {
-    // ok, since access only provided from one thread
-    unsafe { FILE_SYS.as_mut() }
 }

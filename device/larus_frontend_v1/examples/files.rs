@@ -44,15 +44,17 @@ unsafe fn main() -> ! {
 
     FileSys::new(pins, dp.SDMMC1, ccdr.peripheral.SDMMC1, &ccdr.clocks).unwrap();
 
-    if let Some(fs) = get_filesys() {
-        let mut volume = fs.vol_mgr().open_volume(VolumeIdx(0)).unwrap();
-        let mut root_dir = volume.open_root_dir().unwrap();
-        root_dir
-            .iterate_dir(|entry| {
-                trace!("{}", defmt::Display2Format(&entry.name));
-            })
-            .unwrap();
-    }
+    FILE_SYS.lock(|opt_fs| {
+        if let Some(fs) = opt_fs {
+            let mut volume = fs.vol_mgr().open_volume(VolumeIdx(0)).unwrap();
+            let mut root_dir = volume.open_root_dir().unwrap();
+            root_dir
+                .iterate_dir(|entry| {
+                    trace!("{}", defmt::Display2Format(&entry.name));
+                })
+                .unwrap();
+        }
+    });
 
     loop {
         cortex_m::asm::nop()

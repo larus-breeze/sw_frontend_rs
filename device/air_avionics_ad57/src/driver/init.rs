@@ -5,10 +5,10 @@ use crate::{
     dev_controller::DevController, dev_view::DevView, driver::*, idle_loop::IdleLoop, Statistics,
     DEVICE_CONST,
 };
+use corelib::spsc_queue;
 use corelib::{
     basic_config::{MAX_RX_FRAMES, MAX_TX_FRAMES, VDA},
-    CanDispatch, CoreModel, Event, QIdleEvents, QRxFrames, QTxFrames, QTxIrqFrames,
-    persist,
+    persist, CanDispatch, CoreModel, Event, QIdleEvents, QRxFrames, QTxFrames, QTxIrqFrames,
 };
 /// In the embedded rust ecosystem, hardware resources can only be used in one place. For this
 /// reason, a careful distribution of the required hardware resources to corresponding software
@@ -93,33 +93,13 @@ pub fn hw_init(
 
     // Setup ----------> the queues
     // This queue transports the can bus frames from the view component to the can tx driver.
-    let (p_tx_irq_frames, c_tx_irq_frames) = {
-        static mut Q_TX_IRQ_FRAMES: QTxIrqFrames<MAX_TX_FRAMES> = Queue::new();
-        // Note: unsafe is ok here, because [heapless::spsc] queue protects against UB
-        unsafe { Q_TX_IRQ_FRAMES.split() }
-    };
-
+    let (p_tx_irq_frames, c_tx_irq_frames) = spsc_queue!(QTxIrqFrames<MAX_TX_FRAMES>);
     // This queue transports the can bus frames from the view component to the can tx driver.
-    let (p_tx_frames, c_tx_frames) = {
-        static mut Q_TX_FRAMES: QTxFrames<MAX_TX_FRAMES> = Queue::new();
-        // Note: unsafe is ok here, because [heapless::spsc] queue protects against UB
-        unsafe { Q_TX_FRAMES.split() }
-    };
-
+    let (p_tx_frames, c_tx_frames) = spsc_queue!(QTxFrames<MAX_TX_FRAMES>);
     // This queue transports the can bus frames from the can rx driver to the controller.
-    let (p_rx_frames, c_rx_frames) = {
-        static mut Q_RX_FRAMES: QRxFrames<MAX_RX_FRAMES> = Queue::new();
-        // Note: unsafe is ok here, because [heapless::spsc] queue protects against UB
-        unsafe { Q_RX_FRAMES.split() }
-    };
-
+    let (p_rx_frames, c_rx_frames) = spsc_queue!(QRxFrames<MAX_RX_FRAMES>);
     // This queue routes the StorageItems from the controller to the idle loop.
-    let (p_idle_events, c_idle_events) = {
-        static mut Q_IDLE_EVENTS: QIdleEvents = Queue::new();
-        // Note: unsafe is ok here, because [heapless::spsc] queue protects against UB
-        unsafe { Q_IDLE_EVENTS.split() }
-    };
-
+    let (p_idle_events, c_idle_events) = spsc_queue!(QIdleEvents);
     // This queue routes the events to the controller.
     static Q_EVENTS: QEvents = MpMcQueue::new();
 

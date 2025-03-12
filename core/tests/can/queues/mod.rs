@@ -10,21 +10,9 @@ pub fn get_the_queues() -> (
     PRxFrames<30>,
     CRxFrames<30>,
 ) {
-    let (p_tx_irq_frames, c_tx_irq_frames) = {
-        static mut Q_TX_IRQ_FRAMES: QTxIrqFrames<10> = Queue::new();
-        // Note: unsafe is ok here, because [heapless::spsc] queue protects against UB
-        unsafe { Q_TX_IRQ_FRAMES.split() }
-    };
-    let (p_tx_frames, c_tx_frames) = {
-        static mut Q_TX_FRAMES: QTxFrames<10> = Queue::new();
-        // Note: unsafe is ok here, because [heapless::spsc] queue protects against UB
-        unsafe { Q_TX_FRAMES.split() }
-    };
-    let (p_rx_frames, mut c_rx_frames) = {
-        static mut Q_RX_FRAMES: QRxFrames<30> = Queue::new();
-        // Note: unsafe is ok here, because [heapless::spsc] queue protects against UB
-        unsafe { Q_RX_FRAMES.split() }
-    };
+    let (p_tx_irq_frames, c_tx_irq_frames) = spsc_queue!(QTxIrqFrames<10>);
+    let (p_tx_frames, c_tx_frames) = spsc_queue!(QTxFrames<10>);
+    let (p_rx_frames, mut c_rx_frames) = spsc_queue!(QRxFrames<30>);
     (
         p_tx_irq_frames,
         c_tx_irq_frames,

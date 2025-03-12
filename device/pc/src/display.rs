@@ -13,7 +13,7 @@ pub struct MockDisplay {
     rotation: Rotation,
 }
 
-use image::{ImageBuffer, ImageFormat::Png, RgbaImage, DynamicImage, imageops, io::Reader};
+use image::{imageops, io::Reader, DynamicImage, ImageBuffer, ImageFormat::Png, RgbaImage};
 
 const HOUSING_IMG: &[u8] = include_bytes!("../housing.png");
 
@@ -39,7 +39,7 @@ impl MockDisplay {
         let output_settings = OutputSettingsBuilder::new().build();
         let output_image = self.display.to_rgb_output_image(&output_settings);
         let buf = output_image.as_image_buffer().into_raw().to_vec();
-        let img= ImageBuffer::from_raw(480, 480, buf).unwrap();
+        let img = ImageBuffer::from_raw(480, 480, buf).unwrap();
         let sim_img = DynamicImage::ImageRgb8(img).into_rgba8();
 
         let mut img_with_housing = RgbaImage::new(620, 620);

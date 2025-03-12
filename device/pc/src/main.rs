@@ -59,18 +59,8 @@ fn main() -> Result<(), core::convert::Infallible> {
     let display = MockDisplay::new(Size::new(DISPLAY_WIDTH, DISPLAY_HEIGHT));
     let mut window = Window::new("Vario - Mock", &OutputSettings::default());
 
-    // This queue routes the PersItems from the controller to the idle loop.
-    let (p_idle_events, mut c_idle_events) = {
-        static mut Q_IDLE_EVENTS: QIdleEvents = Queue::new();
-        // Note: unsafe is ok here, because [heapless::spsc] queue protects against UB
-        unsafe { Q_IDLE_EVENTS.split() }
-    };
-    // This queue transports the can bus frames from the view component to the can tx driver.
-    let (p_tx_frames, mut c_tx_frames) = {
-        static mut Q_TX_FRAMES: QTxFrames<10> = Queue::new();
-        // Note: unsafe is ok here, because [heapless::spsc] queue protects against UB
-        unsafe { Q_TX_FRAMES.split() }
-    };
+    let (p_idle_events, mut c_idle_events) = spsc_queue!(QIdleEvents);
+    let (p_tx_frames, mut c_tx_frames) = spsc_queue!(QTxFrames<10>);
 
     let mut core_model = CoreModel::new(&dev_const::DEVICE_CONST, 0x1234_5678);
 
@@ -123,7 +113,10 @@ fn main() -> Result<(), core::convert::Infallible> {
                             if DISPLAY_WIDTH == 480 && DISPLAY_HEIGHT == 480 {
                                 let img_wh_path = format!("vario_wh_{:03}.png", img_no);
                                 view.display.save_png_with_housing(&img_wh_path);
-                                println!("Image '{}' and '{}' saved to disk", &img_path, &img_wh_path);
+                                println!(
+                                    "Image '{}' and '{}' saved to disk",
+                                    &img_path, &img_wh_path
+                                );
                             } else {
                                 println!("Image '{}' saved to disk", &img_path);
                             }

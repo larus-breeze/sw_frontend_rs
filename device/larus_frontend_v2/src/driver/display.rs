@@ -13,11 +13,14 @@ pub struct Display {
     rotation: Rotation,
 }
 
-
 impl Display {
     pub fn new(mut frame_buffer: FrameBuffer) -> Self {
         let buf = frame_buffer.swap_buffers();
-        Display { buf, frame_buffer , rotation: Rotation::Rotate0}
+        Display {
+            buf,
+            frame_buffer,
+            rotation: Rotation::Rotate0,
+        }
     }
 
     pub fn show(&mut self) {
@@ -47,7 +50,7 @@ impl DrawTarget for Display {
             Rotation::Rotate90 => {
                 for Pixel(coord, color) in pixels.into_iter() {
                     if let Ok((x @ 0..=WIDTH_M1, y @ 0..=WIDTH_M1)) = coord.try_into() {
-                        let idx: u32 = ((x + 1)* DISPLAY_WIDTH) as u32 - 1 - y;
+                        let idx: u32 = ((x + 1) * DISPLAY_WIDTH) as u32 - 1 - y;
                         self.buf[idx as usize] = color.into_storage();
                     }
                 }
@@ -81,7 +84,8 @@ impl DrawTarget for Display {
 
         match self.rotation {
             Rotation::Rotate0 => {
-                let mut row_start_idx = (area.top_left.y as u32) * DISPLAY_WIDTH + area.top_left.x as u32;
+                let mut row_start_idx =
+                    (area.top_left.y as u32) * DISPLAY_WIDTH + area.top_left.x as u32;
                 for _ in 0..area.size.height {
                     for idx in row_start_idx..(row_start_idx + area.size.width) {
                         self.buf[idx as usize] = color.into_storage();
@@ -90,7 +94,8 @@ impl DrawTarget for Display {
                 }
             }
             Rotation::Rotate90 => {
-                let mut row_start_idx = (area.top_left.x as u32 + 1) * DISPLAY_WIDTH - area.top_left.y as u32 - 1;
+                let mut row_start_idx =
+                    (area.top_left.x as u32 + 1) * DISPLAY_WIDTH - area.top_left.y as u32 - 1;
                 for _x in 0..area.size.width {
                     for y in 0..area.size.height {
                         let idx = row_start_idx - y;
@@ -100,7 +105,8 @@ impl DrawTarget for Display {
                 }
             }
             Rotation::Rotate180 => {
-                let mut row_start_idx = WIDTH_M1 - area.top_left.x as u32 + (WIDTH_M1 - area.top_left.y as u32) * DISPLAY_WIDTH;
+                let mut row_start_idx = WIDTH_M1 - area.top_left.x as u32
+                    + (WIDTH_M1 - area.top_left.y as u32) * DISPLAY_WIDTH;
                 for _y in 0..area.size.height {
                     for x in 0..area.size.width {
                         let idx = row_start_idx - x;
@@ -110,7 +116,8 @@ impl DrawTarget for Display {
                 }
             }
             Rotation::Rotate270 => {
-                let mut row_start_idx = (WIDTH_M1 - area.top_left.x as u32) * DISPLAY_WIDTH + area.top_left.y as u32;
+                let mut row_start_idx =
+                    (WIDTH_M1 - area.top_left.x as u32) * DISPLAY_WIDTH + area.top_left.y as u32;
                 for _ in 0..area.size.width {
                     for y in 0..area.size.height {
                         let idx = row_start_idx + y;
@@ -167,14 +174,13 @@ impl DrawImage for Display {
             }
             Rotation::Rotate270 => {
                 let x = idx as u32 % DISPLAY_WIDTH;
-                let y = idx as u32  / DISPLAY_WIDTH;
+                let y = idx as u32 / DISPLAY_WIDTH;
                 let mut idx = (WIDTH_M1 - x) * DISPLAY_WIDTH + y;
                 for _ in 0..len {
                     self.buf[idx as usize] = color.into_storage();
                     idx -= DISPLAY_WIDTH;
                 }
             }
-
         }
     }
 }

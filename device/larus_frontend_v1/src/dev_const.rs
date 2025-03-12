@@ -1,5 +1,7 @@
 use crate::{HW_VERSION, SW_VERSION};
-use corelib::{DeviceConst, DisplaySizes, EditMode, HorizonSizes, Images, Misc, Palette, Sizes, VarioSizes};
+use corelib::{
+    DeviceConst, DisplaySizes, EditMode, HorizonSizes, Images, Misc, Palette, Sizes, VarioSizes,
+};
 use embedded_graphics::{geometry::Point, prelude::Size};
 use u8g2_fonts::{fonts, FontRenderer};
 

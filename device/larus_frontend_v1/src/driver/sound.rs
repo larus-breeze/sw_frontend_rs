@@ -1,3 +1,5 @@
+use super::H7_HCLK;
+use crate::utils::samples::*;
 /// Sound Modul
 ///
 /// The sound module provides the necessary components to realize the sound output of the Vario.
@@ -26,8 +28,6 @@ use stm32h7xx_hal::{
     pac,
     pac::{DAC, DMA1},
 };
-use super::H7_HCLK;
-use crate::utils::samples::*;
 
 #[derive(Clone, Copy, Format)]
 pub enum Waveform {
@@ -108,7 +108,7 @@ impl Sound {
             let dma1 = &(*pac::DMA1::ptr());
             dma1.st[0].ndtr.write(|w| w.bits(SAMPLES_COUNT as u32)); // cnt dma
             dma1.st[0].par.write(|w| w.bits(0x4000_7408)); // dst 12 Bit DAC register
-            dma1.st[0].m0ar.write(|w| w.bits(SAMPLES.as_ptr() as u32));
+            dma1.st[0].m0ar.write(|w| w.bits(&raw const SAMPLES as u32));
             // Bit 4     transfer complete ie
             // Bit 7:6   0b01 memory to peripheral
             // Bit 8     circular mode
@@ -161,7 +161,7 @@ impl Sound {
             Waveform::SineWave => SINE_WAVE,
         };
 
-        // get volume_factor 
+        // get volume_factor
         let volume_factor = if self.gain > 30 && self.gain <= 50 {
             VOLUME_FACTORS[self.gain as usize - 31] // 31..
         } else {
@@ -170,7 +170,7 @@ impl Sound {
 
         // copy changes into buffer
         for idx in 0..(SAMPLES_COUNT) {
-                self.buffer[idx] = 2047 + (wave[idx] * volume_factor) as u16;
+            self.buffer[idx] = 2047 + (wave[idx] * volume_factor) as u16;
         }
     }
 
@@ -217,12 +217,11 @@ impl Sound {
                     true => self.set_wave(false),
                     false => self.set_wave(true),
                 },
-            } 
+            }
         } else if self.old_gain != self.gain {
             self.set_wave(self.on);
         }
     }
-
 
     fn set_wave(&mut self, sound_on: bool) {
         self.on = sound_on;
@@ -230,9 +229,13 @@ impl Sound {
 
         // unsafe ist ok her becaus the access ist synchronized to dma access
         if sound_on {
-            unsafe { SAMPLES = self.buffer; }
+            unsafe {
+                SAMPLES = self.buffer;
+            }
         } else {
-            unsafe {  SAMPLES = SILENCE; }
+            unsafe {
+                SAMPLES = SILENCE;
+            }
         }
     }
 }
