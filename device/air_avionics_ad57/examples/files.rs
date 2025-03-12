@@ -41,33 +41,35 @@ fn main() -> ! {
     );
     //let sd_detect = gpioc.pc0.internal_pull_up(true).into_input();
     FileSys::new(dp.SDIO, &clocks, sdio_pins).unwrap();
-    let file_sys = get_filesys().unwrap();
-    let volume = file_sys.vol_mgr().open_volume(VolumeIdx(0)).unwrap();
+    FILE_SYS.lock(|opt_fs| {
+        if let Some(file_sys) = opt_fs {
+            let volume = file_sys.vol_mgr().open_volume(VolumeIdx(0)).unwrap();
 
-    let root_dir = file_sys.vol_mgr().open_root_dir(volume).unwrap();
-    trace!("List all the directories and their info");
-    file_sys
-        .vol_mgr()
-        .iterate_dir(root_dir, |entry| {
-            trace!("{}", defmt::Display2Format(&entry.name));
-        })
-        .unwrap();
+            let root_dir = file_sys.vol_mgr().open_root_dir(volume).unwrap();
+            trace!("List all the directories and their info");
+            file_sys
+                .vol_mgr()
+                .iterate_dir(root_dir, |entry| {
+                    trace!("{}", defmt::Display2Format(&entry.name));
+                })
+                .unwrap();
 
-    let file = file_sys
-        .vol_mgr()
-        .open_file_in_dir(root_dir, "TEST.TXT", Mode::ReadWriteCreateOrAppend)
-        .unwrap();
-    for _idx in [0..1000] {
-        file_sys
-            .vol_mgr()
-            .write(file, "Dies ist ein Test, der zeigen soll... ".as_bytes())
-            .unwrap();
-    }
-    file_sys.vol_mgr().close_file(file).unwrap();
+            let file = file_sys
+                .vol_mgr()
+                .open_file_in_dir(root_dir, "TEST.TXT", Mode::ReadWriteCreateOrAppend)
+                .unwrap();
+            for _idx in [0..1000] {
+                file_sys
+                    .vol_mgr()
+                    .write(file, "Dies ist ein Test, der zeigen soll... ".as_bytes())
+                    .unwrap();
+            }
+            file_sys.vol_mgr().close_file(file).unwrap();
+        }
+    });
 
     // Create a delay abstraction based on SysTick
     let mut delay = cp.SYST.delay(&clocks);
-
     loop {
         delay.delay_ms(1000_u16);
         trace!("tick");

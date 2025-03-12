@@ -10,7 +10,13 @@ use crate::{driver::*, HW_VERSION};
 use super::SW_VERSION;
 
 pub fn update_available() -> Option<SwVersion> {
-    let fs = get_filesys()?;
+    FILE_SYS.lock(|opt_fs| match opt_fs {
+        Some(fs) => update_available_private(fs),
+        None => None,
+    })
+}
+
+fn update_available_private(fs: &mut FileSys) -> Option<SwVersion> {
     // open filesystem
     let volume = fs.vol_mgr().open_volume(VolumeIdx(0)).ok()?;
     let root_dir = fs.vol_mgr().open_root_dir(volume).ok()?;

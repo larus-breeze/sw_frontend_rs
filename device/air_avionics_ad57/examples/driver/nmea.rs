@@ -50,7 +50,9 @@ impl NmeaTxRx {
 
             // configure stream 1: USART3_RX
             dma2.st[5].par.write(|w| w.bits(0x4001_1004)); // dr data register
-            dma2.st[5].m0ar.write(|w| w.bits(RX_BUFFER.as_ptr() as u32)); // dest ptr
+            dma2.st[5]
+                .m0ar
+                .write(|w| w.bits(&raw const RX_BUFFER as u32)); // dest ptr
             dma2.st[5]
                 .ndtr
                 .write(|w| w.ndt().bits(NMEA_BUF_SIZE as u16)); // buf len
@@ -83,7 +85,9 @@ impl NmeaTx {
 
                 let dma2 = &(*pac::DMA2::ptr());
                 dma2.st[7].cr.modify(|_, w| w.en().clear_bit()); // stop dma transfer
-                dma2.st[7].m0ar.write(|w| w.bits(TX_BUFFER.as_ptr() as u32)); // src ptr
+                dma2.st[7]
+                    .m0ar
+                    .write(|w| w.bits(&raw const TX_BUFFER as u32)); // src ptr
                 dma2.st[7].ndtr.write(|w| w.ndt().bits(src.len() as u16)); // cnt dma
                 dma2.st[7].cr.modify(|_, w| w.en().set_bit()); // enable dma
             }

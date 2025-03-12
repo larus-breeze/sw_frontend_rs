@@ -52,7 +52,7 @@ impl IdleLoop {
                     IdleEvent::SetEepromItem(item) => {
                         trace!("Stored id {:?}", item.id as u32);
                         self.eeprom.write_item(item).unwrap();
-                    },
+                    }
                     IdleEvent::ClearEepromItems(items_list) => {
                         self.eeprom.delete_items_list(items_list).unwrap();
                     }
@@ -82,7 +82,7 @@ impl IdleLoop {
                     }
                     IdleEvent::ResetDevice(_reason) => {
                         trace!("Reset Device");
-                        loop {}; // Wait until watchdog reset the device
+                        loop {} // Wait until watchdog reset the device
                     }
                 }
             }

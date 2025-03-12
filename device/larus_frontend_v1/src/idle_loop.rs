@@ -1,9 +1,7 @@
-use core::cell::RefCell;
-
 use defmt::trace;
 
 use crate::{driver::*, install_and_restart, update_available, DevController};
-use corelib::{CIdleEvents, CoreModel, DeviceEvent, Eeprom, Event, IdleEvent, SdCardCmd, persist};
+use corelib::{persist, CIdleEvents, CoreModel, DeviceEvent, Eeprom, Event, IdleEvent, SdCardCmd};
 use fugit::ExtU32;
 use stm32h7xx_hal::{
     device::I2C1,
@@ -11,10 +9,9 @@ use stm32h7xx_hal::{
     independent_watchdog::IndependentWatchdog,
 };
 
-static mut I2C_REF: Option<RefCell<I2c<I2C1>>> = None;
 pub struct IdleLoop {
-    amplifier: Amplifier<I2cManager<'static>>,
-    eeprom: Eeprom<Storage<I2cManager<'static>, I2cError>>,
+    amplifier: Amplifier<I2cManager>,
+    eeprom: Eeprom<Storage<I2cManager, I2cError>>,
     c_idle_events: CIdleEvents,
     q_events: &'static QEvents,
     watchdog: IndependentWatchdog,
@@ -29,14 +26,10 @@ impl IdleLoop {
         cm: &mut CoreModel,
         dc: &mut DevController,
     ) -> Self {
-        // I found no other solution
-        let (mut eeprom, amplifier) = unsafe {
-            I2C_REF.replace(RefCell::new(i2c));
-            (
-                Storage::new(I2cManager::new(I2C_REF.as_ref().unwrap())).unwrap(),
-                Amplifier::new(I2cManager::new(I2C_REF.as_ref().unwrap())),
-            )
-        };
+        let i2c = I2cManager::new(i2c);
+        let mut eeprom = Storage::new(i2c).unwrap();
+        let amplifier = Amplifier::new(I2cManager::clone());
+
         for item in eeprom.iter_over(corelib::EepromTopic::ConfigValues) {
             persist::restore_item(dc.core(), cm, item);
         }
@@ -103,7 +96,7 @@ impl IdleLoop {
                     }
                     IdleEvent::ResetDevice(_reason) => {
                         trace!("Reset Device");
-                        loop {}; // Wait until watchdog reset the device
+                        loop {} // Wait until watchdog reset the device
                     }
                 }
             }

@@ -88,7 +88,7 @@ impl FrameBuffer {
 
         unsafe {
             let dma2 = &*DMA2::ptr();
-            let src = LINE_BUFFER.as_ptr() as u32;
+            let src = &raw const LINE_BUFFER as u32;
             dma2.st[0].cr.write(|w| w.bits(0x2_2a90));
             dma2.st[0].fcr.write(|w| w.bits(0x27));
             dma2.st[0].par.write(|w| w.bits(src)); // source address
@@ -112,7 +112,10 @@ impl FrameBuffer {
         };
 
         (
-            Display { buf: buf2, rotation: Rotation::Rotate0 },
+            Display {
+                buf: buf2,
+                rotation: Rotation::Rotate0,
+            },
             FrameBuffer {
                 buf,
                 line_buf,
@@ -193,8 +196,11 @@ impl DrawTarget for Display {
         match self.rotation {
             Rotation::Rotate180 => {
                 for Pixel(coord, color) in pixels.into_iter() {
-                    if let Ok((x @ 0..=PORT_AVAIL_WID_M1, y @ 0..=PORT_AVAIL_HEI_M1)) = coord.try_into() {
-                        let idx: u32 = PORT_AVAIL_WID_M1 - x + (PORT_AVAIL_HEI_M1 - y) * DISPLAY_WIDTH;
+                    if let Ok((x @ 0..=PORT_AVAIL_WID_M1, y @ 0..=PORT_AVAIL_HEI_M1)) =
+                        coord.try_into()
+                    {
+                        let idx: u32 =
+                            PORT_AVAIL_WID_M1 - x + (PORT_AVAIL_HEI_M1 - y) * DISPLAY_WIDTH;
                         self.buf[idx as usize] = color.into_storage();
                     }
                 }
@@ -203,7 +209,9 @@ impl DrawTarget for Display {
                 for Pixel(coord, color) in pixels.into_iter() {
                     // Check if the pixel coordinates are out of bounds. `DrawTarget` implementation are required
                     // to discard any out of bounds pixels without returning an error or causing a panic.
-                    if let Ok((x @ 0..=PORT_AVAIL_WID_M1, y @ 0..=PORT_AVAIL_HEI_M1)) = coord.try_into() {
+                    if let Ok((x @ 0..=PORT_AVAIL_WID_M1, y @ 0..=PORT_AVAIL_HEI_M1)) =
+                        coord.try_into()
+                    {
                         let idx: u32 = x + y * PORTRAIT_AVAIL_WIDTH as u32;
                         self.buf[idx as usize] = color.into_storage();
                     }
@@ -221,7 +229,8 @@ impl DrawTarget for Display {
 
         match self.rotation {
             Rotation::Rotate180 => {
-                let mut row_start_idx = PORTRAIT_AVAIL_WIDTH as u32 - area.top_left.x as u32 + (PORTRAIT_AVAIL_HEIGHT as u32 - area.top_left.y as u32) * DISPLAY_WIDTH;
+                let mut row_start_idx = PORTRAIT_AVAIL_WIDTH as u32 - area.top_left.x as u32
+                    + (PORTRAIT_AVAIL_HEIGHT as u32 - area.top_left.y as u32) * DISPLAY_WIDTH;
                 for _y in 0..area.size.height {
                     for x in 0..area.size.width {
                         let idx = row_start_idx - x;
@@ -231,7 +240,8 @@ impl DrawTarget for Display {
                 }
             }
             _ => {
-                let mut row_start_idx = (area.top_left.y as u32) * DISPLAY_WIDTH + area.top_left.x as u32;
+                let mut row_start_idx =
+                    (area.top_left.y as u32) * DISPLAY_WIDTH + area.top_left.x as u32;
                 for _ in 0..area.size.height {
                     for idx in row_start_idx..(row_start_idx + area.size.width) {
                         self.buf[idx as usize] = color.into_storage();

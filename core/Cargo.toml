@@ -16,6 +16,7 @@ tfmt = "0.4"
 byteorder = { version = "1.4", default-features = false }
 embedded-hal = "0.2.7"
 defmt = "0.3"
+portable-atomic = { version = "1", default-features = false }
 
 [target.'cfg(unix)'.dependencies]
 libc-print = "0.1.12"

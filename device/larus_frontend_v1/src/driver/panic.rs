@@ -1,4 +1,4 @@
-use super::file_sys::get_filesys;
+use super::file_sys::FILE_SYS;
 use crate::SW_VERSION;
 use core::{mem::MaybeUninit, panic::PanicInfo, ptr::addr_of};
 use corelib::{tformat, CoreError, DateTime};
@@ -67,29 +67,31 @@ impl ResetWatch {
 }
 
 fn write_panic_msg(msg: &[u8]) -> Result<(), CoreError> {
-    if let Some(fs) = get_filesys() {
-        let mut volume = fs
-            .vol_mgr()
-            .open_volume(VolumeIdx(0))
-            .map_err(|_| CoreError::SdCard)?;
-        let mut root_dir = volume.open_root_dir().map_err(|_| CoreError::SdCard)?;
-        let mut file = root_dir
-            .open_file_in_dir("PANIC.LOG", Mode::ReadWriteCreateOrAppend)
-            .map_err(|_| CoreError::SdCard)?;
+    FILE_SYS.lock(|opt_fs| {
+        if let Some(fs) = opt_fs {
+            let mut volume = fs
+                .vol_mgr()
+                .open_volume(VolumeIdx(0))
+                .map_err(|_| CoreError::SdCard)?;
+            let mut root_dir = volume.open_root_dir().map_err(|_| CoreError::SdCard)?;
+            let mut file = root_dir
+                .open_file_in_dir("PANIC.LOG", Mode::ReadWriteCreateOrAppend)
+                .map_err(|_| CoreError::SdCard)?;
 
-        let dt = if let Some(rw) = ResetWatch::init() {
-            rw.date_time.to_bytes()
+            let dt = if let Some(rw) = ResetWatch::init() {
+                rw.date_time.to_bytes()
+            } else {
+                DateTime::new().to_bytes()
+            };
+
+            file.write(&dt).map_err(|_| CoreError::SdCard)?;
+            file.write(b" ").map_err(|_| CoreError::SdCard)?;
+            file.write(msg).map_err(|_| CoreError::SdCard)?;
+            file.write(b"\n").map_err(|_| CoreError::SdCard)
         } else {
-            DateTime::new().to_bytes()
-        };
-
-        file.write(&dt).map_err(|_| CoreError::SdCard)?;
-        file.write(b" ").map_err(|_| CoreError::SdCard)?;
-        file.write(msg).map_err(|_| CoreError::SdCard)?;
-        file.write(b"\n").map_err(|_| CoreError::SdCard)
-    } else {
-        Err(CoreError::SdCard)
-    }
+            Err(CoreError::SdCard)
+        }
+    })
 }
 
 #[panic_handler]
