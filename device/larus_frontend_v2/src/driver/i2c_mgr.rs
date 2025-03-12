@@ -23,7 +23,7 @@ impl I2cManager {
 impl Write for I2cManager {
     type Error = I2cError;
     fn write(&mut self, address: u8, bytes: &[u8]) -> Result<(), Self::Error> {
-        I2C_REF.lock(|i2c_ref| {
+        I2C_REF.lock_during_use(|i2c_ref| {
             let bus = i2c_ref.unwrap();
             bus.write(address, bytes)
         })
@@ -33,7 +33,7 @@ impl Write for I2cManager {
 impl Read for I2cManager {
     type Error = I2cError;
     fn read(&mut self, address: u8, buffer: &mut [u8]) -> Result<(), Self::Error> {
-        I2C_REF.lock(|i2c_ref| {
+        I2C_REF.lock_during_use(|i2c_ref| {
             let bus = i2c_ref.unwrap();
             bus.read(address, buffer)
         })
@@ -48,7 +48,7 @@ impl WriteRead for I2cManager {
         bytes: &[u8],
         buffer: &mut [u8],
     ) -> Result<(), Self::Error> {
-        I2C_REF.lock(|i2c_ref| {
+        I2C_REF.lock_during_use(|i2c_ref| {
             let bus = i2c_ref.unwrap();
             bus.write_read(address, bytes, buffer)
         })

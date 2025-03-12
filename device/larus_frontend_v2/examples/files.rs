@@ -50,7 +50,7 @@ unsafe fn main() -> ! {
 
     FileSys::new(pins, dp.SDMMC1, ccdr.peripheral.SDMMC1, &ccdr.clocks).unwrap();
 
-    FILE_SYS.lock(|opt_file_sys| {
+    FILE_SYS.lock_during_use(|opt_file_sys| {
         if let Some(fs) = opt_file_sys {
             let mut volume = fs.vol_mgr().open_volume(VolumeIdx(0)).unwrap();
             let mut root_dir = volume.open_root_dir().unwrap();

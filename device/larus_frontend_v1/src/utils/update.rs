@@ -10,7 +10,7 @@ use crate::{driver::*, HW_VERSION};
 use super::SW_VERSION;
 
 pub fn update_available() -> Option<SwVersion> {
-    FILE_SYS.lock(|opt_fs| match opt_fs {
+    FILE_SYS.lock_during_use(|opt_fs| match opt_fs {
         Some(fs) => update_available_private(fs),
         None => None,
     })

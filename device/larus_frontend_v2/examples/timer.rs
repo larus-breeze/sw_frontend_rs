@@ -37,7 +37,7 @@ fn main() -> ! {
     }
 
     loop {
-        let now = TIMER.lock(|timer| timer.unwrap().now());
+        let now = TIMER.lock_during_use(|timer| timer.unwrap().now());
 
         info!("timestamp64: {}", now.ticks());
         delay_us(999_997);
@@ -46,7 +46,7 @@ fn main() -> ! {
 
 #[interrupt]
 fn TIM2() {
-    TIMER.lock(|opt_tim| {
+    TIMER.lock_during_use(|opt_tim| {
         if let Some(timer) = opt_tim {
             timer.on_interrupt();
             timer.clear_compare_flag();
