@@ -42,8 +42,11 @@ impl IdleLoop {
             trace!("Update available: {}", version);
         } else {
             // Normal mode without update, activate watchdog
-            watchdog.start(1000.millis());
-            trace!("Start watchdog");
+            // Watchdog starts only in release builds
+            if !cfg!(debug_assertions) {
+                watchdog.start(1000.millis());
+                trace!("Start watchdog");
+            }
         }
 
         IdleLoop {

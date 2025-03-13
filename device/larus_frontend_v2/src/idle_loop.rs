@@ -41,9 +41,12 @@ impl IdleLoop {
             let _ = q_events.enqueue(event);
             trace!("Update available: {}", version);
         } else {
-            // Normal mode wiclonethout update, activate watchdog
-            watchdog.start(1000.millis());
-            trace!("Start watchdog");
+            // Normal mode without update, activate watchdog
+            // Watchdog starts only in release builds
+            if !cfg!(debug_assertions) {
+                watchdog.start(1000.millis());
+                trace!("Start watchdog");
+            }
         }
 
         IdleLoop {
