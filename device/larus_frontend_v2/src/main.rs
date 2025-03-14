@@ -12,6 +12,7 @@ mod utils;
 use corelib::basic_config::MAX_TX_FRAMES;
 #[allow(unused)]
 use defmt::trace;
+#[cfg(not(feature = "rtic-info"))]
 use defmt_rtt as _;
 use stm32h7xx_hal::interrupt;
 
@@ -53,6 +54,9 @@ mod app {
 
     #[init]
     fn init(cx: init::Context) -> (Shared, Local, init::Monotonics) {
+        let statistics = Statistics::new();
+        trace!("\x1B[2J\x1B[1;1H");
+        trace!("App start");
         let (
             can_dispatch,
             can_rx,
@@ -66,7 +70,6 @@ mod app {
             nmea_rx,
             nmea_tx,
             sound,
-            statistics,
         ) = hw_init(cx.device, cx.core);
 
         dev_view.setup_timer(DevInstant::from_ticks(timestamp_us() as u64));

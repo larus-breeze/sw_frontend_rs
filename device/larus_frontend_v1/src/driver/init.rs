@@ -1,4 +1,4 @@
-use crate::{driver::*, utils::*, DevController, DevView, IdleLoop, DEVICE_CONST};
+use crate::{driver::*, DevController, DevView, IdleLoop, DEVICE_CONST};
 use corelib::{
     basic_config::{MAX_RX_FRAMES, MAX_TX_FRAMES, VDA},
     spsc_queue, CanDispatch, CoreModel, QIdleEvents, QRxFrames, QTxFrames, QTxIrqFrames,
@@ -38,7 +38,6 @@ pub fn hw_init(
     NmeaRx,
     NmeaTx,
     Sound,
-    Statistics,
 ) {
     // Setup ----------> the queues
 
@@ -99,9 +98,6 @@ pub fn hw_init(
         let enc2_res = Enc2Res::new(ccdr.peripheral.TIM3, dp.TIM3, gpiob.pb4.into(), gpioa.pa7);
         Keyboard::new(keyboard_pins, enc1_res, enc2_res, &Q_EVENTS)
     };
-
-    // Setup ----------> Statistics
-    let statistics = Statistics::new();
 
     // Setup ----------> Canbus
     let (tx_can, rx_can) = {
@@ -259,6 +255,5 @@ pub fn hw_init(
         nmea_rx,
         nmea_tx,
         sound,
-        statistics,
     )
 }

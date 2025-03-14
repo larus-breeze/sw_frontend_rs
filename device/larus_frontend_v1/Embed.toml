@@ -1,0 +1,19 @@
+[default.general]
+chip = "STM32H743VGTx"
+
+
+[default.rtt]
+
+# Whether or not an RTTUI should be opened after flashing.
+enabled = true
+
+up_channels = [
+    { channel = 0, mode = "BlockIfFull", format = "Defmt" },
+    { channel = 1, mode = "BlockIfFull", format = "String"},
+]
+
+# The UI configuration:
+tabs = [
+    { up_channel = 0, name = "defmt" },
+    { up_channel = 1, name = "ritc" },
+]
