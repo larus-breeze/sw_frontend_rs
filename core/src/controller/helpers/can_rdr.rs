@@ -10,7 +10,7 @@ use crate::{
     AirSpeed, Angle, CanFrame, CoreController, CoreModel, F64ToCoord, FloatToAcceleration,
     FloatToAngularVelocity, FloatToDensity, FloatToLength, FloatToMass, FloatToPressure,
     FloatToSpeed, FlyMode, Frame, GenericFrame, GenericId, Latitude, Longitude, PersistenceId,
-    SpecificFrame, Variant,
+    SpecificFrame, Variant, into_range_0_360, into_range_180_180,
 };
 use embedded_graphics::prelude::AngleUnit;
 
@@ -270,15 +270,15 @@ impl CoreController {
         match frame.specific_id {
             sensor::EULER_ROLL_NICK => {
                 if let Some(roll) = rdr.pop_f32() {
-                    cm.sensor.euler_roll = roll.rad();
+                    cm.sensor.euler_roll = into_range_180_180(roll.rad());
                 }
                 if let Some(pitch) = rdr.pop_f32() {
-                    cm.sensor.euler_pitch = pitch.rad();
+                    cm.sensor.euler_pitch = into_range_180_180(pitch.rad());
                 }
             }
             sensor::EULER_YAW_TURN_RATE => {
                 if let Some(yaw) = rdr.pop_f32() {
-                    cm.sensor.euler_yaw = yaw.rad();
+                    cm.sensor.euler_yaw = into_range_0_360(yaw.rad());
                 }
                 if let Some(turn_rate) = rdr.pop_f32() {
                     cm.sensor.turn_rate = turn_rate.rad_s();
