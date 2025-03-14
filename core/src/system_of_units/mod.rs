@@ -60,3 +60,27 @@ pub(crate) const ISA_PRESSURE_AT_NN: Float = 101325.0; // pressure at NN in Pa
 pub(crate) const RAD_PER_DEGREE: Float = PI / 180.0;
 #[allow(dead_code)]
 pub(crate) const DEGREE_PER_RAD: Float = 180.0 / PI;
+
+// Angle ranges
+pub fn into_range_0_360(angle: Angle) -> Angle {
+    let mut angle = angle.to_radians();
+    while angle < 0.0 {
+        angle += 2.0 * PI;
+    }
+    while angle > 2.0 * PI {
+        angle -= 2.0 * PI
+    }
+    Angle::from_radians(angle)
+}
+
+// Angle ranges
+pub fn into_range_180_180(angle: Angle) -> Angle {
+    let mut angle = angle.to_radians();
+    while angle < -PI {
+        angle += 2.0 * PI;
+    }
+    while angle > PI {
+        angle -= 2.0 * PI
+    }
+    Angle::from_radians(angle)
+}
