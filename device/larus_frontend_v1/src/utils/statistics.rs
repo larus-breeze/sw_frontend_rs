@@ -1,5 +1,10 @@
+#[cfg(feature = "rtic-info")]
+use core::fmt::Write;
+use corelib::tformat;
 use crate::{driver::timestamp_us, DevDuration, DevInstant};
-use defmt::*;
+
+#[cfg(feature = "rtic-info")]
+use rtt_target::{rtt_init, ChannelMode::BlockIfFull, set_defmt_channel, UpChannel};
 
 use crate::app;
 
@@ -67,6 +72,8 @@ pub struct Statistics {
     stack: [u8; TASK_CNT],
     stack_cnt: usize,
     alive: u32,
+    #[cfg(feature = "rtic-info")]
+    up_channel: UpChannel,
 }
 
 const INTERVAL: usize = 3;
@@ -83,12 +90,34 @@ impl Statistics {
             last_start: 0,
             count: 0,
         };
+
+        #[cfg(feature = "rtic-info")]
+        let up_channel = {
+            let channels = rtt_init! {
+                up: {
+                    0: {
+                        size: 512,
+                        mode: BlockIfFull,
+                        name: "defmt",
+                    }
+                    1: {
+                        size: 1024,
+                        name: "rtic"
+                    }
+                }
+            };
+            set_defmt_channel(channels.up.0);
+            channels.up.1
+        };
+    
         Statistics {
             stats: [stats; TASK_CNT],
             next_show: app::monotonics::now() + DevDuration::secs(1),
             stack: [0u8; TASK_CNT],
             stack_cnt: 0,
             alive: 0,
+            #[cfg(feature = "rtic-info")]
+            up_channel,
         }
     }
 
@@ -140,8 +169,11 @@ impl Statistics {
             let low_prio_stats = &mut self.stats[low_prio_task_idx];
             low_prio_stats.last_start = now;
         } else if app::monotonics::now() > self.next_show {
+
+            #[cfg(feature = "rtic-info")]
+            write!(self.up_channel, "\x1B[2J\x1B[1;15HTask\tCalls/s\tms/s\tµs_max/loop\n").ok();
+            
             let mut workload: u32 = 0;
-            info!("TaskCalls[/sec] Sum[ms/sec] Max[µs/loop]");
             for (idx, task_name) in TASK_NAMES.iter().enumerate().take(TASK_CNT) {
                 let stats = &mut self.stats[idx];
                 workload = workload.saturating_add(stats.sum_time);
@@ -150,13 +182,19 @@ impl Statistics {
                 } else {
                     0
                 };
-                info!(
-                    "{} {} {} {}",
+
+                #[allow(unused)]
+                let s = tformat!(
+                    100, 
+                    "{}\t{}\t{}\t{}\n",
                     task_name,
                     stats.count / INTERVAL as u32,
                     sum,
                     stats.max_time
-                );
+                ).unwrap();
+                #[cfg(feature = "rtic-info")]
+                write!(self.up_channel, "{}", s.as_str()).ok();
+
                 stats.min_time = u32::MAX;
                 stats.max_time = 0;
                 stats.sum_time = 0;
@@ -164,7 +202,12 @@ impl Statistics {
                 stats.act_task_time = 0;
             }
             let workload = workload / (1_000_000 * INTERVAL as u32 / 100);
-            info!("Workload {}%", workload);
+
+            #[allow(unused)]
+            let s = tformat!(100, "Workload\t{}%\n", workload).unwrap();
+            #[cfg(feature = "rtic-info")]
+            write!(self.up_channel, "{}", s.as_str()).ok();
+
             self.next_show += DevDuration::secs(INTERVAL as u64);
         }
     }

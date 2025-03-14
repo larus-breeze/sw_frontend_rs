@@ -1,59 +1,103 @@
 {
-    // Use IntelliSense to learn about possible attributes.
-    // Hover to view descriptions of existing attributes.
-    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
-    "version": "0.2.0",
-    "configurations": [
-      {
-        "name": "deb vario",
-        "type": "probe-rs-debug",
-        "request": "launch",
-        "cwd": "${workspaceRoot}",
-        "runtimeExecutable": "probe-rs",
-        "chip": "STM32H743VGTx",
-        "preLaunchTask": "Cargo Build (debug)",
-        "flashingConfig": {
-          "flashingEnabled": true,
-          "haltAfterReset": false,
-          "formatOptions": {
-            "binaryFormat": "elf"
-          }
-        },
-        "coreConfigs": [
-          {
-            "coreIndex": 0,
-            "programBinary": "./target/thumbv7em-none-eabihf/debug/vario",
-            "svdFile": "${workspaceRoot}/STM32H743.svd",
-            "rttEnabled": true,
-          }
-        ],
-        "consoleLogLevel": "Console"
+  // Use IntelliSense to learn about possible attributes.
+  // Hover to view descriptions of existing attributes.
+  // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "deb vario",
+      "type": "probe-rs-debug",
+      "request": "launch",
+      "cwd": "${workspaceRoot}",
+      "runtimeExecutable": "probe-rs",
+      "chip": "STM32H743VGTx",
+      "preLaunchTask": "Cargo Build (debug)",
+      "flashingConfig": {
+        "flashingEnabled": true,
+        "haltAfterReset": false,
+        "formatOptions": {
+          "binaryFormat": "elf"
+        }
       },
-      {
-        "name": "deb example lcd",
-        "type": "probe-rs-debug",
-        "request": "launch",
-        "cwd": "${workspaceRoot}",
-        "runtimeExecutable": "probe-rs",
-        "chip": "STM32H743VGTx",
-        "preLaunchTask": "Cargo Build Examples (debug)",
-        "flashingConfig": {
-          "flashingEnabled": true,
-          "haltAfterReset": false,
-          "formatOptions": {
-            "binaryFormat": "elf"
-          }
-        },
-        "coreConfigs": [
-          {
-            "coreIndex": 0,
-            "programBinary": "./target/thumbv7em-none-eabihf/debug/examples/lcd",
-            "svdFile": "${workspaceRoot}/STM32H743.svd",
-            "rttEnabled": true,
-          }
-        ],
-        "consoleLogLevel": "Console"
-      }
-    ]
-  }
-
+      "coreConfigs": [
+        {
+          "coreIndex": 0,
+          "programBinary": "./target/thumbv7em-none-eabihf/debug/vario",
+          "svdFile": "${workspaceRoot}/STM32H743.svd",
+          "rttEnabled": true,
+          "rttChannelFormats": [
+            {
+              "channelNumber": 0,
+              "dataFormat": "Defmt",
+            },
+            {
+              "channelNumber": 1,
+              "dataFormat": "String"
+            }
+          ]
+        }
+      ],
+      "consoleLogLevel": "Console"
+    },
+    {
+      "name": "run vario",
+      "type": "probe-rs-debug",
+      "request": "launch",
+      "cwd": "${workspaceRoot}",
+      "runtimeExecutable": "probe-rs",
+      "chip": "STM32H743VGTx",
+      "preLaunchTask": "Cargo Build (release)",
+      "flashingConfig": {
+        "flashingEnabled": true,
+        "haltAfterReset": false,
+        "formatOptions": {
+          "binaryFormat": "elf"
+        }
+      },
+      "coreConfigs": [
+        {
+          "coreIndex": 0,
+          "programBinary": "./target/thumbv7em-none-eabihf/release/vario",
+          "svdFile": "${workspaceRoot}/STM32H743.svd",
+          "rttEnabled": true,
+          "rttChannelFormats": [
+            {
+              "channelNumber": 0,
+              "dataFormat": "Defmt",
+            },
+            {
+              "channelNumber": 1,
+              "dataFormat": "String"
+            }
+          ]
+        }
+      ],
+      "consoleLogLevel": "Console"
+    },
+    {
+      "name": "deb example timer",
+      "type": "probe-rs-debug",
+      "request": "launch",
+      "cwd": "${workspaceRoot}",
+      "runtimeExecutable": "probe-rs",
+      "chip": "STM32H743VGTx",
+      "preLaunchTask": "Cargo Build Examples (debug)",
+      "flashingConfig": {
+        "flashingEnabled": true,
+        "haltAfterReset": false,
+        "formatOptions": {
+          "binaryFormat": "elf"
+        }
+      },
+      "coreConfigs": [
+        {
+          "coreIndex": 0,
+          "programBinary": "./target/thumbv7em-none-eabihf/debug/examples/timer",
+          "svdFile": "${workspaceRoot}/STM32H743.svd",
+          "rttEnabled": true,
+        }
+      ],
+      "consoleLogLevel": "Console"
+    }
+  ]
+}

@@ -9,7 +9,6 @@
 /// 4. time base for RTIC with microsecond resolution
 ///
 /// Note: uses TIM2 as time base
-use defmt_rtt as _;
 
 use embedded_hal::blocking::delay::{DelayMs, DelayUs};
 use stm32h7xx_hal::{

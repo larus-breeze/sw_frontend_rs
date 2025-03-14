@@ -25,12 +25,57 @@
             "programBinary": "./target/thumbv7em-none-eabihf/debug/vario",
             "svdFile": "${workspaceRoot}/STM32H743.svd",
             "rttEnabled": true,
+            "rttChannelFormats": [
+              {
+                "channelNumber": 0,
+                "dataFormat": "Defmt",
+              },
+              {
+                "channelNumber": 1,
+                "dataFormat": "String"
+              }
+            ]
           }
         ],
         "consoleLogLevel": "Console"
       },
       {
-        "name": "deb example lcd",
+        "name": "run vario",
+        "type": "probe-rs-debug",
+        "request": "launch",
+        "cwd": "${workspaceRoot}",
+        "runtimeExecutable": "probe-rs",
+        "chip": "STM32H743VGTx",
+        "preLaunchTask": "Cargo Build (release)",
+        "flashingConfig": {
+          "flashingEnabled": true,
+          "haltAfterReset": false,
+          "formatOptions": {
+            "binaryFormat": "elf"
+          }
+        },
+        "coreConfigs": [
+          {
+            "coreIndex": 0,
+            "programBinary": "./target/thumbv7em-none-eabihf/release/vario",
+            "svdFile": "${workspaceRoot}/STM32H743.svd",
+            "rttEnabled": true,
+            "rttChannelFormats": [
+              {
+                "channelNumber": 0,
+                "dataFormat": "Defmt",
+              },
+              {
+                "channelNumber": 1,
+                "dataFormat": "String"
+              }
+            ]
+          }
+        ],
+        "consoleLogLevel": "Console"
+      },
+      {
+        "name": "deb example timer",
         "type": "probe-rs-debug",
         "request": "launch",
         "cwd": "${workspaceRoot}",
@@ -47,7 +92,7 @@
         "coreConfigs": [
           {
             "coreIndex": 0,
-            "programBinary": "./target/thumbv7em-none-eabihf/debug/examples/lcd",
+            "programBinary": "./target/thumbv7em-none-eabihf/debug/examples/timer",
             "svdFile": "${workspaceRoot}/STM32H743.svd",
             "rttEnabled": true,
           }

@@ -12,7 +12,7 @@
             "label": "Cargo Build (debug)",
             "type": "process",
             "command": "cargo",
-            "args": ["build"],
+            "args": ["build", "--features", "rtic-info"],
             "problemMatcher": [
                 "$rustc"
             ],
@@ -25,7 +25,7 @@
             "label": "Cargo Build (release)",
             "type": "process",
             "command": "cargo",
-            "args": ["build", "--release"],
+            "args": ["build", "--release", "--features", "rtic-info"],
             "problemMatcher": [
                 "$rustc"
             ],

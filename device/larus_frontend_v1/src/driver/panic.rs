@@ -3,7 +3,6 @@ use crate::SW_VERSION;
 use core::{mem::MaybeUninit, panic::PanicInfo, ptr::addr_of};
 use corelib::{tformat, CoreError, DateTime};
 use defmt::trace;
-use defmt_rtt as _;
 use embedded_sdmmc::{Mode, VolumeIdx};
 
 #[repr(C)]
