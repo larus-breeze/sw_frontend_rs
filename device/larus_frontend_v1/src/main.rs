@@ -11,7 +11,7 @@ mod utils;
 
 use corelib::basic_config::MAX_TX_FRAMES;
 #[allow(unused)]
-use defmt::trace;
+use defmt::info;
 #[cfg(not(feature = "rtic-info"))]
 use defmt_rtt as _;
 use stm32h7xx_hal::interrupt;
@@ -56,8 +56,14 @@ mod app {
     #[init]
     fn init(cx: init::Context) -> (Shared, Local, init::Monotonics) {
         let statistics = Statistics::new();
-        trace!("\x1B[2J\x1B[1;1H");
-        trace!("App start");
+
+        info!("\x1B[2J\x1B[1;1H");
+        info!("App start");
+        #[cfg(debug_assertions)]
+        info!("Debug Build");
+        #[cfg(not(debug_assertions))]
+        info!("Release Build");
+
         let (
             can_dispatch,
             can_rx,

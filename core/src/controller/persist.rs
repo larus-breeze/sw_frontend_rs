@@ -33,7 +33,7 @@ use crate::{
     CoreController, CoreModel, IdleEvent, Mass, PersistenceItem, Pressure, ResetReason, Rotation,
 };
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, FromPrimitive)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, FromPrimitive, defmt::Format)]
 #[repr(u16)]
 pub enum PersistenceId {
     Volume = 0,

@@ -1,5 +1,6 @@
 use core::str;
 use corelib::{stm32_crc, MetaDataV1, SwVersion, VersionCheck, SIZE_METADATA_V1};
+use defmt::trace;
 use embedded_sdmmc::{Mode, ShortFileName, VolumeIdx};
 use embedded_storage::nor_flash::NorFlash;
 use heapless::{String, Vec};
@@ -11,8 +12,14 @@ use super::SW_VERSION;
 
 pub fn update_available() -> Option<SwVersion> {
     FILE_SYS.lock_during_use(|opt_fs| match opt_fs {
-        Some(fs) => update_available_private(fs),
-        None => None,
+        Some(fs) => {
+            trace!("Filesystem on SD Card found");
+            update_available_private(fs)
+        }
+        None => {
+            trace!("No Filesystem found");
+            None
+        }
     })
 }
 
