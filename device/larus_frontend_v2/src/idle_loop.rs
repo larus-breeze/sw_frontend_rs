@@ -64,7 +64,7 @@ impl IdleLoop {
                 let idle_event = self.c_idle_events.dequeue().unwrap();
                 match idle_event {
                     IdleEvent::SetEepromItem(item) => {
-                        trace!("Stored id {:?}", item.id as u32);
+                        trace!("Save to EEPROM '{:?}'", item.id);
                         self.eeprom.write_item(item).unwrap();
                     }
                     IdleEvent::ClearEepromItems(items_list) => {

@@ -1,5 +1,6 @@
 use core::str;
 use corelib::{stm32_crc, MetaDataV1, SwVersion, VersionCheck, SIZE_METADATA_V1};
+use defmt::trace;
 use embedded_sdmmc::{Mode, ShortFileName, VolumeIdx};
 use embedded_storage::nor_flash::NorFlash;
 use heapless::{String, Vec};
@@ -17,8 +18,10 @@ pub fn update_available() -> Option<SwVersion> {
 }
 
 fn update_available_private(fs: &mut FileSys) -> Option<SwVersion> {
+    trace!("Check sd card");
     let mut volume = fs.vol_mgr().open_volume(VolumeIdx(0)).ok()?;
     let mut root_dir = volume.open_root_dir().ok()?;
+    trace!("Found file system");
 
     // read root directory, look after *.bin files
     let mut files = Vec::<ShortFileName, 20>::new();
