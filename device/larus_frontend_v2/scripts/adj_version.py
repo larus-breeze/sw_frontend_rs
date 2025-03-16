@@ -6,9 +6,10 @@ import os
 import sys
 
 git_branch = subprocess.check_output("git rev-parse --abbrev-ref HEAD", shell=True).decode('utf-8')[:-1]
-if git_branch != 'master': 
-    print(f"Branch is '{git_branch}' - not master, change branch first or use -i option!")
-    sys.exit(1)
+if not (len(sys.argv) > 1 and sys.argv[1]=='-i'): 
+    if git_branch != 'master': 
+        print(f"Branch is '{git_branch}' - not master, change branch first or use -i option!")
+        sys.exit(1)
 
 version_string = subprocess.check_output("git describe --always --dirty --tags", shell=True).decode('utf-8')
 if not (len(sys.argv) > 1 and sys.argv[1]=='-i'): 
