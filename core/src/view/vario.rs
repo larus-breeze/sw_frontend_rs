@@ -76,13 +76,13 @@ impl Vario {
         )?;
 
         // draw battery symbol
-        if cm.device.supply_voltage > cm.device.voltage_limit_good {
+        if cm.device.supply_voltage > cm.config.battery_good {
             display.draw_img(
                 cm.device_const.images.bat_full,
                 sizes.bat_pos,
                 Some(cm.palette().signal_go),
             )?;
-        } else if cm.device.supply_voltage < cm.device.voltage_limit_bad {
+        } else if cm.device.supply_voltage < cm.config.battery_bad {
             display.draw_img(
                 cm.device_const.images.bat_empty,
                 sizes.bat_pos,

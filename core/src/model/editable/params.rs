@@ -213,7 +213,7 @@ impl Editable {
                 dec_places: 0,
                 unit: "kg",
             }),
-            Editable::PolarValueV1 => Params::F32(F32Params {
+            Editable::PolarValueV1 | Editable::PolarValueV2 | Editable::PolarValueV3 => Params::F32(F32Params {
                 min: 50.0,
                 max: 250.0,
                 small_inc: 1.0,
@@ -221,39 +221,7 @@ impl Editable {
                 dec_places: 0,
                 unit: "km/h",
             }),
-            Editable::PolarValueV2 => Params::F32(F32Params {
-                min: 50.0,
-                max: 250.0,
-                small_inc: 1.0,
-                big_inc: 10.0,
-                dec_places: 0,
-                unit: "km/h",
-            }),
-            Editable::PolarValueV3 => Params::F32(F32Params {
-                min: 50.0,
-                max: 250.0,
-                small_inc: 1.0,
-                big_inc: 10.0,
-                dec_places: 0,
-                unit: "km/h",
-            }),
-            Editable::PolarValueSi1 => Params::F32(F32Params {
-                min: -5.0,
-                max: 0.0,
-                small_inc: 0.01,
-                big_inc: 0.1,
-                dec_places: 2,
-                unit: "m/s",
-            }),
-            Editable::PolarValueSi2 => Params::F32(F32Params {
-                min: -5.0,
-                max: 0.0,
-                small_inc: 0.01,
-                big_inc: 0.1,
-                dec_places: 2,
-                unit: "m/s",
-            }),
-            Editable::PolarValueSi3 => Params::F32(F32Params {
+            Editable::PolarValueSi1 | Editable::PolarValueSi2 | Editable::PolarValueSi3 => Params::F32(F32Params {
                 min: -5.0,
                 max: 0.0,
                 small_inc: 0.01,
@@ -270,6 +238,16 @@ impl Editable {
                     TString::<16>::from_str(""),
                 ],
             }),
+            Editable::BatteryBad | Editable::BatteryGood => {
+                Params::F32(F32Params {
+                    min: 7.0,
+                    max: 15.0,
+                    small_inc: 0.1,
+                    big_inc: 1.0,
+                    dec_places: 1,
+                    unit: "V",
+                })
+            },
             Editable::SensTiltRoll | Editable::SensTiltPitch | Editable::SensTiltYaw => {
                 Params::F32(F32Params {
                     min: -179.0,

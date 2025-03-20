@@ -180,6 +180,14 @@ pub const ADVANCED_SETTINGS: Menu = Menu {
             next_menu_idx: ADVANCED_SETINGS_IDX,
         },
         MenuItem {
+            content: MenuItemContent::EditItem(Editable::BatteryGood),
+            next_menu_idx: ADVANCED_SETINGS_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::BatteryBad),
+            next_menu_idx: ADVANCED_SETINGS_IDX,
+        },
+        MenuItem {
             content: MenuItemContent::EditItem(Editable::ResetConfig),
             next_menu_idx: ADVANCED_SETINGS_IDX,
         },

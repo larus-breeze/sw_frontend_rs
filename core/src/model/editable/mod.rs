@@ -64,6 +64,8 @@ pub enum Editable {
     PolarValueSi2,
     PolarValueSi3,
     GliderSymbol,
+    BatteryGood,
+    BatteryBad,
 
     SensTiltRoll, // These are sensorbox settings
     SensTiltPitch,
@@ -143,6 +145,8 @@ impl Editable {
             Editable::PolarValueSi2 => "Polar Si 2",
             Editable::PolarValueSi3 => "Polar Si 3",
             Editable::GliderSymbol => "Glider Symbol",
+            Editable::BatteryGood => "Battery good",
+            Editable::BatteryBad => "Battery bad",
 
             Editable::SensTiltRoll => "Sensor Tilt Roll",
             Editable::SensTiltPitch => "Sensor Tilt Pitch",
@@ -322,7 +326,8 @@ impl Editable {
                     Content::Enum(TString::<16>::from_str(OFF))
                 }
             }
-
+            Editable::BatteryGood => Content::F32(Some(cm.config.battery_good)),
+            Editable::BatteryBad => Content::F32(Some(cm.config.battery_bad)),
             Editable::SensTiltRoll => {
                 // We have ask sensorbox for values and have no value at the moment
                 send_can_config_frame(cm, cc, CanConfigId::SensTiltRoll, RemoteConfig::Get);
