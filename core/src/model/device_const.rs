@@ -168,7 +168,7 @@ impl Palette {
 
             therm_ass_best: Colors::White,
             therm_ass_good: Colors::Red,
-            therm_ass_bad: Colors::Blue,
+            therm_ass_bad: Colors::DeepSkyBlue,
             therm2_ass_best: Colors::Yellow,
             therm2_ass_good: Colors::Red,
             therm2_ass_bad: Colors::Blue,

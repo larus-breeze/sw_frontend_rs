@@ -159,8 +159,8 @@ where
         let (fill_color, delta_climb) = thermal_data.get_dotted_item(pcoord.alpha, cm);
         let center = pcoord.to_xy(1.0, rotation) + sizes.display.center;
         let diameter = clamp(
-            (delta_climb.abs() * 5.0) as u32,
-            sizes.vario.ta_point_diameter / 5,
+            (delta_climb.abs() * 10.0) as u32,
+            sizes.vario.ta_point_diameter / 3,
             sizes.vario.ta_point_diameter,
         );
         Circle::with_center(center, diameter)
