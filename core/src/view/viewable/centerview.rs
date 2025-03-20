@@ -328,11 +328,11 @@ where
     } else {
         cm.palette().vario_wind_plus
     };
-    let tail_thick = (num::clamp(num::abs(delta_speed), 1.0, 10.0)) as u32;
+    let tail_thick = (num::clamp(num::abs(delta_speed), 2.0, 10.0)) as u32;
     let style = PrimitiveStyleBuilder::new()
         .fill_color(cm.palette().sprite1_fill)
         .stroke_color(cm.palette().sprite1_stroke)
-        .stroke_width(1)
+        .stroke_width(2)
         .build();
 
     WindArrow::new(len, d_sizes.center)
