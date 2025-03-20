@@ -68,6 +68,7 @@ pub struct CoreController {
     last_vario_mode: VarioMode,
     av2_climb_rate: Pt1<Speed>,
     av_speed_to_fly: Pt1<Speed>,
+    av_supply_voltage: Pt1<f32>,
     pub nmea_buffer: NmeaBuffer,
     pub scheduler: Scheduler<5>,
     pub pers_vals: FnvIndexSet<PersistenceId, MAX_PERS_IDS>,
@@ -92,6 +93,11 @@ impl CoreController {
             CONTROLLER_TICK_RATE,
             core_model.config.av_speed_to_fly_tc,
         );
+        let av_supply_voltage = Pt1::new(
+            12.0,
+            CONTROLLER_TICK_RATE,
+            core_model.config.av_supply_voltage_tc,
+        );
         let mut scheduler = Scheduler::new([
             Tim::new(recalc_polar),
             Tim::new(nmea_cyclic_200ms),
@@ -108,6 +114,7 @@ impl CoreController {
             sw_update: SwUpdateController::new(),
             av2_climb_rate,
             av_speed_to_fly,
+            av_supply_voltage,
             nmea_buffer: NmeaBuffer::new(),
             scheduler,
             nmea_vals: FnvIndexSet::new(),
@@ -234,6 +241,10 @@ impl CoreController {
         let _ = self.p_tx_frames.enqueue(can_frame); // ignore when queue is full
         let can_frame = core_model.can_frame_avg_climb_rates();
         let _ = self.p_tx_frames.enqueue(can_frame); // ignore when queue is full
+
+        // calc moving average from supply voltage
+        self.av_supply_voltage.tick(core_model.device.supply_voltage);
+        core_model.calculated.av_supply_voltage = self.av_supply_voltage.value();
     }
 
     pub fn send_idle_event(&mut self, idle_event: IdleEvent) {
