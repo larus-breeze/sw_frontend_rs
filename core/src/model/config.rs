@@ -41,6 +41,7 @@ pub struct Config {
     pub snd_duty_cycle: u16, // Oscillations, symetric on/off
     pub av2_climb_rate_tc: f32,
     pub av_speed_to_fly_tc: f32,
+    pub av_supply_voltage_tc: f32,
     pub alt_stf_thermal_climb: bool,
     pub theme: &'static Palette,
     pub uuid: u32,
@@ -70,6 +71,7 @@ impl Config {
             snd_duty_cycle: 200,
             av2_climb_rate_tc: 30.0,
             av_speed_to_fly_tc: 5.0,
+            av_supply_voltage_tc: 3.0,
             alt_stf_thermal_climb: false,
             theme,
             uuid,

@@ -78,7 +78,7 @@ impl DevController {
 
         let recalc = self.core_controller.tick_1ms(timestamp_ms(), core_model);
 
-        self.tick_cnt = (self.tick_cnt + 1) % 10;
+        self.tick_cnt = (self.tick_cnt + 1) % 100;
         match self.tick_cnt {
             1 => {
                 let adc_value: u32 = self.adc.read(&mut self.supply_pin).unwrap();

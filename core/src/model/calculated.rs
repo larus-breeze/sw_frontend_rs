@@ -15,6 +15,7 @@ pub struct Calculated {
     pub frequency: u16,
     pub continuous: bool,
     pub gain: i8,
+    pub av_supply_voltage: f32,
 }
 
 impl Default for Calculated {
@@ -30,6 +31,7 @@ impl Default for Calculated {
             frequency: 500,
             continuous: false,
             gain: 2,
+            av_supply_voltage: 12.0,
         }
     }
 }
