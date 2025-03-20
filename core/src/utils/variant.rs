@@ -6,6 +6,7 @@ use crate::{
 use super::Rotation;
 
 pub enum Variant<'a> {
+    Bool(bool),
     I8(i8),
     I32(i32),
     F32(f32),

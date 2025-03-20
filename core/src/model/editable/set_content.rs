@@ -1,6 +1,6 @@
 use super::{
     DisplayActive, Editable, VarioModeControl, DEFAULT_CONFIG, DO_NOT_CHANGE, FACTORY_RESET,
-    TRIGGER_COMMAND, USER_1, USER_2, USER_3, USER_4,
+    TRIGGER_COMMAND, USER_1, USER_2, USER_3, USER_4, ON,
 };
 use crate::{
     controller::persist,
@@ -88,6 +88,14 @@ impl Editable {
                     persist::user_profile(cc, cm); // store value and reset device
                 }
             }
+            Editable::GliderSymbol => persist::persist_set(
+                cc,
+                cm,
+                Variant::Bool(val.as_str() == ON),
+                PersistenceId::GliderSymbol,
+                Echo::None,
+            ),
+
             Editable::CmdMeas1 => {
                 if cm.control.editor.enter_pushed && val.as_str() == TRIGGER_COMMAND {
                     send_can_config_frame(

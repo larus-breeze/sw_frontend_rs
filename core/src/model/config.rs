@@ -48,6 +48,7 @@ pub struct Config {
     pub info2: LineView,
     pub center_circling: CenterView,
     pub center_straignt: CenterView,
+    pub glider_symbol: bool,
 }
 
 impl Config {
@@ -74,6 +75,7 @@ impl Config {
             info2: LineView::WindAndDelta,
             center_circling: CenterView::SingleArrowCircling,
             center_straignt: CenterView::SingleArrowStraight,
+            glider_symbol: true,
         }
     }
 }

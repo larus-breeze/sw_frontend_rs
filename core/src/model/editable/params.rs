@@ -1,6 +1,6 @@
 use super::{
     Editable, DEFAULT_CONFIG, DO_NOT_CHANGE, FACTORY_RESET, RETURN, TRIGGER_COMMAND, USER_1,
-    USER_2, USER_3, USER_4,
+    USER_2, USER_3, USER_4, ON, OFF,
 };
 use crate::{
     flight_physics::polar_store,
@@ -261,6 +261,15 @@ impl Editable {
                 dec_places: 2,
                 unit: "m/s",
             }),
+            Editable::GliderSymbol => Params::Enum(EnumParams {
+                variants: [
+                    TString::<16>::from_str(ON),
+                    TString::<16>::from_str(OFF),
+                    TString::<16>::from_str(""),
+                    TString::<16>::from_str(""),
+                    TString::<16>::from_str(""),
+                ],
+            }),
             Editable::SensTiltRoll | Editable::SensTiltPitch | Editable::SensTiltYaw => {
                 Params::F32(F32Params {
                     min: -179.0,
@@ -270,7 +279,7 @@ impl Editable {
                     dec_places: 0,
                     unit: "°",
                 })
-            }
+            },
             Editable::PitotOffset | Editable::QnhDelta => Params::F32(F32Params {
                 min: -50.0,
                 max: 50.0,

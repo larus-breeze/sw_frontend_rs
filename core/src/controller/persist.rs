@@ -63,7 +63,8 @@ pub enum PersistenceId {
     PolarValueSi1 = 24,
     PolarValueSi2 = 25,
     PolarValueSi3 = 26,
-    LastItem = 27, // Items smaller than this are stored in eeprom
+    GliderSymbol = 27,
+    LastItem = 28, // Items smaller than this are stored in eeprom
 
     UserProfile = 65533, // Special function Ids
     DeleteAll = 65534,
@@ -89,6 +90,7 @@ const DELETE_CONFIG_LIST: &[PersistenceId] = &[
     PersistenceId::CenterFrequency,
     PersistenceId::CenterViewCircling,
     PersistenceId::CenterViewStraight,
+    PersistenceId::GliderSymbol,
 ];
 
 const SPECIFIC_POLAR_SETTINGS: &[PersistenceId] = &[
@@ -178,6 +180,9 @@ pub fn restore_item(cc: &mut CoreController, cm: &mut CoreModel, item: Persisten
         PersistenceId::PolarValueSi3 => {
             cm.glider_data.basic_glider_data.polar_values[2][1] = item.to_f32()
         }
+        PersistenceId::GliderSymbol => {
+            cm.config.glider_symbol = item.to_bool();
+        }
 
         _ => (),
     }
@@ -252,6 +257,9 @@ pub fn store_item(cc: &mut CoreController, cm: &mut CoreModel, id: PersistenceId
         }
         PersistenceId::PolarValueSi3 => {
             PersistenceItem::from_f32(id, cm.glider_data.basic_glider_data.polar_values[2][1])
+        }
+        PersistenceId::GliderSymbol => {
+            PersistenceItem::from_bool(id, cm.config.glider_symbol)
         }
         _ => PersistenceItem::do_not_store(),
     };
@@ -416,6 +424,11 @@ pub fn persist_set(
             if let Variant::F32(value) = variant {
                 cm.glider_data.basic_glider_data.polar_values[2][1] = value;
                 cc.recalc_glider(cm);
+            }
+        }
+        PersistenceId::GliderSymbol => {
+            if let Variant::Bool(value) = variant {
+                cm.config.glider_symbol = value;
             }
         }
 

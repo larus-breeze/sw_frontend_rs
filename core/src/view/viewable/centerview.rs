@@ -277,11 +277,13 @@ where
         }
         FlyMode::StraightFlight => {
             // draw glider symbol
-            display.draw_img(
-                cm.device_const.images.glider,
-                sizes.glider_pos,
-                Some(cm.palette().scale),
-            )?;
+            if cm.config.glider_symbol {
+                display.draw_img(
+                    cm.device_const.images.glider,
+                    sizes.glider_pos,
+                    Some(cm.palette().scale),
+                )?;
+            }
             (
                 // return relativ wind vector
                 cm.sensor.wind_vector.angle() - cm.sensor.gps_track,
