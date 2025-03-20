@@ -64,7 +64,9 @@ pub enum PersistenceId {
     PolarValueSi2 = 25,
     PolarValueSi3 = 26,
     GliderSymbol = 27,
-    LastItem = 28, // Items smaller than this are stored in eeprom
+    BatteryGood = 28,
+    BatteryBad = 29,
+    LastItem = 30, // Items smaller than this are stored in eeprom
 
     UserProfile = 65533, // Special function Ids
     DeleteAll = 65534,
@@ -91,6 +93,8 @@ const DELETE_CONFIG_LIST: &[PersistenceId] = &[
     PersistenceId::CenterViewCircling,
     PersistenceId::CenterViewStraight,
     PersistenceId::GliderSymbol,
+    PersistenceId::BatteryGood,
+    PersistenceId::BatteryBad,
 ];
 
 const SPECIFIC_POLAR_SETTINGS: &[PersistenceId] = &[
@@ -180,9 +184,9 @@ pub fn restore_item(cc: &mut CoreController, cm: &mut CoreModel, item: Persisten
         PersistenceId::PolarValueSi3 => {
             cm.glider_data.basic_glider_data.polar_values[2][1] = item.to_f32()
         }
-        PersistenceId::GliderSymbol => {
-            cm.config.glider_symbol = item.to_bool();
-        }
+        PersistenceId::GliderSymbol => cm.config.glider_symbol = item.to_bool(),
+        PersistenceId::BatteryGood => cm.config.battery_good = item.to_f32(),
+        PersistenceId::BatteryBad => cm.config.battery_bad = item.to_f32(),
 
         _ => (),
     }
@@ -258,9 +262,10 @@ pub fn store_item(cc: &mut CoreController, cm: &mut CoreModel, id: PersistenceId
         PersistenceId::PolarValueSi3 => {
             PersistenceItem::from_f32(id, cm.glider_data.basic_glider_data.polar_values[2][1])
         }
-        PersistenceId::GliderSymbol => {
-            PersistenceItem::from_bool(id, cm.config.glider_symbol)
-        }
+        PersistenceId::GliderSymbol => PersistenceItem::from_bool(id, cm.config.glider_symbol),
+        PersistenceId::BatteryGood => PersistenceItem::from_f32(id, cm.config.battery_good),
+        PersistenceId::BatteryBad => PersistenceItem::from_f32(id, cm.config.battery_bad),
+
         _ => PersistenceItem::do_not_store(),
     };
     cc.send_idle_event(IdleEvent::SetEepromItem(p_item));
@@ -429,6 +434,16 @@ pub fn persist_set(
         PersistenceId::GliderSymbol => {
             if let Variant::Bool(value) = variant {
                 cm.config.glider_symbol = value;
+            }
+        }
+        PersistenceId::BatteryGood => {
+            if let Variant::F32(value) = variant {
+                cm.config.battery_good = value;
+            }
+        }
+        PersistenceId::BatteryBad => {
+            if let Variant::F32(value) = variant {
+                cm.config.battery_bad = value;
             }
         }
 

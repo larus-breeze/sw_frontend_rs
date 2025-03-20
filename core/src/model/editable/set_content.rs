@@ -263,6 +263,20 @@ impl Editable {
                 PersistenceId::PolarValueSi3,
                 Echo::Can,
             ),
+            Editable::BatteryGood => persist::persist_set(
+                cc,
+                cm,
+                Variant::F32(val),
+                PersistenceId::BatteryGood,
+                Echo::None,
+            ),
+            Editable::BatteryBad => persist::persist_set(
+                cc,
+                cm,
+                Variant::F32(val),
+                PersistenceId::BatteryBad,
+                Echo::None,
+            ),
             Editable::SensTiltRoll => {
                 send_can_config_frame(cm, cc, crate::CanConfigId::SensTiltRoll, RemoteConfig::Set);
             }
