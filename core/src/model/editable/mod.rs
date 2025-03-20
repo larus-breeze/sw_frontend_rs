@@ -63,6 +63,7 @@ pub enum Editable {
     PolarValueSi1,
     PolarValueSi2,
     PolarValueSi3,
+    GliderSymbol,
 
     SensTiltRoll, // These are sensorbox settings
     SensTiltPitch,
@@ -96,6 +97,9 @@ const USER_1: &str = "User 1";
 const USER_2: &str = "User 2";
 const USER_3: &str = "User 3";
 const USER_4: &str = "User 4";
+
+const ON: &str = "On";
+const OFF: &str = "Off";
 
 #[derive(Clone, Copy)]
 pub enum Content {
@@ -138,6 +142,7 @@ impl Editable {
             Editable::PolarValueSi1 => "Polar Si 1",
             Editable::PolarValueSi2 => "Polar Si 2",
             Editable::PolarValueSi3 => "Polar Si 3",
+            Editable::GliderSymbol => "Glider Symbol",
 
             Editable::SensTiltRoll => "Sensor Tilt Roll",
             Editable::SensTiltPitch => "Sensor Tilt Pitch",
@@ -310,6 +315,14 @@ impl Editable {
             Editable::PolarValueSi3 => {
                 Content::F32(Some(cm.glider_data.basic_glider_data.polar_values[2][1]))
             }
+            Editable::GliderSymbol => {
+                if cm.config.glider_symbol {
+                    Content::Enum(TString::<16>::from_str(ON))
+                } else {
+                    Content::Enum(TString::<16>::from_str(OFF))
+                }
+            }
+
             Editable::SensTiltRoll => {
                 // We have ask sensorbox for values and have no value at the moment
                 send_can_config_frame(cm, cc, CanConfigId::SensTiltRoll, RemoteConfig::Get);
