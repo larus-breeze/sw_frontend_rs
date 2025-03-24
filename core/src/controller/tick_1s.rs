@@ -1,6 +1,7 @@
 use crate::{
     model::{GpsState, SystemState, TcrMode, VarioModeControl},
     CoreController, CoreModel, FloatToSpeed, FlyMode, IdleEvent, VarioMode,
+    PersistenceId,
 };
 
 pub fn recalc_polar(cm: &mut CoreModel, cc: &mut CoreController) {
@@ -14,6 +15,7 @@ fn speed_to_fly(cm: &mut CoreModel, cc: &mut CoreController) {
     cm.control.speed_to_fly_limit = stf.ias() * cm.control.vario_mode_switch_ratio;
 
     // In auto mode switch between Vario and SpeedToFly
+    let vario_mode = cm.control.vario_mode;
     cm.control.vario_mode = match cm.control.vario_mode_control {
         VarioModeControl::Auto => {
             if cm.sensor.airspeed.ias() > cm.control.speed_to_fly_limit {
@@ -25,6 +27,9 @@ fn speed_to_fly(cm: &mut CoreModel, cc: &mut CoreController) {
         VarioModeControl::SpeedToFly => VarioMode::SpeedToFly,
         VarioModeControl::Vario => VarioMode::Vario,
     };
+    if vario_mode != cm.control.vario_mode {
+        let _ = cc.nmea_buffer.pers_id.push_front(PersistenceId::VarioModeControl);
+    }
 
     // Set 1-second-speed-to-fly value
     cm.calculated.speed_to_fly_1s = cm.calculated.av_speed_to_fly;

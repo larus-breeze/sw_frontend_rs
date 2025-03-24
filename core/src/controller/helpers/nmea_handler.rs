@@ -2,7 +2,7 @@ use crate::{
     controller::{persist, Echo},
     model::GpsState,
     utils::ParseSlice,
-    CoreController, CoreError, CoreModel, FloatToPressure, FloatToSpeed, PersistenceId, Variant,
+    CoreController, CoreError, CoreModel, FloatToPressure, FloatToSpeed, PersistenceId, Variant, STANDARD_GRAVITY, VarioMode
 };
 use heapless::Vec;
 use tfmt::uwrite;
@@ -222,6 +222,15 @@ impl CoreController {
                 "$PLARS,L,QNH,{:.1}",
                 cm.sensor.pressure_altitude.qnh().to_hpa()
             ),
+            PersistenceId::VarioModeControl => uwrite!(
+                self.nmea_buffer.tx,
+                "$PLARS,L,CIR,{}",
+                if cm.control.vario_mode == VarioMode::Vario {
+                    1
+                } else {
+                    0
+                }
+            ),
             _ => return None,
         };
         Some(self.nmea_buffer.tx.finish())
@@ -231,11 +240,12 @@ impl CoreController {
         self.nmea_buffer.tx.reset();
         let _ = uwrite!(
             self.nmea_buffer.tx,
-            "$PLARV,{:.2},{:.2},{:.0},{:.0}",
+            "$PLARV,{:.2},{:.2},{:.0},{:.0}, {:.2}",
             cm.sensor.climb_rate.to_m_s(),
             cm.sensor.average_climb_rate.to_m_s(),
             cm.sensor.pressure_altitude.qne_altitude().to_m(),
             cm.sensor.airspeed.tas().to_km_h(),
+            cm.sensor.g_force.to_m_s2() / STANDARD_GRAVITY,
         );
         self.nmea_buffer.tx.finish()
     }

@@ -34,6 +34,9 @@ pub(crate) const INCH: Float = 0.0254; // inch -> m
 // mass
 pub(crate) const POUND: Float = 0.45359237; // lb -> kg
 
+// acceleration
+pub(crate) const STANDARD_GRAVITY: Float = 9.80665; // m/s²
+
 //
 #[allow(dead_code)]
 pub(crate) const MILLI: Float = 1e-3;
