@@ -1,8 +1,5 @@
 use crate::{
-    controller::{persist, Echo},
-    model::GpsState,
-    utils::ParseSlice,
-    CoreController, CoreError, CoreModel, FloatToPressure, FloatToSpeed, PersistenceId, Variant, STANDARD_GRAVITY, VarioMode
+    controller::{persist, Echo}, model::{GpsState, VarioModeControl}, utils::ParseSlice, CoreController, CoreError, CoreModel, FloatToPressure, FloatToSpeed, PersistenceId, Variant, VarioMode, STANDARD_GRAVITY
 };
 use heapless::Vec;
 use tfmt::uwrite;
@@ -21,6 +18,30 @@ impl CoreController {
     }
 
     fn nmea_parse(&mut self, cm: &mut CoreModel) -> Result<(), CoreError> {
+        // check checksum
+        self.nmea_buffer.rx.check()?;
+
+        match self.nmea_buffer.rx.next_chunk()? {
+            b"$PLARS" => self.nmea_parse_plars(cm),
+            b"$g" => self.nmea_parse_g(cm),
+            _ => Err(CoreError::ParseError)
+        }
+    }
+
+    fn nmea_parse_g(&mut self, cm: &mut CoreModel) -> Result<(), CoreError> {
+        match self.nmea_buffer.rx.next_chunk()? {
+            b"s0" => cm.control.vario_mode_control = VarioModeControl::Vario,
+            b"s1" => cm.control.vario_mode_control = VarioModeControl::SpeedToFly,
+            b"rp" => self.key_action(cm, crate::KeyEvent::BtnEnc),
+            b"rl" => self.key_action(cm, crate::KeyEvent::BtnEncS3),
+            b"ru" => self.key_action(cm, crate::KeyEvent::Rotary2Left),
+            b"rd" => self.key_action(cm, crate::KeyEvent::Rotary2Right),
+            _ => return Err(CoreError::ParseError),
+        }
+        Ok(())
+    }
+
+    fn nmea_parse_plars(&mut self, cm: &mut CoreModel) -> Result<(), CoreError> {
         fn in_range(val: f32, lower: f32, upper: f32) -> Result<f32, CoreError> {
             if val >= lower && val <= upper {
                 Ok(val)
@@ -29,10 +50,6 @@ impl CoreController {
             }
         }
 
-        // check checksum
-        self.nmea_buffer.rx.check()?;
-
-        self.nmea_buffer.rx.compare_chunk(b"$PLARS")?;
         self.nmea_buffer.rx.compare_chunk(b"H")?;
 
         let cmd: Vec<u8, 10> = Vec::from_slice(self.nmea_buffer.rx.next_chunk()?)
@@ -77,6 +94,13 @@ impl CoreController {
                     PersistenceId::Qnh,
                     Echo::Can,
                 );
+            }
+            b"CIR" => {
+                match val as i32 {
+                    0 => cm.control.vario_mode_control = VarioModeControl::SpeedToFly,
+                    1 => cm.control.vario_mode_control = VarioModeControl::Vario,
+                    _ => return Err(CoreError::ParseError),
+                }
             }
             _ => return Err(CoreError::ParseError),
         }
