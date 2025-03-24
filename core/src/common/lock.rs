@@ -6,6 +6,12 @@ pub struct Lock<T> {
     borrowed: AtomicBool,
 }
 
+impl<T> Default for Lock<T> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
 impl<'a, T> Lock<T> {
     /// New with empty value
     pub const fn new() -> Self {
@@ -38,36 +44,34 @@ impl<'a, T> Lock<T> {
     /// lock() calls f with an value as argument
     ///  - when value is set and value is not borowed: f(Some(&mut val))
     ///  - when value is not set or is it borrowd: f(None)
-    /// 
-    /// This function automatically ensures that the internal value is released again 
+    ///
+    /// This function automatically ensures that the internal value is released again
     /// after use.
     pub fn lock_during_use<F, R>(&'a self, mut f: F) -> R
     where
         F: FnMut(Option<&mut T>) -> R,
     {
         let result = self.get_mut();
-        let opt_val = match result {
-            Ok(opt_val) => opt_val,
-            Err(_) => None,
-        };
+        let opt_val = result.unwrap_or_default();
+
         let r: R = f(opt_val);
         self.borrowed.store(false, Relaxed);
         r
     }
 
     /// Enable value after a call to get_mut()
-    /// 
+    ///
     /// Note: The user is responsible for doing this at the right time!
     pub fn unlock(&self) {
         self.borrowed.store(false, Relaxed);
-    } 
-
+    }
 
     /// Get a reference to the value, if available
-    /// 
-    /// If the value has just been used, this function returns an 
-    /// error. In all other cases, an option with or without content 
+    ///
+    /// If the value has just been used, this function returns an
+    /// error. In all other cases, an option with or without content
     /// is returned
+    #[allow(clippy::result_unit_err)]
     pub fn get_mut(&'a self) -> Result<Option<&'a mut T>, ()> {
         let r = self
             .borrowed
@@ -75,8 +79,8 @@ impl<'a, T> Lock<T> {
 
         match r {
             // we know definitly, the *self.value.get() results in a valid ptr, so unsafe is ok.
-            Ok(_) => Ok(unsafe { (&mut *self.value.get()).as_mut() }), 
-            Err(_) => Err(())
+            Ok(_) => Ok(unsafe { (*self.value.get()).as_mut() }),
+            Err(_) => Err(()),
         }
     }
 }

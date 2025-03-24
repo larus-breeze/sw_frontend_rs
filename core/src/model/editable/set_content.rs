@@ -1,6 +1,6 @@
 use super::{
-    DisplayActive, Editable, VarioModeControl, DEFAULT_CONFIG, DO_NOT_CHANGE, FACTORY_RESET,
-    TRIGGER_COMMAND, USER_1, USER_2, USER_3, USER_4, ON,
+    DisplayActive, Editable, VarioModeControl, DEFAULT_CONFIG, DO_NOT_CHANGE, FACTORY_RESET, ON,
+    TRIGGER_COMMAND, USER_1, USER_2, USER_3, USER_4,
 };
 use crate::{
     controller::persist,
