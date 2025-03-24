@@ -1,6 +1,19 @@
 Changelog
 =
 
+v0.3.5 Remote controllability via NMEA and optimized display
+- Battery symbol switching rapidly #72
+- Centering aid has points that are too small #73
+- Tail in the single-arrow wind display is difficult to see #74
+- Aircraft symbol in the wind display should be optional or removed #75
+- Extensioin of the NMEA Interface #76
+- Remote control of the fronend by XCSoar #77
+- Change from probe-run to probe-rs for debuggung
+- Separate output of RTIC utilization and trace messages
+- Deactivate watchdog in debug mode
+- Adjustments to Rust 2024 / rustc 1.85
+- Create images with control elements (simulator)
+
 v0.3.4 Support for Sensorbox Configuration, Polar Editor and more
 - Support for Sensorbox Configuration #71, see also
   - [CAN Bus Specification](https://github.com/larus-breeze/doc_larus/blob/master/documentation/can_details/object_directory/sensorbox.md)
