@@ -243,7 +243,8 @@ impl CoreController {
         let _ = self.p_tx_frames.enqueue(can_frame); // ignore when queue is full
 
         // calc moving average from supply voltage
-        self.av_supply_voltage.tick(core_model.device.supply_voltage);
+        self.av_supply_voltage
+            .tick(core_model.device.supply_voltage);
         core_model.calculated.av_supply_voltage = self.av_supply_voltage.value();
     }
 

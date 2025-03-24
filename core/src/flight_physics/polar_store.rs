@@ -1,10 +1,10 @@
-/// This file contains all polars in any order. Please note:
-///
-/// Do not delete any polars, as these could have been selected by a user
-///
-/// When adding, append the new polars to the end and then start the script
-/// “assets/crate_polar_idx.py”. This script creates an index that enables alphabetical
-/// selection in the menu.
+//! This file contains all polars in any order. Please note:
+//!
+//! Do not delete any polars, as these could have been selected by a user
+//!
+//! When adding, append the new polars to the end and then start the script
+//! “assets/crate_polar_idx.py”. This script creates an index that enables alphabetical
+//! selection in the menu.
 
 /// Structure with the basic data of a sailplane
 ///

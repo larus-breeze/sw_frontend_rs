@@ -6,11 +6,12 @@ use crate::{
         },
         persist, Echo,
     },
+    into_range_0_360, into_range_180_180,
     model::{editable::Content, GpsState, VarioModeControl},
     AirSpeed, Angle, CanFrame, CoreController, CoreModel, F64ToCoord, FloatToAcceleration,
     FloatToAngularVelocity, FloatToDensity, FloatToLength, FloatToMass, FloatToPressure,
     FloatToSpeed, FlyMode, Frame, GenericFrame, GenericId, Latitude, Longitude, PersistenceId,
-    SpecificFrame, Variant, into_range_0_360, into_range_180_180,
+    SpecificFrame, Variant,
 };
 use embedded_graphics::prelude::AngleUnit;
 

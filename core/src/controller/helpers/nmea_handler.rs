@@ -1,5 +1,9 @@
 use crate::{
-    controller::{persist, Echo}, model::{GpsState, VarioModeControl}, utils::ParseSlice, CoreController, CoreError, CoreModel, FloatToPressure, FloatToSpeed, PersistenceId, Variant, VarioMode, STANDARD_GRAVITY
+    controller::{persist, Echo},
+    model::{GpsState, VarioModeControl},
+    utils::ParseSlice,
+    CoreController, CoreError, CoreModel, FloatToPressure, FloatToSpeed, PersistenceId, Variant,
+    VarioMode, STANDARD_GRAVITY,
 };
 use heapless::Vec;
 use tfmt::uwrite;
@@ -24,7 +28,7 @@ impl CoreController {
         match self.nmea_buffer.rx.next_chunk()? {
             b"$PLARS" => self.nmea_parse_plars(cm),
             b"$g" => self.nmea_parse_g(cm),
-            _ => Err(CoreError::ParseError)
+            _ => Err(CoreError::ParseError),
         }
     }
 
@@ -95,13 +99,11 @@ impl CoreController {
                     Echo::Can,
                 );
             }
-            b"CIR" => {
-                match val as i32 {
-                    0 => cm.control.vario_mode_control = VarioModeControl::SpeedToFly,
-                    1 => cm.control.vario_mode_control = VarioModeControl::Vario,
-                    _ => return Err(CoreError::ParseError),
-                }
-            }
+            b"CIR" => match val as i32 {
+                0 => cm.control.vario_mode_control = VarioModeControl::SpeedToFly,
+                1 => cm.control.vario_mode_control = VarioModeControl::Vario,
+                _ => return Err(CoreError::ParseError),
+            },
             _ => return Err(CoreError::ParseError),
         }
         Ok(())

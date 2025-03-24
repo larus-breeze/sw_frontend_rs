@@ -47,11 +47,7 @@ impl PersistenceItem {
     }
 
     pub fn from_bool(id: PersistenceId, value: bool) -> Self {
-        let data: u32 = if value {
-            1
-        } else {
-            0
-        };
+        let data: u32 = if value { 1 } else { 0 };
         PersistenceItem {
             id,
             data: data.to_le_bytes(),
@@ -101,11 +97,7 @@ impl PersistenceItem {
     }
 
     pub fn to_bool(&self) -> bool {
-        if i32::from_le_bytes(self.data) == 1 {
-            true
-        } else {
-            false
-        }
+        i32::from_le_bytes(self.data) == 1
     }
 
     pub fn to_i8(&self) -> i8 {
