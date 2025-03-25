@@ -53,10 +53,10 @@ fn main() -> ! {
                 Event::KeyItem(key_event) => info!("KeyItem {}", *key_event as u32),
                 Event::DeviceItem(_) => info!("DeviceItem"),
                 Event::InputItem(io) => match io {
-                    InputPinState::Io1(state) => info!("Input 1 state {}", state),
-                    InputPinState::Io2(state) => info!("Input 2 state {}", state),
-                    InputPinState::Io3(state) => info!("Input 3 state {}", state),
-                    InputPinState::Io4(state) => info!("Input 4 state {}", state),
+                    InputPinState::Io1(state) => info!("Input 1 state {}", *state as u32),
+                    InputPinState::Io2(state) => info!("Input 2 state {}", *state as u32),
+                    InputPinState::Io3(state) => info!("Input 3 state {}", *state as u32),
+                    InputPinState::Io4(state) => info!("Input 4 state {}", *state as u32),
                 }
             }
         }

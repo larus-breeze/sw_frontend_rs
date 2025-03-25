@@ -20,6 +20,17 @@ pub enum PinState {
     Low,
 }
 
+impl core::convert::From<bool> for PinState {
+    fn from(is_high: bool) -> Self {
+        if is_high {
+            PinState::High
+        } else {
+            PinState::Low
+        }
+    }
+
+}
+
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum ResetReason {
     NoReason,

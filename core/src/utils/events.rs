@@ -1,4 +1,5 @@
 use crate::utils::SwVersion;
+use crate::PinState;
 
 pub enum Event {
     KeyItem(KeyEvent),
@@ -46,8 +47,8 @@ pub enum DeviceEvent {
 
 #[derive(Clone, Copy, PartialEq)]
 pub enum InputPinState {
-    Io1(bool),
-    Io2(bool),
-    Io3(bool),
-    Io4(bool),
+    Io1(PinState),
+    Io2(PinState),
+    Io3(PinState),
+    Io4(PinState),
 }
