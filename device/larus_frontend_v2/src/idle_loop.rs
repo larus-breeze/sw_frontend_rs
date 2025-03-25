@@ -1,13 +1,28 @@
 use defmt::trace;
 
 use crate::{driver::*, install_and_restart, update_available, DevController};
-use corelib::{persist, CIdleEvents, CoreModel, DeviceEvent, Eeprom, Event, IdleEvent, SdCardCmd};
+use corelib::{persist, CIdleEvents, CoreModel, DeviceEvent, Eeprom, Event, IdleEvent, PinState, SdCardCmd};
 use fugit::ExtU32;
 use stm32h7xx_hal::{
+    gpio::{Output, Pin},
     device::I2C1,
     i2c::{Error as I2cError, I2c},
     independent_watchdog::IndependentWatchdog,
 };
+
+pub struct OutputPins {
+    pub o1: Pin<'G', 2, Output>,
+    pub o2: Pin<'K', 2, Output>,
+}
+
+impl OutputPins {
+    pub fn new(o1: Pin<'G', 2>, o2: Pin<'K', 2>) -> Self {
+        OutputPins {
+            o1: o1.into_push_pull_output(),
+            o2: o2.into_push_pull_output(),
+        }
+    }
+}
 
 pub struct IdleLoop {
     amplifier: Amplifier<I2cManager>,
@@ -15,10 +30,12 @@ pub struct IdleLoop {
     c_idle_events: CIdleEvents,
     q_events: &'static QEvents,
     watchdog: IndependentWatchdog,
+    output_pins: OutputPins,
 }
 
 impl IdleLoop {
     pub fn new(
+        output_pins: OutputPins,
         i2c: I2c<I2C1>,
         mut watchdog: IndependentWatchdog,
         c_idle_events: CIdleEvents,
@@ -50,6 +67,7 @@ impl IdleLoop {
         }
 
         IdleLoop {
+            output_pins,
             amplifier,
             eeprom,
             c_idle_events,
@@ -100,6 +118,14 @@ impl IdleLoop {
                     IdleEvent::ResetDevice(_reason) => {
                         trace!("Reset Device");
                         loop {} // Wait until watchdog reset the device
+                    }
+                    IdleEvent::Output1(state) => match state {
+                        PinState::High => self.output_pins.o1.set_high(),
+                        PinState::Low => self.output_pins.o1.set_low(),
+                    }
+                    IdleEvent::Output2(state) => match state {
+                        PinState::High => self.output_pins.o2.set_high(),
+                        PinState::Low => self.output_pins.o2.set_low(),
                     }
                 }
             }

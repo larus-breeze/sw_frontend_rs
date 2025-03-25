@@ -101,6 +101,7 @@ impl IdleLoop {
                         trace!("Reset Device");
                         loop {} // Wait until watchdog reset the device
                     }
+                    IdleEvent::Output1(_) | IdleEvent::Output2(_) => (),
                 }
             }
 
