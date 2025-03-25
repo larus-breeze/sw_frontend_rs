@@ -23,13 +23,7 @@ pub mod persist;
 pub use persist::{store_persistence_ids, Echo, PersistenceId};
 
 use crate::{
-    basic_config::{CONTROLLER_TICK_RATE, MAX_TX_FRAMES},
-    common::PTxFrames,
-    flight_physics::Polar,
-    model::{DisplayActive, EditMode, VarioModeControl},
-    system_of_units::{FloatToSpeed, Speed},
-    utils::{KeyEvent, PIdleEvents, Pt1},
-    CoreModel, DeviceEvent, Editable, IdleEvent, SdCardCmd, VarioMode,
+    basic_config::{CONTROLLER_TICK_RATE, MAX_TX_FRAMES}, common::PTxFrames, flight_physics::Polar, model::{DisplayActive, EditMode, VarioModeControl}, system_of_units::{FloatToSpeed, Speed}, utils::{KeyEvent, PIdleEvents, Pt1}, CoreModel, DeviceEvent, Editable, Event, IdleEvent, InputPinState, SdCardCmd, VarioMode
 };
 use helpers::nmea_cyclic_200ms;
 
@@ -124,27 +118,12 @@ impl CoreController {
         }
     }
 
-    pub fn device_action(&mut self, core_model: &mut CoreModel, device_event: &DeviceEvent) {
-        match device_event {
-            DeviceEvent::FwAvailable(_) => {
-                core_model.config.last_display_active = core_model.config.display_active;
-                core_model.config.display_active = DisplayActive::FirmwareUpdate;
-            }
-            DeviceEvent::UploadFinished => {
-                core_model.config.display_active = core_model.config.last_display_active
-            }
-
-            _ => (),
+    pub fn event_handler(&mut self, event: Event, cm: &mut CoreModel) {
+        match event {
+            Event::KeyItem(key_event) => self.key_action(cm, key_event),
+            Event::DeviceItem(device_event) => self.device_action(cm, &device_event),
+            Event::InputItem(input_event) => self.input_action(cm, input_event),
         }
-        if core_model.config.display_active == DisplayActive::FirmwareUpdate {
-            self.sw_update.device_action(core_model, device_event);
-            self.send_idle_event(IdleEvent::SdCardItem(SdCardCmd::SwUpdateAccepted))
-        }
-    }
-
-    pub fn key_action(&mut self, cm: &mut CoreModel, mut key_event: KeyEvent) {
-        editor::key_action(&mut key_event, cm, self);
-        menu::key_action(&mut key_event, cm, self);
     }
 
     /// Call this latest after 1 ms
@@ -250,5 +229,38 @@ impl CoreController {
 
     pub fn send_idle_event(&mut self, idle_event: IdleEvent) {
         let _ = self.p_idle_events.enqueue(idle_event);
+    }
+
+    fn device_action(&mut self, core_model: &mut CoreModel, device_event: &DeviceEvent) {
+        match device_event {
+            DeviceEvent::FwAvailable(_) => {
+                core_model.config.last_display_active = core_model.config.display_active;
+                core_model.config.display_active = DisplayActive::FirmwareUpdate;
+            }
+            DeviceEvent::UploadFinished => {
+                core_model.config.display_active = core_model.config.last_display_active
+            }
+
+            _ => (),
+        }
+        if core_model.config.display_active == DisplayActive::FirmwareUpdate {
+            self.sw_update.device_action(core_model, device_event);
+            self.send_idle_event(IdleEvent::SdCardItem(SdCardCmd::SwUpdateAccepted))
+        }
+    }
+
+    fn input_action(&mut self, cm: &mut CoreModel, input_event: InputPinState) {
+        match input_event {
+            InputPinState::Io1(state) => cm.device.io1 = state,
+            InputPinState::Io2(state) => cm.device.io2 = state,
+            InputPinState::Io3(state) => cm.device.io3 = state,
+            InputPinState::Io4(state) => cm.device.io4 = state,
+        }
+
+    }
+
+    fn key_action(&mut self, cm: &mut CoreModel, mut key_event: KeyEvent) {
+        editor::key_action(&mut key_event, cm, self);
+        menu::key_action(&mut key_event, cm, self);
     }
 }

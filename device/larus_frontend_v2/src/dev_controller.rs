@@ -1,7 +1,7 @@
 use crate::{driver::QEvents, timestamp_ms, CoreController};
 use corelib::{
     basic_config::{MAX_RX_FRAMES, MAX_TX_FRAMES},
-    CRxFrames, CoreModel, Event, PIdleEvents, PTxFrames,
+    CRxFrames, CoreModel, PIdleEvents, PTxFrames,
 };
 use stm32h7xx_hal::{adc, gpio::Pin, pac::ADC1, prelude::*};
 
@@ -60,13 +60,7 @@ impl DevController {
 
     pub fn tick_1ms(&mut self, core_model: &mut CoreModel) -> bool {
         while let Some(event) = self.q_events.dequeue() {
-            match event {
-                Event::KeyItem(key_event) => self.core_controller.key_action(core_model, key_event),
-                Event::DeviceItem(device_event) => self
-                    .core_controller
-                    .device_action(core_model, &device_event),
-                Event::InputItem(_) => (), // ToDo
-            }
+            self.core_controller.event_handler(event, core_model);
         }
         while let Some(frame) = self.c_rx_frames.dequeue() {
             self.core_controller.read_can_frame(core_model, &frame);
