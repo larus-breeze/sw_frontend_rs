@@ -7,7 +7,7 @@ rm -f *.elf
 rm -f *.bin
 
 cd device/air_avionics_ad57
-./make_image.sh
+./make_image.sh $1
 cd ../..
 mv device/air_avionics_ad57/*.bin .
 mv device/air_avionics_ad57/*.elf .
