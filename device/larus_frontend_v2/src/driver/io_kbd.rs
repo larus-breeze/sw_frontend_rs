@@ -1,5 +1,5 @@
 use crate::driver::QEvents;
-use corelib::{Event, KeyEvent};
+use corelib::{Event, InputPinState, KeyEvent};
 use stm32h7xx_hal::{
     gpio::{Input, Pin},
     pac::{TIM3, TIM5},
@@ -19,6 +19,7 @@ const ENC_2_START_VALUE: u16 = 0x8000;
 
 pub struct Keyboard {
     kbd_pins: KeyboardPins,
+    input_pins: InputPins,
 
     tim_enc_1: TIM5,
     enc_1_cnt: u32,
@@ -27,7 +28,14 @@ pub struct Keyboard {
 
     last_btn_state: u8,
     first_go_to_0: bool,
-    tick_cnt: u32,
+    tick_cnt: u8,
+
+    io1_is_high: bool,
+    io2_is_high: bool,
+    io3_is_high: bool,
+    io4_is_high: bool,
+    io_tick: u8,
+
     q_events: &'static QEvents,
 }
 
@@ -79,10 +87,36 @@ impl Enc2Res {
     }
 }
 
+pub struct InputPins {
+    di1: Pin<'B', 12, Input>,
+    di2: Pin<'B', 13, Input>,
+    di3: Pin<'B', 14, Input>,
+    di4: Pin<'H', 7, Input>,
+}
+
+impl InputPins {
+    pub fn new(
+        di1: Pin<'B', 12>,
+        di2: Pin<'B', 13>,
+        di3: Pin<'B', 14>,
+        di4: Pin<'H', 7>,
+    ) -> Self {
+        InputPins {
+            di1: di1.into_input(),
+            di2: di2.into_input(),
+            di3: di3.into_input(),
+            di4: di4.into_input(),
+        }
+    }
+}
+
+
+
 impl Keyboard {
     /// Create Keys instance and initialize hardware
     pub fn new(
         keyboard_pins: KeyboardPins,
+        input_pins: InputPins,
         enc1_res: Enc1Res,
         enc2_res: Enc2Res,
         q_events: &'static QEvents,
@@ -131,27 +165,72 @@ impl Keyboard {
             .modify(|_, w| w.cen().set_bit().udis().set_bit()); // Enable timer 5
         let enc_2_cnt = tim_enc_2.cnt.read().cnt().bits();
 
+        let io1_is_high = input_pins.di1.is_high();
+        let _ = q_events.enqueue(Event::InputItem(InputPinState::Io1(io1_is_high)));
+        let io2_is_high = input_pins.di2.is_high();
+        let _ = q_events.enqueue(Event::InputItem(InputPinState::Io2(io2_is_high)));
+        let io3_is_high = input_pins.di3.is_high();
+        let _ = q_events.enqueue(Event::InputItem(InputPinState::Io3(io3_is_high)));
+        let io4_is_high = input_pins.di4.is_high();
+        let _ = q_events.enqueue(Event::InputItem(InputPinState::Io4(io4_is_high)));
+
         Self {
             kbd_pins: keyboard_pins,
-
+            input_pins,
             tim_enc_1, // 2 timer for rotary encoder
             enc_1_cnt,
             tim_enc_2,
             enc_2_cnt,
 
-            last_btn_state: 0,    // last state of buttons
-            first_go_to_0: false, // we have to wait, befor we accept new key events
-            tick_cnt: 0,          // tick counter for timing functionality
+            last_btn_state: 0,      // last state of buttons
+            first_go_to_0: false,   // we have to wait, befor we accept new key events
+            tick_cnt: 0,            // tick counter for timing functionality
+
+            io1_is_high,
+            io2_is_high,
+            io3_is_high,
+            io4_is_high,
+            io_tick: 0,             // 
 
             q_events, // queue to push key events
         }
     }
 
-    /// Regular polling of the front keys and the rotary encoders
-    ///
+    /// Regular polling of the front keys and the rotary encoders (50 Hz)
+    pub fn tick(&mut self) {
+        self.keyboard_tick();
+        self.io_tick();
+    }
+
+    /// This routine is called at 50 Hz
+    fn io_tick(&mut self) {
+        self.io_tick += 1;
+        if self.io_tick < 5 {
+            return;
+        }
+        // every 100ms
+        self.io_tick = 0;
+        if self.input_pins.di1.is_high() != self.io1_is_high {
+            self.io1_is_high = !self.io1_is_high;
+            let _ = self.q_events.enqueue(Event::InputItem(InputPinState::Io1(self.io1_is_high)));
+        }
+        if self.input_pins.di2.is_high() != self.io2_is_high {
+            self.io2_is_high = !self.io2_is_high;
+            let _ = self.q_events.enqueue(Event::InputItem(InputPinState::Io2(self.io2_is_high)));
+        }
+        if self.input_pins.di3.is_high() != self.io3_is_high {
+            self.io3_is_high = !self.io3_is_high;
+            let _ = self.q_events.enqueue(Event::InputItem(InputPinState::Io3(self.io3_is_high)));
+        }
+        if self.input_pins.di4.is_high() != self.io4_is_high {
+            self.io4_is_high = !self.io4_is_high;
+            let _ = self.q_events.enqueue(Event::InputItem(InputPinState::Io4(self.io4_is_high)));
+        }
+    }
+
     /// This routine is called about every 20 milliseconds and queries the 5 keys and the two
     /// rotary encoders. The result is pushed into the key event queue.
-    pub fn tick(&mut self) {
+    fn keyboard_tick(&mut self) {
         // First of all, the pushbuttons are scanned. The events are summarized in a status
         // variable in order to evaluate them afterwards. This allows single buttons to be
         // used in the same way as button patterns.
@@ -178,7 +257,7 @@ impl Keyboard {
             self.first_go_to_0 = true;
             self.tick_cnt = 0;
         } else if btn_state > 0 {
-            self.tick_cnt += 1;
+            self.tick_cnt = self.tick_cnt.saturating_add(1);
             // Triggers when keys are pressed for more then 3 seconds
             if self.tick_cnt > 60 {
                 let _ = match btn_state {

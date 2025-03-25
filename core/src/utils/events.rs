@@ -3,6 +3,7 @@ use crate::utils::SwVersion;
 pub enum Event {
     KeyItem(KeyEvent),
     DeviceItem(DeviceEvent),
+    InputItem(InputPinState),
 }
 
 #[repr(u8)]
@@ -41,4 +42,12 @@ pub enum DeviceEvent {
     PrepareFwUpload,
     UploadInProgress,
     UploadFinished,
+}
+
+#[derive(Clone, Copy, PartialEq)]
+pub enum InputPinState {
+    Io1(bool),
+    Io2(bool),
+    Io3(bool),
+    Io4(bool),
 }

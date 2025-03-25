@@ -10,6 +10,8 @@ mod file_sys;
 #[allow(unused)]
 mod frame_buffer;
 #[allow(unused)]
+mod io_kbd;
+#[allow(unused)]
 mod ltdc;
 mod panic;
 #[allow(unused)]
@@ -26,6 +28,8 @@ pub use file_sys::*;
 #[allow(unused)]
 pub use frame_buffer::*;
 #[allow(unused)]
+pub use io_kbd::*;
+#[allow(unused)]
 pub use ltdc::*;
 #[allow(unused)]
 pub use panic::*;
@@ -33,6 +37,13 @@ pub use panic::*;
 pub use st7701s::*;
 #[allow(unused)]
 pub use sys_timer::*;
+
+#[allow(unused)]
+use corelib::Event;
+#[allow(unused)]
+use heapless::mpmc::MpMcQueue;
+
+pub type QEvents = MpMcQueue<Event, 8>;
 
 // The macro ensures, that all examples use the same clock settings
 macro_rules! set_clocksys {

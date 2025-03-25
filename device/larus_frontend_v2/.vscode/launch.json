@@ -75,7 +75,7 @@
         "consoleLogLevel": "Console"
       },
       {
-        "name": "deb example timer",
+        "name": "deb example io_kbd",
         "type": "probe-rs-debug",
         "request": "launch",
         "cwd": "${workspaceRoot}",
@@ -92,7 +92,7 @@
         "coreConfigs": [
           {
             "coreIndex": 0,
-            "programBinary": "./target/thumbv7em-none-eabihf/debug/examples/timer",
+            "programBinary": "./target/thumbv7em-none-eabihf/debug/examples/io_kbd",
             "svdFile": "${workspaceRoot}/STM32H743.svd",
             "rttEnabled": true,
           }

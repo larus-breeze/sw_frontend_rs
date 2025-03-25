@@ -98,9 +98,16 @@ pub fn hw_init(
     // Setup ----------> The front key interface
     let keyboard = {
         let keyboard_pins = KeyboardPins::new(gpioa.pa3);
+        let input_pins = InputPins::new(gpiob.pb12, gpiob.pb13, gpiob.pb14, gpioh.ph7);
         let enc1_res = Enc1Res::new(ccdr.peripheral.TIM5, dp.TIM5, gpioa.pa0, gpioa.pa1);
         let enc2_res = Enc2Res::new(ccdr.peripheral.TIM3, dp.TIM3, gpiob.pb4.into(), gpioc.pc7);
-        Keyboard::new(keyboard_pins, enc1_res, enc2_res, &Q_EVENTS)
+        Keyboard::new(
+            keyboard_pins, 
+            input_pins, 
+            enc1_res, 
+            enc2_res, 
+            &Q_EVENTS
+        )
     };
 
     // Setup ----------> Canbus
