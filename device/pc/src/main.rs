@@ -135,7 +135,8 @@ fn main() -> Result<(), core::convert::Infallible> {
                                     DeviceEvent::UploadFinished
                                 }
                             };
-                            controller.device_action(&mut core_model, &device_event);
+                            let event = Event::DeviceItem(device_event);
+                            controller.event_handler(event, &mut core_model);
                             KeyEvent::NoEvent
                         }
                         Keycode::Kp1 => {
@@ -160,7 +161,8 @@ fn main() -> Result<(), core::convert::Infallible> {
             }
         }
         if key_event != KeyEvent::NoEvent {
-            controller.key_action(&mut core_model, key_event);
+            let event = Event::KeyItem(key_event);
+            controller.event_handler(event, &mut core_model);
         }
         controller.tick_1ms(millis(), &mut core_model);
         view.prepare(&core_model);
