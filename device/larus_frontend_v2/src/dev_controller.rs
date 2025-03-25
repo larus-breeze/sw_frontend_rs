@@ -65,6 +65,7 @@ impl DevController {
                 Event::DeviceItem(device_event) => self
                     .core_controller
                     .device_action(core_model, &device_event),
+                Event::InputItem(_) => (), // ToDo
             }
         }
         while let Some(frame) = self.c_rx_frames.dequeue() {
