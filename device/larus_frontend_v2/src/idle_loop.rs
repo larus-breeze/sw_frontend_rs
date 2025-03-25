@@ -4,7 +4,7 @@ use crate::{driver::*, install_and_restart, update_available, DevController};
 use corelib::{persist, CIdleEvents, CoreModel, DeviceEvent, Eeprom, Event, IdleEvent, PinState, SdCardCmd};
 use fugit::ExtU32;
 use stm32h7xx_hal::{
-    gpio::{Output, Pin},
+    gpio::{Output, Pin, PinState::High},
     device::I2C1,
     i2c::{Error as I2cError, I2c},
     independent_watchdog::IndependentWatchdog,
@@ -18,8 +18,8 @@ pub struct OutputPins {
 impl OutputPins {
     pub fn new(o1: Pin<'G', 2>, o2: Pin<'K', 2>) -> Self {
         OutputPins {
-            o1: o1.into_push_pull_output(),
-            o2: o2.into_push_pull_output(),
+            o1: o1.into_push_pull_output_in_state(High),
+            o2: o2.into_push_pull_output_in_state(High),
         }
     }
 }

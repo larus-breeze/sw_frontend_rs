@@ -28,7 +28,6 @@ impl core::convert::From<bool> for PinState {
             PinState::Low
         }
     }
-
 }
 
 #[derive(Debug, Copy, Clone, PartialEq)]
