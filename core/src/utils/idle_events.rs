@@ -10,6 +10,14 @@ pub enum IdleEvent {
     SetGain(u8),
     DateTime(DateTime),
     ResetDevice(ResetReason),
+    Output1(PinState),
+    Output2(PinState),
+}
+
+#[derive(Debug, Copy, Clone, PartialEq)]
+pub enum PinState {
+    High,
+    Low,
 }
 
 #[derive(Debug, Copy, Clone, PartialEq)]

@@ -1,4 +1,4 @@
-use crate::{driver::*, DevController, DevView, IdleLoop, DEVICE_CONST};
+use crate::{driver::*, idle_loop::OutputPins, DevController, DevView, IdleLoop, DEVICE_CONST};
 use corelib::{
     basic_config::{MAX_RX_FRAMES, MAX_TX_FRAMES, VDA},
     spsc_queue, CanDispatch, CoreModel, QIdleEvents, QRxFrames, QTxFrames, QTxIrqFrames,
@@ -209,7 +209,10 @@ pub fn hw_init(
 
         let watchdog = IndependentWatchdog::new(dp.IWDG);
 
+        let output_pins = OutputPins::new(gpiog.pg2, gpiok.pk2);
+
         let idle_loop = IdleLoop::new(
+            output_pins,
             i2c,
             watchdog,
             c_idle_events,

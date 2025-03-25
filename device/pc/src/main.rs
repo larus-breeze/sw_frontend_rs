@@ -205,6 +205,7 @@ fn main() -> Result<(), core::convert::Infallible> {
                     println!("Device reset - please restart!");
                     process::exit(1);
                 }
+                IdleEvent::Output1(_) | IdleEvent::Output2(_) => (),
             }
         }
 
