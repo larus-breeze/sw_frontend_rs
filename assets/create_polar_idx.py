@@ -17,7 +17,7 @@ def parse_polar_store(file_name):
     with open(file_name, 'r') as f:
         for line in f.readlines():
             val = line[8:line.find(',')].split(': ')
-            if val[0] == 'name':
+            if val[0] == 'name' and "&'static str" not in line:
                 items.append(Item(idx, val[1].replace('"', '')))
                 idx += 1 
     return items
