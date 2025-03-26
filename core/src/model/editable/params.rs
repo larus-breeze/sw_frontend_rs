@@ -303,7 +303,7 @@ impl Editable {
                 small_inc: 0.001,
                 big_inc: 0.01,
                 dec_places: 3,
-                unit: "Pa",
+                unit: "",
             }),
             Editable::MagAutoCalib | Editable::GnssConfig => Params::F32(F32Params {
                 min: 0.0,
