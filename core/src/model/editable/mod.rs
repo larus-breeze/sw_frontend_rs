@@ -66,6 +66,9 @@ pub enum Editable {
     GliderSymbol,
     BatteryGood,
     BatteryBad,
+    DrainPinConfig,
+    FlowEmpty,
+    FlowSlope,
 
     SensTiltRoll, // These are sensorbox settings
     SensTiltPitch,
@@ -147,6 +150,9 @@ impl Editable {
             Editable::GliderSymbol => "Glider Symbol",
             Editable::BatteryGood => "Battery good",
             Editable::BatteryBad => "Battery bad",
+            Editable::DrainPinConfig => "Drain Pin Config",
+            Editable::FlowEmpty => "Lowest Flow",
+            Editable::FlowSlope => "Flow Slope",
 
             Editable::SensTiltRoll => "Sensor Tilt Roll",
             Editable::SensTiltPitch => "Sensor Tilt Pitch",
@@ -328,6 +334,13 @@ impl Editable {
             }
             Editable::BatteryGood => Content::F32(Some(cm.config.battery_good)),
             Editable::BatteryBad => Content::F32(Some(cm.config.battery_bad)),
+
+            Editable::DrainPinConfig => Content::Enum(TString::<16>::from_str(cc.drain_control.pin_function().as_str())),
+            Editable::FlowEmpty => Content::F32(Some(cc.drain_control.flow_rate_offset)),
+            Editable::FlowSlope => Content::F32(Some(cc.drain_control.flow_rate_slope)),
+
+
+            // Edit sensorbox values via CAN bus
             Editable::SensTiltRoll => {
                 // We have ask sensorbox for values and have no value at the moment
                 send_can_config_frame(cm, cc, CanConfigId::SensTiltRoll, RemoteConfig::Get);

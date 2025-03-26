@@ -19,7 +19,7 @@
 use heapless::Vec;
 use num_enum::FromPrimitive;
 
-use super::{VarioModeControl, MAX_PERS_IDS};
+use super::{helpers::PinFunction, VarioModeControl, MAX_PERS_IDS};
 use crate::{
     basic_config::PERSISTENCE_TIMEOUT,
     controller::{
@@ -66,7 +66,10 @@ pub enum PersistenceId {
     GliderSymbol = 27,
     BatteryGood = 28,
     BatteryBad = 29,
-    LastItem = 30, // Items smaller than this are stored in eeprom
+    DrainPinConfig = 30,
+    FlowEmpty = 31,
+    FlowSlope = 32,
+    LastItem = 33, // Items smaller than this are stored in eeprom
 
     UserProfile = 65533, // Special function Ids
     DeleteAll = 65534,
@@ -95,6 +98,9 @@ const DELETE_CONFIG_LIST: &[PersistenceId] = &[
     PersistenceId::GliderSymbol,
     PersistenceId::BatteryGood,
     PersistenceId::BatteryBad,
+    PersistenceId::DrainPinConfig,
+    PersistenceId::FlowEmpty,
+    PersistenceId::FlowSlope,
 ];
 
 const SPECIFIC_POLAR_SETTINGS: &[PersistenceId] = &[
@@ -187,6 +193,9 @@ pub fn restore_item(cc: &mut CoreController, cm: &mut CoreModel, item: Persisten
         PersistenceId::GliderSymbol => cm.config.glider_symbol = item.to_bool(),
         PersistenceId::BatteryGood => cm.config.battery_good = item.to_f32(),
         PersistenceId::BatteryBad => cm.config.battery_bad = item.to_f32(),
+        PersistenceId::DrainPinConfig => cc.drain_control.set_pin_function(PinFunction::from(item.to_u8()), cm),
+        PersistenceId::FlowEmpty => cc.drain_control.flow_rate_offset = item.to_f32(),
+        PersistenceId::FlowSlope => cc.drain_control.flow_rate_slope = item.to_f32(),
 
         _ => (),
     }
@@ -265,6 +274,9 @@ pub fn store_item(cc: &mut CoreController, cm: &mut CoreModel, id: PersistenceId
         PersistenceId::GliderSymbol => PersistenceItem::from_bool(id, cm.config.glider_symbol),
         PersistenceId::BatteryGood => PersistenceItem::from_f32(id, cm.config.battery_good),
         PersistenceId::BatteryBad => PersistenceItem::from_f32(id, cm.config.battery_bad),
+        PersistenceId::DrainPinConfig => PersistenceItem::from_u8(id, cc.drain_control.pin_function() as u8),
+        PersistenceId::FlowEmpty => PersistenceItem::from_f32(id, cc.drain_control.flow_rate_offset),
+        PersistenceId::FlowSlope => PersistenceItem::from_f32(id, cc.drain_control.flow_rate_slope),
 
         _ => PersistenceItem::do_not_store(),
     };
@@ -444,6 +456,21 @@ pub fn persist_set(
         PersistenceId::BatteryBad => {
             if let Variant::F32(value) = variant {
                 cm.config.battery_bad = value;
+            }
+        }
+        PersistenceId::DrainPinConfig => {
+            if let Variant::U8(value) = variant {
+                cc.drain_control.set_pin_function(PinFunction::from(value), cm);
+            }
+        }
+        PersistenceId::FlowEmpty => {
+            if let Variant::F32(value) = variant {
+                cc.drain_control.flow_rate_offset = value;
+            }
+        }
+        PersistenceId::FlowSlope => {
+            if let Variant::F32(value) = variant {
+                cc.drain_control.flow_rate_slope = value;
             }
         }
 

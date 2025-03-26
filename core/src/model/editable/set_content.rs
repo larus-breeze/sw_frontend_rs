@@ -11,7 +11,7 @@ use crate::{
         centerview::{CenterType, CenterView},
         lineview::{LineView, Placement},
     },
-    CoreController, CoreModel, Echo, FloatToMass, FloatToSpeed, PersistenceId, RemoteConfig,
+    CoreController, CoreModel, Echo, FloatToMass, FloatToSpeed, PersistenceId, PinFunction, RemoteConfig,
     Rotation,
 };
 
@@ -93,6 +93,13 @@ impl Editable {
                 cm,
                 Variant::Bool(val.as_str() == ON),
                 PersistenceId::GliderSymbol,
+                Echo::None,
+            ),
+            Editable::DrainPinConfig => persist::persist_set(
+                cc,
+                cm,
+                Variant::U8(PinFunction::from(val.as_str()) as u8),
+                PersistenceId::DrainPinConfig,
                 Echo::None,
             ),
 
@@ -275,6 +282,20 @@ impl Editable {
                 cm,
                 Variant::F32(val),
                 PersistenceId::BatteryBad,
+                Echo::None,
+            ),
+            Editable::FlowEmpty => persist::persist_set(
+                cc,
+                cm,
+                Variant::F32(val),
+                PersistenceId::FlowEmpty,
+                Echo::None,
+            ),
+            Editable::FlowSlope => persist::persist_set(
+                cc,
+                cm,
+                Variant::F32(val),
+                PersistenceId::FlowSlope,
                 Echo::None,
             ),
             Editable::SensTiltRoll => {
