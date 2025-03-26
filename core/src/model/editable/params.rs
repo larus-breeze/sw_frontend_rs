@@ -9,7 +9,7 @@ use crate::{
         centerview::{CenterType, CenterView},
         lineview::{LineView, Placement},
     },
-    Rotation,
+    PIN_CLOSE, PIN_NONE, PIN_OPEN, Rotation,
 };
 
 #[derive(Clone, Copy)]
@@ -250,6 +250,35 @@ impl Editable {
                 dec_places: 1,
                 unit: "V",
             }),
+            Editable::DrainPinConfig => Params::Enum(EnumParams {
+                variants: [
+                    TString::<16>::from_str(PIN_NONE),
+                    TString::<16>::from_str(PIN_CLOSE),
+                    TString::<16>::from_str(PIN_OPEN),
+                    TString::<16>::from_str(""),
+                    TString::<16>::from_str(""),
+                ],
+            }),
+            Editable::FlowEmpty => {
+                Params::F32(F32Params {
+                    min: 1.0,
+                    max: 200.0,
+                    small_inc: 0.1,
+                    big_inc: 1.0,
+                    dec_places: 1,
+                    unit: "l/min",
+                })
+            }
+            Editable::FlowSlope => {
+                Params::F32(F32Params {
+                    min: -1.0,
+                    max: 1.0,
+                    small_inc: 0.001,
+                    big_inc: 0.010,
+                    dec_places: 3,
+                    unit: "l/(min*kg*s)",
+                })
+            }
             Editable::SensTiltRoll | Editable::SensTiltPitch | Editable::SensTiltYaw => {
                 Params::F32(F32Params {
                     min: -179.0,

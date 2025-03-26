@@ -44,10 +44,11 @@ pub const ROOT_IDX: usize = 0;
 pub const FLIGHT_MENU_IDX: usize = 1;
 pub const VARIO_SETINGS_IDX: usize = 2;
 pub const VIEW_SETINGS_IDX: usize = 3;
-pub const ADVANCED_SETINGS_IDX: usize = 4;
-pub const POLAR_SETTINGS_IDX: usize = 5;
-pub const SENSOR_BOX_COMMANDS_IDX: usize = 6;
-pub const SENSOR_BOX_SETTINGS_IDX: usize = 7;
+pub const ADVANCED_SETTINGS_IDX: usize = 4;
+pub const DRAIN_SETTINGS_IDX: usize = 5;
+pub const POLAR_SETTINGS_IDX: usize = 6;
+pub const SENSOR_BOX_COMMANDS_IDX: usize = 7;
+pub const SENSOR_BOX_SETTINGS_IDX: usize = 8;
 
 pub const MENU_LIST: &[Menu] = &[
     ROOT,
@@ -55,6 +56,7 @@ pub const MENU_LIST: &[Menu] = &[
     VARIO_SETTINGS,
     VIEW_SETTINGS,
     ADVANCED_SETTINGS,
+    DRAIN_SETTINGS,
     POLAR_SETTINGS,
     SENSOR_BOX_COMMANDS,
     SENSOR_BOX_SETTINGS,
@@ -107,7 +109,7 @@ pub const VARIO_SETTINGS: Menu = Menu {
         },
         MenuItem {
             content: MenuItemContent::MenuItem(),
-            next_menu_idx: ADVANCED_SETINGS_IDX,
+            next_menu_idx: ADVANCED_SETTINGS_IDX,
         },
         MenuItem {
             content: MenuItemContent::MenuItem(),
@@ -165,35 +167,62 @@ pub const ADVANCED_SETTINGS: Menu = Menu {
     items: &[
         MenuItem {
             content: MenuItemContent::EditItem(Editable::UserProfile),
-            next_menu_idx: ADVANCED_SETINGS_IDX,
+            next_menu_idx: ADVANCED_SETTINGS_IDX,
         },
         MenuItem {
             content: MenuItemContent::EditItem(Editable::TcClimbRate),
-            next_menu_idx: ADVANCED_SETINGS_IDX,
+            next_menu_idx: ADVANCED_SETTINGS_IDX,
         },
         MenuItem {
             content: MenuItemContent::EditItem(Editable::TcSpeedToFly),
-            next_menu_idx: ADVANCED_SETINGS_IDX,
+            next_menu_idx: ADVANCED_SETTINGS_IDX,
         },
         MenuItem {
             content: MenuItemContent::EditItem(Editable::CenterFrequency),
-            next_menu_idx: ADVANCED_SETINGS_IDX,
+            next_menu_idx: ADVANCED_SETTINGS_IDX,
         },
         MenuItem {
             content: MenuItemContent::EditItem(Editable::BatteryGood),
-            next_menu_idx: ADVANCED_SETINGS_IDX,
+            next_menu_idx: ADVANCED_SETTINGS_IDX,
         },
         MenuItem {
             content: MenuItemContent::EditItem(Editable::BatteryBad),
-            next_menu_idx: ADVANCED_SETINGS_IDX,
+            next_menu_idx: ADVANCED_SETTINGS_IDX,
         },
         MenuItem {
             content: MenuItemContent::EditItem(Editable::ResetConfig),
-            next_menu_idx: ADVANCED_SETINGS_IDX,
+            next_menu_idx: ADVANCED_SETTINGS_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::MenuItem(),
+            next_menu_idx: DRAIN_SETTINGS_IDX,
         },
         MenuItem {
             content: MenuItemContent::EditItem(Editable::Return),
             next_menu_idx: VARIO_SETINGS_IDX,
+        },
+    ],
+};
+
+pub const DRAIN_SETTINGS: Menu = Menu {
+    name: "Drain Control",
+    level: 3,
+    items: &[
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::DrainPinConfig),
+            next_menu_idx: DRAIN_SETTINGS_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::FlowEmpty),
+            next_menu_idx: DRAIN_SETTINGS_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::FlowSlope),
+            next_menu_idx: DRAIN_SETTINGS_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::Return),
+            next_menu_idx: ADVANCED_SETTINGS_IDX,
         },
     ],
 };

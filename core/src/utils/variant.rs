@@ -11,6 +11,7 @@ pub enum Variant<'a> {
     I32(i32),
     F32(f32),
     Str(&'a str),
+    U8(u8),
     U32(u32),
     Usize(usize),
 
