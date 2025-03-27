@@ -77,6 +77,7 @@ pub struct CoreController {
     pub scheduler: Scheduler<5>,
     pub pers_vals: FnvIndexSet<PersistenceId, MAX_PERS_IDS>,
     pub nmea_vals: FnvIndexSet<PersistenceId, MAX_PERS_IDS>,
+    pub remote_val: Option<(CanConfigId, RemoteConfig)>,
     p_idle_events: PIdleEvents,
     p_tx_frames: PTxFrames<MAX_TX_FRAMES>,
 }
@@ -124,6 +125,7 @@ impl CoreController {
             scheduler,
             nmea_vals: FnvIndexSet::new(),
             pers_vals: FnvIndexSet::new(),
+            remote_val: None,
             p_idle_events,
             p_tx_frames,
         }

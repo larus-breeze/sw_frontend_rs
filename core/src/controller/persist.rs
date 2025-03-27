@@ -502,9 +502,18 @@ pub fn send_can_config_frame(
     config_id: CanConfigId,
     get_set: RemoteConfig,
 ) {
-    let frame = cm.can_frame_remote_config(config_id, get_set);
-    if let Some(frame) = frame {
-        let _ = cc.p_tx_frames.enqueue(frame);
+    // get command is sent immidiatly, set command after a while, if no new changes are made 
+    match get_set {
+        RemoteConfig::Get => {
+            let frame = cm.can_frame_remote_config(config_id, get_set);
+            if let Some(frame) = frame {
+                let _ = cc.p_tx_frames.enqueue(frame);
+            }
+        }
+        RemoteConfig::Set => {
+            cc.remote_val = Some((config_id, get_set));
+            cc.scheduler.after(crate::Timer::PersistSetting, PERSISTENCE_TIMEOUT.millis());
+        }
     }
 }
 
@@ -549,5 +558,14 @@ pub fn store_persistence_ids(cm: &mut CoreModel, cc: &mut CoreController) {
     while let Some(id) = ids.pop() {
         // Send data via NMEA
         cc.nmea_send_config_data(id);
+    }
+
+    // send remote value if necessary
+    if let Some((config_id, get_set)) = cc.remote_val {
+        let frame = cm.can_frame_remote_config(config_id, get_set);
+        if let Some(frame) = frame {
+            let _ = cc.p_tx_frames.enqueue(frame);
+        }
+        cc.remote_val = None;
     }
 }
