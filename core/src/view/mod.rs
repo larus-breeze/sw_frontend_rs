@@ -5,6 +5,7 @@ pub mod fw_update;
 pub(crate) mod thermal_data;
 
 pub(crate) mod horizon;
+pub(crate) mod info;
 pub(crate) mod menu;
 pub(crate) mod sprites;
 pub(crate) mod vario;
@@ -13,7 +14,7 @@ pub(crate) mod viewable;
 use crate::{
     model::{CoreModel, DisplayActive, OverlayActive},
     utils::Colors,
-    view::{editor::Edit, fw_update::SwUpdate, horizon::Horizon, menu::MenuView, vario::Vario},
+    view::{editor::Edit, fw_update::SwUpdate, horizon::Horizon, info::InfoView, menu::MenuView, vario::Vario},
     CoreError, DrawImage,
 };
 
@@ -36,6 +37,7 @@ enum PrimaryView {
 enum SecondaryView {
     Edit(Edit),
     MenuView(MenuView),
+    InfoView(InfoView),
 }
 
 pub struct CoreView<D>
@@ -89,6 +91,7 @@ where
         self.secondary_view = match core_model.config.overlay_active {
             OverlayActive::Editor => Some(SecondaryView::Edit(Edit::new(core_model))),
             OverlayActive::Menu => Some(SecondaryView::MenuView(MenuView::new())),
+            OverlayActive::Info(type_of_info) => Some(SecondaryView::InfoView(InfoView::new(type_of_info))), 
             OverlayActive::None => None,
         };
     }
@@ -110,6 +113,12 @@ where
                 SecondaryView::Edit(edit) => edit.draw(&mut self.display, &self.core_model)?,
                 SecondaryView::MenuView(menu) => {
                     menu.draw(&mut self.display, &self.core_model, true)?
+                }
+                SecondaryView::InfoView(info_view) => match self.primary_view {
+                    PrimaryView::Horizon(_) | PrimaryView::Vario(_) => {
+                        info_view.draw(&mut self.display, &self.core_model)?                        
+                    }
+                    _ => (),
                 }
             }
         }

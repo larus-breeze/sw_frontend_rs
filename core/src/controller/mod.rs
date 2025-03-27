@@ -257,10 +257,8 @@ impl CoreController {
     // Event handler for reactions to inputs
     fn input_action(&mut self, cm: &mut CoreModel, input_event: InputPinState) {
         match input_event {
-            InputPinState::Io1(state) => cm.device.in1 = state,
-            InputPinState::Io2(state) => cm.device.in2 = state,
-            InputPinState::Io3(state) => cm.device.in3 = state,
-            InputPinState::Io4(state) => self.drain_control.set_state(cm, state),
+            InputPinState::Io1(state) => self.drain_control.set_state(cm, state),
+            _ => (),
         }
     }
     

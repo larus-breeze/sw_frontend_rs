@@ -1,6 +1,8 @@
 use crate::{
     model::{GpsState, SystemState, TcrMode, VarioModeControl},
-    CoreController, CoreModel, FloatToSpeed, FlyMode, IdleEvent, PersistenceId, VarioMode,
+    controller::persist,
+    utils::Variant,
+    CoreController, CoreModel, Echo, FloatToSpeed, FlyMode, IdleEvent, PersistenceId, VarioMode,
 };
 
 pub fn recalc_polar(cm: &mut CoreModel, cc: &mut CoreController) {
@@ -124,4 +126,19 @@ fn send_can_nmea(cm: &mut CoreModel, cc: &mut CoreController) {
     let _ = cc.p_tx_frames.enqueue(can_frame);
 
     cc.nmea_cyclic_1s();
+    let _ = cc.scheduler.chain(process_input_pins);
+}
+
+fn process_input_pins(cm: &mut CoreModel, cc: &mut CoreController) {
+    // check water ballast system
+    cc.drain_control.tick_1s(cm);
+    if cc.drain_control.is_flowing() {
+        persist::persist_set(
+            cc,
+            cm,
+            Variant::Mass(cm.glider_data.water_ballast),
+            PersistenceId::WaterBallast,
+            Echo::NmeaAndCan,
+        )
+    }
 }

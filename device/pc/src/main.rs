@@ -49,6 +49,8 @@ fn main() -> Result<(), core::convert::Infallible> {
     ⇑  Big Encoder right\n\
     ⇓  Big Encoder left\n\n\
 \
+    1..4 Toggle Input 1..4\n
+\
     S Key to save image as png file\n\
     U Key to simulate Firmware Update\n\n\
 \
@@ -66,6 +68,11 @@ fn main() -> Result<(), core::convert::Infallible> {
 
     let mut eeprom = Storage::new().unwrap();
     let mut nmea_server = TcpServer::new("127.0.0.1:4353");
+
+    let mut in1 = PinState::High;
+    let mut in2 = PinState::High;
+    let mut in3 = PinState::High;
+    let mut in4 = PinState::High;
 
     let mut controller = CoreController::new(&mut core_model, p_idle_events, p_tx_frames);
     for item in eeprom.iter_over(EepromTopic::ConfigValues) {
@@ -104,6 +111,26 @@ fn main() -> Result<(), core::convert::Infallible> {
 
                         Keycode::F5 | Keycode::Return => KeyEvent::BtnEnc,
                         Keycode::F6 => KeyEvent::BtnEncS3,
+
+                        Keycode::Num1 => {
+                            in1 = !in1;
+                            println!("Input1 {:?}", in1);
+                            let event = Event::InputItem(InputPinState::Io1(in1));
+                            controller.event_handler(event, &mut core_model);
+                            KeyEvent::NoEvent
+                        }
+                        Keycode::Num2 => {
+                            in2 = !in2;
+                            KeyEvent::NoEvent
+                        }
+                        Keycode::Num3 => {
+                            in3 = !in3;
+                            KeyEvent::NoEvent
+                        }
+                        Keycode::Num4 => {
+                            in4 = !in4;
+                            KeyEvent::NoEvent
+                        }
 
                         Keycode::C => break 'running,
                         Keycode::S => {
@@ -214,7 +241,7 @@ fn main() -> Result<(), core::convert::Infallible> {
         while let Some(nmea_data) = controller.nmea_next(&mut core_model) {
             nmea_server.send(nmea_data);
             if nmea_data.len() >= 6 && &nmea_data[0..6] == b"$PLARS" {
-                // print!("{}", std::str::from_utf8(nmea_data).unwrap());
+                print!("{}", std::str::from_utf8(nmea_data).unwrap());
             }
         }
 
