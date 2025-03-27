@@ -11,7 +11,7 @@ use crate::{
     AirSpeed, Angle, CanFrame, CoreController, CoreModel, F64ToCoord, FloatToAcceleration,
     FloatToAngularVelocity, FloatToDensity, FloatToLength, FloatToMass, FloatToPressure,
     FloatToSpeed, FlyMode, Frame, GenericFrame, GenericId, Latitude, Longitude, PersistenceId,
-    SpecificFrame, Variant,
+    SpecificFrame, Variant, DEGREE_PER_RAD,
 };
 use embedded_graphics::prelude::AngleUnit;
 
@@ -357,8 +357,17 @@ impl CoreController {
                 }
             }
             sensor::CONFIG_VALUE => {
-                let _config_id = rdr.pop_u32();
-                cm.control.editor.content = Content::F32(rdr.pop_f32());
+                let config_id = rdr.pop_u32();
+                match config_id {
+                    // CanConfigId::SensTiltRoll | CanConfigId::SensTiltPitch | CanConfigId::SensTiltYaw
+                    0x2000 | 0x2001 | 0x2002 => {
+                        if let Some(rad) = rdr.pop_f32() {
+                            let deg = rad * DEGREE_PER_RAD;
+                            cm.control.editor.content = Content::F32(Some(deg));
+                        }
+                    }
+                    _ => cm.control.editor.content = Content::F32(rdr.pop_f32()),
+                }
             }
             _ => (),
         }

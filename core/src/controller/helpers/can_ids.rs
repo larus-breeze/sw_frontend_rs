@@ -37,6 +37,7 @@ pub enum RemoteConfig {
 #[allow(dead_code)]
 #[derive(FromPrimitive)]
 #[repr(u16)]
+#[derive(Clone, Copy)]
 pub enum CanConfigId {
     Volume = 0,
     MacCready = 1,

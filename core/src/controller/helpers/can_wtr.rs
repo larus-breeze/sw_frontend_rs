@@ -1,6 +1,6 @@
 use crate::{
     controller::helpers::RemoteConfig, model::editable::Content, CanFrame, CoreModel, Frame,
-    GenericId, SpecialId,
+    GenericId, SpecialId, RAD_PER_DEGREE,
 };
 use byteorder::{ByteOrder, LittleEndian as LE};
 
@@ -100,11 +100,15 @@ impl CoreModel {
         config_id: CanConfigId,
         get_set: RemoteConfig,
     ) -> Option<Frame> {
-        fn set_f32(data: &mut [u8; 6], content: Content) -> bool {
+        fn set_f32(data: &mut [u8; 6], content: Content, config_id: CanConfigId) -> bool {
             let mut r = false;
             if let Content::F32(Some(val)) = content {
-                use defmt::info;
-                info!("set remote config {}", val);
+                use defmt::trace;
+                trace!("set remote config {}", val);
+                let val = match config_id {
+                    CanConfigId::SensTiltRoll | CanConfigId::SensTiltPitch | CanConfigId::SensTiltYaw => val * RAD_PER_DEGREE,
+                    _ => val
+                };
                 LE::write_f32(&mut data[2..6], val);
                 r = true;
             }
@@ -115,7 +119,7 @@ impl CoreModel {
         let available = match get_set {
             RemoteConfig::Set => {
                 data[0] = 1;
-                set_f32(&mut data, self.control.editor.content)
+                set_f32(&mut data, self.control.editor.content, config_id)
             }
             RemoteConfig::Get => true,
         };
