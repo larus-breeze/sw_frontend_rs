@@ -90,12 +90,13 @@ fn edit_list_content(
 
 pub fn key_action(key_event: &mut KeyEvent, cm: &mut CoreModel, cc: &mut CoreController) {
     if cm.control.editor.mode != EditMode::Off {
-        if *key_event == KeyEvent::BtnEnc {
-            cm.control.editor.enter_pushed = true;
-            let _ = cc.scheduler.stop(Timer::CloseEditFrame, true); // finish edit session
-        } else {
-            cc.scheduler
-                .after(crate::Timer::CloseEditFrame, SECTION_EDITOR_TIMEOUT.secs());
+        match key_event {
+            KeyEvent::BtnEnc => {
+                cm.control.editor.enter_pushed = true;
+                let _ = cc.scheduler.stop(Timer::CloseEditFrame, true); // finish edit session
+            }
+            KeyEvent::BtnEncS3 => *key_event = KeyEvent::NoEvent,
+            _ => cc.scheduler.after(crate::Timer::CloseEditFrame, SECTION_EDITOR_TIMEOUT.secs())
         }
 
         let target = cm.control.editor.target;

@@ -1,4 +1,4 @@
-use crate::{CoreModel, FloatToMass, PinState};
+use crate::{CoreModel, FloatToMass, PinState, model::{OverlayActive, TypeOfInfo}};
 
 pub const PIN_NONE: &str = "Not connected";
 pub const PIN_CLOSE: &str = "When closed";
@@ -72,24 +72,28 @@ impl DrainControl {
             let flow_rate = self.flow_rate_offset + 
                 cm.glider_data.water_ballast.to_kg() * self.flow_rate_slope;
             cm.glider_data.water_ballast -= (flow_rate / 60.0).kg();
-            if cm.glider_data.water_ballast.to_kg() < 0.0 {
+            if cm.glider_data.water_ballast.to_kg() <= 0.0 {
                 cm.glider_data.water_ballast = 0.0.kg();
             }
             self.adjust(cm);
         }
     }
 
+    pub fn is_flowing(&self) -> bool {
+        self.is_flowing
+    }
+
     pub fn pin_function(&self) -> PinFunction {
         self.pin_function
     }
 
-    pub fn set_pin_function(&mut self, pin_function: PinFunction, cm: &CoreModel) {
+    pub fn set_pin_function(&mut self, pin_function: PinFunction, cm: &mut CoreModel) {
         self.pin_function = pin_function;
         self.adjust(cm);
     }
 
-    fn adjust(&mut self, cm: &CoreModel) {
-        self.is_flowing = if cm.glider_data.water_ballast.to_kg() == 0.0 {
+    fn adjust(&mut self, cm: &mut CoreModel) {
+        self.is_flowing = if cm.glider_data.water_ballast.to_kg() <= 0.0 {
             false
         } else {
             match self.pin_function {
@@ -102,6 +106,16 @@ impl DrainControl {
                     PinState::Low => false,
                 }
                 PinFunction::None => false,
+            }
+        };
+        if self.is_flowing {
+            if cm.config.overlay_active == OverlayActive::None {
+                cm.config.overlay_active = OverlayActive::Info(TypeOfInfo::WaterBallast);
+            }
+        } else {
+            match cm.config.overlay_active {
+                OverlayActive::Info(_) => cm.config.overlay_active = OverlayActive::None,
+                _ => (),
             }
         }
     }

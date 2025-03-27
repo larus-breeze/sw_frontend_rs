@@ -20,6 +20,17 @@ pub enum PinState {
     Low,
 }
 
+impl core::ops::Not for PinState {
+    type Output = Self;
+
+    fn not(self) -> Self::Output {
+        match self {
+            PinState::High => PinState::Low,
+            PinState::Low => PinState::High
+        }
+    }
+}
+
 impl core::convert::From<bool> for PinState {
     fn from(is_high: bool) -> Self {
         if is_high {

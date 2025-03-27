@@ -18,10 +18,17 @@ pub enum DisplayActive {
 }
 
 #[derive(Clone, Copy, PartialEq)]
+pub enum TypeOfInfo {
+    WaterBallast,
+}
+
+
+#[derive(Clone, Copy, PartialEq)]
 pub enum OverlayActive {
     None,
     Editor,
     Menu,
+    Info(TypeOfInfo),
 }
 
 /// Metastructur for config variables

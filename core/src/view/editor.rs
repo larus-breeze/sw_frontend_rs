@@ -2,7 +2,9 @@ use crate::{
     model::{CoreModel, DisplayActive, EditMode},
     utils::{Colors, TString},
     CoreError, DrawImage,
+    view::viewable::circle_area::draw_info,
 };
+
 use embedded_graphics::{
     prelude::*,
     primitives::{PrimitiveStyleBuilder, Rectangle},
@@ -32,41 +34,13 @@ impl Edit {
         {
             match cm.device_const.misc.edit_mode {
                 EditMode::Off => Ok(()),
-                EditMode::CircleArea => self.draw_circle_area_editor(display, cm),
+                EditMode::CircleArea => draw_info(display, cm, self.name_str, self.val_str.as_str()),
                 EditMode::Fullscreen => self.draw_rectangle_editor(display, cm, true),
                 EditMode::Window => self.draw_rectangle_editor(display, cm, false),
             }
         } else {
             self.draw_rectangle_editor(display, cm, true)
         }
-    }
-
-    fn draw_circle_area_editor<D>(&self, display: &mut D, cm: &CoreModel) -> Result<(), CoreError>
-    where
-        D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
-    {
-        display.draw_img(cm.device_const.images.wp_editor, Point::new(0, 0), None)?;
-
-        let d_sizes = &cm.device_const.sizes.display;
-        let delta_y = cm.device_const.sizes.display.height as i32 / 15;
-        cm.device_const.big_font.render_aligned(
-            self.name_str,
-            d_sizes.screen_center + Point::new(0, -delta_y),
-            VerticalPosition::Center,
-            HorizontalAlignment::Center,
-            FontColor::Transparent(cm.palette().text2),
-            display,
-        )?;
-
-        cm.device_const.big_font.render_aligned(
-            self.val_str.as_str(),
-            d_sizes.screen_center + Point::new(0, delta_y),
-            VerticalPosition::Center,
-            HorizontalAlignment::Center,
-            FontColor::Transparent(cm.palette().text2_bold),
-            display,
-        )?;
-        Ok(())
     }
 
     fn draw_rectangle_editor<D>(
