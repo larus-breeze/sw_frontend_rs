@@ -292,8 +292,8 @@ impl Editable {
             Editable::PitotOffset | Editable::QnhDelta => Params::F32(F32Params {
                 min: -50.0,
                 max: 50.0,
-                small_inc: 0.1,
-                big_inc: 1.0,
+                small_inc: 1.0,
+                big_inc: 10.0,
                 dec_places: 1,
                 unit: "Pa",
             }),
