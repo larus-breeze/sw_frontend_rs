@@ -9,7 +9,7 @@ use crate::{
         centerview::{CenterType, CenterView},
         lineview::{LineView, Placement},
     },
-    PIN_CLOSE, PIN_NONE, PIN_OPEN, Rotation,
+    PIN_IN_CLOSE, PIN_NONE, PIN_IN_OPEN, PIN_OUT_CLOSE, PIN_OUT_OPEN, Rotation,
 };
 
 #[derive(Clone, Copy)]
@@ -250,11 +250,20 @@ impl Editable {
                 dec_places: 1,
                 unit: "V",
             }),
-            Editable::DrainPinConfig | Editable::FlashControl => Params::Enum(EnumParams {
+            Editable::DrainPinConfig => Params::Enum(EnumParams {
                 variants: [
                     TString::<16>::from_str(PIN_NONE),
-                    TString::<16>::from_str(PIN_CLOSE),
-                    TString::<16>::from_str(PIN_OPEN),
+                    TString::<16>::from_str(PIN_IN_CLOSE),
+                    TString::<16>::from_str(PIN_IN_OPEN),
+                    TString::<16>::from_str(""),
+                    TString::<16>::from_str(""),
+                ],
+            }),
+            Editable::FlashControl => Params::Enum(EnumParams {
+                variants: [
+                    TString::<16>::from_str(PIN_NONE),
+                    TString::<16>::from_str(PIN_OUT_CLOSE),
+                    TString::<16>::from_str(PIN_OUT_OPEN),
                     TString::<16>::from_str(""),
                     TString::<16>::from_str(""),
                 ],

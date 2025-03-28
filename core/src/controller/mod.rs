@@ -4,7 +4,10 @@ pub use helpers::{
     can_ids::{audio_legacy, frontend_legacy, sensor_legacy, GenericId, SpecialId},
     CanActive, CanConfigId, IntToDuration, NmeaBuffer, RemoteConfig, Scheduler, Tim,
 };
-pub(crate) use helpers::{DrainControl, FlashControl, PIN_CLOSE, PIN_NONE, PIN_OPEN, PinFunction};
+pub(crate) use helpers::{
+    DrainControl, FlashControl, PinFunction,
+    PIN_IN_CLOSE, PIN_NONE, PIN_IN_OPEN, PIN_OUT_CLOSE, PIN_OUT_OPEN, 
+};
 
 use num::clamp;
 
