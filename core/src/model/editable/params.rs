@@ -250,7 +250,7 @@ impl Editable {
                 dec_places: 1,
                 unit: "V",
             }),
-            Editable::DrainPinConfig => Params::Enum(EnumParams {
+            Editable::DrainPinConfig | Editable::FlashControl => Params::Enum(EnumParams {
                 variants: [
                     TString::<16>::from_str(PIN_NONE),
                     TString::<16>::from_str(PIN_CLOSE),
@@ -333,7 +333,7 @@ impl Editable {
                     unit: "m",
                 })
             }
-            Editable::CmdMeas1 | Editable::CmdMeas2 | Editable::CmdMeas3 => {
+            Editable::CmdMeas1 | Editable::CmdMeas2 | Editable::CmdMeas3 | Editable::CmdReset => {
                 Params::Enum(EnumParams {
                     variants: [
                         TString::<16>::from_str(TRIGGER_COMMAND),

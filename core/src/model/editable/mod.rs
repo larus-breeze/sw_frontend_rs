@@ -69,6 +69,7 @@ pub enum Editable {
     DrainPinConfig,
     FlowEmpty,
     FlowSlope,
+    FlashControl,
 
     SensTiltRoll, // These are sensorbox settings
     SensTiltPitch,
@@ -89,6 +90,7 @@ pub enum Editable {
     CmdMeas1, // These are sensorbox commands
     CmdMeas2,
     CmdMeas3,
+    CmdReset,
 }
 
 const DEFAULT_CONFIG: &str = "Default Config";
@@ -153,6 +155,7 @@ impl Editable {
             Editable::DrainPinConfig => "Drain Pin Config",
             Editable::FlowEmpty => "Lowest Flow",
             Editable::FlowSlope => "Flow Slope",
+            Editable::FlashControl => "Flash Control",
 
             Editable::SensTiltRoll => "Sensor Tilt Roll",
             Editable::SensTiltPitch => "Sensor Tilt Pitch",
@@ -172,6 +175,7 @@ impl Editable {
             Editable::CmdMeas1 => "Left Wing down",
             Editable::CmdMeas2 => "Right Wing down",
             Editable::CmdMeas3 => "Straight Flight",
+            Editable::CmdReset => "Reset Sensorbox",
         }
     }
 
@@ -339,6 +343,7 @@ impl Editable {
             Editable::FlowEmpty => Content::F32(Some(cc.drain_control.flow_rate_offset)),
             Editable::FlowSlope => Content::F32(Some(cc.drain_control.flow_rate_slope)),
 
+            Editable::FlashControl => Content::Enum(TString::<16>::from_str(cc.flash_control.pin_function().as_str())),
 
             // Edit sensorbox values via CAN bus
             Editable::SensTiltRoll => {
@@ -416,7 +421,7 @@ impl Editable {
                 send_can_config_frame(cm, cc, CanConfigId::AntSlaveRight, RemoteConfig::Get);
                 Content::F32(None)
             }
-            Editable::CmdMeas1 | Editable::CmdMeas2 | Editable::CmdMeas3 => {
+            Editable::CmdMeas1 | Editable::CmdMeas2 | Editable::CmdMeas3 | Editable::CmdReset => {
                 Content::Enum(TString::<16>::from_str(TRIGGER_COMMAND))
             }
         }
