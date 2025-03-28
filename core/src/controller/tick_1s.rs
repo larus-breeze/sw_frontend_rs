@@ -141,4 +141,8 @@ fn process_input_pins(cm: &mut CoreModel, cc: &mut CoreController) {
             Echo::NmeaAndCan,
         )
     }
+
+    if let Some(state) = cc.flash_control.tick_1s(cm) {
+        let _ = cc.p_idle_events.enqueue(IdleEvent::Output1(state));
+    }
 }

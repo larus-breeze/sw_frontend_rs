@@ -69,7 +69,8 @@ pub enum PersistenceId {
     DrainPinConfig = 30,
     FlowEmpty = 31,
     FlowSlope = 32,
-    LastItem = 33, // Items smaller than this are stored in eeprom
+    FlashControl = 33,
+    LastItem = 35, // Items smaller than this are stored in eeprom
 
     UserProfile = 65533, // Special function Ids
     DeleteAll = 65534,
@@ -196,6 +197,7 @@ pub fn restore_item(cc: &mut CoreController, cm: &mut CoreModel, item: Persisten
         PersistenceId::DrainPinConfig => cc.drain_control.set_pin_function(PinFunction::from(item.to_u8()), cm),
         PersistenceId::FlowEmpty => cc.drain_control.flow_rate_offset = item.to_f32(),
         PersistenceId::FlowSlope => cc.drain_control.flow_rate_slope = item.to_f32(),
+        PersistenceId::FlashControl => cc.flash_control.set_pin_function(PinFunction::from(item.to_u8())),
 
         _ => (),
     }
@@ -277,6 +279,7 @@ pub fn store_item(cc: &mut CoreController, cm: &mut CoreModel, id: PersistenceId
         PersistenceId::DrainPinConfig => PersistenceItem::from_u8(id, cc.drain_control.pin_function() as u8),
         PersistenceId::FlowEmpty => PersistenceItem::from_f32(id, cc.drain_control.flow_rate_offset),
         PersistenceId::FlowSlope => PersistenceItem::from_f32(id, cc.drain_control.flow_rate_slope),
+        PersistenceId::FlashControl => PersistenceItem::from_u8(id, cc.flash_control.pin_function() as u8),
 
         _ => PersistenceItem::do_not_store(),
     };
@@ -471,6 +474,11 @@ pub fn persist_set(
         PersistenceId::FlowSlope => {
             if let Variant::F32(value) = variant {
                 cc.drain_control.flow_rate_slope = value;
+            }
+        }
+        PersistenceId::FlashControl => {
+            if let Variant::U8(value) = variant {
+                cc.flash_control.set_pin_function(PinFunction::from(value));
             }
         }
 

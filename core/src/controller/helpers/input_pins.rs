@@ -121,3 +121,41 @@ impl DrainControl {
     }
 }
 
+pub struct FlashControl {
+    pub pin_function: PinFunction,
+}
+
+impl Default for FlashControl {
+    fn default() -> Self {
+        FlashControl { 
+            pin_function: PinFunction::None, 
+        }
+    }
+}
+
+impl FlashControl {
+    pub fn tick_1s(&mut self, cm: &mut CoreModel) -> Option<PinState> {
+        match self.pin_function {
+            PinFunction::None => None,
+            PinFunction::OnClose => if cm.sensor.airspeed.ias().to_km_h() > 40.0 {
+                Some(PinState::Low)
+            } else {
+                Some(PinState::High)
+            }
+            PinFunction::OnOpen => if cm.sensor.airspeed.ias().to_km_h() > 40.0 {
+                Some(PinState::High)
+            } else {
+                Some(PinState::Low)
+            }
+        }
+    }
+
+    pub fn pin_function(&self) -> PinFunction {
+        self.pin_function
+    }
+
+    pub fn set_pin_function(&mut self, pin_function: PinFunction) {
+        self.pin_function = pin_function;
+    }
+
+}
