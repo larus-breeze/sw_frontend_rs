@@ -16,8 +16,8 @@ pub enum IdleEvent {
 
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum PinState {
-    High,
     Low,
+    High,
 }
 
 impl core::ops::Not for PinState {

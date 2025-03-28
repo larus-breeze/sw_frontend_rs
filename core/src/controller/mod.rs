@@ -4,7 +4,7 @@ pub use helpers::{
     can_ids::{audio_legacy, frontend_legacy, sensor_legacy, GenericId, SpecialId},
     CanActive, CanConfigId, IntToDuration, NmeaBuffer, RemoteConfig, Scheduler, Tim,
 };
-pub(crate) use helpers::{DrainControl, PIN_CLOSE, PIN_NONE, PIN_OPEN, PinFunction};
+pub(crate) use helpers::{DrainControl, FlashControl, PIN_CLOSE, PIN_NONE, PIN_OPEN, PinFunction};
 
 use num::clamp;
 
@@ -67,6 +67,7 @@ pub const MAX_PERS_IDS: usize = 8;
 pub struct CoreController {
     pub polar: Polar,
     pub drain_control: DrainControl,
+    pub flash_control: FlashControl,
     sw_update: SwUpdateController,
     ms: u16,
     last_vario_mode: VarioMode,
@@ -115,6 +116,7 @@ impl CoreController {
         Self {
             polar: Polar::default(),
             drain_control: DrainControl::default(),
+            flash_control: FlashControl::default(),
             ms: 0,
             last_vario_mode: VarioMode::Vario,
             sw_update: SwUpdateController::new(),

@@ -8,6 +8,7 @@ use stm32h7xx_hal::{
         ResetEnable,
     },
 };
+use defmt::trace;
 
 const BTN_1: u8 = 0b0000_0001;
 const BTN_2: u8 = 0b0000_0010;
@@ -212,21 +213,25 @@ impl Keyboard {
         self.io_tick = 0;
         let state = PinState::from(self.input_pins.di1.is_high());
         if state != self.io1_state {
+            trace!("in1 {}", state as u32);
             self.io1_state = state;
             let _ = self.q_events.enqueue(Event::InputItem(InputPinState::Io1(self.io1_state)));
         }
         let state = PinState::from(self.input_pins.di2.is_high());
         if state != self.io2_state {
+            trace!("in2 {}", state as u32);
             self.io2_state = state;
             let _ = self.q_events.enqueue(Event::InputItem(InputPinState::Io2(self.io2_state)));
         }
         let state = PinState::from(self.input_pins.di3.is_high());
         if state != self.io3_state {
+            trace!("in3 {}", state as u32);
             self.io3_state = state;
             let _ = self.q_events.enqueue(Event::InputItem(InputPinState::Io3(self.io3_state)));
         }
         let state = PinState::from(self.input_pins.di4.is_high());
         if state != self.io4_state {
+            trace!("in4 {}", state as u32);
             self.io4_state = state;
             let _ = self.q_events.enqueue(Event::InputItem(InputPinState::Io4(self.io4_state)));
         }
