@@ -120,14 +120,14 @@ impl IdleLoop {
                         loop {} // Wait until watchdog reset the device
                     }
                     IdleEvent::Output1(state) => {
-                        trace!("out1 {}", state as u32);
+                        // trace!("out1 {}", state as u32);
                         match state {
                             PinState::High => self.output_pins.o1.set_high(),
                             PinState::Low => self.output_pins.o1.set_low(),
                         }
                     }
                     IdleEvent::Output2(state) => {
-                        trace!("out2 {}", state as u32);
+                        // trace!("out2 {}", state as u32);
                         match state {
                             PinState::High => self.output_pins.o2.set_high(),
                             PinState::Low => self.output_pins.o2.set_low(),

@@ -1,8 +1,10 @@
 use crate::{CoreModel, FloatToMass, PinState, model::{OverlayActive, TypeOfInfo}};
 
 pub const PIN_NONE: &str = "Not connected";
-pub const PIN_CLOSE: &str = "When closed";
-pub const PIN_OPEN: &str = "When opened";
+pub const PIN_IN_CLOSE: &str = "When closed";
+pub const PIN_IN_OPEN: &str = "When opened";
+pub const PIN_OUT_CLOSE: &str = "Active: close";
+pub const PIN_OUT_OPEN: &str = "Active: open";
 
 #[derive(Clone, Copy, PartialEq)]
 pub enum PinFunction {
@@ -24,19 +26,28 @@ impl From<u8> for PinFunction {
 impl From<&str> for PinFunction {
     fn from(value: &str) -> Self {
         match value {
-            PIN_CLOSE => PinFunction::OnClose,  
-            PIN_OPEN => PinFunction::OnOpen,  
+            PIN_IN_CLOSE => PinFunction::OnClose,  
+            PIN_IN_OPEN => PinFunction::OnOpen,  
+            PIN_OUT_CLOSE => PinFunction::OnClose,  
+            PIN_OUT_OPEN => PinFunction::OnOpen,  
             _ => PinFunction::None,  
         }
     }
 }
 
 impl PinFunction {
-    pub fn as_str(&self) -> &'static str {
+    pub fn in_as_str(&self) -> &'static str {
         match self {
             PinFunction::None => PIN_NONE,
-            PinFunction::OnClose => PIN_CLOSE,
-            PinFunction::OnOpen => PIN_OPEN,
+            PinFunction::OnClose => PIN_IN_CLOSE,
+            PinFunction::OnOpen => PIN_IN_OPEN,
+        }
+    }
+    pub fn out_as_str(&self) -> &'static str {
+        match self {
+            PinFunction::None => PIN_NONE,
+            PinFunction::OnClose => PIN_OUT_CLOSE,
+            PinFunction::OnOpen => PIN_OUT_OPEN,
         }
     }
 }

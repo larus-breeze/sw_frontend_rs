@@ -339,11 +339,11 @@ impl Editable {
             Editable::BatteryGood => Content::F32(Some(cm.config.battery_good)),
             Editable::BatteryBad => Content::F32(Some(cm.config.battery_bad)),
 
-            Editable::DrainPinConfig => Content::Enum(TString::<16>::from_str(cc.drain_control.pin_function().as_str())),
+            Editable::DrainPinConfig => Content::Enum(TString::<16>::from_str(cc.drain_control.pin_function().in_as_str())),
             Editable::FlowEmpty => Content::F32(Some(cc.drain_control.flow_rate_offset)),
             Editable::FlowSlope => Content::F32(Some(cc.drain_control.flow_rate_slope)),
 
-            Editable::FlashControl => Content::Enum(TString::<16>::from_str(cc.flash_control.pin_function().as_str())),
+            Editable::FlashControl => Content::Enum(TString::<16>::from_str(cc.flash_control.pin_function().out_as_str())),
 
             // Edit sensorbox values via CAN bus
             Editable::SensTiltRoll => {
