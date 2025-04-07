@@ -186,10 +186,6 @@ pub const ADVANCED_SETTINGS: Menu = Menu {
             next_menu_idx: ADVANCED_SETTINGS_IDX,
         },
         MenuItem {
-            content: MenuItemContent::EditItem(Editable::ResetConfig),
-            next_menu_idx: ADVANCED_SETTINGS_IDX,
-        },
-        MenuItem {
             content: MenuItemContent::EditItem(Editable::FlashControl),
             next_menu_idx: ADVANCED_SETTINGS_IDX,
         },
@@ -204,6 +200,10 @@ pub const ADVANCED_SETTINGS: Menu = Menu {
         MenuItem {
             content: MenuItemContent::MenuItem(),
             next_menu_idx: DRAIN_SETTINGS_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::ResetConfig),
+            next_menu_idx: ADVANCED_SETTINGS_IDX,
         },
         MenuItem {
             content: MenuItemContent::EditItem(Editable::Return),
