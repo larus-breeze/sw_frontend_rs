@@ -34,8 +34,8 @@ impl CoreController {
 
     fn nmea_parse_g(&mut self, cm: &mut CoreModel) -> Result<(), CoreError> {
         match self.nmea_buffer.rx.next_chunk()? {
-            b"s0" => cm.control.vario_mode_control = VarioModeControl::Vario,
-            b"s1" => cm.control.vario_mode_control = VarioModeControl::SpeedToFly,
+            b"s0" => cm.set_vario_mode(VarioMode::Vario, VarioModeControl::NMEA),
+            b"s1" => cm.set_vario_mode(VarioMode::SpeedToFly, VarioModeControl::NMEA),
             b"rp" => self.key_action(cm, crate::KeyEvent::BtnEnc),
             b"rl" => self.key_action(cm, crate::KeyEvent::BtnEncS3),
             b"ru" => self.key_action(cm, crate::KeyEvent::Rotary2Left),
@@ -100,8 +100,8 @@ impl CoreController {
                 );
             }
             b"CIR" => match val as i32 {
-                0 => cm.control.vario_mode_control = VarioModeControl::SpeedToFly,
-                1 => cm.control.vario_mode_control = VarioModeControl::Vario,
+                0 => cm.set_vario_mode(VarioMode::SpeedToFly, VarioModeControl::NMEA),
+                1 => cm.set_vario_mode(VarioMode::Vario, VarioModeControl::NMEA),
                 _ => return Err(CoreError::ParseError),
             },
             _ => return Err(CoreError::ParseError),

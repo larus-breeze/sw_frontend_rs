@@ -15,19 +15,20 @@ fn speed_to_fly(cm: &mut CoreModel, cc: &mut CoreController) {
     let stf = cc.polar.speed_to_fly(0.0.m_s(), 0.0.m_s());
     cm.control.speed_to_fly_limit = stf.ias() * cm.control.vario_mode_switch_ratio;
 
-    // In auto mode switch between Vario and SpeedToFly
+    // save vario mode to record changes
     let vario_mode = cm.control.vario_mode;
-    cm.control.vario_mode = match cm.control.vario_mode_control {
-        VarioModeControl::Auto => {
-            if cm.sensor.airspeed.ias() > cm.control.speed_to_fly_limit {
-                VarioMode::SpeedToFly
-            } else {
-                VarioMode::Vario
-            }
-        }
-        VarioModeControl::SpeedToFly => VarioMode::SpeedToFly,
-        VarioModeControl::Vario => VarioMode::Vario,
-    };
+
+    // In auto mode switch between Vario and SpeedToFly
+    if cm.sensor.airspeed.ias() > cm.control.speed_to_fly_limit {
+        cm.set_vario_mode(VarioMode::SpeedToFly, VarioModeControl::Auto);
+    } else {
+        cm.set_vario_mode(VarioMode::Vario, VarioModeControl::Auto);
+    }
+
+    // in pin mode set according to pin state
+    cm.set_vario_mode(cc.speed_to_fly_control.vario_mode(), VarioModeControl::InputPin);
+
+    // changes? then push to nmea output
     if vario_mode != cm.control.vario_mode {
         let _ = cc
             .nmea_buffer

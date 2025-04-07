@@ -1,5 +1,6 @@
 use crate::{
     controller::{CanActive, Editor},
+    model::CoreModel,
     system_of_units::{FloatToLength, FloatToSpeed, Length, Speed},
     utils::DeviceEvent,
     MenuControl, Rotation,
@@ -45,17 +46,42 @@ impl core::ops::Not for VarioMode {
 #[repr(u8)]
 #[derive(PartialEq, Eq, Clone, Copy)]
 pub enum VarioModeControl {
-    Vario,
-    SpeedToFly,
     Auto,
+    InputPin,
+    NMEA,
 }
+
+pub const VARIO_MODE_CONTROL_AUTO: &str = "Auto";
+pub const VARIO_MODE_CONTROL_PIN: &str = "Input Pin";
+pub const VARIO_MODE_CONTROL_NMEA: &str = "NMEA";
+
 
 impl From<u8> for VarioModeControl {
     fn from(value: u8) -> Self {
         match value {
-            0 => VarioModeControl::Vario,
-            1 => VarioModeControl::SpeedToFly,
+            1 => VarioModeControl::InputPin,
+            2 => VarioModeControl::NMEA,
             _ => VarioModeControl::Auto,
+        }
+    }
+}
+
+impl From<&str> for VarioModeControl {
+    fn from(value: &str) -> Self {
+        match value {
+            VARIO_MODE_CONTROL_NMEA => VarioModeControl::NMEA,
+            VARIO_MODE_CONTROL_PIN => VarioModeControl::InputPin,
+            _ => VarioModeControl::Auto,
+        }
+    }
+}
+
+impl VarioModeControl {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            VarioModeControl::Auto => VARIO_MODE_CONTROL_AUTO,
+            VarioModeControl::InputPin => VARIO_MODE_CONTROL_PIN,
+            VarioModeControl::NMEA => VARIO_MODE_CONTROL_NMEA,
         }
     }
 }
@@ -152,6 +178,14 @@ impl Default for Control {
             menu_control: MenuControl::new(),
             rotation: Rotation::Rotate0,
             reset_config: 0,
+        }
+    }
+}
+
+impl CoreModel {
+    pub fn set_vario_mode(&mut self, vario_mode: VarioMode, source: VarioModeControl) {
+        if source == self.control.vario_mode_control {
+            self.control.vario_mode = vario_mode
         }
     }
 }
