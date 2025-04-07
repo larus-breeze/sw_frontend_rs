@@ -139,7 +139,7 @@ impl Editable {
             Editable::CenterFrequency => "Center Frequency",
             Editable::CenterViewCircling => "Center Circling",
             Editable::CenterViewStraight => "Center Straight",
-            Editable::ResetConfig => "Configuration",
+            Editable::ResetConfig => "Config Reset",
             Editable::UserProfile => "User Profile",
             Editable::EmptyMass => "Empty Mass",
             Editable::MaxBallast => "Max Ballast",
