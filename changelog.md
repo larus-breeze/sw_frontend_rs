@@ -1,5 +1,12 @@
 Changelog
 =
+v0.3.6 Support for some Hardware Pins to Control the Front End
+- Button input to switch between vario and speed-to-fly mode #84
+- Input for automatic reduction of water ballast #67
+- Output to control canopy flasher #81
+- The centering aid is not distinguishing the circle direction correctly #85
+- Sensorbox remote edit: do not transfer changed data immediately #79
+- Sensorbox remote edit rad <-> deg #78
 
 v0.3.5 Remote controllability via NMEA and optimized display
 - Battery symbol switching rapidly #72

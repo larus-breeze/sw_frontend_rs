@@ -360,7 +360,7 @@ impl CoreController {
                 let config_id = rdr.pop_u32();
                 match config_id {
                     // CanConfigId::SensTiltRoll | CanConfigId::SensTiltPitch | CanConfigId::SensTiltYaw
-                    0x2000 | 0x2001 | 0x2002 => {
+                    0x2000..=0x2002 => {
                         if let Some(rad) = rdr.pop_f32() {
                             let deg = rad * DEGREE_PER_RAD;
                             cm.control.editor.content = Content::F32(Some(deg));
