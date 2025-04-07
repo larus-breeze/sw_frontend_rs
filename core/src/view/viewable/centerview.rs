@@ -170,7 +170,7 @@ where
     }
 
     let dy = (sizes.vario.small_gld_size.height / 2) as i32;
-    let p_gld = if cm.sensor.euler_roll.to_radians() > 0.0 {
+    let p_gld = if cm.sensor.turn_rate.to_rad_s() > 0.0 {
         let dx = (sizes.vario.ta_circle_radius + sizes.vario.small_gld_size.width / 2) as i32;
         sizes.display.center + Point::new(-dx, -dy)
     } else {
@@ -238,7 +238,7 @@ where
         .draw(display)?;
 
     let dy = (sizes.vario.small_gld_size.height / 2) as i32;
-    let p_gld = if cm.sensor.euler_roll.to_radians() > 0.0 {
+    let p_gld = if cm.sensor.turn_rate.to_rad_s() > 0.0 {
         let dx = (sizes.vario.ta_circle_radius + sizes.vario.small_gld_size.width / 2) as i32;
         sizes.display.center + Point::new(-dx, -dy)
     } else {
