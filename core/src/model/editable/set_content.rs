@@ -42,11 +42,7 @@ impl Editable {
                 Echo::None,
             ),
             Editable::VarioModeControl => {
-                let mode = match val.as_str() {
-                    "Vario" => VarioModeControl::Vario,
-                    "SpeedToFly" => VarioModeControl::SpeedToFly,
-                    _ => VarioModeControl::Auto,
-                };
+                let mode = VarioModeControl::from(val.as_str());
                 persist::persist_set(
                     cc,
                     cm,

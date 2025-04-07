@@ -261,13 +261,8 @@ impl Editable {
                     Content::Enum(TString::<16>::from_str("Bright"))
                 }
             }
-            Editable::VarioModeControl => match cm.control.vario_mode_control {
-                VarioModeControl::Auto => Content::Enum(TString::<16>::from_str("Auto")),
-                VarioModeControl::Vario => Content::Enum(TString::<16>::from_str("Vario")),
-                VarioModeControl::SpeedToFly => {
-                    Content::Enum(TString::<16>::from_str("SpeedToFly"))
-                }
-            },
+            Editable::VarioModeControl => 
+                Content::Enum(TString::<16>::from_str(cm.control.vario_mode_control.as_str())),
             Editable::Volume => Content::F32(Some(cm.config.volume as f32)),
             Editable::WaterBallast => Content::F32(Some(cm.glider_data.water_ballast.to_kg())),
             Editable::Info1 => Content::List(cm.config.info1.sorted_as_i32(Placement::Top)),

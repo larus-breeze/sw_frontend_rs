@@ -3,13 +3,10 @@ use super::{
     USER_1, USER_2, USER_3, USER_4,
 };
 use crate::{
-    flight_physics::polar_store,
-    utils::TString,
-    view::viewable::{
+    flight_physics::polar_store, model::control::{VARIO_MODE_CONTROL_AUTO, VARIO_MODE_CONTROL_NMEA, VARIO_MODE_CONTROL_PIN}, utils::TString, view::viewable::{
         centerview::{CenterType, CenterView},
         lineview::{LineView, Placement},
-    },
-    PIN_IN_CLOSE, PIN_NONE, PIN_IN_OPEN, PIN_OUT_CLOSE, PIN_OUT_OPEN, Rotation,
+    }, Rotation, PIN_IN_CLOSE, PIN_IN_OPEN, PIN_NONE, PIN_OUT_CLOSE, PIN_OUT_OPEN
 };
 
 #[derive(Clone, Copy)]
@@ -119,9 +116,9 @@ impl Editable {
             }),
             Editable::VarioModeControl => Params::Enum(EnumParams {
                 variants: [
-                    TString::<16>::from_str("Auto"),
-                    TString::<16>::from_str("SpeedToFly"),
-                    TString::<16>::from_str("Vario"),
+                    TString::<16>::from_str(VARIO_MODE_CONTROL_AUTO),
+                    TString::<16>::from_str(VARIO_MODE_CONTROL_PIN),
+                    TString::<16>::from_str(VARIO_MODE_CONTROL_NMEA),
                     TString::<16>::from_str(""),
                     TString::<16>::from_str(""),
                 ],
