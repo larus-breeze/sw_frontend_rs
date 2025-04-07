@@ -6,7 +6,7 @@ use crate::{
     flight_physics::polar_store, model::control::{VARIO_MODE_CONTROL_AUTO, VARIO_MODE_CONTROL_NMEA, VARIO_MODE_CONTROL_PIN}, utils::TString, view::viewable::{
         centerview::{CenterType, CenterView},
         lineview::{LineView, Placement},
-    }, Rotation, PIN_IN_CLOSE, PIN_IN_OPEN, PIN_NONE, PIN_OUT_CLOSE, PIN_OUT_OPEN
+    }, Rotation, PIN_IN_CLOSE, PIN_IN_OPEN, PIN_IN_TOGGLE, PIN_NONE, PIN_OUT_CLOSE, PIN_OUT_OPEN
 };
 
 #[derive(Clone, Copy)]
@@ -256,15 +256,6 @@ impl Editable {
                     TString::<16>::from_str(""),
                 ],
             }),
-            Editable::FlashControl => Params::Enum(EnumParams {
-                variants: [
-                    TString::<16>::from_str(PIN_NONE),
-                    TString::<16>::from_str(PIN_OUT_CLOSE),
-                    TString::<16>::from_str(PIN_OUT_OPEN),
-                    TString::<16>::from_str(""),
-                    TString::<16>::from_str(""),
-                ],
-            }),
             Editable::FlowEmpty => {
                 Params::F32(F32Params {
                     min: 1.0,
@@ -285,6 +276,24 @@ impl Editable {
                     unit: "l/(min*kg*s)",
                 })
             }
+            Editable::FlashControl => Params::Enum(EnumParams {
+                variants: [
+                    TString::<16>::from_str(PIN_NONE),
+                    TString::<16>::from_str(PIN_OUT_CLOSE),
+                    TString::<16>::from_str(PIN_OUT_OPEN),
+                    TString::<16>::from_str(""),
+                    TString::<16>::from_str(""),
+                ],
+            }),
+            Editable::SpeedToFlyPinConfig => Params::Enum(EnumParams {
+                variants: [
+                    TString::<16>::from_str(PIN_NONE),
+                    TString::<16>::from_str(PIN_IN_CLOSE),
+                    TString::<16>::from_str(PIN_IN_OPEN),
+                    TString::<16>::from_str(PIN_IN_TOGGLE),
+                    TString::<16>::from_str(""),
+                ],
+            }),
             Editable::SensTiltRoll | Editable::SensTiltPitch | Editable::SensTiltYaw => {
                 Params::F32(F32Params {
                     min: -179.0,

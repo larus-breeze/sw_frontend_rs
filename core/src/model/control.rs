@@ -164,7 +164,7 @@ impl Default for Control {
             system_state: SystemState::NoCom,
             can_devices: CanActive::None as u32,
             fly_mode: FlyMode::StraightFlight,
-            vario_mode: VarioMode::SpeedToFly,
+            vario_mode: VarioMode::Vario,
             vario_mode_control: VarioModeControl::Auto,
             vario_mode_switch_ratio: 1.10,
             speed_to_fly_limit: 105.0.km_h(),

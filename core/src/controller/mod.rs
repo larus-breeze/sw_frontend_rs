@@ -5,8 +5,8 @@ pub use helpers::{
     CanActive, CanConfigId, IntToDuration, NmeaBuffer, RemoteConfig, Scheduler, Tim,
 };
 pub(crate) use helpers::{
-    DrainControl, FlashControl, SpeedToFlyControl, InPinFunction,
-    PIN_IN_CLOSE, PIN_NONE, PIN_IN_OPEN, PIN_OUT_CLOSE, PIN_OUT_OPEN, 
+    DrainControl, FlashControl, SpeedToFlyControl, InPinFunction, InTogglePinFunction,
+    PIN_IN_CLOSE, PIN_NONE, PIN_IN_OPEN, PIN_IN_TOGGLE, PIN_OUT_CLOSE, PIN_OUT_OPEN, 
 };
 
 use num::clamp;
