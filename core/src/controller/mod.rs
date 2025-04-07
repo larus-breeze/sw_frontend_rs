@@ -5,7 +5,7 @@ pub use helpers::{
     CanActive, CanConfigId, IntToDuration, NmeaBuffer, RemoteConfig, Scheduler, Tim,
 };
 pub(crate) use helpers::{
-    DrainControl, FlashControl, InPinFunction,
+    DrainControl, FlashControl, SpeedToFlyControl, InPinFunction,
     PIN_IN_CLOSE, PIN_NONE, PIN_IN_OPEN, PIN_OUT_CLOSE, PIN_OUT_OPEN, 
 };
 
@@ -71,6 +71,7 @@ pub struct CoreController {
     pub polar: Polar,
     pub drain_control: DrainControl,
     pub flash_control: FlashControl,
+    pub speed_to_fly_control: SpeedToFlyControl,
     sw_update: SwUpdateController,
     ms: u16,
     last_vario_mode: VarioMode,
@@ -120,6 +121,7 @@ impl CoreController {
             polar: Polar::default(),
             drain_control: DrainControl::default(),
             flash_control: FlashControl::default(),
+            speed_to_fly_control: SpeedToFlyControl::default(),
             ms: 0,
             last_vario_mode: VarioMode::Vario,
             sw_update: SwUpdateController::new(),
@@ -263,6 +265,7 @@ impl CoreController {
     fn input_action(&mut self, cm: &mut CoreModel, input_event: InputPinState) {
         match input_event {
             InputPinState::Io1(state) => self.drain_control.set_state(cm, state),
+            InputPinState::Io2(state) => self.speed_to_fly_control.set_state(state),
             _ => (),
         }
     }

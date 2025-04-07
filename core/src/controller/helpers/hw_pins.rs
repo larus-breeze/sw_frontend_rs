@@ -1,4 +1,4 @@
-use crate::{CoreModel, FloatToMass, PinState, model::{OverlayActive, TypeOfInfo}};
+use crate::{model::{OverlayActive, TypeOfInfo}, CoreModel, FloatToMass, PinState, VarioMode};
 
 pub const PIN_NONE: &str = "Not connected";
 pub const PIN_IN_CLOSE: &str = "When closed";
@@ -37,6 +37,49 @@ impl InPinFunction {
             InPinFunction::None => PIN_NONE,
             InPinFunction::OnClose => PIN_IN_CLOSE,
             InPinFunction::OnOpen => PIN_IN_OPEN,
+        }
+    }
+}
+
+pub const PIN_IN_TOGGLE: &str = "When toggled";
+
+#[derive(Clone, Copy, PartialEq)]
+pub enum InTogglePinFunction {
+    None,
+    OnClose,
+    OnOpen,
+    OnToggled,
+}
+
+impl From<u8> for InTogglePinFunction {
+    fn from(value: u8) -> Self {
+        match value {
+            1 => InTogglePinFunction::OnClose,  
+            2 => InTogglePinFunction::OnOpen,  
+            3 => InTogglePinFunction::OnToggled,
+            _ => InTogglePinFunction::None,  
+        }
+    }
+}
+
+impl From<&str> for InTogglePinFunction {
+    fn from(value: &str) -> Self {
+        match value {
+            PIN_IN_CLOSE => InTogglePinFunction::OnClose,  
+            PIN_IN_OPEN => InTogglePinFunction::OnOpen,
+            PIN_IN_TOGGLE => InTogglePinFunction::OnToggled,
+            _ => InTogglePinFunction::None,  
+        }
+    }
+}
+
+impl InTogglePinFunction {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            InTogglePinFunction::None => PIN_NONE,
+            InTogglePinFunction::OnClose => PIN_IN_CLOSE,
+            InTogglePinFunction::OnOpen => PIN_IN_OPEN,
+            InTogglePinFunction::OnToggled => PIN_IN_TOGGLE,
         }
     }
 }
@@ -198,5 +241,49 @@ impl FlashControl {
     pub fn set_pin_function(&mut self, pin_function: OutPinFunction) {
         self.pin_function = pin_function;
     }
+}
 
+pub struct SpeedToFlyControl {
+    pin_function: InTogglePinFunction,
+    vario_mode: VarioMode,
+}
+
+impl Default for SpeedToFlyControl {
+    fn default() -> Self {
+        SpeedToFlyControl { 
+            pin_function: InTogglePinFunction::None, 
+            vario_mode: VarioMode::Vario 
+        }
+    }
+}
+
+impl SpeedToFlyControl {
+    pub fn set_state(&mut self, pin_state: PinState) {
+        self.vario_mode = match pin_state {
+            PinState::High => match self.pin_function {
+                InTogglePinFunction::None => return,
+                InTogglePinFunction::OnClose => VarioMode::Vario,
+                InTogglePinFunction::OnOpen => VarioMode::SpeedToFly,
+                InTogglePinFunction::OnToggled => return,
+            },
+            PinState::Low => match self.pin_function {
+                InTogglePinFunction::None => return,
+                InTogglePinFunction::OnClose => VarioMode::SpeedToFly,
+                InTogglePinFunction::OnOpen => VarioMode::Vario,
+                InTogglePinFunction::OnToggled => !self.vario_mode,
+            },
+        }
+    }
+
+    pub fn pin_function(&self) -> InTogglePinFunction {
+        self.pin_function
+    }
+
+    pub fn set_pin_function(&mut self, pin_function: InTogglePinFunction) {
+        self.pin_function = pin_function;
+    }
+
+    pub fn vario_mode(&self) -> VarioMode {
+        self.vario_mode
+    }
 }
