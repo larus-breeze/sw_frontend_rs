@@ -48,7 +48,7 @@ impl core::ops::Not for VarioMode {
 pub enum VarioModeControl {
     Auto,
     InputPin,
-    NMEA,
+    Nmea,
 }
 
 pub const VARIO_MODE_CONTROL_AUTO: &str = "Auto";
@@ -60,7 +60,7 @@ impl From<u8> for VarioModeControl {
     fn from(value: u8) -> Self {
         match value {
             1 => VarioModeControl::InputPin,
-            2 => VarioModeControl::NMEA,
+            2 => VarioModeControl::Nmea,
             _ => VarioModeControl::Auto,
         }
     }
@@ -69,7 +69,7 @@ impl From<u8> for VarioModeControl {
 impl From<&str> for VarioModeControl {
     fn from(value: &str) -> Self {
         match value {
-            VARIO_MODE_CONTROL_NMEA => VarioModeControl::NMEA,
+            VARIO_MODE_CONTROL_NMEA => VarioModeControl::Nmea,
             VARIO_MODE_CONTROL_PIN => VarioModeControl::InputPin,
             _ => VarioModeControl::Auto,
         }
@@ -81,7 +81,7 @@ impl VarioModeControl {
         match self {
             VarioModeControl::Auto => VARIO_MODE_CONTROL_AUTO,
             VarioModeControl::InputPin => VARIO_MODE_CONTROL_PIN,
-            VarioModeControl::NMEA => VARIO_MODE_CONTROL_NMEA,
+            VarioModeControl::Nmea => VARIO_MODE_CONTROL_NMEA,
         }
     }
 }

@@ -196,9 +196,8 @@ impl DrainControl {
                 cm.config.overlay_active = OverlayActive::Info(TypeOfInfo::WaterBallast);
             }
         } else {
-            match cm.config.overlay_active {
-                OverlayActive::Info(_) => cm.config.overlay_active = OverlayActive::None,
-                _ => (),
+            if let OverlayActive::Info(_) = cm.config.overlay_active { 
+                cm.config.overlay_active = OverlayActive::None 
             }
         }
     }
