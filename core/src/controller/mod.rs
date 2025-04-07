@@ -5,7 +5,7 @@ pub use helpers::{
     CanActive, CanConfigId, IntToDuration, NmeaBuffer, RemoteConfig, Scheduler, Tim,
 };
 pub(crate) use helpers::{
-    DrainControl, FlashControl, PinFunction,
+    DrainControl, FlashControl, InPinFunction,
     PIN_IN_CLOSE, PIN_NONE, PIN_IN_OPEN, PIN_OUT_CLOSE, PIN_OUT_OPEN, 
 };
 

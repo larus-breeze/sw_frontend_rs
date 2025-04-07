@@ -19,7 +19,7 @@
 use heapless::Vec;
 use num_enum::FromPrimitive;
 
-use super::{helpers::PinFunction, VarioModeControl, MAX_PERS_IDS};
+use super::{helpers::{InPinFunction, OutPinFunction}, VarioModeControl, MAX_PERS_IDS};
 use crate::{
     basic_config::PERSISTENCE_TIMEOUT,
     controller::{
@@ -194,10 +194,10 @@ pub fn restore_item(cc: &mut CoreController, cm: &mut CoreModel, item: Persisten
         PersistenceId::GliderSymbol => cm.config.glider_symbol = item.to_bool(),
         PersistenceId::BatteryGood => cm.config.battery_good = item.to_f32(),
         PersistenceId::BatteryBad => cm.config.battery_bad = item.to_f32(),
-        PersistenceId::DrainPinConfig => cc.drain_control.set_pin_function(PinFunction::from(item.to_u8()), cm),
+        PersistenceId::DrainPinConfig => cc.drain_control.set_pin_function(InPinFunction::from(item.to_u8()), cm),
         PersistenceId::FlowEmpty => cc.drain_control.flow_rate_offset = item.to_f32(),
         PersistenceId::FlowSlope => cc.drain_control.flow_rate_slope = item.to_f32(),
-        PersistenceId::FlashControl => cc.flash_control.set_pin_function(PinFunction::from(item.to_u8())),
+        PersistenceId::FlashControl => cc.flash_control.set_pin_function(OutPinFunction::from(item.to_u8())),
 
         _ => (),
     }
@@ -463,7 +463,7 @@ pub fn persist_set(
         }
         PersistenceId::DrainPinConfig => {
             if let Variant::U8(value) = variant {
-                cc.drain_control.set_pin_function(PinFunction::from(value), cm);
+                cc.drain_control.set_pin_function(InPinFunction::from(value), cm);
             }
         }
         PersistenceId::FlowEmpty => {
@@ -478,7 +478,7 @@ pub fn persist_set(
         }
         PersistenceId::FlashControl => {
             if let Variant::U8(value) = variant {
-                cc.flash_control.set_pin_function(PinFunction::from(value));
+                cc.flash_control.set_pin_function(OutPinFunction::from(value));
             }
         }
 

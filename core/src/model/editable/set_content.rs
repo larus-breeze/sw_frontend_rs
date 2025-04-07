@@ -11,7 +11,7 @@ use crate::{
         centerview::{CenterType, CenterView},
         lineview::{LineView, Placement},
     },
-    CoreController, CoreModel, Echo, FloatToMass, FloatToSpeed, PersistenceId, PinFunction, RemoteConfig,
+    CoreController, CoreModel, Echo, FloatToMass, FloatToSpeed, PersistenceId, InPinFunction, RemoteConfig,
     Rotation,
 };
 
@@ -98,7 +98,7 @@ impl Editable {
             Editable::DrainPinConfig => persist::persist_set(
                 cc,
                 cm,
-                Variant::U8(PinFunction::from(val.as_str()) as u8),
+                Variant::U8(InPinFunction::from(val.as_str()) as u8),
                 PersistenceId::DrainPinConfig,
                 Echo::None,
             ),
@@ -106,7 +106,7 @@ impl Editable {
             Editable::FlashControl => persist::persist_set(
                 cc,
                 cm,
-                Variant::U8(PinFunction::from(val.as_str()) as u8),
+                Variant::U8(InPinFunction::from(val.as_str()) as u8),
                 PersistenceId::FlashControl,
                 Echo::None,
             ),

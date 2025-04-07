@@ -3,57 +3,86 @@ use crate::{CoreModel, FloatToMass, PinState, model::{OverlayActive, TypeOfInfo}
 pub const PIN_NONE: &str = "Not connected";
 pub const PIN_IN_CLOSE: &str = "When closed";
 pub const PIN_IN_OPEN: &str = "When opened";
-pub const PIN_OUT_CLOSE: &str = "Active: close";
-pub const PIN_OUT_OPEN: &str = "Active: open";
 
 #[derive(Clone, Copy, PartialEq)]
-pub enum PinFunction {
+pub enum InPinFunction {
     None,
     OnClose,
     OnOpen,
 }
 
-impl From<u8> for PinFunction {
+impl From<u8> for InPinFunction {
     fn from(value: u8) -> Self {
         match value {
-            1 => PinFunction::OnClose,  
-            2 => PinFunction::OnOpen,  
-            _ => PinFunction::None,  
+            1 => InPinFunction::OnClose,  
+            2 => InPinFunction::OnOpen,  
+            _ => InPinFunction::None,  
         }
     }
 }
 
-impl From<&str> for PinFunction {
+impl From<&str> for InPinFunction {
     fn from(value: &str) -> Self {
         match value {
-            PIN_IN_CLOSE => PinFunction::OnClose,  
-            PIN_IN_OPEN => PinFunction::OnOpen,  
-            PIN_OUT_CLOSE => PinFunction::OnClose,  
-            PIN_OUT_OPEN => PinFunction::OnOpen,  
-            _ => PinFunction::None,  
+            PIN_IN_CLOSE => InPinFunction::OnClose,  
+            PIN_IN_OPEN => InPinFunction::OnOpen,  
+            _ => InPinFunction::None,  
         }
     }
 }
 
-impl PinFunction {
-    pub fn in_as_str(&self) -> &'static str {
+impl InPinFunction {
+    pub fn as_str(&self) -> &'static str {
         match self {
-            PinFunction::None => PIN_NONE,
-            PinFunction::OnClose => PIN_IN_CLOSE,
-            PinFunction::OnOpen => PIN_IN_OPEN,
+            InPinFunction::None => PIN_NONE,
+            InPinFunction::OnClose => PIN_IN_CLOSE,
+            InPinFunction::OnOpen => PIN_IN_OPEN,
         }
     }
-    pub fn out_as_str(&self) -> &'static str {
+}
+
+pub const PIN_OUT_CLOSE: &str = "Active: close";
+pub const PIN_OUT_OPEN: &str = "Active: open";
+
+#[derive(Clone, Copy, PartialEq)]
+pub enum OutPinFunction {
+    None,
+    Closed,
+    Opened,
+}
+
+impl From<u8> for OutPinFunction {
+    fn from(value: u8) -> Self {
+        match value {
+            1 => OutPinFunction::Closed,  
+            2 => OutPinFunction::Opened,  
+            _ => OutPinFunction::None,  
+        }
+    }
+}
+
+impl From<&str> for OutPinFunction {
+    fn from(value: &str) -> Self {
+        match value {
+            PIN_OUT_CLOSE => OutPinFunction::Closed,  
+            PIN_OUT_OPEN => OutPinFunction::Opened,  
+            _ => OutPinFunction::None,  
+        }
+    }
+}
+
+impl OutPinFunction {
+    pub fn as_str(&self) -> &'static str {
         match self {
-            PinFunction::None => PIN_NONE,
-            PinFunction::OnClose => PIN_OUT_CLOSE,
-            PinFunction::OnOpen => PIN_OUT_OPEN,
+            OutPinFunction::None => PIN_NONE,
+            OutPinFunction::Closed => PIN_OUT_CLOSE,
+            OutPinFunction::Opened => PIN_OUT_OPEN,
         }
     }
 }
 
 pub struct DrainControl {
-    pin_function: PinFunction,
+    pin_function: InPinFunction,
     pin_state: PinState,
     is_flowing: bool,
     pub flow_rate_offset: f32, // flow rate [l/min] at 0kg ballast
@@ -63,7 +92,7 @@ pub struct DrainControl {
 impl Default for DrainControl {
     fn default() -> Self {
         DrainControl { 
-            pin_function: PinFunction::None, 
+            pin_function: InPinFunction::None, 
             pin_state: PinState::High, 
             is_flowing: false, 
             flow_rate_offset: 30.0, // l/min
@@ -94,11 +123,11 @@ impl DrainControl {
         self.is_flowing
     }
 
-    pub fn pin_function(&self) -> PinFunction {
+    pub fn pin_function(&self) -> InPinFunction {
         self.pin_function
     }
 
-    pub fn set_pin_function(&mut self, pin_function: PinFunction, cm: &mut CoreModel) {
+    pub fn set_pin_function(&mut self, pin_function: InPinFunction, cm: &mut CoreModel) {
         self.pin_function = pin_function;
         self.adjust(cm);
     }
@@ -108,15 +137,15 @@ impl DrainControl {
             false
         } else {
             match self.pin_function {
-                PinFunction::OnClose => match self.pin_state {
+                InPinFunction::OnClose => match self.pin_state {
                     PinState::High => false,
                     PinState::Low => true,
                 }
-                PinFunction::OnOpen => match self.pin_state {
+                InPinFunction::OnOpen => match self.pin_state {
                     PinState::High => true,
                     PinState::Low => false,
                 }
-                PinFunction::None => false,
+                InPinFunction::None => false,
             }
         };
         if self.is_flowing {
@@ -132,14 +161,15 @@ impl DrainControl {
     }
 }
 
+
 pub struct FlashControl {
-    pub pin_function: PinFunction,
+    pub pin_function: OutPinFunction,
 }
 
 impl Default for FlashControl {
     fn default() -> Self {
         FlashControl { 
-            pin_function: PinFunction::None, 
+            pin_function: OutPinFunction::None, 
         }
     }
 }
@@ -147,13 +177,13 @@ impl Default for FlashControl {
 impl FlashControl {
     pub fn tick_1s(&mut self, cm: &mut CoreModel) -> Option<PinState> {
         match self.pin_function {
-            PinFunction::None => None,
-            PinFunction::OnClose => if cm.sensor.airspeed.ias().to_km_h() > 40.0 {
+            OutPinFunction::None => None,
+            OutPinFunction::Closed => if cm.sensor.airspeed.ias().to_km_h() > 40.0 {
                 Some(PinState::Low)
             } else {
                 Some(PinState::High)
             }
-            PinFunction::OnOpen => if cm.sensor.airspeed.ias().to_km_h() > 40.0 {
+            OutPinFunction::Opened => if cm.sensor.airspeed.ias().to_km_h() > 40.0 {
                 Some(PinState::High)
             } else {
                 Some(PinState::Low)
@@ -161,11 +191,11 @@ impl FlashControl {
         }
     }
 
-    pub fn pin_function(&self) -> PinFunction {
+    pub fn pin_function(&self) -> OutPinFunction {
         self.pin_function
     }
 
-    pub fn set_pin_function(&mut self, pin_function: PinFunction) {
+    pub fn set_pin_function(&mut self, pin_function: OutPinFunction) {
         self.pin_function = pin_function;
     }
 
