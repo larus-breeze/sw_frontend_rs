@@ -29,6 +29,17 @@ pub enum VarioMode {
     SpeedToFly,
 }
 
+impl core::ops::Not for VarioMode {
+    type Output = Self;
+
+    fn not(self) -> Self::Output {
+        match self {
+            VarioMode::Vario => VarioMode::SpeedToFly,
+            VarioMode::SpeedToFly => VarioMode::Vario
+        }
+    }
+}
+
 /// This determines how to switch between the two modes of VarioMode Vario and SpeedToFly:
 /// automatic, manual Vario or manual SpeedToFly.
 #[repr(u8)]
