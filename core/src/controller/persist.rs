@@ -19,7 +19,7 @@
 use heapless::Vec;
 use num_enum::FromPrimitive;
 
-use super::{helpers::{InPinFunction, OutPinFunction}, VarioModeControl, MAX_PERS_IDS};
+use super::{helpers::{InPinFunction, InTogglePinFunction, OutPinFunction}, VarioModeControl, MAX_PERS_IDS};
 use crate::{
     basic_config::PERSISTENCE_TIMEOUT,
     controller::{
@@ -70,6 +70,7 @@ pub enum PersistenceId {
     FlowEmpty = 31,
     FlowSlope = 32,
     FlashControl = 33,
+    SpeedToFlyPinConfig = 34,
     LastItem = 35, // Items smaller than this are stored in eeprom
 
     UserProfile = 65533, // Special function Ids
@@ -102,6 +103,7 @@ const DELETE_CONFIG_LIST: &[PersistenceId] = &[
     PersistenceId::DrainPinConfig,
     PersistenceId::FlowEmpty,
     PersistenceId::FlowSlope,
+    PersistenceId::SpeedToFlyPinConfig,
 ];
 
 const SPECIFIC_POLAR_SETTINGS: &[PersistenceId] = &[
@@ -198,6 +200,7 @@ pub fn restore_item(cc: &mut CoreController, cm: &mut CoreModel, item: Persisten
         PersistenceId::FlowEmpty => cc.drain_control.flow_rate_offset = item.to_f32(),
         PersistenceId::FlowSlope => cc.drain_control.flow_rate_slope = item.to_f32(),
         PersistenceId::FlashControl => cc.flash_control.set_pin_function(OutPinFunction::from(item.to_u8())),
+        PersistenceId::SpeedToFlyPinConfig => cc.speed_to_fly_control.set_pin_function(InTogglePinFunction::from(item.to_u8())),
 
         _ => (),
     }
@@ -280,6 +283,7 @@ pub fn store_item(cc: &mut CoreController, cm: &mut CoreModel, id: PersistenceId
         PersistenceId::FlowEmpty => PersistenceItem::from_f32(id, cc.drain_control.flow_rate_offset),
         PersistenceId::FlowSlope => PersistenceItem::from_f32(id, cc.drain_control.flow_rate_slope),
         PersistenceId::FlashControl => PersistenceItem::from_u8(id, cc.flash_control.pin_function() as u8),
+        PersistenceId::SpeedToFlyPinConfig => PersistenceItem::from_u8(id, cc.speed_to_fly_control.pin_function() as u8),
 
         _ => PersistenceItem::do_not_store(),
     };
@@ -479,6 +483,12 @@ pub fn persist_set(
         PersistenceId::FlashControl => {
             if let Variant::U8(value) = variant {
                 cc.flash_control.set_pin_function(OutPinFunction::from(value));
+            }
+        }
+
+        PersistenceId::SpeedToFlyPinConfig => {
+            if let Variant::U8(value) = variant {
+                cc.speed_to_fly_control.set_pin_function(InTogglePinFunction::from(value));
             }
         }
 

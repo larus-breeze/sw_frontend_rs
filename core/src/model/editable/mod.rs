@@ -70,6 +70,7 @@ pub enum Editable {
     FlowEmpty,
     FlowSlope,
     FlashControl,
+    SpeedToFlyPinConfig,
 
     SensTiltRoll, // These are sensorbox settings
     SensTiltPitch,
@@ -156,6 +157,7 @@ impl Editable {
             Editable::FlowEmpty => "Lowest Flow",
             Editable::FlowSlope => "Flow Slope",
             Editable::FlashControl => "Flash Control",
+            Editable::SpeedToFlyPinConfig => "STF Pin Config",
 
             Editable::SensTiltRoll => "Sensor Tilt Roll",
             Editable::SensTiltPitch => "Sensor Tilt Pitch",
@@ -339,6 +341,7 @@ impl Editable {
             Editable::FlowSlope => Content::F32(Some(cc.drain_control.flow_rate_slope)),
 
             Editable::FlashControl => Content::Enum(TString::<16>::from_str(cc.flash_control.pin_function().as_str())),
+            Editable::SpeedToFlyPinConfig => Content::Enum(TString::<16>::from_str(cc.speed_to_fly_control.pin_function().as_str())),
 
             // Edit sensorbox values via CAN bus
             Editable::SensTiltRoll => {

@@ -85,10 +85,6 @@ pub const FLIGHT_MENU: Menu = Menu {
             next_menu_idx: ROOT_IDX,
         },
         MenuItem {
-            content: MenuItemContent::EditItem(Editable::VarioModeControl),
-            next_menu_idx: ROOT_IDX,
-        },
-        MenuItem {
             content: MenuItemContent::EditItem(Editable::Display),
             next_menu_idx: ROOT_IDX,
         },
@@ -195,6 +191,14 @@ pub const ADVANCED_SETTINGS: Menu = Menu {
         },
         MenuItem {
             content: MenuItemContent::EditItem(Editable::FlashControl),
+            next_menu_idx: ADVANCED_SETTINGS_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::VarioModeControl),
+            next_menu_idx: ADVANCED_SETTINGS_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::SpeedToFlyPinConfig),
             next_menu_idx: ADVANCED_SETTINGS_IDX,
         },
         MenuItem {
