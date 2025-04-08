@@ -1,6 +1,6 @@
 [package]
 name = "vario"
-version = "0.3.5"
+version = "0.3.6"
 authors = ["Winfried Simon <winfried.simon@gmail.com>"]
 edition = "2021"
 
