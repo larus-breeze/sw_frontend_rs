@@ -9,8 +9,8 @@ addr_start = 0x0808_1000
 addr_max = 0x0808_5fff
 
 [image]
-elf = "air-avionics_frontend_v0-3-5-0.elf"
-name = "air-avionics_frontend_v0-3-5-0.bin"
+elf = "air-avionics_frontend_v0-3-6-0.elf"
+name = "air-avionics_frontend_v0-3-6-0.bin"
 addr_storage = 0x0808_0000
 hw_version = "2.1.1.0"
-sw_version = "0.3.5.0"
+sw_version = "0.3.6.0"
