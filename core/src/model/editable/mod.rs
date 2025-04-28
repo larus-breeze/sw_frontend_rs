@@ -91,7 +91,8 @@ pub enum Editable {
     CmdMeas1, // These are sensorbox commands
     CmdMeas2,
     CmdMeas3,
-    CmdReset,
+    CmdCalcOrientation,
+    CmdFineTuneOrientation,
 }
 
 const DEFAULT_CONFIG: &str = "Default Config";
@@ -177,7 +178,8 @@ impl Editable {
             Editable::CmdMeas1 => "Left Wing down",
             Editable::CmdMeas2 => "Right Wing down",
             Editable::CmdMeas3 => "Straight Flight",
-            Editable::CmdReset => "Reset Sensorbox",
+            Editable::CmdCalcOrientation => "Calc Orientation",
+            Editable::CmdFineTuneOrientation => "Fine Tune",
         }
     }
 
@@ -419,7 +421,7 @@ impl Editable {
                 send_can_config_frame(cm, cc, CanConfigId::AntSlaveRight, RemoteConfig::Get);
                 Content::F32(None)
             }
-            Editable::CmdMeas1 | Editable::CmdMeas2 | Editable::CmdMeas3 | Editable::CmdReset => {
+            Editable::CmdMeas1 | Editable::CmdMeas2 | Editable::CmdMeas3 | Editable::CmdCalcOrientation | Editable::CmdFineTuneOrientation => {
                 Content::Enum(TString::<16>::from_str(TRIGGER_COMMAND))
             }
         }

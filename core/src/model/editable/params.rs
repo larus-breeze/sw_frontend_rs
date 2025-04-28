@@ -348,7 +348,7 @@ impl Editable {
                     unit: "m",
                 })
             }
-            Editable::CmdMeas1 | Editable::CmdMeas2 | Editable::CmdMeas3 | Editable::CmdReset => {
+            Editable::CmdMeas1 | Editable::CmdMeas2 | Editable::CmdMeas3 | Editable::CmdCalcOrientation | Editable::CmdFineTuneOrientation => {
                 Params::Enum(EnumParams {
                     variants: [
                         TString::<16>::from_str(TRIGGER_COMMAND),

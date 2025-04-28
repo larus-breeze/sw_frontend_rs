@@ -131,12 +131,6 @@ impl Editable {
                         crate::CanConfigId::CmdMeasure2,
                         RemoteConfig::Get,
                     );
-                    send_can_config_frame(
-                        cm,
-                        cc,
-                        crate::CanConfigId::CmdCalcSensorOrientation,
-                        RemoteConfig::Get,
-                    );
                 }
             }
             Editable::CmdMeas3 => {
@@ -147,20 +141,24 @@ impl Editable {
                         crate::CanConfigId::CmdMeasure3,
                         RemoteConfig::Get,
                     );
-                    send_can_config_frame(
-                        cm,
-                        cc,
-                        crate::CanConfigId::CmdFineTuneCalibration,
-                        RemoteConfig::Get,
-                    );
                 }
             }
-            Editable::CmdReset => {
+            Editable::CmdCalcOrientation => {
                 if cm.control.editor.enter_pushed && val.as_str() == TRIGGER_COMMAND {
                     send_can_config_frame(
                         cm,
                         cc,
-                        crate::CanConfigId::CmdReset,
+                        crate::CanConfigId::CmdCalcSensorOrientation,
+                        RemoteConfig::Get,
+                    );
+                }
+            }
+            Editable::CmdFineTuneOrientation => {
+                if cm.control.editor.enter_pushed && val.as_str() == TRIGGER_COMMAND {
+                    send_can_config_frame(
+                        cm,
+                        cc,
+                        crate::CanConfigId::CmdFineTuneCalibration,
                         RemoteConfig::Get,
                     );
                 }
