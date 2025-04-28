@@ -386,10 +386,6 @@ pub const SENSOR_BOX_SETTINGS: Menu = Menu {
             next_menu_idx: SENSOR_BOX_SETTINGS_IDX,
         },
         MenuItem {
-            content: MenuItemContent::EditItem(Editable::CmdCalcOrientation),
-            next_menu_idx: SENSOR_BOX_COMMANDS_IDX,
-        },
-        MenuItem {
             content: MenuItemContent::EditItem(Editable::Return),
             next_menu_idx: SENSOR_BOX_COMMANDS_IDX,
         },
