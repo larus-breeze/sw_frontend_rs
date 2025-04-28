@@ -303,11 +303,11 @@ impl Keyboard {
             while delta > 0 {
                 let _ = self
                     .q_events
-                    .enqueue(Event::KeyItem(KeyEvent::Rotary1Right));
+                    .enqueue(Event::KeyItem(KeyEvent::Rotary1Left));
                 delta -= 1;
             }
             while delta < 0 {
-                let _ = self.q_events.enqueue(Event::KeyItem(KeyEvent::Rotary1Left));
+                let _ = self.q_events.enqueue(Event::KeyItem(KeyEvent::Rotary1Right));
                 delta += 1;
             }
             self.enc_2_cnt = count;
