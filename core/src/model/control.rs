@@ -1,9 +1,5 @@
 use crate::{
-    controller::{CanActive, Editor},
-    model::CoreModel,
-    system_of_units::{FloatToLength, FloatToSpeed, Length, Speed},
-    utils::DeviceEvent,
-    MenuControl, Rotation,
+    controller::{CanActive, Editor}, model::CoreModel, system_of_units::{FloatToLength, FloatToSpeed, Length, Speed}, utils::DeviceEvent, AlarmSoundState, MenuControl, Rotation
 };
 
 /// Flymode display variants
@@ -154,6 +150,8 @@ pub struct Control {
     pub rotation: Rotation,
     /// Reset Config
     pub reset_config: i8,
+    /// Store if there is an sound alarm active
+    pub alarm_sound_state: u8,
 }
 
 impl Default for Control {
@@ -178,6 +176,7 @@ impl Default for Control {
             menu_control: MenuControl::new(),
             rotation: Rotation::Rotate0,
             reset_config: 0,
+            alarm_sound_state: AlarmSoundState::None  as u8,
         }
     }
 }
