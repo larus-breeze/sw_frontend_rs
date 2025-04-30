@@ -19,7 +19,7 @@ mod fw_update;
 use fw_update::SwUpdateController;
 
 mod sound;
-pub(crate) use sound::AlarmSoundState;
+pub(crate) use sound::SoundControl;
 
 mod tick_1s;
 use tick_1s::*;
@@ -73,6 +73,7 @@ pub struct CoreController {
     pub flash_control: FlashControl,
     pub speed_to_fly_control: SpeedToFlyControl,
     sw_update: SwUpdateController,
+    sound_control: SoundControl,
     ms: u16,
     last_vario_mode: VarioMode,
     av2_climb_rate: Pt1<Speed>,
@@ -122,6 +123,7 @@ impl CoreController {
             drain_control: DrainControl::default(),
             flash_control: FlashControl::default(),
             speed_to_fly_control: SpeedToFlyControl::default(),
+            sound_control: SoundControl::default(),
             ms: 0,
             last_vario_mode: VarioMode::Vario,
             sw_update: SwUpdateController::new(),
@@ -164,7 +166,6 @@ impl CoreController {
                     // alternatively: execute a callback every ms as long as available
                     if let Some(callback) = self.scheduler.next_callback() {
                         callback(cm, self);
-                        break; // max one call per ms
                     }
                 }
             }
@@ -210,7 +211,14 @@ impl CoreController {
             .tick(core_model.device.supply_voltage);
         core_model.calculated.av_supply_voltage = self.av_supply_voltage.value();
 
-        self.sound(core_model);
+        // calc sound params
+        if let Some(event) = self.sound_control.sound(core_model) {
+            self.send_idle_event(event);
+        }
+
+        // create frame for external CAN loudspeaker
+        let can_frame = core_model.can_frame_sound();
+        let _ = self.p_tx_frames.enqueue(can_frame); // ignore when queue is full
     }
 
     pub fn send_idle_event(&mut self, idle_event: IdleEvent) {
