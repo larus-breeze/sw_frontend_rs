@@ -1,12 +1,16 @@
-use crate::{CoreController, CoreModel, IdleEvent, VarioMode};
+use crate::{CoreModel, IdleEvent, VarioMode};
 use num::clamp;
 
-pub enum AlarmSoundState {
-    None = 0b0000_0000,
-    Gear = 0b0000_1000,
+#[allow(unused_imports)]
+use micromath::F32Ext;
+
+#[allow(unused)]
+pub enum SoundScenario {
+    Standard = 0b0000_0000,
+    GearAlarm = 0b0000_1000,
 }
 
-impl core::ops::BitAnd<u8> for AlarmSoundState {
+impl core::ops::BitAnd<u8> for SoundScenario {
     type Output = bool;
 
     fn bitand(self, rhs: u8) -> Self::Output {
@@ -14,15 +18,33 @@ impl core::ops::BitAnd<u8> for AlarmSoundState {
     }
 }
 
-#[allow(unused_imports)]
-use micromath::F32Ext;
+pub struct SoundControl {
+    scenario: u8,
+    tick: u16,
+}
 
-impl CoreController {
+impl Default for SoundControl {
+    fn default() -> Self {
+        SoundControl { scenario: SoundScenario::GearAlarm as u8, tick: 0 }
+    }
+}
+
+impl SoundControl {
+
+    pub fn activate_scenariio(&mut self, scenariio: SoundScenario) {
+        self.scenario = self.scenario | scenariio as u8;
+    }
+
+    pub fn clear_scenariio(&mut self, scenariio: SoundScenario) {
+        self.scenario = self.scenario & !(scenariio as u8);
+    }
+
     // is called every 100ms
-    pub fn sound(&mut self, cm: &mut CoreModel) {
-        let (frequency, continuous, gain) = if AlarmSoundState::Gear & cm.control.alarm_sound_state {
+    pub fn sound(&mut self, cm: &mut CoreModel) -> Option<IdleEvent> {
+        let (frequency, continuous, gain) = if SoundScenario::GearAlarm & self.scenario {
             self.gear_alarm_sound(cm)
         } else {
+            self.tick = 0;
             self.vario_sound(cm)
         };
 
@@ -32,17 +54,16 @@ impl CoreController {
             cm.config.snd_max_freq as u16,
         );
         cm.calculated.continuous = continuous;
+
         if gain != cm.calculated.gain {
             cm.calculated.gain = gain;
             let event = IdleEvent::SetGain(gain as u8);
 
             // send event to the idle loop, which handles the amplifier via i2c
-            self.send_idle_event(event);
+            Some(event)
+        } else {
+            None
         }
-
-        // create CAN frames
-        let can_frame = cm.can_frame_sound();
-        let _ = self.p_tx_frames.enqueue(can_frame); // ignore when queue is full
     }
 
     fn vario_sound(&mut self, cm: &mut CoreModel) -> (u16, bool, i8) {
@@ -70,7 +91,21 @@ impl CoreController {
         }
     }
 
-    fn gear_alarm_sound(&mut self, _cm: &mut CoreModel) -> (u16, bool, i8) {
-        (0, false, 0)
+    fn gear_alarm_sound(&mut self, cm: &mut CoreModel) -> (u16, bool, i8) {
+        const START_FREQ: u16 = 700;
+        const INC_FREQ: u16 = 150;
+
+        self.tick += 1;
+
+        match self.tick {
+            0..=4 | 11 | 18..=21 => (START_FREQ, false, 0), // silence
+            5 | 12 => (START_FREQ, true, cm.control.alarm_volume),
+            6..=10 | 13..=17 => (cm.calculated.frequency + INC_FREQ, true, cm.control.alarm_volume),
+            22..=60 => self.vario_sound(cm),
+            _ => {
+                self.tick = 0;
+                (START_FREQ, false, 0)
+            }
+        }
     }
 }
