@@ -5,7 +5,7 @@ pub use helpers::{
     CanActive, CanConfigId, IntToDuration, NmeaBuffer, RemoteConfig, Scheduler, Tim,
 };
 pub(crate) use helpers::{
-    DrainControl, FlashControl, InPinFunction, InTogglePinFunction, SpeedToFlyControl,
+    DrainControl, FlashControl, GearAlarmControl, InPinFunction, InTogglePinFunction, SpeedToFlyControl,
     PIN_IN_CLOSE, PIN_IN_OPEN, PIN_IN_TOGGLE, PIN_NONE, PIN_OUT_CLOSE, PIN_OUT_OPEN,
 };
 
@@ -72,6 +72,7 @@ pub struct CoreController {
     pub drain_control: DrainControl,
     pub flash_control: FlashControl,
     pub speed_to_fly_control: SpeedToFlyControl,
+    pub gear_alarm_control: GearAlarmControl,
     sw_update: SwUpdateController,
     sound_control: SoundControl,
     ms: u16,
@@ -123,6 +124,7 @@ impl CoreController {
             drain_control: DrainControl::default(),
             flash_control: FlashControl::default(),
             speed_to_fly_control: SpeedToFlyControl::default(),
+            gear_alarm_control: GearAlarmControl::default(),
             sound_control: SoundControl::default(),
             ms: 0,
             last_vario_mode: VarioMode::Vario,
@@ -240,7 +242,14 @@ impl CoreController {
         match input_event {
             InputPinState::Io1(state) => self.drain_control.set_state(cm, state),
             InputPinState::Io2(state) => self.speed_to_fly_control.set_state(state),
-            _ => (),
+            InputPinState::Io3(state) => {
+                let active = self.gear_alarm_control.set_gear_pin_state(state);
+                self.sound_control.set_scenario(sound::SoundScenario::GearAlarm, active);
+            },
+            InputPinState::Io4(state) => {
+                let active = self.gear_alarm_control.set_airbrakes_pin_state(state);
+                self.sound_control.set_scenario(sound::SoundScenario::GearAlarm, active);
+            },
         }
     }
 

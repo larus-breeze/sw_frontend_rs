@@ -286,3 +286,83 @@ impl SpeedToFlyControl {
         self.vario_mode
     }
 }
+
+#[derive(Clone, Copy, PartialEq)]
+pub enum GearPins {
+    OnePinMode,
+    TwoPinMode,
+}
+
+pub struct GearAlarmControl {
+    gear_pins: GearPins,
+    pin_gear_or_both_function: InPinFunction,
+    pin_airbrakes_function: InPinFunction,
+    gear_state: bool,
+    airbrakes_state: bool,
+}
+
+impl Default for GearAlarmControl {
+    fn default() -> Self {
+        GearAlarmControl { 
+            gear_pins: GearPins::TwoPinMode, 
+            pin_gear_or_both_function: InPinFunction::None, 
+            pin_airbrakes_function: InPinFunction::None,
+            gear_state: false,
+            airbrakes_state: false,
+        }
+    }
+}
+
+impl GearAlarmControl {
+    // sets the pin state and returns alarm active true/false
+    pub fn set_gear_pin_state(&mut self, state: PinState) -> bool {
+        self.gear_state = match self.pin_gear_or_both_function {
+            InPinFunction::None => false,
+            InPinFunction::OnClose => match state {
+                PinState::High => false,
+                PinState::Low => true,
+            }
+            InPinFunction::OnOpen => match state {
+                PinState::High => true,
+                PinState::Low => false,
+            }
+        };
+        self.alarm_is_active()
+    }
+
+    pub fn set_gear_pin_function(&mut self, function: InPinFunction) {
+        self.pin_gear_or_both_function = function;
+    }
+
+    pub fn set_airbrakes_pin_state(&mut self, state: PinState) -> bool {
+        self.airbrakes_state = match self.pin_airbrakes_function {
+            InPinFunction::None => false,
+            InPinFunction::OnClose => match state {
+                PinState::High => false,
+                PinState::Low => true,
+            }
+            InPinFunction::OnOpen => match state {
+                PinState::High => true,
+                PinState::Low => false,
+            }
+        };
+        self.alarm_is_active()
+    }
+
+    pub fn set_airbrakes_pin_function(&mut self, function: InPinFunction) {
+        self.pin_airbrakes_function = function;
+    }
+
+    pub fn set_gear_pin_mode(&mut self, mode: GearPins) {
+        self.gear_pins = mode;
+    }
+
+    fn alarm_is_active(&self) -> bool {
+        match self.gear_pins {
+            GearPins::OnePinMode => self.gear_state,
+            GearPins::TwoPinMode => self.gear_state && self.airbrakes_state,
+        }
+    }
+
+
+}
