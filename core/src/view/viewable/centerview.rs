@@ -286,8 +286,8 @@ where
             }
             (
                 // return relativ wind vector
-                cm.sensor.wind_vector.angle() - cm.sensor.gps_track,
-                cm.sensor.average_wind.angle() - cm.sensor.gps_track,
+                cm.sensor.wind_vector.angle() - cm.sensor.euler_yaw,
+                cm.sensor.average_wind.angle() - cm.sensor.euler_yaw,
             )
         }
     };
