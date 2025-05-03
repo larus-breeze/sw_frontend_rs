@@ -25,7 +25,7 @@ pub struct SoundControl {
 
 impl Default for SoundControl {
     fn default() -> Self {
-        SoundControl { scenario: SoundScenario::GearAlarm as u8, tick: 0 }
+        SoundControl { scenario: SoundScenario::Standard as u8, tick: 0 }
     }
 }
 
@@ -37,6 +37,14 @@ impl SoundControl {
 
     pub fn clear_scenariio(&mut self, scenariio: SoundScenario) {
         self.scenario = self.scenario & !(scenariio as u8);
+    }
+
+    pub fn set_scenario(&mut self, scenariio: SoundScenario, active: bool) {
+        if active {
+            self.activate_scenariio(scenariio);
+        } else {
+            self.clear_scenariio(scenariio);
+        }
     }
 
     // is called every 100ms
