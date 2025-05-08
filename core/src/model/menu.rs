@@ -50,6 +50,7 @@ pub const POLAR_SETTINGS_IDX: usize = 6;
 pub const SENSOR_BOX_COMMANDS_IDX: usize = 7;
 pub const SENSOR_BOX_SETTINGS_IDX: usize = 8;
 pub const SPEED_TO_FLY_IDX: usize = 9;
+pub const LANDING_GEAR_ALARM_IDX: usize = 10;
 
 pub const MENU_LIST: &[Menu] = &[
     ROOT,
@@ -62,6 +63,7 @@ pub const MENU_LIST: &[Menu] = &[
     SENSOR_BOX_COMMANDS,
     SENSOR_BOX_SETTINGS,
     SPEED_TO_FLY,
+    LANDING_GEAR_ALARM,
 ];
 
 pub const ROOT: Menu = Menu {
@@ -193,11 +195,15 @@ pub const ADVANCED_SETTINGS: Menu = Menu {
         },
         MenuItem {
             content: MenuItemContent::MenuItem(),
-            next_menu_idx: DRAIN_SETTINGS_IDX,
+            next_menu_idx: SPEED_TO_FLY_IDX,
         },
         MenuItem {
             content: MenuItemContent::MenuItem(),
-            next_menu_idx: SPEED_TO_FLY_IDX,
+            next_menu_idx: LANDING_GEAR_ALARM_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::MenuItem(),
+            next_menu_idx: DRAIN_SETTINGS_IDX,
         },
         MenuItem {
             content: MenuItemContent::EditItem(Editable::Return),
@@ -387,7 +393,7 @@ pub const SENSOR_BOX_SETTINGS: Menu = Menu {
 };
 
 pub const SPEED_TO_FLY: Menu = Menu {
-    name: "Speed to fly",
+    name: "Speed to Fly",
     level: 3,
     items: &[
         MenuItem {
@@ -401,6 +407,33 @@ pub const SPEED_TO_FLY: Menu = Menu {
         MenuItem {
             content: MenuItemContent::EditItem(Editable::SpeedToFlyPinConfig),
             next_menu_idx: SPEED_TO_FLY_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::Return),
+            next_menu_idx: ADVANCED_SETTINGS_IDX,
+        },
+    ],
+};
+
+pub const LANDING_GEAR_ALARM: Menu = Menu {
+    name: "Gear Alarm",
+    level: 3,
+    items: &[
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::AlarmVolume),
+            next_menu_idx: LANDING_GEAR_ALARM_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::GearAlarmModeConfig),
+            next_menu_idx: LANDING_GEAR_ALARM_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::GearPinConfig),
+            next_menu_idx: LANDING_GEAR_ALARM_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::AirbrakesPinConfig),
+            next_menu_idx: LANDING_GEAR_ALARM_IDX,
         },
         MenuItem {
             content: MenuItemContent::EditItem(Editable::Return),

@@ -54,6 +54,7 @@ const fn display_sizes() -> DisplaySizes {
         screen_center: Point::new(240, 240),
         m_s: Size::new(45, 29),
         km_h: Size::new(56, 36),
+        alarm: Size::new(100, 100),
     }
 }
 
@@ -99,6 +100,7 @@ const fn images() -> Images {
         bat_empty: include_bytes_aligned!(4, "../assets/bat_empty.lif"),
         bat_full: include_bytes_aligned!(4, "../assets/bat_full.lif"),
         bat_half: include_bytes_aligned!(4, "../assets/bat_half.lif"),
+        gear: include_bytes_aligned!(4, "../assets/gear.lif"),
         glider: include_bytes_aligned!(4, "../assets/glider.lif"),
         north: include_bytes_aligned!(4, "../assets/north.lif"),
         spiral: include_bytes_aligned!(4, "../assets/spiral.lif"),

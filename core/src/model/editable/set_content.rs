@@ -12,7 +12,7 @@ use crate::{
         lineview::{LineView, Placement},
     },
     CoreController, CoreModel, Echo, FloatToMass, FloatToSpeed, PersistenceId, InPinFunction, InTogglePinFunction, RemoteConfig,
-    Rotation,
+    Rotation, GearPins,
 };
 
 impl Editable {
@@ -96,6 +96,27 @@ impl Editable {
                 cm,
                 Variant::U8(InPinFunction::from(val.as_str()) as u8),
                 PersistenceId::DrainPinConfig,
+                Echo::None,
+            ),
+            Editable::GearAlarmModeConfig => persist::persist_set(
+                cc,
+                cm,
+                Variant::U8(GearPins::from(val.as_str()) as u8),
+                PersistenceId::GearAlarmMode,
+                Echo::None,
+            ),
+            Editable::GearPinConfig => persist::persist_set(
+                cc,
+                cm,
+                Variant::U8(InPinFunction::from(val.as_str()) as u8),
+                PersistenceId::GearPinConfig,
+                Echo::None,
+            ),
+            Editable::AirbrakesPinConfig => persist::persist_set(
+                cc,
+                cm,
+                Variant::U8(InPinFunction::from(val.as_str()) as u8),
+                PersistenceId::AirbrakesPinConfig,
                 Echo::None,
             ),
             Editable::FlashControl => persist::persist_set(
@@ -210,6 +231,13 @@ impl Editable {
                 Variant::I8(val as i8),
                 PersistenceId::Volume,
                 Echo::NmeaAndCan,
+            ),
+            Editable::AlarmVolume => persist::persist_set(
+                cc,
+                cm,
+                Variant::I8(val as i8),
+                PersistenceId::AlarmVolume,
+                Echo::None,
             ),
             Editable::WaterBallast => persist::persist_set(
                 cc,

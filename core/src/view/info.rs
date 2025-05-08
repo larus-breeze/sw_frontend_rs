@@ -6,6 +6,8 @@ use crate::{
 
 use embedded_graphics::draw_target::DrawTarget;
 
+use super::viewable::circle_area::draw_alarm_info;
+
 #[derive(PartialEq)]
 pub struct InfoView {
     type_of_info: TypeOfInfo,
@@ -20,16 +22,14 @@ impl InfoView {
     where
         D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
     {
-        let (header, value) = match self.type_of_info {
-            TypeOfInfo::WaterBallast => (
-                "Water Ballast", 
-                tformat!(20, "{:.0} kg", cm.glider_data.water_ballast.to_kg()).unwrap()
-            ),
-            TypeOfInfo::GearAlarm => (
-                "Landing Gear Alarm", 
-                tformat!(20, "").unwrap()
-            ),
+        match self.type_of_info {
+            TypeOfInfo::WaterBallast => {
+                let value = tformat!(20, "{:.0} kg", cm.glider_data.water_ballast.to_kg()).unwrap();
+                draw_info(display, cm, "Water Ballast", value.as_str())?;
+            }
+
+            TypeOfInfo::GearAlarm => draw_alarm_info(display, cm, "Landing Gear", cm.device_const.images.gear)?,
         };
-        draw_info(display, cm, header, value.as_str())
+        Ok(())
     }
 }

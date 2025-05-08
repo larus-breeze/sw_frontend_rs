@@ -71,6 +71,10 @@ pub enum Editable {
     FlowSlope,
     FlashControl,
     SpeedToFlyPinConfig,
+    GearPinConfig,
+    AirbrakesPinConfig,
+    GearAlarmModeConfig,
+    AlarmVolume,
 
     SensTiltRoll, // These are sensorbox settings
     SensTiltPitch,
@@ -159,6 +163,10 @@ impl Editable {
             Editable::FlowSlope => "Flow Slope",
             Editable::FlashControl => "Flash Control",
             Editable::SpeedToFlyPinConfig => "STF Pin Config",
+            Editable::GearPinConfig => "Gear Pin Config",
+            Editable::AirbrakesPinConfig => "Airbrakes Pin Config",
+            Editable::GearAlarmModeConfig => "Gear Alarm Config",
+            Editable::AlarmVolume => "Alarm Volume",
 
             Editable::SensTiltRoll => "Sensor Tilt Roll",
             Editable::SensTiltPitch => "Sensor Tilt Pitch",
@@ -268,6 +276,7 @@ impl Editable {
             Editable::VarioModeControl => 
                 Content::Enum(TString::<16>::from_str(cm.control.vario_mode_control.as_str())),
             Editable::Volume => Content::F32(Some(cm.config.volume as f32)),
+            Editable::AlarmVolume => Content::F32(Some(cm.control.alarm_volume as f32)),
             Editable::WaterBallast => Content::F32(Some(cm.glider_data.water_ballast.to_kg())),
             Editable::Info1 => Content::List(cm.config.info1.sorted_as_i32(Placement::Top)),
             Editable::Info2 => Content::List(cm.config.info2.sorted_as_i32(Placement::Bottom)),
@@ -344,6 +353,9 @@ impl Editable {
 
             Editable::FlashControl => Content::Enum(TString::<16>::from_str(cc.flash_control.pin_function().as_str())),
             Editable::SpeedToFlyPinConfig => Content::Enum(TString::<16>::from_str(cc.speed_to_fly_control.pin_function().as_str())),
+            Editable::GearPinConfig => Content::Enum(TString::<16>::from_str(cc.gear_alarm_control.gear_pin_function().as_str())),
+            Editable::AirbrakesPinConfig => Content::Enum(TString::<16>::from_str(cc.gear_alarm_control.airbrakes_pin_function().as_str())),
+            Editable::GearAlarmModeConfig => Content::Enum(TString::<16>::from_str(cc.gear_alarm_control.gear_pin_mode().as_str())),
 
             // Edit sensorbox values via CAN bus
             Editable::SensTiltRoll => {
