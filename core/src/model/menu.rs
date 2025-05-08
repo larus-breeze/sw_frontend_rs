@@ -49,6 +49,7 @@ pub const DRAIN_SETTINGS_IDX: usize = 5;
 pub const POLAR_SETTINGS_IDX: usize = 6;
 pub const SENSOR_BOX_COMMANDS_IDX: usize = 7;
 pub const SENSOR_BOX_SETTINGS_IDX: usize = 8;
+pub const SPEED_TO_FLY_IDX: usize = 9;
 
 pub const MENU_LIST: &[Menu] = &[
     ROOT,
@@ -60,6 +61,7 @@ pub const MENU_LIST: &[Menu] = &[
     POLAR_SETTINGS,
     SENSOR_BOX_COMMANDS,
     SENSOR_BOX_SETTINGS,
+    SPEED_TO_FLY,
 ];
 
 pub const ROOT: Menu = Menu {
@@ -170,10 +172,6 @@ pub const ADVANCED_SETTINGS: Menu = Menu {
             next_menu_idx: ADVANCED_SETTINGS_IDX,
         },
         MenuItem {
-            content: MenuItemContent::EditItem(Editable::TcSpeedToFly),
-            next_menu_idx: ADVANCED_SETTINGS_IDX,
-        },
-        MenuItem {
             content: MenuItemContent::EditItem(Editable::CenterFrequency),
             next_menu_idx: ADVANCED_SETTINGS_IDX,
         },
@@ -190,11 +188,7 @@ pub const ADVANCED_SETTINGS: Menu = Menu {
             next_menu_idx: ADVANCED_SETTINGS_IDX,
         },
         MenuItem {
-            content: MenuItemContent::EditItem(Editable::VarioModeControl),
-            next_menu_idx: ADVANCED_SETTINGS_IDX,
-        },
-        MenuItem {
-            content: MenuItemContent::EditItem(Editable::SpeedToFlyPinConfig),
+            content: MenuItemContent::EditItem(Editable::ResetConfig),
             next_menu_idx: ADVANCED_SETTINGS_IDX,
         },
         MenuItem {
@@ -202,8 +196,8 @@ pub const ADVANCED_SETTINGS: Menu = Menu {
             next_menu_idx: DRAIN_SETTINGS_IDX,
         },
         MenuItem {
-            content: MenuItemContent::EditItem(Editable::ResetConfig),
-            next_menu_idx: ADVANCED_SETTINGS_IDX,
+            content: MenuItemContent::MenuItem(),
+            next_menu_idx: SPEED_TO_FLY_IDX,
         },
         MenuItem {
             content: MenuItemContent::EditItem(Editable::Return),
@@ -391,3 +385,27 @@ pub const SENSOR_BOX_SETTINGS: Menu = Menu {
         },
     ],
 };
+
+pub const SPEED_TO_FLY: Menu = Menu {
+    name: "Speed to fly",
+    level: 3,
+    items: &[
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::TcSpeedToFly),
+            next_menu_idx: SPEED_TO_FLY_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::VarioModeControl),
+            next_menu_idx: SPEED_TO_FLY_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::SpeedToFlyPinConfig),
+            next_menu_idx: SPEED_TO_FLY_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::Return),
+            next_menu_idx: ADVANCED_SETTINGS_IDX,
+        },
+    ],
+};
+
