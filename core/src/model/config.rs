@@ -20,6 +20,7 @@ pub enum DisplayActive {
 #[derive(Clone, Copy, PartialEq)]
 pub enum TypeOfInfo {
     WaterBallast,
+    GearAlarm,
 }
 
 

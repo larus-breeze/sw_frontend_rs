@@ -243,11 +243,11 @@ impl CoreController {
             InputPinState::Io1(state) => self.drain_control.set_state(cm, state),
             InputPinState::Io2(state) => self.speed_to_fly_control.set_state(state),
             InputPinState::Io3(state) => {
-                let active = self.gear_alarm_control.set_gear_pin_state(state);
+                let active = self.gear_alarm_control.set_gear_pin_state(cm, state);
                 self.sound_control.set_scenario(sound::SoundScenario::GearAlarm, active);
             },
             InputPinState::Io4(state) => {
-                let active = self.gear_alarm_control.set_airbrakes_pin_state(state);
+                let active = self.gear_alarm_control.set_airbrakes_pin_state(cm, state);
                 self.sound_control.set_scenario(sound::SoundScenario::GearAlarm, active);
             },
         }
