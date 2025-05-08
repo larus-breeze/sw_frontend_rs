@@ -41,6 +41,7 @@ pub struct DisplaySizes {
     pub screen_center: Point,
     pub m_s: Size,
     pub km_h: Size,
+    pub alarm: Size,
 }
 
 pub struct HorizonSizes {
@@ -80,6 +81,7 @@ pub struct Images {
     pub bat_empty: &'static [u8],
     pub bat_full: &'static [u8],
     pub bat_half: &'static [u8],
+    pub gear: &'static [u8],
     pub glider: &'static [u8],
     pub north: &'static [u8],
     pub spiral: &'static [u8],
@@ -113,6 +115,7 @@ pub struct Palette {
     pub text1_bold: Colors,
     pub text2: Colors,
     pub text2_bold: Colors,
+    pub alarm: Colors,
 
     pub edit_background: Colors,
     pub edit_stroke: Colors,
@@ -154,6 +157,7 @@ impl Palette {
             text1_bold: Colors::Wheat,
             text2: Colors::DeepSkyBlue,
             text2_bold: Colors::LightSkyBlue,
+            alarm: Colors::OrangeRed,
 
             edit_background: Colors::DarkBlue,
             edit_stroke: Colors::DodgerBlue,

@@ -6,7 +6,7 @@ use crate::{
     flight_physics::polar_store, model::control::{VARIO_MODE_CONTROL_AUTO, VARIO_MODE_CONTROL_NMEA, VARIO_MODE_CONTROL_PIN}, utils::TString, view::viewable::{
         centerview::{CenterType, CenterView},
         lineview::{LineView, Placement},
-    }, Rotation, PIN_IN_CLOSE, PIN_IN_OPEN, PIN_IN_TOGGLE, PIN_NONE, PIN_OUT_CLOSE, PIN_OUT_OPEN
+    }, Rotation, PIN_IN_CLOSE, PIN_IN_OPEN, PIN_IN_TOGGLE, PIN_NONE, PIN_OUT_CLOSE, PIN_OUT_OPEN, ONE_PIN_MODE, TWO_PIN_MODE,
 };
 
 #[derive(Clone, Copy)]
@@ -123,7 +123,7 @@ impl Editable {
                     TString::<16>::from_str(""),
                 ],
             }),
-            Editable::Volume => Params::F32(F32Params {
+            Editable::Volume | Editable::AlarmVolume => Params::F32(F32Params {
                 min: 0.0,
                 max: 50.0,
                 small_inc: 1.0,
@@ -247,7 +247,7 @@ impl Editable {
                 dec_places: 1,
                 unit: "V",
             }),
-            Editable::DrainPinConfig => Params::Enum(EnumParams {
+            Editable::DrainPinConfig | Editable::GearPinConfig | Editable::AirbrakesPinConfig => Params::Enum(EnumParams {
                 variants: [
                     TString::<16>::from_str(PIN_NONE),
                     TString::<16>::from_str(PIN_IN_CLOSE),
@@ -357,6 +357,17 @@ impl Editable {
                         TString::<16>::from_str(""),
                         TString::<16>::from_str(""),
                     ],
+                })
+            }
+            Editable::GearAlarmModeConfig => {
+                Params::Enum(EnumParams { 
+                    variants: [
+                        TString::<16>::from_str(ONE_PIN_MODE),
+                        TString::<16>::from_str(TWO_PIN_MODE),
+                        TString::<16>::from_str(""),
+                        TString::<16>::from_str(""),
+                        TString::<16>::from_str(""),
+                    ] 
                 })
             }
         }

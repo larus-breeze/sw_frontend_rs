@@ -5,8 +5,8 @@ pub use helpers::{
     CanActive, CanConfigId, IntToDuration, NmeaBuffer, RemoteConfig, Scheduler, Tim,
 };
 pub(crate) use helpers::{
-    DrainControl, FlashControl, GearAlarmControl, InPinFunction, InTogglePinFunction, SpeedToFlyControl,
-    PIN_IN_CLOSE, PIN_IN_OPEN, PIN_IN_TOGGLE, PIN_NONE, PIN_OUT_CLOSE, PIN_OUT_OPEN,
+    DrainControl, FlashControl, GearAlarmControl, InPinFunction, InTogglePinFunction, SpeedToFlyControl, GearPins,
+    PIN_IN_CLOSE, PIN_IN_OPEN, PIN_IN_TOGGLE, PIN_NONE, PIN_OUT_CLOSE, PIN_OUT_OPEN, ONE_PIN_MODE, TWO_PIN_MODE,
 };
 
 mod editor;

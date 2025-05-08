@@ -121,17 +121,23 @@ fn main() -> Result<(), core::convert::Infallible> {
                         }
                         Keycode::Num2 => {
                             in2 = !in2;
-                            println!("Input1 {:?}", in2);
+                            println!("Input2 {:?}", in2);
                             let event = Event::InputItem(InputPinState::Io2(in2));
                             controller.event_handler(event, &mut core_model);
                             KeyEvent::NoEvent
                         }
                         Keycode::Num3 => {
                             in3 = !in3;
+                            println!("Input3 {:?}", in3);
+                            let event = Event::InputItem(InputPinState::Io3(in3));
+                            controller.event_handler(event, &mut core_model);
                             KeyEvent::NoEvent
                         }
                         Keycode::Num4 => {
                             in4 = !in4;
+                            println!("Input4 {:?}", in4);
+                            let event = Event::InputItem(InputPinState::Io4(in4));
+                            controller.event_handler(event, &mut core_model);
                             KeyEvent::NoEvent
                         }
 

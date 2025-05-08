@@ -295,6 +295,36 @@ pub enum GearPins {
     TwoPinMode,
 }
 
+pub const ONE_PIN_MODE: &str = "One Pin Mode";
+pub const TWO_PIN_MODE: &str = "Two Pin Mode";
+
+impl GearPins {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            GearPins::OnePinMode => ONE_PIN_MODE,
+            GearPins::TwoPinMode => TWO_PIN_MODE,
+        }
+    }
+}
+
+impl From<u8> for GearPins {
+    fn from(value: u8) -> Self {
+        match value {
+            1 => GearPins::TwoPinMode,  
+            _ => GearPins::OnePinMode,  
+        }
+    }
+}
+
+impl From<&str> for GearPins {
+    fn from(value: &str) -> Self {
+        match value {
+            ONE_PIN_MODE => GearPins::OnePinMode,  
+            _ => GearPins::TwoPinMode,  
+        }
+    }
+}
+
 pub struct GearAlarmControl {
     gear_pins: GearPins,
     pin_gear_or_both_function: InPinFunction,
@@ -332,6 +362,10 @@ impl GearAlarmControl {
         self.alarm_is_active(cm)
     }
 
+    pub fn gear_pin_function(&self) -> InPinFunction {
+        self.pin_gear_or_both_function
+    }
+
     pub fn set_gear_pin_function(&mut self, function: InPinFunction) {
         self.pin_gear_or_both_function = function;
     }
@@ -351,8 +385,16 @@ impl GearAlarmControl {
         self.alarm_is_active(cm)
     }
 
+    pub fn airbrakes_pin_function(&self) -> InPinFunction {
+        self.pin_airbrakes_function
+    }
+
     pub fn set_airbrakes_pin_function(&mut self, function: InPinFunction) {
         self.pin_airbrakes_function = function;
+    }
+
+    pub fn gear_pin_mode(&self) -> GearPins {
+        self.gear_pins
     }
 
     pub fn set_gear_pin_mode(&mut self, mode: GearPins) {
