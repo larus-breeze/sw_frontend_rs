@@ -54,6 +54,7 @@ BLACK = 7
 DARK_GRAY = 24
 GOLD = 47
 LIME = 75
+ORANGE_RED = 99
 RED = 112
 WHITE = 135
 
@@ -84,6 +85,7 @@ class LifGen():
                     src_colors.append(color)
         for color in src_colors:
             if color not in color_dict:
+                print("source colors", src_colors)
                 print(f"*** Error color '{color} is not included in color_dict")
                 exit(1)
 
@@ -215,6 +217,7 @@ lif_gen = LifGen(227, 285, 'assets/size_227x285', 'device/air_avionics_ad57/asse
 lif_gen.generate(3, 'bat_empty.png', {0: RED, 1: BACKGROUND})
 lif_gen.generate(3, 'bat_full.png', {0: DARK_GRAY, 1: LIME, 2: BACKGROUND})
 lif_gen.generate(3, 'bat_half.png', {0: DARK_GRAY, 1: GOLD, 2: BACKGROUND})
+lif_gen.generate(3, 'gear.png', {0: ORANGE_RED, 145: BACKGROUND}),
 lif_gen.generate(3, 'glider.png', {0: DARK_GRAY, 1: BACKGROUND}),
 lif_gen.generate(3, 'north.png', {0: DARK_GRAY, 1: BACKGROUND})
 lif_gen.generate(3, 'small_glider.png', {0: DARK_GRAY, 1: BACKGROUND})
@@ -231,6 +234,7 @@ lif_gen = LifGen(240, 320, 'assets/size_240x320', 'device/larus_frontend_v1/asse
 lif_gen.generate(3, 'bat_empty.png', {0: DARK_GRAY, 1: LIME, 2: BACKGROUND})
 lif_gen.generate(3, 'bat_full.png', {0: DARK_GRAY, 1: LIME, 2: BACKGROUND})
 lif_gen.generate(3, 'bat_half.png', {0: DARK_GRAY, 1: GOLD, 2: BACKGROUND})
+lif_gen.generate(3, 'gear.png', {0: ORANGE_RED, 145: BACKGROUND}),
 lif_gen.generate(3, 'glider.png', {0: DARK_GRAY, 1: BACKGROUND})
 lif_gen.generate(3, 'north.png', {0: DARK_GRAY, 1: BACKGROUND})
 lif_gen.generate(3, 'small_glider.png', {0: DARK_GRAY, 1: BACKGROUND})
@@ -247,6 +251,7 @@ lif_gen = LifGen(480, 480, 'assets/size_480x480', 'device/larus_frontend_v2/asse
 lif_gen.generate(3, 'bat_empty.png', {0: DARK_GRAY, 1: RED, 2: BACKGROUND})
 lif_gen.generate(3, 'bat_full.png', {0: DARK_GRAY, 1: LIME, 2: BACKGROUND})
 lif_gen.generate(3, 'bat_half.png', {0: DARK_GRAY, 1: GOLD, 2: BACKGROUND})
+lif_gen.generate(3, 'gear.png', {0: ORANGE_RED, 1: BACKGROUND}),
 lif_gen.generate(3, 'glider.png', {0: DARK_GRAY, 1: BACKGROUND})
 lif_gen.generate(3, 'north.png', {0: DARK_GRAY, 1: BACKGROUND})
 lif_gen.generate(3, 'small_glider.png', {0: DARK_GRAY, 1: BACKGROUND})
