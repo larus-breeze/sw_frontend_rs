@@ -127,10 +127,10 @@ fn send_can_nmea(cm: &mut CoreModel, cc: &mut CoreController) {
     let _ = cc.p_tx_frames.enqueue(can_frame);
 
     cc.nmea_cyclic_1s();
-    let _ = cc.scheduler.chain(process_input_pins);
+    let _ = cc.scheduler.chain(process_hardware_pins);
 }
 
-fn process_input_pins(cm: &mut CoreModel, cc: &mut CoreController) {
+fn process_hardware_pins(cm: &mut CoreModel, cc: &mut CoreController) {
     // check water ballast system
     cc.drain_control.tick_1s(cm);
     if cc.drain_control.is_flowing() {

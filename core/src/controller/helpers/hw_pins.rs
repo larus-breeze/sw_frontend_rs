@@ -196,8 +196,10 @@ impl DrainControl {
                 cm.config.overlay_active = OverlayActive::Info(TypeOfInfo::WaterBallast);
             }
         } else {
-            if let OverlayActive::Info(_) = cm.config.overlay_active { 
-                cm.config.overlay_active = OverlayActive::None 
+            if let OverlayActive::Info(type_of_info) = cm.config.overlay_active { 
+                if type_of_info == TypeOfInfo::WaterBallast {
+                    cm.config.overlay_active = OverlayActive::None 
+                }
             }
         }
     }
@@ -315,7 +317,7 @@ impl Default for GearAlarmControl {
 
 impl GearAlarmControl {
     // sets the pin state and returns alarm active true/false
-    pub fn set_gear_pin_state(&mut self, state: PinState) -> bool {
+    pub fn set_gear_pin_state(&mut self, cm: &mut CoreModel, state: PinState) -> bool {
         self.gear_state = match self.pin_gear_or_both_function {
             InPinFunction::None => false,
             InPinFunction::OnClose => match state {
@@ -327,14 +329,14 @@ impl GearAlarmControl {
                 PinState::Low => false,
             }
         };
-        self.alarm_is_active()
+        self.alarm_is_active(cm)
     }
 
     pub fn set_gear_pin_function(&mut self, function: InPinFunction) {
         self.pin_gear_or_both_function = function;
     }
 
-    pub fn set_airbrakes_pin_state(&mut self, state: PinState) -> bool {
+    pub fn set_airbrakes_pin_state(&mut self, cm: &mut CoreModel, state: PinState) -> bool {
         self.airbrakes_state = match self.pin_airbrakes_function {
             InPinFunction::None => false,
             InPinFunction::OnClose => match state {
@@ -346,7 +348,7 @@ impl GearAlarmControl {
                 PinState::Low => false,
             }
         };
-        self.alarm_is_active()
+        self.alarm_is_active(cm)
     }
 
     pub fn set_airbrakes_pin_function(&mut self, function: InPinFunction) {
@@ -357,11 +359,19 @@ impl GearAlarmControl {
         self.gear_pins = mode;
     }
 
-    fn alarm_is_active(&self) -> bool {
-        match self.gear_pins {
+    fn alarm_is_active(&self, cm: &mut CoreModel) -> bool {
+        let alarm = match self.gear_pins {
             GearPins::OnePinMode => self.gear_state,
             GearPins::TwoPinMode => self.gear_state && self.airbrakes_state,
+        };
+        if alarm {
+            cm.config.overlay_active = OverlayActive::Info(TypeOfInfo::GearAlarm);
+        } else {
+            if cm.config.overlay_active == OverlayActive::Info(TypeOfInfo::GearAlarm) {
+                cm.config.overlay_active = OverlayActive::None;
+            }
         }
+        alarm
     }
 
 

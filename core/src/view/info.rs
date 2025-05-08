@@ -23,7 +23,11 @@ impl InfoView {
         let (header, value) = match self.type_of_info {
             TypeOfInfo::WaterBallast => (
                 "Water Ballast", 
-                tformat!(100, "{:.0} kg", cm.glider_data.water_ballast.to_kg()).unwrap()
+                tformat!(20, "{:.0} kg", cm.glider_data.water_ballast.to_kg()).unwrap()
+            ),
+            TypeOfInfo::GearAlarm => (
+                "Landing Gear Alarm", 
+                tformat!(20, "").unwrap()
             ),
         };
         draw_info(display, cm, header, value.as_str())
