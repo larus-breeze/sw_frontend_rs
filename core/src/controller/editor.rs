@@ -96,7 +96,9 @@ pub fn key_action(key_event: &mut KeyEvent, cm: &mut CoreModel, cc: &mut CoreCon
                 let _ = cc.scheduler.stop(Timer::CloseEditFrame, true); // finish edit session
             }
             KeyEvent::BtnEncS3 => *key_event = KeyEvent::NoEvent,
-            _ => cc.scheduler.after(crate::Timer::CloseEditFrame, SECTION_EDITOR_TIMEOUT.secs())
+            _ => cc
+                .scheduler
+                .after(crate::Timer::CloseEditFrame, SECTION_EDITOR_TIMEOUT.secs()),
         }
 
         let target = cm.control.editor.target;

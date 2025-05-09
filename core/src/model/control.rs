@@ -1,5 +1,9 @@
 use crate::{
-    controller::{CanActive, Editor}, model::CoreModel, system_of_units::{FloatToLength, FloatToSpeed, Length, Speed}, utils::DeviceEvent, MenuControl, Rotation
+    controller::{CanActive, Editor},
+    model::CoreModel,
+    system_of_units::{FloatToLength, FloatToSpeed, Length, Speed},
+    utils::DeviceEvent,
+    MenuControl, Rotation,
 };
 
 /// Flymode display variants
@@ -32,7 +36,7 @@ impl core::ops::Not for VarioMode {
     fn not(self) -> Self::Output {
         match self {
             VarioMode::Vario => VarioMode::SpeedToFly,
-            VarioMode::SpeedToFly => VarioMode::Vario
+            VarioMode::SpeedToFly => VarioMode::Vario,
         }
     }
 }
@@ -50,7 +54,6 @@ pub enum VarioModeControl {
 pub const VARIO_MODE_CONTROL_AUTO: &str = "Auto";
 pub const VARIO_MODE_CONTROL_PIN: &str = "Input Pin";
 pub const VARIO_MODE_CONTROL_NMEA: &str = "NMEA";
-
 
 impl From<u8> for VarioModeControl {
     fn from(value: u8) -> Self {

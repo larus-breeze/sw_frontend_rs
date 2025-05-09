@@ -449,4 +449,3 @@ pub const LANDING_GEAR_ALARM: Menu = Menu {
         },
     ],
 };
-

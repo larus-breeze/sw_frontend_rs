@@ -11,8 +11,8 @@ use crate::{
         centerview::{CenterType, CenterView},
         lineview::{LineView, Placement},
     },
-    CoreController, CoreModel, Echo, FloatToMass, FloatToSpeed, PersistenceId, InPinFunction, InTogglePinFunction, RemoteConfig,
-    Rotation, GearPins,
+    CoreController, CoreModel, Echo, FloatToMass, FloatToSpeed, GearPins, InPinFunction,
+    InTogglePinFunction, PersistenceId, RemoteConfig, Rotation,
 };
 
 impl Editable {
@@ -344,17 +344,17 @@ impl Editable {
                 Echo::None,
             ),
             Editable::StfUpperLimit => persist::persist_set(
-                cc, 
-                cm, 
-                Variant::Speed(val.km_h()), 
-                PersistenceId::StfUpperLimit, 
+                cc,
+                cm,
+                Variant::Speed(val.km_h()),
+                PersistenceId::StfUpperLimit,
                 Echo::None,
             ),
             Editable::StfLowerLimit => persist::persist_set(
-                cc, 
-                cm, 
-                Variant::Speed(val.km_h()), 
-                PersistenceId::StfLowerLimit, 
+                cc,
+                cm,
+                Variant::Speed(val.km_h()),
+                PersistenceId::StfLowerLimit,
                 Echo::None,
             ),
 

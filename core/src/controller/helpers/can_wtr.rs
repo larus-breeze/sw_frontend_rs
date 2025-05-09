@@ -106,8 +106,10 @@ impl CoreModel {
                 use defmt::trace;
                 trace!("set remote config {}", val);
                 let val = match config_id {
-                    CanConfigId::SensTiltRoll | CanConfigId::SensTiltPitch | CanConfigId::SensTiltYaw => val * RAD_PER_DEGREE,
-                    _ => val
+                    CanConfigId::SensTiltRoll
+                    | CanConfigId::SensTiltPitch
+                    | CanConfigId::SensTiltYaw => val * RAD_PER_DEGREE,
+                    _ => val,
                 };
                 LE::write_f32(&mut data[2..6], val);
                 r = true;

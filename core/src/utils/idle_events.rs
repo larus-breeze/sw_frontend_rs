@@ -26,7 +26,7 @@ impl core::ops::Not for PinState {
     fn not(self) -> Self::Output {
         match self {
             PinState::High => PinState::Low,
-            PinState::Low => PinState::High
+            PinState::Low => PinState::High,
         }
     }
 }

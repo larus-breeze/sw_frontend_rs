@@ -1,7 +1,9 @@
 use crate::{
-    model::{CoreModel, TypeOfInfo}, 
+    model::{CoreModel, TypeOfInfo},
+    tformat,
+    utils::Colors,
     view::viewable::circle_area::draw_info,
-    tformat, utils::Colors, CoreError, DrawImage,
+    CoreError, DrawImage,
 };
 
 use embedded_graphics::draw_target::DrawTarget;
@@ -28,7 +30,9 @@ impl InfoView {
                 draw_info(display, cm, "Water Ballast", value.as_str())?;
             }
 
-            TypeOfInfo::GearAlarm => draw_alarm_info(display, cm, "Landing Gear", cm.device_const.images.gear)?,
+            TypeOfInfo::GearAlarm => {
+                draw_alarm_info(display, cm, "Landing Gear", cm.device_const.images.gear)?
+            }
         };
         Ok(())
     }

@@ -23,7 +23,6 @@ pub enum TypeOfInfo {
     GearAlarm,
 }
 
-
 #[derive(Clone, Copy, PartialEq)]
 pub enum OverlayActive {
     None,

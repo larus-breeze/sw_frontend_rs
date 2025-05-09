@@ -19,12 +19,22 @@
 use heapless::Vec;
 use num_enum::FromPrimitive;
 
-use super::{helpers::{GearPins, InPinFunction, InTogglePinFunction, OutPinFunction}, VarioModeControl, MAX_PERS_IDS};
+use super::{
+    helpers::{GearPins, InPinFunction, InTogglePinFunction, OutPinFunction},
+    VarioModeControl, MAX_PERS_IDS,
+};
 use crate::{
-    basic_config::PERSISTENCE_TIMEOUT, controller::{
+    basic_config::PERSISTENCE_TIMEOUT,
+    controller::{
         helpers::{CanConfigId, IntToDuration},
         RemoteConfig,
-    }, flight_physics::polar_store, system_of_units::Speed, utils::Variant, view::viewable::{centerview::CenterView, lineview::LineView}, CoreController, CoreModel, FloatToSpeed, IdleEvent, Mass, PersistenceItem, Pressure, ResetReason, Rotation
+    },
+    flight_physics::polar_store,
+    system_of_units::Speed,
+    utils::Variant,
+    view::viewable::{centerview::CenterView, lineview::LineView},
+    CoreController, CoreModel, FloatToSpeed, IdleEvent, Mass, PersistenceItem, Pressure,
+    ResetReason, Rotation,
 };
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, FromPrimitive, defmt::Format)]
@@ -202,14 +212,26 @@ pub fn restore_item(cc: &mut CoreController, cm: &mut CoreModel, item: Persisten
         PersistenceId::GliderSymbol => cm.config.glider_symbol = item.to_bool(),
         PersistenceId::BatteryGood => cm.config.battery_good = item.to_f32(),
         PersistenceId::BatteryBad => cm.config.battery_bad = item.to_f32(),
-        PersistenceId::DrainPinConfig => cc.drain_control.set_pin_function(InPinFunction::from(item.to_u8()), cm),
+        PersistenceId::DrainPinConfig => cc
+            .drain_control
+            .set_pin_function(InPinFunction::from(item.to_u8()), cm),
         PersistenceId::FlowEmpty => cc.drain_control.flow_rate_offset = item.to_f32(),
         PersistenceId::FlowSlope => cc.drain_control.flow_rate_slope = item.to_f32(),
-        PersistenceId::FlashControl => cc.flash_control.set_pin_function(OutPinFunction::from(item.to_u8())),
-        PersistenceId::SpeedToFlyPinConfig => cc.speed_to_fly_control.set_pin_function(InTogglePinFunction::from(item.to_u8())),
-        PersistenceId::GearPinConfig => cc.gear_alarm_control.set_gear_pin_function(InPinFunction::from(item.to_u8())),
-        PersistenceId::AirbrakesPinConfig => cc.gear_alarm_control.set_airbrakes_pin_function(InPinFunction::from(item.to_u8())),
-        PersistenceId::GearAlarmMode => cc.gear_alarm_control.set_gear_pin_mode(GearPins::from(item.to_u8())),
+        PersistenceId::FlashControl => cc
+            .flash_control
+            .set_pin_function(OutPinFunction::from(item.to_u8())),
+        PersistenceId::SpeedToFlyPinConfig => cc
+            .speed_to_fly_control
+            .set_pin_function(InTogglePinFunction::from(item.to_u8())),
+        PersistenceId::GearPinConfig => cc
+            .gear_alarm_control
+            .set_gear_pin_function(InPinFunction::from(item.to_u8())),
+        PersistenceId::AirbrakesPinConfig => cc
+            .gear_alarm_control
+            .set_airbrakes_pin_function(InPinFunction::from(item.to_u8())),
+        PersistenceId::GearAlarmMode => cc
+            .gear_alarm_control
+            .set_gear_pin_mode(GearPins::from(item.to_u8())),
         PersistenceId::AlarmVolume => cm.control.alarm_volume = item.to_i8(),
         PersistenceId::StfUpperLimit => cm.config.stf_upper_limit = item.to_f32().km_h(),
         PersistenceId::StfLowerLimit => cm.config.stf_lower_limit = item.to_f32().km_h(),
@@ -290,17 +312,35 @@ pub fn store_item(cc: &mut CoreController, cm: &mut CoreModel, id: PersistenceId
         PersistenceId::GliderSymbol => PersistenceItem::from_bool(id, cm.config.glider_symbol),
         PersistenceId::BatteryGood => PersistenceItem::from_f32(id, cm.config.battery_good),
         PersistenceId::BatteryBad => PersistenceItem::from_f32(id, cm.config.battery_bad),
-        PersistenceId::DrainPinConfig => PersistenceItem::from_u8(id, cc.drain_control.pin_function() as u8),
-        PersistenceId::FlowEmpty => PersistenceItem::from_f32(id, cc.drain_control.flow_rate_offset),
+        PersistenceId::DrainPinConfig => {
+            PersistenceItem::from_u8(id, cc.drain_control.pin_function() as u8)
+        }
+        PersistenceId::FlowEmpty => {
+            PersistenceItem::from_f32(id, cc.drain_control.flow_rate_offset)
+        }
         PersistenceId::FlowSlope => PersistenceItem::from_f32(id, cc.drain_control.flow_rate_slope),
-        PersistenceId::FlashControl => PersistenceItem::from_u8(id, cc.flash_control.pin_function() as u8),
-        PersistenceId::SpeedToFlyPinConfig => PersistenceItem::from_u8(id, cc.speed_to_fly_control.pin_function() as u8),
-        PersistenceId::GearPinConfig => PersistenceItem::from_u8(id, cc.gear_alarm_control.gear_pin_function() as u8),
-        PersistenceId::AirbrakesPinConfig => PersistenceItem::from_u8(id, cc.gear_alarm_control.airbrakes_pin_function() as u8),
-        PersistenceId::GearAlarmMode => PersistenceItem::from_u8(id, cc.gear_alarm_control.gear_pin_mode() as u8),
+        PersistenceId::FlashControl => {
+            PersistenceItem::from_u8(id, cc.flash_control.pin_function() as u8)
+        }
+        PersistenceId::SpeedToFlyPinConfig => {
+            PersistenceItem::from_u8(id, cc.speed_to_fly_control.pin_function() as u8)
+        }
+        PersistenceId::GearPinConfig => {
+            PersistenceItem::from_u8(id, cc.gear_alarm_control.gear_pin_function() as u8)
+        }
+        PersistenceId::AirbrakesPinConfig => {
+            PersistenceItem::from_u8(id, cc.gear_alarm_control.airbrakes_pin_function() as u8)
+        }
+        PersistenceId::GearAlarmMode => {
+            PersistenceItem::from_u8(id, cc.gear_alarm_control.gear_pin_mode() as u8)
+        }
         PersistenceId::AlarmVolume => PersistenceItem::from_i8(id, cm.control.alarm_volume),
-        PersistenceId::StfUpperLimit => PersistenceItem::from_f32(id, cm.config.stf_upper_limit.to_km_h()),
-        PersistenceId::StfLowerLimit => PersistenceItem::from_f32(id, cm.config.stf_lower_limit.to_km_h()),
+        PersistenceId::StfUpperLimit => {
+            PersistenceItem::from_f32(id, cm.config.stf_upper_limit.to_km_h())
+        }
+        PersistenceId::StfLowerLimit => {
+            PersistenceItem::from_f32(id, cm.config.stf_lower_limit.to_km_h())
+        }
 
         _ => PersistenceItem::do_not_store(),
     };
@@ -484,7 +524,8 @@ pub fn persist_set(
         }
         PersistenceId::DrainPinConfig => {
             if let Variant::U8(value) = variant {
-                cc.drain_control.set_pin_function(InPinFunction::from(value), cm);
+                cc.drain_control
+                    .set_pin_function(InPinFunction::from(value), cm);
             }
         }
         PersistenceId::FlowEmpty => {
@@ -499,27 +540,32 @@ pub fn persist_set(
         }
         PersistenceId::FlashControl => {
             if let Variant::U8(value) = variant {
-                cc.flash_control.set_pin_function(OutPinFunction::from(value));
+                cc.flash_control
+                    .set_pin_function(OutPinFunction::from(value));
             }
         }
         PersistenceId::SpeedToFlyPinConfig => {
             if let Variant::U8(value) = variant {
-                cc.speed_to_fly_control.set_pin_function(InTogglePinFunction::from(value));
+                cc.speed_to_fly_control
+                    .set_pin_function(InTogglePinFunction::from(value));
             }
         }
         PersistenceId::GearPinConfig => {
             if let Variant::U8(value) = variant {
-                cc.gear_alarm_control.set_gear_pin_function(InPinFunction::from(value));
+                cc.gear_alarm_control
+                    .set_gear_pin_function(InPinFunction::from(value));
             }
         }
         PersistenceId::AirbrakesPinConfig => {
             if let Variant::U8(value) = variant {
-                cc.gear_alarm_control.set_airbrakes_pin_function(InPinFunction::from(value));
+                cc.gear_alarm_control
+                    .set_airbrakes_pin_function(InPinFunction::from(value));
             }
         }
         PersistenceId::GearAlarmMode => {
             if let Variant::U8(value) = variant {
-                cc.gear_alarm_control.set_gear_pin_mode(GearPins::from(value));
+                cc.gear_alarm_control
+                    .set_gear_pin_mode(GearPins::from(value));
             }
         }
         PersistenceId::AlarmVolume => {
@@ -566,7 +612,7 @@ pub fn send_can_config_frame(
     config_id: CanConfigId,
     get_set: RemoteConfig,
 ) {
-    // get command is sent immidiatly, set command after a while, if no new changes are made 
+    // get command is sent immidiatly, set command after a while, if no new changes are made
     match get_set {
         RemoteConfig::Get => {
             let frame = cm.can_frame_remote_config(config_id, get_set);
@@ -576,7 +622,8 @@ pub fn send_can_config_frame(
         }
         RemoteConfig::Set => {
             cc.remote_val = Some((config_id, get_set));
-            cc.scheduler.after(crate::Timer::PersistSetting, PERSISTENCE_TIMEOUT.millis());
+            cc.scheduler
+                .after(crate::Timer::PersistSetting, PERSISTENCE_TIMEOUT.millis());
         }
     }
 }

@@ -25,18 +25,20 @@ pub struct SoundControl {
 
 impl Default for SoundControl {
     fn default() -> Self {
-        SoundControl { scenario: SoundScenario::Standard as u8, tick: 0 }
+        SoundControl {
+            scenario: SoundScenario::Standard as u8,
+            tick: 0,
+        }
     }
 }
 
 impl SoundControl {
-
     pub fn activate_scenariio(&mut self, scenariio: SoundScenario) {
-        self.scenario = self.scenario | scenariio as u8;
+        self.scenario |= scenariio as u8;
     }
 
     pub fn clear_scenariio(&mut self, scenariio: SoundScenario) {
-        self.scenario = self.scenario & !(scenariio as u8);
+        self.scenario &= !(scenariio as u8);
     }
 
     pub fn set_scenario(&mut self, scenariio: SoundScenario, active: bool) {
@@ -87,7 +89,9 @@ impl SoundControl {
             VarioMode::SpeedToFly => {
                 let stf_dif = -cm.calculated.speed_to_fly_dif.to_km_h();
                 let stf_val_ms = stf_dif / 10.0;
-                if stf_dif < cm.config.stf_upper_limit.to_km_h() && stf_dif > cm.config.stf_lower_limit.to_km_h() {
+                if stf_dif < cm.config.stf_upper_limit.to_km_h()
+                    && stf_dif > cm.config.stf_lower_limit.to_km_h()
+                {
                     (500, true, 0) // speed to fly is ok, so be quiet
                 } else {
                     (
@@ -109,7 +113,11 @@ impl SoundControl {
         match self.tick {
             0..=4 | 11 | 18..=21 => (START_FREQ, false, 0), // silence
             5 | 12 => (START_FREQ, true, cm.control.alarm_volume),
-            6..=10 | 13..=17 => (cm.calculated.frequency + INC_FREQ, true, cm.control.alarm_volume),
+            6..=10 | 13..=17 => (
+                cm.calculated.frequency + INC_FREQ,
+                true,
+                cm.control.alarm_volume,
+            ),
             22..=60 => self.vario_sound(cm),
             _ => {
                 self.tick = 0;

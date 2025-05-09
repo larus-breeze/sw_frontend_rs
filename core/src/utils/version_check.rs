@@ -54,7 +54,7 @@ impl VersionCheck {
     }
 
     pub fn new_image_name(&self) -> Option<&String<12>> {
-        if self.image_info.file_name().len() == 0 {
+        if self.image_info.file_name().is_empty() {
             None
         } else {
             Some(self.image_info.file_name())
