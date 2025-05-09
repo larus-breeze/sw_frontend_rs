@@ -1,5 +1,12 @@
 Changelog
 =
+v0.3.7 Landing gear warning, adjustable stf deadband and some bug fixes
+- Warning function: Landing gear forgotten to extend #27
+- Add an adjustable audio deadband setting #87
+- Calibration Sensor orientation, new procedure #91
+- Sensor box settings #92
+- The frontend uses gps_track instead of euler_yaw for the wind arrows #94
+
 v0.3.6 Support for some Hardware Pins to Control the Front End
 - Button input to switch between vario and speed-to-fly mode #84
 - Input for automatic reduction of water ballast #67
