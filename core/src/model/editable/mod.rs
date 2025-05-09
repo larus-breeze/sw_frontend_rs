@@ -75,6 +75,8 @@ pub enum Editable {
     AirbrakesPinConfig,
     GearAlarmModeConfig,
     AlarmVolume,
+    StfUpperLimit,
+    StfLowerLimit,
 
     SensTiltRoll, // These are sensorbox settings
     SensTiltPitch,
@@ -167,6 +169,8 @@ impl Editable {
             Editable::AirbrakesPinConfig => "Airbrakes Pin Config",
             Editable::GearAlarmModeConfig => "Gear Alarm Config",
             Editable::AlarmVolume => "Alarm Volume",
+            Editable::StfUpperLimit => "Stf Upper Limit",
+            Editable::StfLowerLimit => "Stf Lower Limit",
 
             Editable::SensTiltRoll => "Sensor Tilt Roll",
             Editable::SensTiltPitch => "Sensor Tilt Pitch",
@@ -356,6 +360,8 @@ impl Editable {
             Editable::GearPinConfig => Content::Enum(TString::<16>::from_str(cc.gear_alarm_control.gear_pin_function().as_str())),
             Editable::AirbrakesPinConfig => Content::Enum(TString::<16>::from_str(cc.gear_alarm_control.airbrakes_pin_function().as_str())),
             Editable::GearAlarmModeConfig => Content::Enum(TString::<16>::from_str(cc.gear_alarm_control.gear_pin_mode().as_str())),
+            Editable::StfUpperLimit => Content::F32(Some(cm.config.stf_upper_limit.to_km_h())),
+            Editable::StfLowerLimit => Content::F32(Some(cm.config.stf_lower_limit.to_km_h())),
 
             // Edit sensorbox values via CAN bus
             Editable::SensTiltRoll => {

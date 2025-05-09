@@ -294,6 +294,27 @@ impl Editable {
                     TString::<16>::from_str(""),
                 ],
             }),
+            Editable::StfUpperLimit => {
+                Params::F32(F32Params {
+                    min: 0.0,
+                    max: 50.0,
+                    small_inc: 1.0,
+                    big_inc: 10.0,
+                    dec_places: 0,
+                    unit: "km/h",
+                })
+            }
+            Editable::StfLowerLimit => {
+                Params::F32(F32Params {
+                    min: -50.0,
+                    max: 0.0,
+                    small_inc: 1.0,
+                    big_inc: 10.0,
+                    dec_places: 0,
+                    unit: "km/h",
+                })
+            }
+
             Editable::SensTiltRoll | Editable::SensTiltPitch | Editable::SensTiltYaw => {
                 Params::F32(F32Params {
                     min: -179.0,

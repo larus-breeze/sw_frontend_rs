@@ -133,7 +133,6 @@ impl Editable {
                 PersistenceId::SpeedToFlyPinConfig,
                 Echo::None,
             ),
-
             Editable::CmdMeas1 => {
                 if cm.control.editor.enter_pushed && val.as_str() == TRIGGER_COMMAND {
                     send_can_config_frame(
@@ -344,6 +343,21 @@ impl Editable {
                 PersistenceId::FlowSlope,
                 Echo::None,
             ),
+            Editable::StfUpperLimit => persist::persist_set(
+                cc, 
+                cm, 
+                Variant::Speed(val.km_h()), 
+                PersistenceId::StfUpperLimit, 
+                Echo::None,
+            ),
+            Editable::StfLowerLimit => persist::persist_set(
+                cc, 
+                cm, 
+                Variant::Speed(val.km_h()), 
+                PersistenceId::StfLowerLimit, 
+                Echo::None,
+            ),
+
             Editable::SensTiltRoll => {
                 send_can_config_frame(cm, cc, crate::CanConfigId::SensTiltRoll, RemoteConfig::Set);
             }
