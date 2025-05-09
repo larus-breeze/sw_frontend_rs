@@ -85,13 +85,14 @@ impl SoundControl {
                 cmc.volume,
             ),
             VarioMode::SpeedToFly => {
-                let sped_to_fly_val = cm.calculated.speed_to_fly_dif.to_km_h() / -10.0;
-                if sped_to_fly_val < 1.0 && sped_to_fly_val > -1.0 {
+                let stf_dif = -cm.calculated.speed_to_fly_dif.to_km_h();
+                let stf_val_ms = stf_dif / 10.0;
+                if stf_dif < cm.config.stf_upper_limit.to_km_h() && stf_dif > cm.config.stf_lower_limit.to_km_h() {
                     (500, true, 0) // speed to fly is ok, so be quiet
                 } else {
                     (
-                        (cmc.snd_center_freq * (cmc.snd_exp_mul * sped_to_fly_val).exp()) as u16,
-                        sped_to_fly_val < 0.0,
+                        (cmc.snd_center_freq * (cmc.snd_exp_mul * stf_val_ms).exp()) as u16,
+                        stf_val_ms < 0.0,
                         cmc.volume,
                     )
                 }

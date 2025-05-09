@@ -60,6 +60,8 @@ pub struct Config {
     pub glider_symbol: bool,
     pub battery_good: f32,
     pub battery_bad: f32,
+    pub stf_upper_limit: Speed,
+    pub stf_lower_limit: Speed,
 }
 
 impl Config {
@@ -90,6 +92,8 @@ impl Config {
             glider_symbol: true,
             battery_good: 11.5,
             battery_bad: 10.0,
+            stf_upper_limit: 10.0.km_h(),
+            stf_lower_limit: -10.0.km_h(),
         }
     }
 }
