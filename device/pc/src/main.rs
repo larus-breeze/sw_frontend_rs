@@ -35,19 +35,16 @@ const HW_VERSION: HwVersion = HwVersion {
 
 fn main() -> Result<(), core::convert::Infallible> {
     println!(
-        "Use the following keys for operation:\n\n\
-    F1 Button 1\n\
-    F2 Button 2\n\
-    F3 Button 3\n\
-    F4 Button 4\n\
+        "\
+    Use the following keys for operation:\n\n\
 \
-    F5 Button Encoder\n
-    F5 Button Encoder 3 seconds\n\n\
+    F5 Button Encoder\n\
+    F6 Button Encoder 3 seconds\n\n\
 \
-    ⇒ Small Encoder right\n\
-    ⇐ Small Encoder left\n\
-    ⇑  Big Encoder right\n\
-    ⇓  Big Encoder left\n\n\
+    ⇒ Cursor right: Small Encoder right\n\
+    ⇐ Cursor left: Small Encoder left\n\
+    ⇑ Cursor up Big: Encoder right\n\
+    ⇓ Cursor down Big: Encoder left\n\n\
 \
     1..4 Toggle Input 1..4\n
 \
