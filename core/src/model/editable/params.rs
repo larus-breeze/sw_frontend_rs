@@ -3,10 +3,15 @@ use super::{
     USER_1, USER_2, USER_3, USER_4,
 };
 use crate::{
-    flight_physics::polar_store, model::control::{VARIO_MODE_CONTROL_AUTO, VARIO_MODE_CONTROL_NMEA, VARIO_MODE_CONTROL_PIN}, utils::TString, view::viewable::{
+    flight_physics::polar_store,
+    model::control::{VARIO_MODE_CONTROL_AUTO, VARIO_MODE_CONTROL_NMEA, VARIO_MODE_CONTROL_PIN},
+    utils::TString,
+    view::viewable::{
         centerview::{CenterType, CenterView},
         lineview::{LineView, Placement},
-    }, Rotation, PIN_IN_CLOSE, PIN_IN_OPEN, PIN_IN_TOGGLE, PIN_NONE, PIN_OUT_CLOSE, PIN_OUT_OPEN, ONE_PIN_MODE, TWO_PIN_MODE,
+    },
+    Rotation, ONE_PIN_MODE, PIN_IN_CLOSE, PIN_IN_OPEN, PIN_IN_TOGGLE, PIN_NONE, PIN_OUT_CLOSE,
+    PIN_OUT_OPEN, TWO_PIN_MODE,
 };
 
 #[derive(Clone, Copy)]
@@ -247,35 +252,33 @@ impl Editable {
                 dec_places: 1,
                 unit: "V",
             }),
-            Editable::DrainPinConfig | Editable::GearPinConfig | Editable::AirbrakesPinConfig => Params::Enum(EnumParams {
-                variants: [
-                    TString::<16>::from_str(PIN_NONE),
-                    TString::<16>::from_str(PIN_IN_CLOSE),
-                    TString::<16>::from_str(PIN_IN_OPEN),
-                    TString::<16>::from_str(""),
-                    TString::<16>::from_str(""),
-                ],
+            Editable::DrainPinConfig | Editable::GearPinConfig | Editable::AirbrakesPinConfig => {
+                Params::Enum(EnumParams {
+                    variants: [
+                        TString::<16>::from_str(PIN_NONE),
+                        TString::<16>::from_str(PIN_IN_CLOSE),
+                        TString::<16>::from_str(PIN_IN_OPEN),
+                        TString::<16>::from_str(""),
+                        TString::<16>::from_str(""),
+                    ],
+                })
+            }
+            Editable::FlowEmpty => Params::F32(F32Params {
+                min: 1.0,
+                max: 200.0,
+                small_inc: 0.1,
+                big_inc: 1.0,
+                dec_places: 1,
+                unit: "l/min",
             }),
-            Editable::FlowEmpty => {
-                Params::F32(F32Params {
-                    min: 1.0,
-                    max: 200.0,
-                    small_inc: 0.1,
-                    big_inc: 1.0,
-                    dec_places: 1,
-                    unit: "l/min",
-                })
-            }
-            Editable::FlowSlope => {
-                Params::F32(F32Params {
-                    min: -1.0,
-                    max: 1.0,
-                    small_inc: 0.001,
-                    big_inc: 0.010,
-                    dec_places: 3,
-                    unit: "l/(min*kg*s)",
-                })
-            }
+            Editable::FlowSlope => Params::F32(F32Params {
+                min: -1.0,
+                max: 1.0,
+                small_inc: 0.001,
+                big_inc: 0.010,
+                dec_places: 3,
+                unit: "l/(min*kg*s)",
+            }),
             Editable::FlashControl => Params::Enum(EnumParams {
                 variants: [
                     TString::<16>::from_str(PIN_NONE),
@@ -294,26 +297,22 @@ impl Editable {
                     TString::<16>::from_str(""),
                 ],
             }),
-            Editable::StfUpperLimit => {
-                Params::F32(F32Params {
-                    min: 0.0,
-                    max: 50.0,
-                    small_inc: 1.0,
-                    big_inc: 10.0,
-                    dec_places: 0,
-                    unit: "km/h",
-                })
-            }
-            Editable::StfLowerLimit => {
-                Params::F32(F32Params {
-                    min: -50.0,
-                    max: 0.0,
-                    small_inc: 1.0,
-                    big_inc: 10.0,
-                    dec_places: 0,
-                    unit: "km/h",
-                })
-            }
+            Editable::StfUpperLimit => Params::F32(F32Params {
+                min: 0.0,
+                max: 50.0,
+                small_inc: 1.0,
+                big_inc: 10.0,
+                dec_places: 0,
+                unit: "km/h",
+            }),
+            Editable::StfLowerLimit => Params::F32(F32Params {
+                min: -50.0,
+                max: 0.0,
+                small_inc: 1.0,
+                big_inc: 10.0,
+                dec_places: 0,
+                unit: "km/h",
+            }),
 
             Editable::SensTiltRoll | Editable::SensTiltPitch | Editable::SensTiltYaw => {
                 Params::F32(F32Params {
@@ -369,28 +368,28 @@ impl Editable {
                     unit: "m",
                 })
             }
-            Editable::CmdMeas1 | Editable::CmdMeas2 | Editable::CmdMeas3 | Editable::CmdCalcOrientation | Editable::CmdFineTuneOrientation => {
-                Params::Enum(EnumParams {
-                    variants: [
-                        TString::<16>::from_str(TRIGGER_COMMAND),
-                        TString::<16>::from_str(RETURN),
-                        TString::<16>::from_str(""),
-                        TString::<16>::from_str(""),
-                        TString::<16>::from_str(""),
-                    ],
-                })
-            }
-            Editable::GearAlarmModeConfig => {
-                Params::Enum(EnumParams { 
-                    variants: [
-                        TString::<16>::from_str(ONE_PIN_MODE),
-                        TString::<16>::from_str(TWO_PIN_MODE),
-                        TString::<16>::from_str(""),
-                        TString::<16>::from_str(""),
-                        TString::<16>::from_str(""),
-                    ] 
-                })
-            }
+            Editable::CmdMeas1
+            | Editable::CmdMeas2
+            | Editable::CmdMeas3
+            | Editable::CmdCalcOrientation
+            | Editable::CmdFineTuneOrientation => Params::Enum(EnumParams {
+                variants: [
+                    TString::<16>::from_str(TRIGGER_COMMAND),
+                    TString::<16>::from_str(RETURN),
+                    TString::<16>::from_str(""),
+                    TString::<16>::from_str(""),
+                    TString::<16>::from_str(""),
+                ],
+            }),
+            Editable::GearAlarmModeConfig => Params::Enum(EnumParams {
+                variants: [
+                    TString::<16>::from_str(ONE_PIN_MODE),
+                    TString::<16>::from_str(TWO_PIN_MODE),
+                    TString::<16>::from_str(""),
+                    TString::<16>::from_str(""),
+                    TString::<16>::from_str(""),
+                ],
+            }),
         }
     }
 }

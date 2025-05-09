@@ -1,8 +1,8 @@
 use crate::{
     model::{CoreModel, DisplayActive, EditMode},
     utils::{Colors, TString},
-    CoreError, DrawImage,
     view::viewable::circle_area::draw_info,
+    CoreError, DrawImage,
 };
 
 use embedded_graphics::{
@@ -34,7 +34,9 @@ impl Edit {
         {
             match cm.device_const.misc.edit_mode {
                 EditMode::Off => Ok(()),
-                EditMode::CircleArea => draw_info(display, cm, self.name_str, self.val_str.as_str()),
+                EditMode::CircleArea => {
+                    draw_info(display, cm, self.name_str, self.val_str.as_str())
+                }
                 EditMode::Fullscreen => self.draw_rectangle_editor(display, cm, true),
                 EditMode::Window => self.draw_rectangle_editor(display, cm, false),
             }

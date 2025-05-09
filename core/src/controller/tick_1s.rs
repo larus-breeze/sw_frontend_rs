@@ -1,6 +1,6 @@
 use crate::{
-    model::{GpsState, SystemState, TcrMode, VarioModeControl},
     controller::persist,
+    model::{GpsState, SystemState, TcrMode, VarioModeControl},
     utils::Variant,
     CoreController, CoreModel, Echo, FloatToSpeed, FlyMode, IdleEvent, PersistenceId, VarioMode,
 };
@@ -26,7 +26,10 @@ fn speed_to_fly(cm: &mut CoreModel, cc: &mut CoreController) {
     }
 
     // in pin mode set according to pin state
-    cm.set_vario_mode(cc.speed_to_fly_control.vario_mode(), VarioModeControl::InputPin);
+    cm.set_vario_mode(
+        cc.speed_to_fly_control.vario_mode(),
+        VarioModeControl::InputPin,
+    );
 
     // changes? then push to nmea output
     if vario_mode != cm.control.vario_mode {

@@ -1,4 +1,7 @@
-use crate::{model::{OverlayActive, TypeOfInfo}, CoreModel, FloatToMass, PinState, VarioMode};
+use crate::{
+    model::{OverlayActive, TypeOfInfo},
+    CoreModel, FloatToMass, PinState, VarioMode,
+};
 
 pub const PIN_NONE: &str = "Not connected";
 pub const PIN_IN_CLOSE: &str = "When closed";
@@ -14,9 +17,9 @@ pub enum InPinFunction {
 impl From<u8> for InPinFunction {
     fn from(value: u8) -> Self {
         match value {
-            1 => InPinFunction::OnClose,  
-            2 => InPinFunction::OnOpen,  
-            _ => InPinFunction::None,  
+            1 => InPinFunction::OnClose,
+            2 => InPinFunction::OnOpen,
+            _ => InPinFunction::None,
         }
     }
 }
@@ -24,9 +27,9 @@ impl From<u8> for InPinFunction {
 impl From<&str> for InPinFunction {
     fn from(value: &str) -> Self {
         match value {
-            PIN_IN_CLOSE => InPinFunction::OnClose,  
-            PIN_IN_OPEN => InPinFunction::OnOpen,  
-            _ => InPinFunction::None,  
+            PIN_IN_CLOSE => InPinFunction::OnClose,
+            PIN_IN_OPEN => InPinFunction::OnOpen,
+            _ => InPinFunction::None,
         }
     }
 }
@@ -54,10 +57,10 @@ pub enum InTogglePinFunction {
 impl From<u8> for InTogglePinFunction {
     fn from(value: u8) -> Self {
         match value {
-            1 => InTogglePinFunction::OnClose,  
-            2 => InTogglePinFunction::OnOpen,  
+            1 => InTogglePinFunction::OnClose,
+            2 => InTogglePinFunction::OnOpen,
             3 => InTogglePinFunction::OnToggled,
-            _ => InTogglePinFunction::None,  
+            _ => InTogglePinFunction::None,
         }
     }
 }
@@ -65,10 +68,10 @@ impl From<u8> for InTogglePinFunction {
 impl From<&str> for InTogglePinFunction {
     fn from(value: &str) -> Self {
         match value {
-            PIN_IN_CLOSE => InTogglePinFunction::OnClose,  
+            PIN_IN_CLOSE => InTogglePinFunction::OnClose,
             PIN_IN_OPEN => InTogglePinFunction::OnOpen,
             PIN_IN_TOGGLE => InTogglePinFunction::OnToggled,
-            _ => InTogglePinFunction::None,  
+            _ => InTogglePinFunction::None,
         }
     }
 }
@@ -97,9 +100,9 @@ pub enum OutPinFunction {
 impl From<u8> for OutPinFunction {
     fn from(value: u8) -> Self {
         match value {
-            1 => OutPinFunction::Closed,  
-            2 => OutPinFunction::Opened,  
-            _ => OutPinFunction::None,  
+            1 => OutPinFunction::Closed,
+            2 => OutPinFunction::Opened,
+            _ => OutPinFunction::None,
         }
     }
 }
@@ -107,9 +110,9 @@ impl From<u8> for OutPinFunction {
 impl From<&str> for OutPinFunction {
     fn from(value: &str) -> Self {
         match value {
-            PIN_OUT_CLOSE => OutPinFunction::Closed,  
-            PIN_OUT_OPEN => OutPinFunction::Opened,  
-            _ => OutPinFunction::None,  
+            PIN_OUT_CLOSE => OutPinFunction::Closed,
+            PIN_OUT_OPEN => OutPinFunction::Opened,
+            _ => OutPinFunction::None,
         }
     }
 }
@@ -129,17 +132,17 @@ pub struct DrainControl {
     pin_state: PinState,
     is_flowing: bool,
     pub flow_rate_offset: f32, // flow rate [l/min] at 0kg ballast
-    pub flow_rate_slope: f32, // flow rate dif [l/min*s per l]
+    pub flow_rate_slope: f32,  // flow rate dif [l/min*s per l]
 }
 
 impl Default for DrainControl {
     fn default() -> Self {
-        DrainControl { 
-            pin_function: InPinFunction::None, 
-            pin_state: PinState::High, 
-            is_flowing: false, 
+        DrainControl {
+            pin_function: InPinFunction::None,
+            pin_state: PinState::High,
+            is_flowing: false,
             flow_rate_offset: 30.0, // l/min
-            flow_rate_slope: 0.0,  // l/min*kg*s
+            flow_rate_slope: 0.0,   // l/min*kg*s
         }
     }
 }
@@ -152,8 +155,8 @@ impl DrainControl {
 
     pub fn tick_1s(&mut self, cm: &mut CoreModel) {
         if self.is_flowing {
-            let flow_rate = self.flow_rate_offset + 
-                cm.glider_data.water_ballast.to_kg() * self.flow_rate_slope;
+            let flow_rate =
+                self.flow_rate_offset + cm.glider_data.water_ballast.to_kg() * self.flow_rate_slope;
             cm.glider_data.water_ballast -= (flow_rate / 60.0).kg();
             if cm.glider_data.water_ballast.to_kg() <= 0.0 {
                 cm.glider_data.water_ballast = 0.0.kg();
@@ -183,11 +186,11 @@ impl DrainControl {
                 InPinFunction::OnClose => match self.pin_state {
                     PinState::High => false,
                     PinState::Low => true,
-                }
+                },
                 InPinFunction::OnOpen => match self.pin_state {
                     PinState::High => true,
                     PinState::Low => false,
-                }
+                },
                 InPinFunction::None => false,
             }
         };
@@ -195,16 +198,13 @@ impl DrainControl {
             if cm.config.overlay_active == OverlayActive::None {
                 cm.config.overlay_active = OverlayActive::Info(TypeOfInfo::WaterBallast);
             }
-        } else {
-            if let OverlayActive::Info(type_of_info) = cm.config.overlay_active { 
-                if type_of_info == TypeOfInfo::WaterBallast {
-                    cm.config.overlay_active = OverlayActive::None 
-                }
+        } else if let OverlayActive::Info(type_of_info) = cm.config.overlay_active {
+            if type_of_info == TypeOfInfo::WaterBallast {
+                cm.config.overlay_active = OverlayActive::None
             }
         }
     }
 }
-
 
 pub struct FlashControl {
     pub pin_function: OutPinFunction,
@@ -212,8 +212,8 @@ pub struct FlashControl {
 
 impl Default for FlashControl {
     fn default() -> Self {
-        FlashControl { 
-            pin_function: OutPinFunction::None, 
+        FlashControl {
+            pin_function: OutPinFunction::None,
         }
     }
 }
@@ -222,15 +222,19 @@ impl FlashControl {
     pub fn tick_1s(&mut self, cm: &mut CoreModel) -> Option<PinState> {
         match self.pin_function {
             OutPinFunction::None => None,
-            OutPinFunction::Closed => if cm.sensor.airspeed.ias().to_km_h() > 40.0 {
-                Some(PinState::Low)
-            } else {
-                Some(PinState::High)
+            OutPinFunction::Closed => {
+                if cm.sensor.airspeed.ias().to_km_h() > 40.0 {
+                    Some(PinState::Low)
+                } else {
+                    Some(PinState::High)
+                }
             }
-            OutPinFunction::Opened => if cm.sensor.airspeed.ias().to_km_h() > 40.0 {
-                Some(PinState::High)
-            } else {
-                Some(PinState::Low)
+            OutPinFunction::Opened => {
+                if cm.sensor.airspeed.ias().to_km_h() > 40.0 {
+                    Some(PinState::High)
+                } else {
+                    Some(PinState::Low)
+                }
             }
         }
     }
@@ -251,9 +255,9 @@ pub struct SpeedToFlyControl {
 
 impl Default for SpeedToFlyControl {
     fn default() -> Self {
-        SpeedToFlyControl { 
-            pin_function: InTogglePinFunction::None, 
-            vario_mode: VarioMode::Vario 
+        SpeedToFlyControl {
+            pin_function: InTogglePinFunction::None,
+            vario_mode: VarioMode::Vario,
         }
     }
 }
@@ -310,8 +314,8 @@ impl GearPins {
 impl From<u8> for GearPins {
     fn from(value: u8) -> Self {
         match value {
-            1 => GearPins::TwoPinMode,  
-            _ => GearPins::OnePinMode,  
+            1 => GearPins::TwoPinMode,
+            _ => GearPins::OnePinMode,
         }
     }
 }
@@ -319,8 +323,8 @@ impl From<u8> for GearPins {
 impl From<&str> for GearPins {
     fn from(value: &str) -> Self {
         match value {
-            ONE_PIN_MODE => GearPins::OnePinMode,  
-            _ => GearPins::TwoPinMode,  
+            ONE_PIN_MODE => GearPins::OnePinMode,
+            _ => GearPins::TwoPinMode,
         }
     }
 }
@@ -335,9 +339,9 @@ pub struct GearAlarmControl {
 
 impl Default for GearAlarmControl {
     fn default() -> Self {
-        GearAlarmControl { 
-            gear_pins: GearPins::TwoPinMode, 
-            pin_gear_or_both_function: InPinFunction::None, 
+        GearAlarmControl {
+            gear_pins: GearPins::TwoPinMode,
+            pin_gear_or_both_function: InPinFunction::None,
             pin_airbrakes_function: InPinFunction::None,
             gear_state: false,
             airbrakes_state: false,
@@ -353,11 +357,11 @@ impl GearAlarmControl {
             InPinFunction::OnClose => match state {
                 PinState::High => false,
                 PinState::Low => true,
-            }
+            },
             InPinFunction::OnOpen => match state {
                 PinState::High => true,
                 PinState::Low => false,
-            }
+            },
         };
         self.alarm_is_active(cm)
     }
@@ -376,11 +380,11 @@ impl GearAlarmControl {
             InPinFunction::OnClose => match state {
                 PinState::High => false,
                 PinState::Low => true,
-            }
+            },
             InPinFunction::OnOpen => match state {
                 PinState::High => true,
                 PinState::Low => false,
-            }
+            },
         };
         self.alarm_is_active(cm)
     }
@@ -408,13 +412,9 @@ impl GearAlarmControl {
         };
         if alarm {
             cm.config.overlay_active = OverlayActive::Info(TypeOfInfo::GearAlarm);
-        } else {
-            if cm.config.overlay_active == OverlayActive::Info(TypeOfInfo::GearAlarm) {
-                cm.config.overlay_active = OverlayActive::None;
-            }
+        } else if cm.config.overlay_active == OverlayActive::Info(TypeOfInfo::GearAlarm) {
+            cm.config.overlay_active = OverlayActive::None;
         }
         alarm
     }
-
-
 }

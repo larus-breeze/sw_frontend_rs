@@ -277,8 +277,9 @@ impl Editable {
                     Content::Enum(TString::<16>::from_str("Bright"))
                 }
             }
-            Editable::VarioModeControl => 
-                Content::Enum(TString::<16>::from_str(cm.control.vario_mode_control.as_str())),
+            Editable::VarioModeControl => Content::Enum(TString::<16>::from_str(
+                cm.control.vario_mode_control.as_str(),
+            )),
             Editable::Volume => Content::F32(Some(cm.config.volume as f32)),
             Editable::AlarmVolume => Content::F32(Some(cm.control.alarm_volume as f32)),
             Editable::WaterBallast => Content::F32(Some(cm.glider_data.water_ballast.to_kg())),
@@ -351,15 +352,27 @@ impl Editable {
             Editable::BatteryGood => Content::F32(Some(cm.config.battery_good)),
             Editable::BatteryBad => Content::F32(Some(cm.config.battery_bad)),
 
-            Editable::DrainPinConfig => Content::Enum(TString::<16>::from_str(cc.drain_control.pin_function().as_str())),
+            Editable::DrainPinConfig => Content::Enum(TString::<16>::from_str(
+                cc.drain_control.pin_function().as_str(),
+            )),
             Editable::FlowEmpty => Content::F32(Some(cc.drain_control.flow_rate_offset)),
             Editable::FlowSlope => Content::F32(Some(cc.drain_control.flow_rate_slope)),
 
-            Editable::FlashControl => Content::Enum(TString::<16>::from_str(cc.flash_control.pin_function().as_str())),
-            Editable::SpeedToFlyPinConfig => Content::Enum(TString::<16>::from_str(cc.speed_to_fly_control.pin_function().as_str())),
-            Editable::GearPinConfig => Content::Enum(TString::<16>::from_str(cc.gear_alarm_control.gear_pin_function().as_str())),
-            Editable::AirbrakesPinConfig => Content::Enum(TString::<16>::from_str(cc.gear_alarm_control.airbrakes_pin_function().as_str())),
-            Editable::GearAlarmModeConfig => Content::Enum(TString::<16>::from_str(cc.gear_alarm_control.gear_pin_mode().as_str())),
+            Editable::FlashControl => Content::Enum(TString::<16>::from_str(
+                cc.flash_control.pin_function().as_str(),
+            )),
+            Editable::SpeedToFlyPinConfig => Content::Enum(TString::<16>::from_str(
+                cc.speed_to_fly_control.pin_function().as_str(),
+            )),
+            Editable::GearPinConfig => Content::Enum(TString::<16>::from_str(
+                cc.gear_alarm_control.gear_pin_function().as_str(),
+            )),
+            Editable::AirbrakesPinConfig => Content::Enum(TString::<16>::from_str(
+                cc.gear_alarm_control.airbrakes_pin_function().as_str(),
+            )),
+            Editable::GearAlarmModeConfig => Content::Enum(TString::<16>::from_str(
+                cc.gear_alarm_control.gear_pin_mode().as_str(),
+            )),
             Editable::StfUpperLimit => Content::F32(Some(cm.config.stf_upper_limit.to_km_h())),
             Editable::StfLowerLimit => Content::F32(Some(cm.config.stf_lower_limit.to_km_h())),
 
@@ -439,7 +452,11 @@ impl Editable {
                 send_can_config_frame(cm, cc, CanConfigId::AntSlaveRight, RemoteConfig::Get);
                 Content::F32(None)
             }
-            Editable::CmdMeas1 | Editable::CmdMeas2 | Editable::CmdMeas3 | Editable::CmdCalcOrientation | Editable::CmdFineTuneOrientation => {
+            Editable::CmdMeas1
+            | Editable::CmdMeas2
+            | Editable::CmdMeas3
+            | Editable::CmdCalcOrientation
+            | Editable::CmdFineTuneOrientation => {
                 Content::Enum(TString::<16>::from_str(TRIGGER_COMMAND))
             }
         }
