@@ -1,5 +1,8 @@
 Changelog
 =
+v0.3.7.4 Finetune editor for sensorbox ini values
+- Finetune editor for sensorbox ini values #96
+
 v0.3.7 Landing gear warning, adjustable stf deadband and some bug fixes
 - Warning function: Landing gear forgotten to extend #27
 - Add an adjustable audio deadband setting #87

@@ -320,15 +320,15 @@ impl Editable {
                     max: 359.0,
                     small_inc: 0.1,
                     big_inc: 1.0,
-                    dec_places: 0,
+                    dec_places: 1,
                     unit: "°",
                 })
             }
             Editable::PitotOffset | Editable::QnhDelta => Params::F32(F32Params {
                 min: -50.0,
                 max: 50.0,
-                small_inc: 1.0,
-                big_inc: 10.0,
+                small_inc: 0.1,
+                big_inc: 1.0,
                 dec_places: 1,
                 unit: "Pa",
             }),
@@ -340,7 +340,15 @@ impl Editable {
                 dec_places: 3,
                 unit: "",
             }),
-            Editable::MagAutoCalib | Editable::GnssConfig => Params::F32(F32Params {
+            Editable::MagAutoCalib => Params::F32(F32Params {
+                min: 0.0,
+                max: 2.0,
+                small_inc: 1.0,
+                big_inc: 1.0,
+                dec_places: 0,
+                unit: "",
+            }), 
+            Editable::GnssConfig => Params::F32(F32Params {
                 min: 1.0,
                 max: 3.0,
                 small_inc: 1.0,
@@ -360,7 +368,7 @@ impl Editable {
             }
             Editable::AntBaselen | Editable::AntSlaveDown | Editable::AntSlaveRight => {
                 Params::F32(F32Params {
-                    min: 0.0,
+                    min: -10.0,
                     max: 10.0,
                     small_inc: 0.01,
                     big_inc: 0.1,
