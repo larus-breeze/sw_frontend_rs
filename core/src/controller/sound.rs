@@ -111,14 +111,28 @@ impl SoundControl {
         self.tick += 1;
 
         match self.tick {
-            0..=4 | 11 | 18..=21 => (START_FREQ, false, 0), // silence
-            5 | 12 => (START_FREQ, true, cm.control.alarm_volume),
-            6..=10 | 13..=17 => (
+            0..=4 => (START_FREQ, false, 0), // silence
+            5 => (START_FREQ, true, cm.control.alarm_volume),
+            6..=10 => (
                 cm.calculated.frequency + INC_FREQ,
                 true,
                 cm.control.alarm_volume,
             ),
-            22..=60 => self.vario_sound(cm),
+            11 => (START_FREQ, false, 0), // silence
+            12 => (START_FREQ, true, cm.control.alarm_volume),
+            13..=17 => (
+                cm.calculated.frequency + INC_FREQ,
+                true,
+                cm.control.alarm_volume,
+            ),
+            18 => (START_FREQ, false, 0), // silence
+            19 => (START_FREQ, true, cm.control.alarm_volume),
+            20..=24 => (
+                cm.calculated.frequency + INC_FREQ,
+                true,
+                cm.control.alarm_volume,
+            ),
+            25..=40 => (START_FREQ, false, 0), // silence
             _ => {
                 self.tick = 0;
                 (START_FREQ, false, 0)
