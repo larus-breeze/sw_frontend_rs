@@ -11,6 +11,7 @@ use embedded_graphics::{
 };
 use u8g2_fonts::types::{FontColor, HorizontalAlignment, VerticalPosition};
 
+#[derive(PartialEq)]
 pub struct Edit {
     name_str: &'static str,
     val_str: TString<20>,

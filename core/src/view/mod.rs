@@ -12,7 +12,7 @@ pub(crate) mod vario;
 pub(crate) mod viewable;
 
 use crate::{
-    model::{CoreModel, DisplayActive, OverlayActive},
+    model::{CoreModel, DisplayActive, OverlayActive, TypeOfInfo},
     utils::Colors,
     view::{
         editor::Edit, fw_update::SwUpdate, horizon::Horizon, info::InfoView, menu::MenuView,
@@ -37,6 +37,7 @@ enum PrimaryView {
     MenuView(MenuView),
 }
 
+#[derive(PartialEq)]
 enum SecondaryView {
     Edit(Edit),
     MenuView(MenuView),
@@ -94,11 +95,15 @@ where
         self.secondary_view = match core_model.config.overlay_active {
             OverlayActive::Editor => Some(SecondaryView::Edit(Edit::new(core_model))),
             OverlayActive::Menu => Some(SecondaryView::MenuView(MenuView::new())),
-            OverlayActive::Info(type_of_info) => {
-                Some(SecondaryView::InfoView(InfoView::new(type_of_info)))
-            }
             OverlayActive::None => None,
         };
+
+        if self.secondary_view == None {
+            let type_of_info = core_model.config.info_active;
+            if type_of_info != TypeOfInfo::None {
+                self.secondary_view =Some(SecondaryView::InfoView(InfoView::new(type_of_info)));
+            }
+        }
     }
 
     pub fn draw(&mut self) -> Result<(), CoreError> {

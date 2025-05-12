@@ -19,6 +19,7 @@ pub enum DisplayActive {
 
 #[derive(Clone, Copy, PartialEq)]
 pub enum TypeOfInfo {
+    None,
     WaterBallast,
     GearAlarm,
 }
@@ -28,7 +29,6 @@ pub enum OverlayActive {
     None,
     Editor,
     Menu,
-    Info(TypeOfInfo),
 }
 
 /// Metastructur for config variables
@@ -36,6 +36,7 @@ pub enum OverlayActive {
 pub struct Config {
     pub display_active: DisplayActive,
     pub overlay_active: OverlayActive,
+    pub info_active: TypeOfInfo,
     pub last_display_active: DisplayActive,
     pub user_profile: u8,
     pub glider_idx: i32,
@@ -68,6 +69,7 @@ impl Config {
         Self {
             display_active: DisplayActive::Vario,
             overlay_active: OverlayActive::None,
+            info_active: TypeOfInfo::None,
             last_display_active: DisplayActive::Vario,
             user_profile: 0,
             glider_idx: 104,

@@ -1,7 +1,4 @@
-use crate::{
-    model::{OverlayActive, TypeOfInfo},
-    CoreModel, FloatToMass, PinState, VarioMode,
-};
+use crate::{model::TypeOfInfo, CoreModel, FloatToMass, PinState, VarioMode};
 
 pub const PIN_NONE: &str = "Not connected";
 pub const PIN_IN_CLOSE: &str = "When closed";
@@ -195,12 +192,12 @@ impl DrainControl {
             }
         };
         if self.is_flowing {
-            if cm.config.overlay_active == OverlayActive::None {
-                cm.config.overlay_active = OverlayActive::Info(TypeOfInfo::WaterBallast);
+            if cm.config.info_active == TypeOfInfo::None {
+                cm.config.info_active = TypeOfInfo::WaterBallast;
             }
-        } else if let OverlayActive::Info(type_of_info) = cm.config.overlay_active {
-            if type_of_info == TypeOfInfo::WaterBallast {
-                cm.config.overlay_active = OverlayActive::None
+        } else {
+            if cm.config.info_active == TypeOfInfo::WaterBallast {
+                cm.config.info_active = TypeOfInfo::None
             }
         }
     }
@@ -411,9 +408,9 @@ impl GearAlarmControl {
             GearPins::TwoPinMode => self.gear_state && self.airbrakes_state,
         };
         if alarm {
-            cm.config.overlay_active = OverlayActive::Info(TypeOfInfo::GearAlarm);
-        } else if cm.config.overlay_active == OverlayActive::Info(TypeOfInfo::GearAlarm) {
-            cm.config.overlay_active = OverlayActive::None;
+            cm.config.info_active = TypeOfInfo::GearAlarm;
+        } else if cm.config.info_active == TypeOfInfo::GearAlarm {
+            cm.config.info_active = TypeOfInfo::None;
         }
         alarm
     }
