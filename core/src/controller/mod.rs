@@ -35,7 +35,7 @@ use crate::{
     model::{DisplayActive, EditMode, VarioModeControl},
     system_of_units::{FloatToSpeed, Speed},
     utils::{KeyEvent, PIdleEvents, Pt1},
-    CoreModel, DeviceEvent, Editable, Event, IdleEvent, InputPinState, PinState, SdCardCmd,
+    CoreModel, DeviceEvent, Editable, Event, IdleEvent, InputPinState, SdCardCmd,
     VarioMode,
 };
 use helpers::nmea_cyclic_200ms;
@@ -226,16 +226,6 @@ impl CoreController {
 
     pub fn send_idle_event(&mut self, idle_event: IdleEvent) {
         let _ = self.p_idle_events.enqueue(idle_event);
-    }
-
-    #[allow(unused)]
-    fn set_output_pin(&mut self, pin: u8, pin_state: PinState) {
-        let event = match pin {
-            1 => IdleEvent::Output1(pin_state),
-            2 => IdleEvent::Output2(pin_state),
-            _ => return,
-        };
-        let _ = self.p_idle_events.enqueue(event);
     }
 
     // Event handler for reactions to inputs
