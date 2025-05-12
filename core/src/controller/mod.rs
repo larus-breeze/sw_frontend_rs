@@ -6,7 +6,7 @@ pub use helpers::{
 };
 pub(crate) use helpers::{
     DrainControl, FlashControl, GearAlarmControl, GearPins, InPinFunction, InTogglePinFunction,
-    SpeedToFlyControl, ONE_PIN_MODE, PIN_IN_CLOSE, PIN_IN_OPEN, PIN_IN_TOGGLE, PIN_NONE,
+    OutPinFunction, SpeedToFlyControl, ONE_PIN_MODE, PIN_IN_CLOSE, PIN_IN_OPEN, PIN_IN_TOGGLE, PIN_NONE,
     PIN_OUT_CLOSE, PIN_OUT_OPEN, TWO_PIN_MODE,
 };
 

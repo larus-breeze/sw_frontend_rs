@@ -12,7 +12,7 @@ use crate::{
         lineview::{LineView, Placement},
     },
     CoreController, CoreModel, Echo, FloatToMass, FloatToSpeed, GearPins, InPinFunction,
-    InTogglePinFunction, PersistenceId, RemoteConfig, Rotation,
+    InTogglePinFunction, OutPinFunction, PersistenceId, RemoteConfig, Rotation,
 };
 
 impl Editable {
@@ -122,7 +122,7 @@ impl Editable {
             Editable::FlashControl => persist::persist_set(
                 cc,
                 cm,
-                Variant::U8(InPinFunction::from(val.as_str()) as u8),
+                Variant::U8(OutPinFunction::from(val.as_str()) as u8),
                 PersistenceId::FlashControl,
                 Echo::None,
             ),
