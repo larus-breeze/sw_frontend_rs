@@ -28,7 +28,7 @@ use crate::{
 };
 
 use super::DisplayActive;
-pub(crate) use params::{EnumParams, F32Params, ListParams, Params, MAX_ENUM_VARIANTS};
+pub(crate) use params::{EnumParams, F32Params, ListParams, CmdParams, Params, MAX_ENUM_VARIANTS};
 use tfmt::Convert;
 
 #[repr(u8)]
@@ -106,8 +106,7 @@ const DEFAULT_CONFIG: &str = "Default Config";
 const FACTORY_RESET: &str = "Factory Reset";
 const DO_NOT_CHANGE: &str = "Do not change";
 
-const TRIGGER_COMMAND: &str = "Trigger Command";
-const RETURN: &str = "Return";
+const COMMAND_SENT: &str = "Command sent";
 
 const USER_1: &str = "User 1";
 const USER_2: &str = "User 2";
@@ -123,6 +122,7 @@ pub enum Content {
     Enum(TString<16>),
     String(TString<12>),
     List(i32),
+    Command(TString<16>),
 }
 
 impl Editable {
@@ -178,6 +178,11 @@ impl Editable {
             Params::String(_params) => {
                 if let Content::String(val) = content {
                     conv.write_str(val.as_str()).unwrap();
+                }
+            }
+            Params::Cmd(_params) => {
+                if let Content::Command(msg) = content {
+                    conv.write_str(msg.as_str()).unwrap();
                 }
             }
         }

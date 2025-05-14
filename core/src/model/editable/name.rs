@@ -65,9 +65,9 @@ impl Editable {
             Editable::AntSlaveRight => "Ant Slave Right",
             Editable::CmdMeas1 => "Left Wing down",
             Editable::CmdMeas2 => "Right Wing down",
-            Editable::CmdMeas3 => "Straight Flight",
+            Editable::CmdMeas3 => "Wings straight",
             Editable::CmdCalcOrientation => "Calc Orientation",
-            Editable::CmdFineTuneOrientation => "Fine Tune",
+            Editable::CmdFineTuneOrientation => "Straight Flight",
         }
     }
 }

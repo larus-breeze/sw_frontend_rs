@@ -1,6 +1,6 @@
 use super::{
     Content, DisplayActive, Editable, DEFAULT_CONFIG, DO_NOT_CHANGE, FACTORY_RESET, OFF, ON,
-    TRIGGER_COMMAND, USER_1, USER_2, USER_3, USER_4,
+    COMMAND_SENT, USER_1, USER_2, USER_3, USER_4,
 };
 use crate::{
     controller::{persist::send_can_config_frame, CanConfigId, RemoteConfig},
@@ -215,7 +215,7 @@ impl Editable {
             | Editable::CmdMeas3
             | Editable::CmdCalcOrientation
             | Editable::CmdFineTuneOrientation => {
-                Content::Enum(TString::<16>::from_str(TRIGGER_COMMAND))
+                Content::Command(TString::<16>::from_str(COMMAND_SENT))
             }
         }
     }
