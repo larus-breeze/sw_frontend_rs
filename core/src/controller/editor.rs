@@ -88,6 +88,17 @@ fn edit_list_content(
     }
 }
 
+fn edit_cmd_content(
+    _cm: &mut CoreModel,
+    _cc: &mut CoreController,
+    key_event: &mut KeyEvent,
+    _target: Editable,
+    _params: &CmdParams,
+) {
+    // There is nothing to do here, Cmd is sent when activating
+    *key_event = KeyEvent::NoEvent
+}
+
 pub fn key_action(key_event: &mut KeyEvent, cm: &mut CoreModel, cc: &mut CoreController) {
     if cm.control.editor.mode != EditMode::Off {
         match key_event {
@@ -125,6 +136,7 @@ pub fn key_action(key_event: &mut KeyEvent, cm: &mut CoreModel, cc: &mut CoreCon
             Params::String(_) => (),
             Params::List(params) => edit_list_content(cm, cc, key_event, target, &params),
             Params::F32(params) => edit_f32_content(cm, cc, key_event, target, &params),
+            Params::Cmd(params) => edit_cmd_content(cm, cc, key_event, target, &params),
         }
     }
     if cm.config.display_active != DisplayActive::Menu
@@ -160,6 +172,11 @@ pub fn activate_editable(editable: Editable, cm: &mut CoreModel, cc: &mut CoreCo
     cm.config.overlay_active = OverlayActive::Editor;
     cc.scheduler
         .after(crate::Timer::CloseEditFrame, SECTION_EDITOR_TIMEOUT.secs());
+
+    // a command is executed when activating it - not during edit session
+    if let Params::Cmd(_) = cm.control.editor.params {
+        editable.set_cmd_content(cm, cc);
+    }
 }
 
 pub fn close_edit_frame(cm: &mut CoreModel, _cc: &mut CoreController) {

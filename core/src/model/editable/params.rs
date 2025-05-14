@@ -1,5 +1,5 @@
 use super::{
-    Editable, DEFAULT_CONFIG, DO_NOT_CHANGE, FACTORY_RESET, OFF, ON, RETURN, TRIGGER_COMMAND,
+    Editable, DEFAULT_CONFIG, DO_NOT_CHANGE, FACTORY_RESET, OFF, ON, COMMAND_SENT,
     USER_1, USER_2, USER_3, USER_4,
 };
 use crate::{
@@ -42,11 +42,17 @@ pub struct ListParams {
 }
 
 #[derive(Clone, Copy)]
+pub struct CmdParams {
+    pub content: TString<16>,
+}
+
+#[derive(Clone, Copy)]
 pub enum Params {
     F32(F32Params),
     Enum(EnumParams),
     String(StringParams),
     List(ListParams),
+    Cmd(CmdParams),
 }
 
 impl Editable {
@@ -380,15 +386,9 @@ impl Editable {
             | Editable::CmdMeas2
             | Editable::CmdMeas3
             | Editable::CmdCalcOrientation
-            | Editable::CmdFineTuneOrientation => Params::Enum(EnumParams {
-                variants: [
-                    TString::<16>::from_str(TRIGGER_COMMAND),
-                    TString::<16>::from_str(RETURN),
-                    TString::<16>::from_str(""),
-                    TString::<16>::from_str(""),
-                    TString::<16>::from_str(""),
-                ],
-            }),
+            | Editable::CmdFineTuneOrientation => Params::Cmd(
+                CmdParams { content: TString::<16>::from_str(COMMAND_SENT) }
+            ),
             Editable::GearAlarmModeConfig => Params::Enum(EnumParams {
                 variants: [
                     TString::<16>::from_str(ONE_PIN_MODE),
