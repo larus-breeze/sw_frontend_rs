@@ -1,5 +1,11 @@
 Changelog
 =
+v0.3.7.11 Further improvements
+- The “Flash Control” setting is not saved and does not take effect #100
+- The acoustics of an alarm "Landing Gear" should attract more attention #99
+- The “Landing Gear” alarm disappears when a menu is opened #98
+- Improve adjustment of the sensor box #97
+
 v0.3.7.4 Finetune editor for sensorbox ini values
 - Finetune editor for sensorbox ini values #96
 
