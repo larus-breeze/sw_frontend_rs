@@ -1,0 +1,16 @@
+{
+	"folders": [
+		{
+			"path": "core"
+		},
+		{
+			"path": "device/larus_frontend_v2"
+		},
+		{
+			"path": "."
+		}
+	],
+	"settings": {
+		"rust-analyzer.showUnlinkedFileNotification": false
+	}
+}
