@@ -182,6 +182,7 @@ mod tests {
     use super::*;
     use crate::assert_float_eq;
     use crate::{FloatToDensity, FloatToMass, FloatToSpeed};
+    use std::{io::*, fs::File, vec::Vec};
 
     const BASIC_GLIDER_DATA: BasicGliderData = BasicGliderData {
         // 0
@@ -194,6 +195,43 @@ mod tests {
         handicap: 107,
         polar_values: [[80.0, -0.604], [105.0, -0.700], [180.0, -1.939]],
     };
+
+    fn write_stf_to_csv(file_name: &str, polar: &mut Polar) {
+        fn write_stf_for_mc<W: Write>(f: &mut W, mc: f32, polar: &mut Polar) {
+            let mut si_met = 0.0;
+            while si_met > -3.1 {
+                let stf = polar.speed_to_fly(si_met.m_s(), mc.m_s()).tas().to_km_h();
+                writeln!(f, "{:.1};{:.1};{:.0}", mc, si_met, stf).unwrap();
+                si_met -= 0.5;
+            }
+        }
+
+        // let mut f = File::create(file_name).unwrap();
+        let mut now_calculated = Vec::new();
+        now_calculated.write(b"mc;si_met;speed_to_fly\n").unwrap();
+        write_stf_for_mc(&mut now_calculated, 0.0, polar);
+        write_stf_for_mc(&mut now_calculated, 1.0, polar);
+        write_stf_for_mc(&mut now_calculated, 2.0, polar);
+        write_stf_for_mc(&mut now_calculated, 3.0, polar);
+
+        let mut r = File::open(file_name).unwrap();
+        let mut should_be = Vec::new();
+        let _ = r.read_to_end(&mut should_be).unwrap();
+        assert_eq!(now_calculated, should_be);
+    }
+
+    #[test]
+    fn test_stf_table() {
+        let mut glider_data = GliderData::default();
+        glider_data.basic_glider_data = BASIC_GLIDER_DATA;
+
+        #[allow(unused_mut)]
+        let mut polar = Polar::default();
+        polar.recalc_glider(&glider_data);
+        polar.recalc(&glider_data, Density::AT_NN());
+
+        write_stf_to_csv("tests/ls_3_wl.csv", &mut polar);
+    }
 
     #[test]
     fn test_basic_functions() {
