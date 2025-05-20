@@ -69,7 +69,7 @@ pub enum PersistenceId {
     PolarValueSi3 = 26,
     GliderSymbol = 27,
     BatteryGood = 28,
-    BatteryBad = 29,
+    BatteryLow = 29,
     DrainPinConfig = 30,
     FlowEmpty = 31,
     FlowSlope = 32,
@@ -109,7 +109,7 @@ const DELETE_CONFIG_LIST: &[PersistenceId] = &[
     PersistenceId::CenterViewStraight,
     PersistenceId::GliderSymbol,
     PersistenceId::BatteryGood,
-    PersistenceId::BatteryBad,
+    PersistenceId::BatteryLow,
     PersistenceId::DrainPinConfig,
     PersistenceId::FlowEmpty,
     PersistenceId::FlowSlope,
@@ -211,7 +211,7 @@ pub fn restore_item(cc: &mut CoreController, cm: &mut CoreModel, item: Persisten
         }
         PersistenceId::GliderSymbol => cm.config.glider_symbol = item.to_bool(),
         PersistenceId::BatteryGood => cm.config.battery_good = item.to_f32(),
-        PersistenceId::BatteryBad => cm.config.battery_bad = item.to_f32(),
+        PersistenceId::BatteryLow => cm.config.battery_low = item.to_f32(),
         PersistenceId::DrainPinConfig => cc
             .drain_control
             .set_pin_function(InPinFunction::from(item.to_u8()), cm),
@@ -311,7 +311,7 @@ pub fn store_item(cc: &mut CoreController, cm: &mut CoreModel, id: PersistenceId
         }
         PersistenceId::GliderSymbol => PersistenceItem::from_bool(id, cm.config.glider_symbol),
         PersistenceId::BatteryGood => PersistenceItem::from_f32(id, cm.config.battery_good),
-        PersistenceId::BatteryBad => PersistenceItem::from_f32(id, cm.config.battery_bad),
+        PersistenceId::BatteryLow => PersistenceItem::from_f32(id, cm.config.battery_low),
         PersistenceId::DrainPinConfig => {
             PersistenceItem::from_u8(id, cc.drain_control.pin_function() as u8)
         }
@@ -517,9 +517,9 @@ pub fn persist_set(
                 cm.config.battery_good = value;
             }
         }
-        PersistenceId::BatteryBad => {
+        PersistenceId::BatteryLow => {
             if let Variant::F32(value) = variant {
-                cm.config.battery_bad = value;
+                cm.config.battery_low = value;
             }
         }
         PersistenceId::DrainPinConfig => {

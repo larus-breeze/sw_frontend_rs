@@ -250,7 +250,7 @@ impl Editable {
                     TString::<16>::from_str(""),
                 ],
             }),
-            Editable::BatteryBad | Editable::BatteryGood => Params::F32(F32Params {
+            Editable::BatteryLow | Editable::BatteryGood => Params::F32(F32Params {
                 min: 7.0,
                 max: 15.0,
                 small_inc: 0.1,

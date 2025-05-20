@@ -66,7 +66,7 @@ pub enum Editable {
     PolarValueSi3,
     GliderSymbol,
     BatteryGood,
-    BatteryBad,
+    BatteryLow,
     DrainPinConfig,
     FlowEmpty,
     FlowSlope,

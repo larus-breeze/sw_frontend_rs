@@ -182,7 +182,7 @@ pub const ADVANCED_SETTINGS: Menu = Menu {
             next_menu_idx: ADVANCED_SETTINGS_IDX,
         },
         MenuItem {
-            content: MenuItemContent::EditItem(Editable::BatteryBad),
+            content: MenuItemContent::EditItem(Editable::BatteryLow),
             next_menu_idx: ADVANCED_SETTINGS_IDX,
         },
         MenuItem {

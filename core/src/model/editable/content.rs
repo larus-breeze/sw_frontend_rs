@@ -108,7 +108,7 @@ impl Editable {
                 }
             }
             Editable::BatteryGood => Content::F32(Some(cm.config.battery_good)),
-            Editable::BatteryBad => Content::F32(Some(cm.config.battery_bad)),
+            Editable::BatteryLow => Content::F32(Some(cm.config.battery_low)),
 
             Editable::DrainPinConfig => Content::Enum(TString::<16>::from_str(
                 cc.drain_control.pin_function().as_str(),

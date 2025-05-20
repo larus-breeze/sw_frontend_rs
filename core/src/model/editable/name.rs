@@ -35,7 +35,7 @@ impl Editable {
             Editable::PolarValueSi3 => "Polar Si 3",
             Editable::GliderSymbol => "Glider Symbol",
             Editable::BatteryGood => "Battery good",
-            Editable::BatteryBad => "Battery bad",
+            Editable::BatteryLow => "Battery low",
             Editable::DrainPinConfig => "Drain Pin Config",
             Editable::FlowEmpty => "Lowest Flow",
             Editable::FlowSlope => "Flow Slope",
