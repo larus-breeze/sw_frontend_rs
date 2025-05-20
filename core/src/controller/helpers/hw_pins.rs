@@ -221,16 +221,16 @@ impl FlashControl {
             OutPinFunction::None => None,
             OutPinFunction::Closed => {
                 if cm.sensor.airspeed.ias().to_km_h() > 40.0 {
-                    Some(PinState::Low)
-                } else {
                     Some(PinState::High)
+                } else {
+                    Some(PinState::Low)
                 }
             }
             OutPinFunction::Opened => {
                 if cm.sensor.airspeed.ias().to_km_h() > 40.0 {
-                    Some(PinState::High)
-                } else {
                     Some(PinState::Low)
+                } else {
+                    Some(PinState::High)
                 }
             }
         }
