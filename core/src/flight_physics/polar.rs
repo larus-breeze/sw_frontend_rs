@@ -184,7 +184,7 @@ mod tests {
     use crate::{FloatToDensity, FloatToMass, FloatToSpeed};
     use std::{io::*, fs::File, vec::Vec};
 
-    const BASIC_GLIDER_DATA: BasicGliderData = BasicGliderData {
+    const LS3_GLIDER_DATA: BasicGliderData = BasicGliderData {
         // 0
         name: "LS-3 WL", // D-2817, erste Winglets
         wing_area: 10.5,
@@ -196,6 +196,19 @@ mod tests {
         polar_values: [[80.0, -0.604], [105.0, -0.700], [180.0, -1.939]],
     };
 
+    const AS33_GLIDER_DATA: BasicGliderData = BasicGliderData {
+        // No 167,  Manufacturer's data interpreted by Andreas Westkamp
+        name: "AS-33 18m",
+        wing_area: 10.00,
+        max_speed: 270.0,
+        empty_mass: 285.0,
+        max_ballast: 220.0,
+        reference_weight: 400.0,
+        handicap: 122,
+        polar_values: [[97.2, -0.511], [111.6, -0.556], [180.0, -1.369]],
+    };
+
+
     fn write_stf_to_csv(file_name: &str, polar: &mut Polar) {
         fn write_stf_for_mc<W: Write>(f: &mut W, mc: f32, polar: &mut Polar) {
             let mut si_met = 0.0;
@@ -206,7 +219,7 @@ mod tests {
             }
         }
 
-        // let mut f = File::create(file_name).unwrap();
+        //let mut now_calculated = File::create(file_name).unwrap();
         let mut now_calculated = Vec::new();
         now_calculated.write(b"mc;si_met;speed_to_fly\n").unwrap();
         write_stf_for_mc(&mut now_calculated, 0.0, polar);
@@ -223,20 +236,25 @@ mod tests {
     #[test]
     fn test_stf_table() {
         let mut glider_data = GliderData::default();
-        glider_data.basic_glider_data = BASIC_GLIDER_DATA;
-
-        #[allow(unused_mut)]
+        glider_data.basic_glider_data = LS3_GLIDER_DATA;
         let mut polar = Polar::default();
         polar.recalc_glider(&glider_data);
         polar.recalc(&glider_data, Density::AT_NN());
 
-        write_stf_to_csv("tests/ls_3_wl.csv", &mut polar);
+        write_stf_to_csv("tests/ls3_wl.csv", &mut polar);
+
+        glider_data.basic_glider_data = AS33_GLIDER_DATA;
+        let mut polar = Polar::default();
+        polar.recalc_glider(&glider_data);
+        polar.recalc(&glider_data, Density::AT_NN());
+
+        write_stf_to_csv("tests/as33.csv", &mut polar);
     }
 
     #[test]
     fn test_basic_functions() {
         let mut glider_data = GliderData::default();
-        glider_data.basic_glider_data = BASIC_GLIDER_DATA;
+        glider_data.basic_glider_data = LS3_GLIDER_DATA;
 
         #[allow(unused_mut)]
         let mut polar = Polar::default();
