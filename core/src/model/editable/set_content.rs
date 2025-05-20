@@ -319,11 +319,11 @@ impl Editable {
                 PersistenceId::BatteryGood,
                 Echo::None,
             ),
-            Editable::BatteryBad => persist::persist_set(
+            Editable::BatteryLow => persist::persist_set(
                 cc,
                 cm,
                 Variant::F32(val),
-                PersistenceId::BatteryBad,
+                PersistenceId::BatteryLow,
                 Echo::None,
             ),
             Editable::FlowEmpty => persist::persist_set(

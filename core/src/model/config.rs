@@ -59,7 +59,7 @@ pub struct Config {
     pub center_straignt: CenterView,
     pub glider_symbol: bool,
     pub battery_good: f32,
-    pub battery_bad: f32,
+    pub battery_low: f32,
     pub stf_upper_limit: Speed,
     pub stf_lower_limit: Speed,
 }
@@ -92,7 +92,7 @@ impl Config {
             center_straignt: CenterView::SingleArrowStraight,
             glider_symbol: true,
             battery_good: 11.5,
-            battery_bad: 10.0,
+            battery_low: 10.0,
             stf_upper_limit: 10.0.km_h(),
             stf_lower_limit: -10.0.km_h(),
         }

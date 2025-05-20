@@ -82,7 +82,7 @@ impl Vario {
                 sizes.bat_pos,
                 Some(cm.palette().signal_go),
             )?;
-        } else if cm.calculated.av_supply_voltage < cm.config.battery_bad {
+        } else if cm.calculated.av_supply_voltage < cm.config.battery_low {
             display.draw_img(
                 cm.device_const.images.bat_empty,
                 sizes.bat_pos,
