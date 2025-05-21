@@ -1,5 +1,9 @@
 Changelog
 =
+v0.3.7.17 Further improvements
+- Rename "Battery bad" to "Battery low" #102
+- Invert output of canopy flash control #103
+
 v0.3.7.11 Further improvements
 - The “Flash Control” setting is not saved and does not take effect #100
 - The acoustics of an alarm "Landing Gear" should attract more attention #99
