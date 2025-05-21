@@ -19,7 +19,9 @@ fn speed_to_fly(cm: &mut CoreModel, cc: &mut CoreController) {
     let vario_mode = cm.control.vario_mode;
 
     // In auto mode switch between Vario and SpeedToFly
-    if cm.sensor.airspeed.ias() > cm.control.speed_to_fly_limit {
+    if cm.sensor.airspeed.ias() > cm.control.speed_to_fly_limit
+        && cm.control.fly_mode == FlyMode::StraightFlight
+    {
         cm.set_vario_mode(VarioMode::SpeedToFly, VarioModeControl::Auto);
     } else {
         cm.set_vario_mode(VarioMode::Vario, VarioModeControl::Auto);

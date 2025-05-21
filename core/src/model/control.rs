@@ -14,7 +14,7 @@ use crate::{
 /// In Flymode::Gliding the mean climb is hidden and the speed command is displayed
 /// graphically and as a number. Flymode::Transition is treatet like Flymode::Gliding
 #[repr(u8)]
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq)]
 pub enum FlyMode {
     Circling,
     StraightFlight,
