@@ -1,8 +1,8 @@
 Changelog
 =
+v0.3.7.19 Make vario/speed to fly switching also dependent on the rotation rate #109
+
 v0.3.7.17 Further improvements
-- Rename "Battery bad" to "Battery low" #102
-- Invert output of canopy flash control #103
 
 v0.3.7.11 Further improvements
 - The “Flash Control” setting is not saved and does not take effect #100
