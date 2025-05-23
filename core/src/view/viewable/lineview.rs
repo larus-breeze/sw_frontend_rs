@@ -21,23 +21,26 @@ pub enum LineView {
     WindAndDelta,
     DriftAngle,
     WindAndAvgWind,
+    SpeedToFly,
     LastElemntNotInUse,
 }
 
-const TOP_LINE_VIEW: [LineView; 6] = [
+const TOP_LINE_VIEW: [LineView; 7] = [
     LineView::None,
     LineView::AverageClimbRate,
     LineView::DriftAngle,
     LineView::FlightLevel,
+    LineView::SpeedToFly,
     LineView::TrueCourse,
     LineView::UtcTime,
 ];
 
-const BOTTOM_LINE_VIEW: [LineView; 8] = [
+const BOTTOM_LINE_VIEW: [LineView; 9] = [
     LineView::None,
     LineView::AverageClimbRate,
     LineView::DriftAngle,
     LineView::FlightLevel,
+    LineView::SpeedToFly,
     LineView::TrueCourse,
     LineView::UtcTime,
     LineView::WindAndAvgWind,
@@ -101,6 +104,7 @@ impl LineView {
             LineView::AverageClimbRate => "Avg Climb Rate",
             LineView::DriftAngle => "Drift Angle",
             LineView::FlightLevel => "Flight Level",
+            LineView::SpeedToFly => "Speed to Fly",
             LineView::TrueCourse => "True Course",
             LineView::UtcTime => "UTC Time",
             LineView::WindAndAvgWind => "Wind, avg Wind",
@@ -126,6 +130,7 @@ impl LineView {
             LineView::AverageClimbRate => draw_average_climb_rate(display, cm, pos, color),
             LineView::DriftAngle => draw_drift_angle(display, cm, pos, color),
             LineView::FlightLevel => draw_flight_level(display, cm, pos, color),
+            LineView::SpeedToFly => draw_speed_to_fly(display, cm, pos, color),
             LineView::TrueCourse => draw_true_course(display, cm, pos, color),
             LineView::UtcTime => draw_utc_time(display, cm, pos, color),
             LineView::WindAndAvgWind => draw_wind_and_avg_wind(display, cm, pos, color),
@@ -231,6 +236,38 @@ where
         FontColor::Transparent(color),
         display,
     )?;
+    Ok(())
+}
+
+fn draw_speed_to_fly<D>(
+    display: &mut D,
+    cm: &CoreModel,
+    pos: Point,
+    color: Colors,
+) -> Result<(), CoreError>
+where
+    D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
+{
+    let stf = cm.calculated.speed_to_fly_1s.to_km_h();
+    let s = tformat!(8, "stf {:.0}", stf).unwrap();
+    let txt_x = pos.x - cm.device_const.sizes.display.km_h.width as i32 / 2;
+    let result = cm.device_const.big_font.render_aligned(
+        s.as_str(),
+        Point::new(txt_x, pos.y),
+        VerticalPosition::Center,
+        HorizontalAlignment::Center,
+        FontColor::Transparent(color),
+        display,
+    )?;
+    if let Some(rectangle) = result {
+        let pic_x = txt_x + 2 + (rectangle.size.width / 2) as i32;
+        let pic_y = pos.y - (cm.device_const.sizes.display.km_h.height as i32) / 2;
+        display.draw_img(
+            cm.device_const.images.km_h,
+            Point::new(pic_x, pic_y),
+            Some(color),
+        )?;
+    }
     Ok(())
 }
 
