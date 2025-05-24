@@ -1,4 +1,4 @@
-use crate::{tformat, Colors, CoreError, CoreModel, DrawImage, FloatToSpeed};
+use crate::{model::DataSource, tformat, Colors, CoreError, CoreModel, DrawImage, FloatToSpeed};
 use embedded_graphics::{draw_target::DrawTarget, geometry::Point};
 use num_enum::FromPrimitive;
 use u8g2_fonts::types::{FontColor, HorizontalAlignment, VerticalPosition};
@@ -149,10 +149,14 @@ fn draw_average_climb_rate<D>(
 where
     D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
 {
-    let s = if cm.calculated.av2_climb_rate.to_m_s() < 0.0 {
-        tformat!(5, "{:.1}", cm.calculated.av2_climb_rate.to_m_s()).unwrap()
+    let avg_climb_rate = match cm.control.avg_climb_rate_src {
+        DataSource::Frontend => cm.calculated.av2_climb_rate.to_m_s(),
+        DataSource::Sensorbox => cm.sensor.average_climb_rate.to_m_s(),
+    };
+    let s = if avg_climb_rate < 0.0 {
+        tformat!(5, "{:.1}", avg_climb_rate).unwrap()
     } else {
-        tformat!(5, "+{:.1}", cm.calculated.av2_climb_rate.to_m_s()).unwrap()
+        tformat!(5, "+{:.1}", avg_climb_rate).unwrap()
     };
     let txt_x = pos.x - cm.device_const.sizes.display.m_s.width as i32 / 2;
     let result = cm.device_const.big_font.render_aligned(

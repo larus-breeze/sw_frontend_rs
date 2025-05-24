@@ -85,6 +85,44 @@ impl VarioModeControl {
     }
 }
 
+#[repr(u8)]
+#[derive(PartialEq, Eq, Clone, Copy)]
+pub enum DataSource {
+    Frontend,
+    Sensorbox,
+}
+
+pub const DATA_SOURCE_FRONTEND: &str = "Frontend";
+pub const DATA_SOURCE_SENSORBOX: &str = "Sensorbox";
+
+impl From<u8> for DataSource {
+    fn from(value: u8) -> Self {
+        match value {
+            1 => DataSource::Sensorbox,
+            _ => DataSource::Frontend,
+        }
+    }
+}
+
+impl From<&str> for DataSource {
+    fn from(value: &str) -> Self {
+        match value {
+            DATA_SOURCE_SENSORBOX => DataSource::Sensorbox,
+            _ => DataSource::Frontend,
+        }
+    }
+}
+
+impl DataSource {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            DataSource::Frontend => DATA_SOURCE_FRONTEND,
+            DataSource::Sensorbox => DATA_SOURCE_SENSORBOX,
+        }
+    }
+}
+
+
 /// Enum mode controls whether the background should be visible or not when editing a data
 /// point.
 #[repr(u8)]
@@ -155,6 +193,8 @@ pub struct Control {
     pub reset_config: i8,
     /// Volume for alarms
     pub alarm_volume: i8,
+    /// Source average climb rate
+    pub avg_climb_rate_src: DataSource,
 }
 
 impl Default for Control {
@@ -180,6 +220,7 @@ impl Default for Control {
             rotation: Rotation::Rotate0,
             reset_config: 0,
             alarm_volume: 15,
+            avg_climb_rate_src: DataSource::Frontend,
         }
     }
 }

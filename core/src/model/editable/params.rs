@@ -4,7 +4,7 @@ use super::{
 };
 use crate::{
     flight_physics::polar_store,
-    model::control::{VARIO_MODE_CONTROL_AUTO, VARIO_MODE_CONTROL_NMEA, VARIO_MODE_CONTROL_PIN},
+    model::control::{DATA_SOURCE_FRONTEND, DATA_SOURCE_SENSORBOX, VARIO_MODE_CONTROL_AUTO, VARIO_MODE_CONTROL_NMEA, VARIO_MODE_CONTROL_PIN},
     utils::TString,
     view::viewable::{
         centerview::{CenterType, CenterView},
@@ -319,6 +319,16 @@ impl Editable {
                 dec_places: 0,
                 unit: "km/h",
             }),
+            Editable::AvgClimbRateSrc => Params::Enum(EnumParams {
+                variants: [
+                    TString::<16>::from_str(DATA_SOURCE_FRONTEND),
+                    TString::<16>::from_str(DATA_SOURCE_SENSORBOX),
+                    TString::<16>::from_str(""),
+                    TString::<16>::from_str(""),
+                    TString::<16>::from_str(""),
+                ],
+            }),
+
 
             Editable::SensTiltRoll | Editable::SensTiltPitch | Editable::SensTiltYaw => {
                 Params::F32(F32Params {

@@ -21,7 +21,7 @@ use num_enum::FromPrimitive;
 
 use super::{
     helpers::{GearPins, InPinFunction, InTogglePinFunction, OutPinFunction},
-    VarioModeControl, MAX_PERS_IDS,
+    DataSource, VarioModeControl, MAX_PERS_IDS,
 };
 use crate::{
     basic_config::PERSISTENCE_TIMEOUT,
@@ -81,7 +81,8 @@ pub enum PersistenceId {
     AlarmVolume = 38,
     StfUpperLimit = 39,
     StfLowerLimit = 40,
-    LastItem = 41, // Items smaller than this are stored in eeprom
+    AvgClimbeRateSrc = 41,
+    LastItem = 42, // Items smaller than this are stored in eeprom
 
     UserProfile = 65533, // Special function Ids
     DeleteAll = 65534,
@@ -120,6 +121,7 @@ const DELETE_CONFIG_LIST: &[PersistenceId] = &[
     PersistenceId::AlarmVolume,
     PersistenceId::StfUpperLimit,
     PersistenceId::StfLowerLimit,
+    PersistenceId::AvgClimbeRateSrc,
 ];
 
 const SPECIFIC_POLAR_SETTINGS: &[PersistenceId] = &[
@@ -184,7 +186,7 @@ pub fn restore_item(cc: &mut CoreController, cm: &mut CoreModel, item: Persisten
             cm.config.center_circling = CenterView::from(item.to_u8())
         }
         PersistenceId::CenterViewStraight => {
-            cm.config.center_straignt = CenterView::from(item.to_u8())
+            cm.config.center_straight = CenterView::from(item.to_u8())
         }
         PersistenceId::EmptyMass => cm.glider_data.basic_glider_data.empty_mass = item.to_f32(),
         PersistenceId::MaxBallast => cm.glider_data.basic_glider_data.max_ballast = item.to_f32(),
@@ -235,6 +237,9 @@ pub fn restore_item(cc: &mut CoreController, cm: &mut CoreModel, item: Persisten
         PersistenceId::AlarmVolume => cm.control.alarm_volume = item.to_i8(),
         PersistenceId::StfUpperLimit => cm.config.stf_upper_limit = item.to_f32().km_h(),
         PersistenceId::StfLowerLimit => cm.config.stf_lower_limit = item.to_f32().km_h(),
+        PersistenceId::AvgClimbeRateSrc => {
+            cm.control.avg_climb_rate_src = DataSource::from(item.to_u8())
+        }
         _ => (),
     }
 }
@@ -280,7 +285,7 @@ pub fn store_item(cc: &mut CoreController, cm: &mut CoreModel, id: PersistenceId
             PersistenceItem::from_u32(id, cm.config.center_circling as u32)
         }
         PersistenceId::CenterViewStraight => {
-            PersistenceItem::from_u32(id, cm.config.center_straignt as u32)
+            PersistenceItem::from_u32(id, cm.config.center_straight as u32)
         }
         PersistenceId::EmptyMass => {
             PersistenceItem::from_f32(id, cm.glider_data.basic_glider_data.empty_mass)
@@ -340,6 +345,9 @@ pub fn store_item(cc: &mut CoreController, cm: &mut CoreModel, id: PersistenceId
         }
         PersistenceId::StfLowerLimit => {
             PersistenceItem::from_f32(id, cm.config.stf_lower_limit.to_km_h())
+        }
+        PersistenceId::AvgClimbeRateSrc => {
+            PersistenceItem::from_u8(id, cm.control.avg_climb_rate_src as u8)
         }
 
         _ => PersistenceItem::do_not_store(),
@@ -450,7 +458,7 @@ pub fn persist_set(
         }
         PersistenceId::CenterViewStraight => {
             if let Variant::I32(view) = variant {
-                cm.config.center_straignt = CenterView::from(view as u8);
+                cm.config.center_straight = CenterView::from(view as u8);
             }
         }
         PersistenceId::EmptyMass => {
@@ -581,6 +589,11 @@ pub fn persist_set(
         PersistenceId::StfLowerLimit => {
             if let Variant::Speed(value) = variant {
                 cm.config.stf_lower_limit = value;
+            }
+        }
+        PersistenceId::AvgClimbeRateSrc => {
+            if let Variant::DataSource(data_source) = variant {
+                cm.control.avg_climb_rate_src = data_source;
             }
         }
 

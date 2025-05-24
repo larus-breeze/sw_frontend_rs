@@ -51,6 +51,7 @@ pub const SENSOR_BOX_COMMANDS_IDX: usize = 7;
 pub const SENSOR_BOX_SETTINGS_IDX: usize = 8;
 pub const SPEED_TO_FLY_IDX: usize = 9;
 pub const LANDING_GEAR_ALARM_IDX: usize = 10;
+pub const AVERAGE_CLIMB_RATE_IDX: usize = 11;
 
 pub const MENU_LIST: &[Menu] = &[
     ROOT,
@@ -64,6 +65,7 @@ pub const MENU_LIST: &[Menu] = &[
     SENSOR_BOX_SETTINGS,
     SPEED_TO_FLY,
     LANDING_GEAR_ALARM,
+    AVERAGE_CLIMB_RATE,
 ];
 
 pub const ROOT: Menu = Menu {
@@ -170,10 +172,6 @@ pub const ADVANCED_SETTINGS: Menu = Menu {
             next_menu_idx: ADVANCED_SETTINGS_IDX,
         },
         MenuItem {
-            content: MenuItemContent::EditItem(Editable::TcClimbRate),
-            next_menu_idx: ADVANCED_SETTINGS_IDX,
-        },
-        MenuItem {
             content: MenuItemContent::EditItem(Editable::CenterFrequency),
             next_menu_idx: ADVANCED_SETTINGS_IDX,
         },
@@ -192,6 +190,10 @@ pub const ADVANCED_SETTINGS: Menu = Menu {
         MenuItem {
             content: MenuItemContent::EditItem(Editable::ResetConfig),
             next_menu_idx: ADVANCED_SETTINGS_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::MenuItem(),
+            next_menu_idx: AVERAGE_CLIMB_RATE_IDX,
         },
         MenuItem {
             content: MenuItemContent::MenuItem(),
@@ -442,6 +444,25 @@ pub const LANDING_GEAR_ALARM: Menu = Menu {
         MenuItem {
             content: MenuItemContent::EditItem(Editable::AirbrakesPinConfig),
             next_menu_idx: LANDING_GEAR_ALARM_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::Return),
+            next_menu_idx: ADVANCED_SETTINGS_IDX,
+        },
+    ],
+};
+
+pub const AVERAGE_CLIMB_RATE: Menu = Menu {
+    name: "Avg Climb Rate",
+    level: 3,
+    items: &[
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::AvgClimbRateSrc),
+            next_menu_idx: AVERAGE_CLIMB_RATE_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::TcClimbRate),
+            next_menu_idx: AVERAGE_CLIMB_RATE_IDX,
         },
         MenuItem {
             content: MenuItemContent::EditItem(Editable::Return),

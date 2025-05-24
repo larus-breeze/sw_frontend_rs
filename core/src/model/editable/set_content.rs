@@ -3,16 +3,10 @@ use super::{
     USER_1, USER_2, USER_3, USER_4,
 };
 use crate::{
-    controller::persist,
-    flight_physics::polar_store,
-    persist::send_can_config_frame,
-    utils::{TString, Variant},
-    view::viewable::{
+    controller::persist, flight_physics::polar_store, model::DataSource, persist::send_can_config_frame, utils::{TString, Variant}, view::viewable::{
         centerview::{CenterType, CenterView},
         lineview::{LineView, Placement},
-    },
-    CoreController, CoreModel, Echo, FloatToMass, FloatToSpeed, GearPins, InPinFunction,
-    InTogglePinFunction, OutPinFunction, PersistenceId, RemoteConfig, Rotation,
+    }, CoreController, CoreModel, Echo, FloatToMass, FloatToSpeed, GearPins, InPinFunction, InTogglePinFunction, OutPinFunction, PersistenceId, RemoteConfig, Rotation
 };
 
 impl Editable {
@@ -133,6 +127,16 @@ impl Editable {
                 PersistenceId::SpeedToFlyPinConfig,
                 Echo::None,
             ),
+            Editable::AvgClimbRateSrc => {
+                let source = DataSource::from(val.as_str());
+                persist::persist_set(
+                    cc,
+                    cm,
+                    Variant::DataSource(source),
+                    PersistenceId::AvgClimbeRateSrc,
+                    Echo::None,
+                );
+            }
             _ => (),
         }
     }
