@@ -32,7 +32,7 @@ use crate::{
     basic_config::{CONTROLLER_TICK_RATE, MAX_TX_FRAMES},
     common::PTxFrames,
     flight_physics::Polar,
-    model::{DisplayActive, EditMode, VarioModeControl},
+    model::{DataSource, DisplayActive, EditMode, VarioModeControl},
     system_of_units::{FloatToSpeed, Speed},
     utils::{KeyEvent, PIdleEvents, Pt1},
     CoreModel, DeviceEvent, Editable, Event, IdleEvent, InputPinState, SdCardCmd,

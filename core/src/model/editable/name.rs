@@ -47,6 +47,7 @@ impl Editable {
             Editable::AlarmVolume => "Alarm Volume",
             Editable::StfUpperLimit => "Stf Upper Limit",
             Editable::StfLowerLimit => "Stf Lower Limit",
+            Editable::AvgClimbRateSrc => "Avg Climb Source",
 
             Editable::SensTiltRoll => "Sensor Tilt Roll",
             Editable::SensTiltPitch => "Sensor Tilt Pitch",

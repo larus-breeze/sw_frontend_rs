@@ -54,7 +54,7 @@ impl Editable {
             ),
             Editable::CenterViewStraight => Content::List(
                 cm.config
-                    .center_straignt
+                    .center_straight
                     .sorted_as_i32(CenterType::Straight),
             ),
             Editable::ResetConfig => {
@@ -133,6 +133,9 @@ impl Editable {
             )),
             Editable::StfUpperLimit => Content::F32(Some(cm.config.stf_upper_limit.to_km_h())),
             Editable::StfLowerLimit => Content::F32(Some(cm.config.stf_lower_limit.to_km_h())),
+            Editable::AvgClimbRateSrc => Content::Enum(TString::<16>::from_str(
+                cm.control.avg_climb_rate_src.as_str(),
+            )),
 
             // Edit sensorbox values via CAN bus
             Editable::SensTiltRoll => {

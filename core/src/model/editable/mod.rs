@@ -78,6 +78,7 @@ pub enum Editable {
     AlarmVolume,
     StfUpperLimit,
     StfLowerLimit,
+    AvgClimbRateSrc,
 
     SensTiltRoll, // These are sensorbox settings
     SensTiltPitch,

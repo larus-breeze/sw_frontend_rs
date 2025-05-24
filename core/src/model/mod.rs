@@ -10,7 +10,7 @@ mod sensor;
 use crate::flight_physics::{polar_store, GliderData};
 use calculated::Calculated;
 pub use config::{Config, DisplayActive, OverlayActive, TypeOfInfo};
-pub use control::{Control, EditMode, FlyMode, SystemState, TcrMode, VarioMode, VarioModeControl};
+pub use control::{Control, EditMode, FlyMode, SystemState, TcrMode, VarioMode, VarioModeControl, DataSource};
 use device::Device;
 pub use device_const::{
     DeviceConst, DisplaySizes, HorizonSizes, Images, Misc, Palette, Sizes, VarioSizes,

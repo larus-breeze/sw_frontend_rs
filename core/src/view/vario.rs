@@ -1,6 +1,6 @@
 use super::{sprites::*, thermal_data::ThermalData};
 use crate::{
-    model::{CoreModel, FlyMode, SystemState, VarioMode},
+    model::{CoreModel, DataSource, FlyMode, SystemState, VarioMode},
     tformat,
     utils::Colors,
     CoreError, DrawImage,
@@ -114,7 +114,7 @@ impl Vario {
             }
             FlyMode::StraightFlight => {
                 cm.config
-                    .center_straignt
+                    .center_straight
                     .draw(display, cm, &mut self.thermal_data)
             }
         }?;
@@ -189,7 +189,11 @@ impl Vario {
             .draw_colored(cm.palette().needle2, display)?;
 
         // draw average climb rate marker
-        let av_climb_rate = clamp(cm.calculated.av2_climb_rate.to_m_s(), -5.0, 5.0);
+        let avg_climb_rate = match cm.control.avg_climb_rate_src {
+            DataSource::Frontend => cm.calculated.av2_climb_rate.to_m_s(),
+            DataSource::Sensorbox => cm.sensor.average_climb_rate.to_m_s(),
+        };
+        let av_climb_rate = clamp(avg_climb_rate, -5.0, 5.0);
         SimpleIndicator::at_base(
             (d_sizes.radius - sizes.indicator_len) as i32,
             d_sizes.center,

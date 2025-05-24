@@ -1,5 +1,5 @@
 use crate::{
-    model::{DisplayActive, VarioModeControl},
+    model::{DataSource, DisplayActive, VarioModeControl},
     Mass, Pressure, Speed,
 };
 
@@ -21,4 +21,5 @@ pub enum Variant<'a> {
     Speed(Speed),
     VarioModeControl(VarioModeControl),
     Rotation(Rotation),
+    DataSource(DataSource),
 }
