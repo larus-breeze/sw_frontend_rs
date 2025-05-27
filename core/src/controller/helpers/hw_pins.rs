@@ -195,10 +195,8 @@ impl DrainControl {
             if cm.config.info_active == TypeOfInfo::None {
                 cm.config.info_active = TypeOfInfo::WaterBallast;
             }
-        } else {
-            if cm.config.info_active == TypeOfInfo::WaterBallast {
-                cm.config.info_active = TypeOfInfo::None
-            }
+        } else if cm.config.info_active == TypeOfInfo::WaterBallast {
+            cm.config.info_active = TypeOfInfo::None
         }
     }
 }

@@ -6,8 +6,8 @@ pub use helpers::{
 };
 pub(crate) use helpers::{
     DrainControl, FlashControl, GearAlarmControl, GearPins, InPinFunction, InTogglePinFunction,
-    OutPinFunction, SpeedToFlyControl, ONE_PIN_MODE, PIN_IN_CLOSE, PIN_IN_OPEN, PIN_IN_TOGGLE, PIN_NONE,
-    PIN_OUT_CLOSE, PIN_OUT_OPEN, TWO_PIN_MODE,
+    OutPinFunction, SpeedToFlyControl, ONE_PIN_MODE, PIN_IN_CLOSE, PIN_IN_OPEN, PIN_IN_TOGGLE,
+    PIN_NONE, PIN_OUT_CLOSE, PIN_OUT_OPEN, TWO_PIN_MODE,
 };
 
 mod editor;
@@ -35,8 +35,7 @@ use crate::{
     model::{DataSource, DisplayActive, EditMode, VarioModeControl},
     system_of_units::{FloatToSpeed, Speed},
     utils::{KeyEvent, PIdleEvents, Pt1},
-    CoreModel, DeviceEvent, Editable, Event, IdleEvent, InputPinState, SdCardCmd,
-    VarioMode,
+    CoreModel, DeviceEvent, Editable, Event, IdleEvent, InputPinState, SdCardCmd, VarioMode,
 };
 use helpers::nmea_cyclic_200ms;
 
