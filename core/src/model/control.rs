@@ -122,7 +122,6 @@ impl DataSource {
     }
 }
 
-
 /// Enum mode controls whether the background should be visible or not when editing a data
 /// point.
 #[repr(u8)]

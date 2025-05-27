@@ -22,7 +22,7 @@ fn edit_enum_content(
             if max == 0 && !params.variants[idx as usize].is_empty() {
                 max = idx;
             }
-            if val == params.variants[idx as usize] {
+            if val.as_str() == params.variants[idx as usize] {
                 break;
             }
         }
@@ -33,9 +33,10 @@ fn edit_enum_content(
             _ => return,
         }
         let idx = clamp(idx, 0, max) as usize;
-        let val = params.variants[idx];
-        cm.control.editor.content = Content::Enum(val);
-        target.set_enum_content(cm, cc, &val);
+        let val = TString::<16>::from_str(params.variants[idx]);
+        let content = Content::Enum(val);
+        cm.control.editor.content = content;
+        target.set_content(cm, cc, content);
         *key_event = KeyEvent::NoEvent
     }
 }
@@ -58,8 +59,9 @@ fn edit_f32_content(
                 _ => return,
             }
             let val = clamp(val, params.min, params.max);
-            cm.control.editor.content = Content::F32(Some(val));
-            target.set_f32_content(cm, cc, val);
+            let content = Content::F32(Some(val));
+            cm.control.editor.content = content;
+            target.set_content(cm, cc, content);
         }
         *key_event = KeyEvent::NoEvent
     }
@@ -82,8 +84,9 @@ fn edit_list_content(
             _ => return,
         }
         let val = clamp(val, 0, params.max);
-        cm.control.editor.content = Content::List(val);
-        target.set_list_content(cm, cc, val);
+        let content = Content::List(val);
+        cm.control.editor.content = content;
+        target.set_content(cm, cc, content);
         *key_event = KeyEvent::NoEvent
     }
 }
@@ -174,8 +177,8 @@ pub fn activate_editable(editable: Editable, cm: &mut CoreModel, cc: &mut CoreCo
         .after(crate::Timer::CloseEditFrame, SECTION_EDITOR_TIMEOUT.secs());
 
     // a command is executed when activating it - not during edit session
-    if let Params::Cmd(_) = cm.control.editor.params {
-        editable.set_cmd_content(cm, cc);
+    if let Params::Cmd(_content) = cm.control.editor.params {
+        editable.set_content(cm, cc, cm.control.editor.content);
     }
 }
 
@@ -216,6 +219,6 @@ impl Editor {
     }
 
     pub fn get_value_line(&self) -> TString<20> {
-        self.target.value_as_str(self.content)
+        self.target.content_as_str(self.content)
     }
 }

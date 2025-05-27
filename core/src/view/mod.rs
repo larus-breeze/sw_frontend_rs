@@ -98,10 +98,10 @@ where
             OverlayActive::None => None,
         };
 
-        if self.secondary_view == None {
+        if self.secondary_view.is_none() {
             let type_of_info = core_model.config.info_active;
             if type_of_info != TypeOfInfo::None {
-                self.secondary_view =Some(SecondaryView::InfoView(InfoView::new(type_of_info)));
+                self.secondary_view = Some(SecondaryView::InfoView(InfoView::new(type_of_info)));
             }
         }
     }

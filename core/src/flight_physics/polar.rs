@@ -182,7 +182,7 @@ mod tests {
     use super::*;
     use crate::assert_float_eq;
     use crate::{FloatToDensity, FloatToMass, FloatToSpeed};
-    use std::{io::*, fs::File, vec::Vec};
+    use std::{fs::File, io::*, vec::Vec};
 
     const LS3_GLIDER_DATA: BasicGliderData = BasicGliderData {
         // 0
@@ -207,7 +207,6 @@ mod tests {
         handicap: 122,
         polar_values: [[97.2, -0.511], [111.6, -0.556], [180.0, -1.369]],
     };
-
 
     fn write_stf_to_csv(file_name: &str, polar: &mut Polar) {
         fn write_stf_for_mc<W: Write>(f: &mut W, mc: f32, polar: &mut Polar) {

@@ -1,60 +1,73 @@
 /// Elements that can be changed by the user
 ///
-/// Editables are always saved in the model and can be changed by the user. These can be
-/// parameters, display selection, time constants or other data. With the help of this module,
-/// the implemented editor is able to display and change such data, save it and, if necessary,
-/// output it at the NMEA and CAN interfaces.
+/// Editables are always saved in the model or controllerand can be changed by the user. These 
+/// can be parameters, display selection, time constants or other data. With the help of this 
+/// module, the implemented editor is able to display and change such data, save it and, if 
+/// necessary, output it at the NMEA and CAN interfaces.
 ///
 /// New elements are added in the following steps:
 ///   - First, the persistence layer is extended (src/controller/persistence.rs)
 ///     - Extend PersistenceId
 ///     - Extend persist_restore_item(), persist_store_item() and persist_set_id()
 ///   - Then the enum Editable is extended by the new element (see below)
-///   - Extend necessary mehtods content(), name(), params() and set_content()
-///   - Add new editables to the menu structure (src/model/menu)
-mod content;
-mod name;
-mod params;
-mod set_content;
+///   - Create a empty struct with same name as enum variant and implement trait EditableFuncs
+///   - Add reference to fn Editable.this()
+///   - Add new editable to the menu structure (src/model/menu)
+mod config;
+mod control;
+mod glider_data;
+mod sensorbox;
 
-use crate::{
-    model::VarioModeControl,
-    polar_store,
-    utils::TString,
-    view::viewable::{
-        centerview::{CenterType, CenterView},
-        lineview::{LineView, Placement},
-    },
-};
+use config::*;
+use control::*;
+use glider_data::*;
+use sensorbox::*;
 
-use super::DisplayActive;
-pub(crate) use params::{EnumParams, F32Params, ListParams, CmdParams, Params, MAX_ENUM_VARIANTS};
+use crate::{utils::TString, CoreController, CoreModel};
 use tfmt::Convert;
 
 #[repr(u8)]
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub enum Editable {
-    Bugs,
-    Display,
-    Glider,
-    McCready,
-    None,
-    PilotWeight,
-    Return,
-    TcClimbRate,
-    TcSpeedToFly,
-    Theme,
-    VarioModeControl,
-    Volume,
-    WaterBallast,
-    Info1,
-    Info2,
-    Rotation,
+    // model config
+    AlarmVolume,
+    AvgClimbRateSrc,
+    BatteryGood,
+    BatteryLow,
     CenterFrequency,
     CenterViewCircling,
     CenterViewStraight,
+    Display,
+    Glider,
+    GliderSymbol,
+    Info1,
+    Info2,
+    McCready,
+    StfUpperLimit,
+    StfLowerLimit,
+    TcClimbRate,
+    TcSpeedToFly,
+    Theme,
+    Volume,
+
+    // model control
+    DrainPinConfig,
+    FlashControl,
+    FlowEmpty,
+    FlowSlope,
+    GearPinConfig,
+    AirbrakesPinConfig,
+    GearAlarmModeConfig,
     ResetConfig,
+    Rotation,
+    SpeedToFlyPinConfig,
     UserProfile,
+    VarioModeControl,
+
+    // model glider_data
+    Bugs,
+    PilotWeight,
+    WaterBallast,
     EmptyMass,
     MaxBallast,
     ReferenceWeight,
@@ -64,23 +77,9 @@ pub enum Editable {
     PolarValueSi1,
     PolarValueSi2,
     PolarValueSi3,
-    GliderSymbol,
-    BatteryGood,
-    BatteryLow,
-    DrainPinConfig,
-    FlowEmpty,
-    FlowSlope,
-    FlashControl,
-    SpeedToFlyPinConfig,
-    GearPinConfig,
-    AirbrakesPinConfig,
-    GearAlarmModeConfig,
-    AlarmVolume,
-    StfUpperLimit,
-    StfLowerLimit,
-    AvgClimbRateSrc,
 
-    SensTiltRoll, // These are sensorbox settings
+    // sensorbox
+    SensTiltRoll,
     SensTiltPitch,
     SensTiltYaw,
     PitotOffset,
@@ -95,27 +94,16 @@ pub enum Editable {
     AntBaselen,
     AntSlaveDown,
     AntSlaveRight,
-
-    CmdMeas1, // These are sensorbox commands
+    CmdMeas1,
     CmdMeas2,
     CmdMeas3,
     CmdCalcOrientation,
     CmdFineTuneOrientation,
+
+    // general
+    None,
+    Return,
 }
-
-const DEFAULT_CONFIG: &str = "Default Config";
-const FACTORY_RESET: &str = "Factory Reset";
-const DO_NOT_CHANGE: &str = "Do not change";
-
-const COMMAND_SENT: &str = "Command sent";
-
-const USER_1: &str = "User 1";
-const USER_2: &str = "User 2";
-const USER_3: &str = "User 3";
-const USER_4: &str = "User 4";
-
-const ON: &str = "On";
-const OFF: &str = "Off";
 
 #[derive(Clone, Copy)]
 pub enum Content {
@@ -126,8 +114,180 @@ pub enum Content {
     Command(TString<16>),
 }
 
+#[derive(Clone, Copy)]
+pub struct F32Params {
+    pub min: f32,
+    pub max: f32,
+    pub small_inc: f32,
+    pub big_inc: f32,
+    pub dec_places: u8,
+    pub unit: &'static str,
+}
+
+pub const MAX_ENUM_VARIANTS: usize = 5;
+
+#[derive(Clone, Copy)]
+pub struct EnumParams {
+    pub variants: [&'static str; MAX_ENUM_VARIANTS],
+}
+
+#[derive(Clone, Copy)]
+pub struct StringParams {
+    pub content: TString<16>,
+}
+
+#[derive(Clone, Copy)]
+pub struct ListParams {
+    pub max: i32,
+}
+
+#[derive(Clone, Copy)]
+pub struct CmdParams {
+    pub content: TString<16>,
+}
+
+#[derive(Clone, Copy)]
+pub enum Params {
+    F32(F32Params),
+    Enum(EnumParams),
+    String(StringParams),
+    List(ListParams),
+    Cmd(CmdParams),
+}
+
+struct EditableFptrs {
+    name: fn() -> &'static str,
+    content: fn(&mut CoreModel, &mut CoreController) -> Content,
+    content_as_str: fn(&mut Convert<20>, i32),
+    params: fn() -> Params,
+    set_content: fn(&mut CoreModel, &mut CoreController, Content),
+}
+
+trait EditableFuncs {
+    fn name() -> &'static str {
+        ""
+    }
+
+    fn content(_cm: &mut CoreModel, _cc: &mut CoreController) -> Content {
+        Content::String(TString::<12>::from_str(""))
+    }
+
+    fn content_as_str(_convert: &mut Convert<20>, _idx: i32) {}
+
+    fn params() -> Params {
+        Params::String(StringParams {
+            content: TString::<16>::from_str(""),
+        })
+    }
+
+    fn set_content(_cm: &mut CoreModel, _cc: &mut CoreController, _content: Content) {}
+
+    fn this() -> EditableFptrs {
+        EditableFptrs {
+            name: Self::name,
+            content: Self::content,
+            content_as_str: Self::content_as_str,
+            params: Self::params,
+            set_content: Self::set_content,
+        }
+    }
+}
+
+struct None_;
+impl EditableFuncs for None_ {
+    fn name() -> &'static str {
+        "None"
+    }
+}
+
+struct Return;
+impl EditableFuncs for Return {
+    fn name() -> &'static str {
+        "Return"
+    }
+}
+
 impl Editable {
-    pub fn value_as_str(&self, content: Content) -> TString<20> {
+    fn this(&self) -> EditableFptrs {
+        match self {
+            // model config
+            Editable::AlarmVolume => AlarmVolume::this(),
+            Editable::AvgClimbRateSrc => AvgClimbRateSrc::this(),
+            Editable::BatteryGood => BatteryGood::this(),
+            Editable::BatteryLow => BatteryLow::this(),
+            Editable::CenterFrequency => CenterFrequency::this(),
+            Editable::CenterViewCircling => CenterViewCircling::this(),
+            Editable::CenterViewStraight => CenterViewStraight::this(),
+            Editable::Display => Display::this(),
+            Editable::Glider => Glider::this(),
+            Editable::GliderSymbol => GliderSymbol::this(),
+            Editable::Info1 => Info1::this(),
+            Editable::Info2 => Info2::this(),
+            Editable::McCready => McCready::this(),
+            Editable::StfUpperLimit => StfUpperLimit::this(),
+            Editable::StfLowerLimit => StfLowerLimit::this(),
+            Editable::TcClimbRate => TcClimbRate::this(),
+            Editable::TcSpeedToFly => TcSpeedToFly::this(),
+            Editable::Theme => Theme::this(),
+            Editable::Volume => Volume::this(),
+
+            // model control
+            Editable::DrainPinConfig => DrainPinConfig::this(),
+            Editable::FlashControl => FlashControl::this(),
+            Editable::FlowEmpty => FlowEmpty::this(),
+            Editable::FlowSlope => FlowSlope::this(),
+            Editable::GearPinConfig => GearPinConfig::this(),
+            Editable::AirbrakesPinConfig => AirbrakesPinConfig::this(),
+            Editable::GearAlarmModeConfig => GearAlarmModeConfig::this(),
+            Editable::ResetConfig => ResetConfig::this(),
+            Editable::Rotation => Rotation_::this(),
+            Editable::SpeedToFlyPinConfig => SpeedToFlyPinConfig::this(),
+            Editable::UserProfile => UserProfile::this(),
+            Editable::VarioModeControl => VarioModeControl_::this(),
+
+            // model glider_data
+            Editable::Bugs => Bugs::this(),
+            Editable::PilotWeight => PilotWeight::this(),
+            Editable::WaterBallast => WaterBallast::this(),
+            Editable::EmptyMass => EmptyMass::this(),
+            Editable::MaxBallast => MaxBallast::this(),
+            Editable::ReferenceWeight => ReferenceWeight::this(),
+            Editable::PolarValueV1 => PolarValueV1::this(),
+            Editable::PolarValueV2 => PolarValueV2::this(),
+            Editable::PolarValueV3 => PolarValueV3::this(),
+            Editable::PolarValueSi1 => PolarValueSi1::this(),
+            Editable::PolarValueSi2 => PolarValueSi2::this(),
+            Editable::PolarValueSi3 => PolarValueSi3::this(),
+
+            // sensorbox
+            Editable::SensTiltRoll => SensTiltRoll::this(),
+            Editable::SensTiltPitch => SensTiltPitch::this(),
+            Editable::SensTiltYaw => SensTiltYaw::this(),
+            Editable::PitotOffset => PitotOffset::this(),
+            Editable::PitotSpan => PitotSpan::this(),
+            Editable::QnhDelta => QnhDelta::this(),
+            Editable::MagAutoCalib => MagAutoCalib::this(),
+            Editable::VarioTc => VarioTc::this(),
+            Editable::VarioIntTc => VarioIntTc::this(),
+            Editable::WindTc => WindTc::this(),
+            Editable::MeanWindTc => MeanWindTc::this(),
+            Editable::GnssConfig => GnssConfig::this(),
+            Editable::AntBaselen => AntBaselen::this(),
+            Editable::AntSlaveDown => AntSlaveDown::this(),
+            Editable::AntSlaveRight => AntSlaveRight::this(),
+            Editable::CmdMeas1 => CmdMeas1::this(),
+            Editable::CmdMeas2 => CmdMeas2::this(),
+            Editable::CmdMeas3 => CmdMeas3::this(),
+            Editable::CmdCalcOrientation => CmdCalcOrientation::this(),
+            Editable::CmdFineTuneOrientation => CmdFineTuneOrientation::this(),
+
+            // general
+            Editable::None => None_::this(),
+            Editable::Return => Return::this(),
+        }
+    }
+
+    pub fn content_as_str(&self, content: Content) -> TString<20> {
         let mut conv = Convert::<20>::new(b' ');
         let params = self.params();
 
@@ -148,32 +308,7 @@ impl Editable {
             }
             Params::List(_params) => {
                 if let Content::List(val) = content {
-                    match self {
-                        Editable::Glider => {
-                            let raw_idx = polar_store::to_raw_idx(val as usize);
-                            let name = polar_store::from_raw_idx(raw_idx).name;
-                            conv.write_str(name).unwrap()
-                        }
-                        Editable::Info1 => conv
-                            .write_str(LineView::from_sorted(val as usize, Placement::Top).name())
-                            .unwrap(),
-                        Editable::Info2 => conv
-                            .write_str(
-                                LineView::from_sorted(val as usize, Placement::Bottom).name(),
-                            )
-                            .unwrap(),
-                        Editable::CenterViewCircling => conv
-                            .write_str(
-                                CenterView::from_sorted(val as usize, CenterType::Circling).name(),
-                            )
-                            .unwrap(),
-                        Editable::CenterViewStraight => conv
-                            .write_str(
-                                CenterView::from_sorted(val as usize, CenterType::Straight).name(),
-                            )
-                            .unwrap(),
-                        _ => (),
-                    }
+                    ((self.this()).content_as_str)(&mut conv, val);
                 }
             }
             Params::String(_params) => {
@@ -188,5 +323,21 @@ impl Editable {
             }
         }
         TString::<20>::from_str(conv.as_str())
+    }
+
+    pub fn content(&self, cm: &mut CoreModel, cc: &mut CoreController) -> Content {
+        ((self.this()).content)(cm, cc)
+    }
+
+    pub fn name(&self) -> &'static str {
+        ((self.this()).name)()
+    }
+
+    pub fn params(&self) -> Params {
+        ((self.this()).params)()
+    }
+
+    pub fn set_content(&self, cm: &mut CoreModel, cc: &mut CoreController, content: Content) {
+        ((self.this()).set_content)(cm, cc, content)
     }
 }
