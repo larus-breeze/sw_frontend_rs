@@ -479,7 +479,6 @@ impl EditableFuncs for CmdFineTuneOrientation {
     }
 }
 
-
 pub struct CmdResetSensorbox;
 impl EditableFuncs for CmdResetSensorbox {
     fn name() -> &'static str {
@@ -497,11 +496,6 @@ impl EditableFuncs for CmdResetSensorbox {
     }
 
     fn set_content(cm: &mut CoreModel, cc: &mut CoreController, _content: Content) {
-        send_can_config_frame(
-            cm,
-            cc,
-            crate::CanConfigId::CmdReset,
-            RemoteConfig::Get,
-        );
+        send_can_config_frame(cm, cc, crate::CanConfigId::CmdReset, RemoteConfig::Get);
     }
 }

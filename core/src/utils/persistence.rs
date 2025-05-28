@@ -1,6 +1,6 @@
 use eeprom::ADR_USER_PROFILE;
 
-use crate::{CoreError, PersistenceId};
+use crate::{CoreError, PersistenceId, Variant};
 
 #[cfg(feature = "eeprom_size_8192")]
 pub mod eeprom {
@@ -32,7 +32,7 @@ pub enum EepromTopic {
 
 pub const MAX_USER_VALUES: u32 = 256;
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub struct PersistenceItem {
     pub id: PersistenceId,
     pub data: [u8; 4],
@@ -93,6 +93,29 @@ impl PersistenceItem {
         PersistenceItem {
             id,
             data: value.to_le_bytes(),
+        }
+    }
+
+    pub fn from_variant(id: PersistenceId, variant: Variant) -> Self {
+        match variant {
+            Variant::Bool(bool) => Self::from_bool(id, bool),
+            Variant::I8(i8) => Self::from_i8(id, i8),
+            Variant::I32(i32) => Self::from_i32(id, i32),
+            Variant::F32(f32) => Self::from_f32(id, f32),
+            Variant::U8(u8) => Self::from_u8(id, u8),
+            Variant::U32(u32) => Self::from_u32(id, u32),
+
+            Variant::Mass(mass) => Self::from_f32(id, mass.to_kg()),
+            Variant::Pressure(pressure) => Self::from_f32(id, pressure.to_hpa()),
+            Variant::Speed(speed) => Self::from_f32(id, speed.to_m_s()),
+
+            Variant::DisplayActive(display_active) => Self::from_u32(id, display_active as u32),
+            Variant::DisplayTheme(display_theme) => Self::from_u32(id, display_theme as u32),
+            Variant::VarioModeControl(vario_mode_control) => {
+                Self::from_u32(id, vario_mode_control as u32)
+            }
+            Variant::Rotation(rotation) => Self::from_u32(id, rotation as u32),
+            Variant::DataSource(data_source) => Self::from_u32(id, data_source as u32),
         }
     }
 

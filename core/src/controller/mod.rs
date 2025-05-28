@@ -35,7 +35,8 @@ use crate::{
     model::{DataSource, DisplayActive, EditMode, VarioModeControl},
     system_of_units::{FloatToSpeed, Speed},
     utils::{KeyEvent, PIdleEvents, Pt1},
-    CoreModel, DeviceEvent, Editable, Event, IdleEvent, InputPinState, SdCardCmd, VarioMode,
+    CoreModel, DeviceEvent, Editable, Event, IdleEvent, InputPinState, PersistenceItem, SdCardCmd,
+    VarioMode,
 };
 use helpers::nmea_cyclic_200ms;
 
@@ -82,7 +83,7 @@ pub struct CoreController {
     av_supply_voltage: Pt1<f32>,
     pub nmea_buffer: NmeaBuffer,
     pub scheduler: Scheduler<5>,
-    pub pers_vals: FnvIndexSet<PersistenceId, MAX_PERS_IDS>,
+    pub pers_vals: FnvIndexSet<PersistenceItem, MAX_PERS_IDS>,
     pub nmea_vals: FnvIndexSet<PersistenceId, MAX_PERS_IDS>,
     pub remote_val: Option<(CanConfigId, RemoteConfig)>,
     p_idle_events: PIdleEvents,
