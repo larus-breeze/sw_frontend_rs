@@ -313,6 +313,10 @@ pub const SENSOR_BOX_COMMANDS: Menu = Menu {
             next_menu_idx: SENSOR_BOX_COMMANDS_IDX,
         },
         MenuItem {
+            content: MenuItemContent::EditItem(Editable::CmdResetSensorbox),
+            next_menu_idx: SENSOR_BOX_COMMANDS_IDX,
+        },
+        MenuItem {
             content: MenuItemContent::MenuItem(),
             next_menu_idx: SENSOR_BOX_SETTINGS_IDX,
         },

@@ -478,3 +478,30 @@ impl EditableFuncs for CmdFineTuneOrientation {
         );
     }
 }
+
+
+pub struct CmdResetSensorbox;
+impl EditableFuncs for CmdResetSensorbox {
+    fn name() -> &'static str {
+        "Reset Sensorbox"
+    }
+
+    fn content(_cm: &mut CoreModel, _cc: &mut CoreController) -> Content {
+        Content::Command(TString::<16>::from_str(COMMAND_SENT))
+    }
+
+    fn params() -> Params {
+        Params::Cmd(CmdParams {
+            content: TString::<16>::from_str(COMMAND_SENT),
+        })
+    }
+
+    fn set_content(cm: &mut CoreModel, cc: &mut CoreController, _content: Content) {
+        send_can_config_frame(
+            cm,
+            cc,
+            crate::CanConfigId::CmdReset,
+            RemoteConfig::Get,
+        );
+    }
+}

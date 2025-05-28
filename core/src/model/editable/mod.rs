@@ -99,6 +99,7 @@ pub enum Editable {
     CmdMeas3,
     CmdCalcOrientation,
     CmdFineTuneOrientation,
+    CmdResetSensorbox,
 
     // general
     None,
@@ -280,6 +281,7 @@ impl Editable {
             Editable::CmdMeas3 => CmdMeas3::this(),
             Editable::CmdCalcOrientation => CmdCalcOrientation::this(),
             Editable::CmdFineTuneOrientation => CmdFineTuneOrientation::this(),
+            Editable::CmdResetSensorbox => CmdResetSensorbox::this(),
 
             // general
             Editable::None => None_::this(),
