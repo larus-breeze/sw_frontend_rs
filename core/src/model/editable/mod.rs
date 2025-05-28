@@ -13,13 +13,13 @@
 ///   - Create a empty struct with same name as enum variant and implement trait EditableFuncs
 ///   - Add reference to fn Editable::this()
 ///   - Add the new editable to the menu structure (src/model/menu)
-mod config;
-mod control;
+mod model;
+mod controller;
 mod glider_data;
 mod sensorbox;
 
-use config::*;
-use control::*;
+use model::*;
+use controller::*;
 use glider_data::*;
 use sensorbox::*;
 
@@ -29,7 +29,7 @@ use tfmt::Convert;
 #[repr(u8)]
 #[derive(Clone, Copy, PartialEq, Debug)]
 pub enum Editable {
-    // model config
+    // model
     AlarmVolume,
     AvgClimbRateSrc,
     BatteryGood,
@@ -50,7 +50,7 @@ pub enum Editable {
     Theme,
     Volume,
 
-    // model control
+    // controller
     DrainPinConfig,
     FlashControl,
     FlowEmpty,
@@ -64,7 +64,7 @@ pub enum Editable {
     UserProfile,
     VarioModeControl,
 
-    // model glider_data
+    // glider_data
     Bugs,
     PilotWeight,
     WaterBallast,
@@ -211,7 +211,7 @@ impl EditableFuncs for Return {
 impl Editable {
     fn this(&self) -> EditableFptrs {
         match self {
-            // model config
+            // model
             Editable::AlarmVolume => AlarmVolume::this(),
             Editable::AvgClimbRateSrc => AvgClimbRateSrc::this(),
             Editable::BatteryGood => BatteryGood::this(),
@@ -232,7 +232,7 @@ impl Editable {
             Editable::Theme => Theme::this(),
             Editable::Volume => Volume::this(),
 
-            // model control
+            // controller
             Editable::DrainPinConfig => DrainPinConfig::this(),
             Editable::FlashControl => FlashControl::this(),
             Editable::FlowEmpty => FlowEmpty::this(),
@@ -246,7 +246,7 @@ impl Editable {
             Editable::UserProfile => UserProfile::this(),
             Editable::VarioModeControl => VarioModeControl_::this(),
 
-            // model glider_data
+            // glider_data
             Editable::Bugs => Bugs::this(),
             Editable::PilotWeight => PilotWeight::this(),
             Editable::WaterBallast => WaterBallast::this(),
