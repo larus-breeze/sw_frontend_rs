@@ -24,17 +24,10 @@ use super::{
     DataSource, VarioModeControl, MAX_PERS_IDS,
 };
 use crate::{
-    basic_config::PERSISTENCE_TIMEOUT,
-    controller::{
+    basic_config::PERSISTENCE_TIMEOUT, controller::{
         helpers::{CanConfigId, IntToDuration},
         RemoteConfig,
-    },
-    flight_physics::polar_store,
-    system_of_units::Speed,
-    utils::Variant,
-    view::viewable::{centerview::CenterView, lineview::LineView},
-    CoreController, CoreModel, FloatToSpeed, IdleEvent, Mass, PersistenceItem, Pressure,
-    ResetReason, Rotation,
+    }, flight_physics::polar_store, model::DisplayTheme, system_of_units::Speed, utils::Variant, view::viewable::{centerview::CenterView, lineview::LineView}, CoreController, CoreModel, FloatToSpeed, IdleEvent, Mass, PersistenceItem, Pressure, ResetReason, Rotation
 };
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, FromPrimitive, defmt::Format)]
@@ -240,7 +233,10 @@ pub fn restore_item(cc: &mut CoreController, cm: &mut CoreModel, item: Persisten
         PersistenceId::AvgClimbeRateSrc => {
             cm.control.avg_climb_rate_src = DataSource::from(item.to_u8())
         }
-        _ => (),
+
+        PersistenceId::DeleteAll => (),
+        PersistenceId::DoNotStore => (),
+        PersistenceId::LastItem => (),
     }
 }
 
@@ -397,11 +393,10 @@ pub fn persist_set(
             }
         }
         PersistenceId::DisplayTheme => {
-            if let Variant::Str(theme_name) = variant {
-                cm.config.theme = if theme_name == "Bright" {
-                    &cm.device_const.bright_theme
-                } else {
-                    &cm.device_const.dark_theme
+            if let Variant::DisplayTheme(theme) = variant {
+                cm.config.theme = match theme {
+                    DisplayTheme::Bright => &cm.device_const.bright_theme,
+                    DisplayTheme::Dark => &cm.device_const.dark_theme,
                 };
             }
         }
@@ -596,8 +591,12 @@ pub fn persist_set(
                 cm.control.avg_climb_rate_src = data_source;
             }
         }
+        PersistenceId::DeleteAll => (),
+        PersistenceId::DoNotStore => (),
+        PersistenceId::LastItem => (),
+        PersistenceId::UserProfile => (),
 
-        _ => (),
+        //_ => (),
     }
     finish_push(cc, cm, id, echo);
 }

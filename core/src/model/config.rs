@@ -17,6 +17,14 @@ pub enum DisplayActive {
     FirmwareUpdate,
 }
 
+#[derive(Clone, Copy, PartialEq, FromPrimitive)]
+#[repr(u8)]
+pub enum DisplayTheme {
+    #[default]
+    Dark,
+    Bright,
+}
+
 #[derive(Clone, Copy, PartialEq)]
 pub enum TypeOfInfo {
     None,
