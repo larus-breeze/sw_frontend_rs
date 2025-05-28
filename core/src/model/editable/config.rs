@@ -328,11 +328,11 @@ impl EditableFuncs for Glider {
 
     fn set_content(cm: &mut CoreModel, cc: &mut CoreController, content: Content) {
         if let Content::List(sorted_idx) = content {
-            let raw_idx = polar_store::to_raw_idx(sorted_idx as usize);
+            let raw_idx = polar_store::to_raw_idx(sorted_idx as usize) as u32;
             persist::persist_set(
                 cc,
                 cm,
-                Variant::Usize(raw_idx),
+                Variant::U32(raw_idx),
                 PersistenceId::Glider,
                 Echo::None,
             )

@@ -12,7 +12,6 @@ pub enum Variant {
     F32(f32),
     U8(u8),
     U32(u32),
-    Usize(usize),
 
     DisplayActive(DisplayActive),
     DisplayTheme(DisplayTheme),
