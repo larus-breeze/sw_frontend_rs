@@ -1,11 +1,9 @@
 /// The Persistence Layer stores Data in EEPROM an distributes it to NMEA and Can Bus interfaces
 ///
-/// The persistent layer stores the data in the EEPROM and distributes the data to the NMEA and Can
-/// bus interfaces. Data points that can be processed must be recorded by the PersistenceId. The
-/// persist_restore_item() method writes the data read from the EEPROM to the CoreModel. The
-/// persist_store_item() method stores model data in the EEPROM.
+/// Data points that can be processed must be recorded by the PersistenceId. The
+/// restore_item() method writes the data read from the EEPROM to the CoreModel. 
 ///
-/// The set_id() method receives data from the NMEA and CAN bus interfaces and from the editor,
+/// The persist_set() method receives data from the NMEA and CAN bus interfaces and from the editor,
 /// saves it in the EEPROM if necessary and distributes the data to interfaces if required. The
 /// distribution of the data to the interfaces is controlled via the enum Echo:
 ///   - Echo::None -> no distribution
@@ -37,6 +35,8 @@ use crate::{
     ResetReason, Rotation,
 };
 
+/// It is not permitted to change the sequence or assignment, as the number references the memory 
+/// location in the EEPROM. New memory data may only ever be inserted before the LastItem.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, FromPrimitive, defmt::Format)]
 #[repr(u16)]
 pub enum PersistenceId {
@@ -90,6 +90,7 @@ pub enum PersistenceId {
     DoNotStore = 65535,
 }
 
+/// This list defines which data is destroyed when a profile is deleted
 const DELETE_CONFIG_LIST: &[PersistenceId] = &[
     PersistenceId::Volume,
     PersistenceId::McCready,
@@ -124,6 +125,7 @@ const DELETE_CONFIG_LIST: &[PersistenceId] = &[
     PersistenceId::AvgClimbeRateSrc,
 ];
 
+/// The following data is deleted when a new glider is selected
 const SPECIFIC_POLAR_SETTINGS: &[PersistenceId] = &[
     PersistenceId::EmptyMass,
     PersistenceId::MaxBallast,

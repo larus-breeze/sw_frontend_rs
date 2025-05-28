@@ -5,14 +5,14 @@
 /// module, the implemented editor is able to display and change such data, save it and, if
 /// necessary, output it at the NMEA and CAN interfaces.
 ///
-/// New elements are added in the following steps:
+/// New elements are added with the following steps:
 ///   - First, the persistence layer is extended (src/controller/persistence.rs)
 ///     - Extend PersistenceId
-///     - Extend persist_restore_item(), persist_store_item() and persist_set_id()
+///     - Extend restore_item()
 ///   - Then the enum Editable is extended by the new element (see below)
 ///   - Create a empty struct with same name as enum variant and implement trait EditableFuncs
-///   - Add reference to fn Editable.this()
-///   - Add new editable to the menu structure (src/model/menu)
+///   - Add reference to fn Editable::this()
+///   - Add the new editable to the menu structure (src/model/menu)
 mod config;
 mod control;
 mod glider_data;
