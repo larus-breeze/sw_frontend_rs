@@ -2,7 +2,7 @@ use super::{Content, EditableFuncs, EnumParams, F32Params, ListParams, Params};
 use crate::{
     model::{
         control::{DATA_SOURCE_FRONTEND, DATA_SOURCE_SENSORBOX},
-        DataSource, DisplayActive,
+        DataSource, DisplayActive, DisplayTheme,
     },
     persist, polar_store,
     utils::{TString, Variant},
@@ -643,10 +643,14 @@ impl EditableFuncs for Theme {
 
     fn set_content(cm: &mut CoreModel, cc: &mut CoreController, content: Content) {
         if let Content::Enum(val) = content {
+            let theme = match val.as_str() {
+                BRIGHT => DisplayTheme::Bright,
+                _ => DisplayTheme::Dark,
+            };
             persist::persist_set(
                 cc,
                 cm,
-                Variant::Str(val.as_str()),
+                Variant::DisplayTheme(theme),
                 PersistenceId::DisplayTheme,
                 Echo::None,
             );
