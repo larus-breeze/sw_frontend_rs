@@ -108,14 +108,6 @@ impl PersistenceItem {
             Variant::Mass(mass) => Self::from_f32(id, mass.to_kg()),
             Variant::Pressure(pressure) => Self::from_f32(id, pressure.to_hpa()),
             Variant::Speed(speed) => Self::from_f32(id, speed.to_m_s()),
-
-            Variant::DisplayActive(display_active) => Self::from_u32(id, display_active as u32),
-            Variant::DisplayTheme(display_theme) => Self::from_u32(id, display_theme as u32),
-            Variant::VarioModeControl(vario_mode_control) => {
-                Self::from_u32(id, vario_mode_control as u32)
-            }
-            Variant::Rotation(rotation) => Self::from_u32(id, rotation as u32),
-            Variant::DataSource(data_source) => Self::from_u32(id, data_source as u32),
         }
     }
 

@@ -1,9 +1,6 @@
 use crate::{
-    model::{DataSource, DisplayActive, DisplayTheme, VarioModeControl},
     Mass, Pressure, Speed,
 };
-
-use super::Rotation;
 
 pub enum Variant {
     Bool(bool),
@@ -13,12 +10,7 @@ pub enum Variant {
     U8(u8),
     U32(u32),
 
-    DisplayActive(DisplayActive),
-    DisplayTheme(DisplayTheme),
     Mass(Mass),
     Pressure(Pressure),
     Speed(Speed),
-    VarioModeControl(VarioModeControl),
-    Rotation(Rotation),
-    DataSource(DataSource),
 }

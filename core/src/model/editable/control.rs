@@ -303,7 +303,7 @@ impl EditableFuncs for Rotation_ {
             persist::persist_set(
                 cc,
                 cm,
-                Variant::Rotation(Rotation::from(val.as_str())),
+                Variant::U32(Rotation::from(val.as_str()) as u32),
                 PersistenceId::Rotation,
                 Echo::None,
             );
@@ -416,7 +416,7 @@ impl EditableFuncs for VarioModeControl_ {
             persist::persist_set(
                 cc,
                 cm,
-                Variant::VarioModeControl(mode),
+                Variant::U32(mode as u32),
                 PersistenceId::VarioModeControl,
                 Echo::NmeaAndCan,
             );

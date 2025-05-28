@@ -113,7 +113,7 @@ impl CoreController {
                 persist::persist_set(
                     self,
                     cm,
-                    Variant::VarioModeControl(val),
+                    Variant::U32(val as u32),
                     PersistenceId::VarioModeControl,
                     Echo::None,
                 );
