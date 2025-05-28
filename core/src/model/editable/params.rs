@@ -386,7 +386,8 @@ impl Editable {
             | Editable::CmdMeas2
             | Editable::CmdMeas3
             | Editable::CmdCalcOrientation
-            | Editable::CmdFineTuneOrientation => Params::Cmd(
+            | Editable::CmdFineTuneOrientation 
+            | Editable::CmdResetSensorbox => Params::Cmd(
                 CmdParams { content: TString::<16>::from_str(COMMAND_SENT) }
             ),
             Editable::GearAlarmModeConfig => Params::Enum(EnumParams {

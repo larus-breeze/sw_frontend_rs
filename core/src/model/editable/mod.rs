@@ -100,6 +100,7 @@ pub enum Editable {
     CmdMeas3,
     CmdCalcOrientation,
     CmdFineTuneOrientation,
+    CmdResetSensorbox,
 }
 
 const DEFAULT_CONFIG: &str = "Default Config";

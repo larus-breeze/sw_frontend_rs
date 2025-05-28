@@ -214,7 +214,8 @@ impl Editable {
             | Editable::CmdMeas2
             | Editable::CmdMeas3
             | Editable::CmdCalcOrientation
-            | Editable::CmdFineTuneOrientation => {
+            | Editable::CmdFineTuneOrientation 
+            | Editable::CmdResetSensorbox => {
                 Content::Command(TString::<16>::from_str(COMMAND_SENT))
             }
         }

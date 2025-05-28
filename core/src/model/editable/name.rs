@@ -68,6 +68,7 @@ impl Editable {
             Editable::CmdMeas3 => "Wings straight",
             Editable::CmdCalcOrientation => "Calc Orientation",
             Editable::CmdFineTuneOrientation => "Straight Flight",
+            Editable::CmdResetSensorbox => "Reset Sensorbox",
         }
     }
 }

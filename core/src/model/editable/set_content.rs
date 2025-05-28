@@ -180,6 +180,14 @@ impl Editable {
                     RemoteConfig::Get,
                 );
             }
+            Editable::CmdResetSensorbox => {
+                send_can_config_frame(
+                    cm,
+                    cc,
+                    crate::CanConfigId::CmdReset,
+                    RemoteConfig::Get,
+                );
+            }
             _ => (),
         }
     }
