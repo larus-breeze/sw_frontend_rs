@@ -3,7 +3,7 @@ use crate::{
     model::{
         control::{DATA_SOURCE_FRONTEND, DATA_SOURCE_SENSORBOX},
         DataSource, DisplayActive, DisplayTheme,
-    },
+        config::{VARIO, HORIZON}},
     persist, polar_store,
     utils::{TString, Variant},
     view::viewable::{
@@ -74,7 +74,7 @@ impl EditableFuncs for AvgClimbRateSrc {
             persist::persist_set(
                 cc,
                 cm,
-                Variant::DataSource(source),
+                Variant::U32(source as u32),
                 PersistenceId::AvgClimbeRateSrc,
                 Echo::None,
             );
@@ -260,8 +260,6 @@ impl EditableFuncs for CenterViewStraight {
 }
 
 pub struct Display;
-const HORIZON: &str = "Horizon";
-const VARIO: &str = "Vario";
 
 impl EditableFuncs for Display {
     fn name() -> &'static str {
@@ -283,22 +281,14 @@ impl EditableFuncs for Display {
 
     fn set_content(cm: &mut CoreModel, cc: &mut CoreController, content: Content) {
         if let Content::Enum(val) = content {
-            match val.as_str() {
-                HORIZON => persist::persist_set(
-                    cc,
-                    cm,
-                    Variant::DisplayActive(DisplayActive::Horizon),
-                    PersistenceId::Display,
-                    Echo::None,
-                ),
-                _ => persist::persist_set(
-                    cc,
-                    cm,
-                    Variant::DisplayActive(DisplayActive::Vario),
-                    PersistenceId::Display,
-                    Echo::None,
-                ),
-            };
+            let display_active = DisplayActive::from(val.as_str());
+            persist::persist_set(
+                cc,
+                cm,
+                Variant::U32(display_active as u32),
+                PersistenceId::Display,
+                Echo::None,
+            );
         }
     }
 }
@@ -650,7 +640,7 @@ impl EditableFuncs for Theme {
             persist::persist_set(
                 cc,
                 cm,
-                Variant::DisplayTheme(theme),
+                Variant::U32(theme as u32),
                 PersistenceId::DisplayTheme,
                 Echo::None,
             );

@@ -1,5 +1,5 @@
 use num_enum::FromPrimitive;
-
+use core::convert::From;
 use crate::{
     system_of_units::{FloatToSpeed, Speed},
     view::viewable::{centerview::CenterView, lineview::LineView},
@@ -15,6 +15,23 @@ pub enum DisplayActive {
     Horizon,
     Menu,
     FirmwareUpdate,
+}
+
+pub const HORIZON: &str = "Horizon";
+#[allow(unused)]
+pub const VARIO: &str = "Vario";
+pub const FIRMWARE_UPDATE: &str = "Firmware Update";
+pub const MENU: &str = "Menu";
+
+impl From<&str> for DisplayActive {
+    fn from(value: &str) -> Self {
+        match value {
+            HORIZON => DisplayActive::Horizon,
+            FIRMWARE_UPDATE => DisplayActive::FirmwareUpdate,
+            MENU => DisplayActive::Menu,
+            _ => DisplayActive::Vario,
+        }
+    }
 }
 
 #[derive(Clone, Copy, PartialEq, FromPrimitive)]
