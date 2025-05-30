@@ -1,5 +1,6 @@
 use crate::{
     model::CoreModel, tformat, utils::Colors, view::sprites::SimpleIndicator, CoreError, DrawImage,
+    view::viewable::circle_area::draw_info,
 };
 
 #[allow(unused_imports)]
@@ -30,6 +31,11 @@ impl Horizon {
     where
         D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
     {
+        if cm.sensor.horizon_availaable == false {
+            display.clear(cm.palette().horizon_sky)?;
+            return draw_info(display, cm, "Horizon", "not available")
+        }
+
         display.clear(cm.palette().horizon_sky)?;
         let sizes = &cm.device_const.sizes;
 
