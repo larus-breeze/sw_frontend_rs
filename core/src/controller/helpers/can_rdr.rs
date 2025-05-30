@@ -356,6 +356,11 @@ impl CoreController {
                     _ => (),
                 }
             }
+            sensor::SYSTEM_STATE_GIT_TAG => {
+                let system_state = rdr.pop_u32();
+                cm.sensor.horizon_availaable = (system_state & 0x0001_0000) == 0;
+                // git_tag is not used at the moment
+            }
             sensor::CONFIG_VALUE => {
                 let config_id = rdr.pop_u32();
                 match config_id {

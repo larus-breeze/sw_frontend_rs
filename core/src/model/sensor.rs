@@ -46,6 +46,7 @@ pub struct Sensor {
     pub turn_rate: AngularVelocity,
     pub vertical_g_force: Acceleration,
     pub wind_vector: WindVector,
+    pub horizon_availaable: bool,
 }
 
 impl Default for Sensor {
@@ -77,6 +78,7 @@ impl Default for Sensor {
             vertical_g_force: 9.81.m_s2(),
             average_wind: WindVector::new(0.0.km_h(), 0.0_f32.deg()),
             wind_vector: WindVector::new(0.0.km_h(), 0.0_f32.deg()),
+            horizon_availaable: true,
         }
     }
 }
