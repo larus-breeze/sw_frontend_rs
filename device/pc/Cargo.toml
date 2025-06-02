@@ -29,10 +29,3 @@ embedded-hal = "0.2"
 path = "../../core"
 default-features = false
 features = ["colors_rgb565", "eeprom_size_8192"]
-
-[features]
-default = ["larus_frontend_v1", "eeprom_size_8192"]
-air_avionics_ad57 = []
-larus_frontend_v1 = []
-larus_frontend_v2 = []
-eeprom_size_8192 = []
