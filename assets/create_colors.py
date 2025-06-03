@@ -208,8 +208,14 @@ impl From<Colors> for RawU8 {
     }
 }
 
-use embedded_graphics::pixelcolor::{BinaryColor, Rgb888};
+use embedded_graphics::pixelcolor::{BinaryColor, Rgb888, Bgr888};
 use embedded_graphics::prelude::WebColors;
+
+impl From<Bgr888> for Colors {
+    fn from(_color: Bgr888) -> Self {
+        Colors::White
+    }
+}
 
 impl From<Rgb888> for Colors {
     fn from(_color: Rgb888) -> Self {
@@ -234,10 +240,17 @@ impl From<u8> for Colors {
     }
 }
 
+impl From<Colors> for Bgr888 {
+    fn from(val: Colors) -> Self {
+        match val {
+@bgr888_colors@        }
+    }
+}
+
 impl From<Colors> for Rgb888 {
     fn from(val: Colors) -> Self {
         match val {
-@match_colors@        }
+@rgb888_colors@        }
     }
 }
 """
@@ -261,8 +274,14 @@ impl From<Colors> for RawU16 {
     }
 }
 
-use embedded_graphics::pixelcolor::{BinaryColor, Rgb888};
+use embedded_graphics::pixelcolor::{BinaryColor, Rgb888, Bgr888};
 use embedded_graphics::prelude::WebColors;
+
+impl From<Bgr888> for Colors {
+    fn from(_color: Bgr888) -> Self {
+        Colors::White
+    }
+}
 
 impl From<Rgb888> for Colors {
     fn from(_color: Rgb888) -> Self {
@@ -283,10 +302,17 @@ impl From<u16> for Colors {
     }
 }
 
+impl From<Colors> for Bgr888 {
+    fn from(val: Colors) -> Self {
+        match val {
+@bgr888_colors@        }
+    }
+}
+
 impl From<Colors> for Rgb888 {
     fn from(val: Colors) -> Self {
         match val {
-@rgb888_colors@}
+@rgb888_colors@        }
     }
 }
 """
@@ -337,17 +363,23 @@ with open("core/src/utils/colors8.rs", "w") as f:
         color = color_name + f" = {idx},"
         colors += f"    {color:27}{colorDesc}\n"
 
-    match_colors = ''        
+    rgb888_colors = ''        
     for color_name in sorted(color_names):
         css_color_name = color_name_to_css_name(color_name)
-        match_colors += f"            Colors::{color_name} => Rgb888::{css_color_name},\n"
+        rgb888_colors += f"            Colors::{color_name} => Rgb888::{css_color_name},\n"
+
+    bgr888_colors = ''        
+    for color_name in sorted(color_names):
+        css_color_name = color_name_to_css_name(color_name)
+        bgr888_colors += f"            Colors::{color_name} => Bgr888::{css_color_name},\n"
 
     col_cnt_1 = str(len(color_names) - 1)
 
     f.write(
         COLORS8_TEMPLATE
             .replace('@colors@', colors)
-            .replace('@match_colors@', match_colors)
+            .replace('@bgr888_colors@', bgr888_colors)
+            .replace('@rgb888_colors@', rgb888_colors)
             .replace('@col_cnt-1@', col_cnt_1)
     )
 
@@ -361,6 +393,7 @@ EXCEPTIONS = {
 with open("core/src/utils/colors16.rs", "w") as f:
     colors = ''
     rgb888_colors = ''
+    bgr888_colors = ''
     for idx, color_name in enumerate(sorted(color_names)):
         rgb = name_to_rgb(color_name.lower())
         colorDesc = f"// Rgb({rgb.red}, {rgb.green}, {rgb.blue})"
@@ -372,6 +405,7 @@ with open("core/src/utils/colors16.rs", "w") as f:
         colors += f"    {color:30} {colorDesc}\n"
 
         css_color_name = color_name_to_css_name(color_name)
+        bgr888_colors += f"            Colors::{color_name} => Bgr888::{css_color_name},\n"
         rgb888_colors += f"            Colors::{color_name} => Rgb888::{css_color_name},\n"
 
     col_cnt_1 = str(len(color_names) - 1)
@@ -380,15 +414,16 @@ with open("core/src/utils/colors16.rs", "w") as f:
         COLORS16_TEMPLATE
             .replace('@colors@', colors)
             .replace('@col_cnt-1@', col_cnt_1)
+            .replace('@bgr888_colors@', bgr888_colors)
             .replace('@rgb888_colors@', rgb888_colors)
     )
 
 
 with open(f"core/src/utils/rgb565_colors.rs", "w") as f:    
-    match_colors = ''        
+    rgb888_colors = ''        
     for color_name in sorted(color_names):
         css_color_name = color_name_to_css_name(color_name)
-        match_colors += f"            Colors::{color_name} => Rgb888::{css_color_name},\n"
+        rgb888_colors += f"            Colors::{color_name} => Rgb888::{css_color_name},\n"
 
 
     col_cnt = str(len(color_names))
