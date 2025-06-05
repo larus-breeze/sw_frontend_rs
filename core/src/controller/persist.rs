@@ -236,8 +236,8 @@ pub fn restore_item(cc: &mut CoreController, cm: &mut CoreModel, item: Persisten
             .gear_alarm_control
             .set_gear_pin_mode(GearPins::from(item.to_u8())),
         PersistenceId::AlarmVolume => cm.control.alarm_volume = item.to_i8(),
-        PersistenceId::StfUpperLimit => cm.config.stf_upper_limit = item.to_f32().km_h(),
-        PersistenceId::StfLowerLimit => cm.config.stf_lower_limit = item.to_f32().km_h(),
+        PersistenceId::StfUpperLimit => cm.config.stf_upper_limit = item.to_f32().m_s(),
+        PersistenceId::StfLowerLimit => cm.config.stf_lower_limit = item.to_f32().m_s(),
         PersistenceId::AvgClimbeRateSrc => {
             cm.control.avg_climb_rate_src = DataSource::from(item.to_u8())
         }
