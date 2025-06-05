@@ -32,6 +32,31 @@ impl MenuControl {
 }
 
 pub fn key_action(key_event: &mut KeyEvent, cm: &mut CoreModel, cc: &mut CoreController) {
+
+    fn menu_action(cm: &mut CoreModel, cc: &mut CoreController, level: usize, pos: usize) {
+        // get next menu and level
+        let menu_item = cm.control.menu_control.menu.items[pos];
+        let next_menu = &MENU_LIST[menu_item.next_menu_idx];
+
+        // set menu pos to 0, if next level is higher than current
+        if next_menu.level > level {
+            cm.control.menu_control.pos[next_menu.level] = 0;
+        }
+
+        // activate next_menu
+        cm.control.menu_control.menu = next_menu;
+        if next_menu == &ROOT {
+            close_menu_display(cm, cc);
+        }
+
+        // open editor if menu item contains something to edit
+        if let MenuItemContent::EditItem(editable) = menu_item.content {
+            if editable != Editable::Return {
+                editor::activate_editable(editable, cm, cc);
+            }
+        }
+    }
+
     if cm.control.editor.mode == EditMode::Window {
         return;
     }
@@ -57,28 +82,12 @@ pub fn key_action(key_event: &mut KeyEvent, cm: &mut CoreModel, cc: &mut CoreCon
                 *key_event = KeyEvent::NoEvent
             }
             KeyEvent::BtnEnc => {
-                // get next menu and level
                 let pos = cm.control.menu_control.pos[level];
-                let menu_item = cm.control.menu_control.menu.items[pos];
-                let next_menu = &MENU_LIST[menu_item.next_menu_idx];
-
-                // set menu pos to 0, if next level is higher than current
-                if next_menu.level > level {
-                    cm.control.menu_control.pos[next_menu.level] = 0;
-                }
-
-                // activate next_menu
-                cm.control.menu_control.menu = next_menu;
-                if next_menu == &ROOT {
-                    close_menu_display(cm, cc);
-                }
-
-                // open editor if menu item contains something to edit
-                if let MenuItemContent::EditItem(editable) = menu_item.content {
-                    if editable != Editable::Return {
-                        editor::activate_editable(editable, cm, cc);
-                    }
-                }
+                menu_action(cm, cc, level, pos);
+            }
+            KeyEvent::BtnEsc => {
+                let pos = cm.control.menu_control.menu.items.len() - 1;
+                menu_action(cm, cc, level, pos);
             }
             _ => (),
         };
