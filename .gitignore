@@ -18,3 +18,4 @@
 /device/pc/eeprom.bin
 *.f110
 *.pyc
+.~lock.*
