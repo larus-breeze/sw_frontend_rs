@@ -1,5 +1,7 @@
 Changelog
 =
+v0.3.7.22 The wind trail points in the wrong direction
+
 v0.3.7.21 Show "Horizon is not available" if AHRS is blocked by sensorbox #115
 
 v0.3.7.20 New “Reset” command for the sensor box #114
