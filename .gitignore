@@ -19,3 +19,4 @@
 *.f110
 *.pyc
 .~lock.*
+eeprom.bin
