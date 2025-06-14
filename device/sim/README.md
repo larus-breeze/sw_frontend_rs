@@ -29,6 +29,7 @@ Features
 The simulation provides the following functions:
 - Display of all screens with all details
 - Operation of the device, including use of all menus and settings
+- Emulation of all input and output pins
 - Generation of the audio signal
 - Emulation of an EEPROM for storing frontend configuration values
 - Simulation of NMEA communication (XCSoar, tcp, 127.0.0.1:4353)
