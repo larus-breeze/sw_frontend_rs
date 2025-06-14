@@ -1,0 +1,29 @@
+[package]
+name = "sim"
+version = "0.1.0"
+edition = "2024"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+arboard = "3.5.0"
+byteorder = { version = "1.4", default-features = false }
+slint = "1.8.0"
+image = "0.25.6"
+embedded-graphics = "0.8.0"
+heapless = "0.8"
+tinyaudio = "1.1.0"
+u8g2-fonts = "0.3.0"
+serde = "1.0.219"
+toml = "0.8.22"
+homedir = "0.3.4"
+rfd = "0.15.3"
+
+[build-dependencies]
+slint-build = "1.8.0"
+
+# local
+[dependencies.corelib]
+path = "../../core"
+default-features = false
+features = ["colors_rgb565", "eeprom_size_8192"]
