@@ -1,5 +1,6 @@
 Larus Frontend Simulator
 =
+![Larus Frontend Simulator](https://github.com/larus-breeze/sw_frontend_rs/blob/master/device/sim/doc/screenshot_larus_frontend_simulator.png?raw=true)
 Development, Testing and Documentation
 -
 
@@ -34,6 +35,8 @@ The simulation provides the following functions:
 - Simulation of CAN communication (Flight Player, udp, 127.0.0.1:5005) 
 - The contents of all communication channels can be displayed, filtered, and saved
 - Screenshots of the pure Vario display can be saved.
+
+<img src="https://github.com/larus-breeze/sw_frontend_rs/blob/master/device/sim/doc/screenshot_vario.png?raw=true" alt="Vario" width="200" height="200">
  
 All functions can be operated from both the keyboard and the user interface.
 
