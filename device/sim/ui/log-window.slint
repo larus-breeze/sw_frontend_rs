@@ -14,15 +14,14 @@ export global LogSettings {
 }
 
 export component Log-Window inherits Window {
-    VerticalLayout {
+    VerticalBox {
         GroupBox {
             width: 400px;
             title: "Log Window";
             vertical-stretch: 1;
             Logger := Text { text: LogSettings.logger; }
         }   
-        HorizontalBox {
-            padding: 0px;
+        HorizontalLayout {
             GroupBox {
                 title: "Filter";
                 VerticalLayout {
