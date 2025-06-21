@@ -340,7 +340,7 @@ where
     WindArrow::new(len, d_sizes.center)
         .zero_pos(pos::SIX_O_CLOCK)
         .rotate(angle.to_radians())
-        .add_tail(angle - av_angle, tail_thick, delta_color)
+        .add_tail(av_angle - angle, tail_thick, delta_color)
         .draw_styled(style, display)?;
 
     Ok(())

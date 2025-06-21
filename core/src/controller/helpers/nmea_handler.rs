@@ -266,7 +266,7 @@ impl CoreController {
         self.nmea_buffer.tx.reset();
         let _ = uwrite!(
             self.nmea_buffer.tx,
-            "$PLARV,{:.2},{:.2},{:.0},{:.0}, {:.2}",
+            "$PLARV,{:.2},{:.2},{:.0},{:.0},{:.2}",
             cm.sensor.climb_rate.to_m_s(),
             cm.sensor.average_climb_rate.to_m_s(),
             cm.sensor.pressure_altitude.qne_altitude().to_m(),

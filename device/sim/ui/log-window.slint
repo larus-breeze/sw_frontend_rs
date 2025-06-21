@@ -1,0 +1,126 @@
+import { Button, CheckBox, GroupBox, TextEdit, VerticalBox, HorizontalBox, LineEdit } from "std-widgets.slint";
+import { Global } from "global.slint";
+
+export global LogSettings {
+    in-out property <bool> cb-idle-events;
+    in-out property <bool> cb-nmea-in;
+    in-out property <bool> cb-nmea-out;
+    in-out property <bool> cb-can-in;
+    in-out property <bool> cb-can-out;
+    in-out property <string> logger;
+    in property <string> le-excl;
+    in property <string> le-incl;
+    callback filter-constrain(string, string);
+}
+
+export component Log-Window inherits Window {
+    VerticalBox {
+        GroupBox {
+            width: 400px;
+            title: "Log Window";
+            vertical-stretch: 1;
+            Logger := Text { text: LogSettings.logger; }
+        }   
+        HorizontalLayout {
+            GroupBox {
+                title: "Filter";
+                VerticalLayout {
+                    Cb-Nmea-In := CheckBox { 
+                        text: "NMEA In"; 
+                        checked: LogSettings.cb-nmea-in;
+                        toggled => { 
+                            Global.process-command("\u{f70c}")
+                        }
+                    }
+                    Cb-Nmea-Out := CheckBox { 
+                        text: "NMEA Out";
+                        checked: LogSettings.cb-nmea-out; 
+                        toggled => { 
+                            Global.process-command("\u{f70d}")
+                        }
+                    }
+                    Cb-Can-In := CheckBox { 
+                        text: "CAN In";
+                        checked: LogSettings.cb-can-in;
+                        toggled => { 
+                            Global.process-command("\u{f70e}")
+                        }
+
+                    }
+                    Cb-Can-Out := CheckBox {                         
+                        text: "CAN Out";
+                        checked: LogSettings.cb-can-out;
+                        toggled => { 
+                            Global.process-command("\u{f70f}")
+                        }
+                    }
+                    Cb-Idle-Events := CheckBox {                         
+                        text: "Idle Events";
+                        checked: LogSettings.cb-idle-events; 
+                        toggled => { 
+                            Global.process-command("\u{f70b}")
+                        }
+                    }
+                    GridLayout {
+                        Row {
+                            Text { 
+                                text: "Exclude"; 
+                                vertical-alignment: center; 
+                                width: 100px;
+                            }
+                            Le-Excl := LineEdit { 
+                                text: LogSettings.le-excl;
+                                edited(text) => {
+                                    LogSettings.filter-constrain("excl", text);
+                                }
+                            }
+                        }
+                        Row {
+                            Text { 
+                                text: "Include";
+                                vertical-alignment: center;
+                                width: 100px;
+                            }
+                            Le-Incl := LineEdit {
+                                text: LogSettings.le-incl;
+                                edited(text) => {
+                                    LogSettings.filter-constrain("incl", text);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            GroupBox {
+                title: "Control";
+                VerticalLayout {
+                    Button { 
+                        text: "Run";
+                        clicked => {
+                            Global.process-command("\u{f704}")
+                        }
+                    }
+                    Button { 
+                        text: "Pause";
+                        clicked => {
+                            Global.process-command("\u{f705}")
+                        }
+                    }
+                    Button { 
+                        text: "Save"; 
+                        clicked => {
+                            Global.process-command("\u{f706}")
+                        }
+                    }
+                    Button { 
+                        clicked => {
+                            Global.process-command("\u{f707}")
+                        }
+                        text: "Clear"; 
+                    }
+                    Text { vertical-stretch: 1; }
+                }
+            }
+        }
+    }
+}

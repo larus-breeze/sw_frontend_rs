@@ -1,0 +1,70 @@
+import { Button, GroupBox, VerticalBox, HorizontalBox } from "std-widgets.slint";
+import { Global } from "global.slint";
+
+export global Lcd  {
+    in property <image> lcd;
+}
+
+export component Frontend inherits Window {
+    HorizontalBox {
+        GroupBox {
+            title: "Frontend";
+            VerticalBox {
+                padding: 0px;
+                GridLayout {
+                    Row {
+                        Button { 
+                            text: "<<";
+                            clicked => { Global.process-command("\u{f701}") } 
+                        }
+                        Button { 
+                            text: "<";
+                            clicked => { Global.process-command("\u{f702}") } 
+                        }
+                        Button { 
+                            text: ">";
+                            clicked => { Global.process-command("\u{f703}") } 
+                        }
+                        Button { 
+                            text: ">>";
+                            clicked => { Global.process-command("\u{f700}") } 
+                        }
+                    }
+                    Row {
+                        Button { 
+                            text: "Flight Menu / Enter";
+                            clicked => { Global.process-command("\u{f708}") } 
+                            col: 0;
+                            colspan: 2; 
+                            }
+                        Button { 
+                            text: "Settings Menu";
+                            clicked => { Global.process-command("\u{f709}") } 
+                            col: 2;
+                            colspan: 2; 
+                        }
+                    }
+                }    
+                lcd := Image {
+                    source: Lcd.lcd;
+                }
+                GridLayout {
+                    Row {
+                        Button { 
+                            text: "Copy to Clipboard";
+                            clicked => { Global.process-command("c") } 
+                            col: 0;
+                            colspan: 2; 
+                            }
+                        Button { 
+                            text: "Save to File";
+                            clicked => { Global.process-command("\u{f70a}") } 
+                            col: 2;
+                            colspan: 2; 
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

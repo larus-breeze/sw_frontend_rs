@@ -1,0 +1,52 @@
+
+import { Frontend, Lcd } from "./frontend.slint";
+import { Global } from "./global.slint";
+import { HardwarePins, InPins, OutPins } from "./hardware.slint";
+import { VerticalBox, Button, HorizontalBox, TextEdit, GroupBox, CheckBox} from "std-widgets.slint";
+import { Log-Window, LogSettings } from "log-window.slint";
+export { Global, InPins, Lcd, LogSettings, OutPins }
+
+export component AppWindow inherits Window {
+
+    in property <int> app_preferred_width;
+    in property <int> app_preferred_height;
+    out property app_width <=> self.width;
+    out property app_height <=> self.height;
+
+    callback key-pressed(KeyEvent);
+    callback sec-tick();
+
+    preferred-width: app_preferred_width * 1px;
+    preferred-height: app_preferred_height * 1px;
+    title: "Larus Frontend Simulator";
+
+    timer := Timer {
+        interval: 1s;
+        running: true;
+        triggered() => {
+            sec-tick();
+        }
+    }
+
+
+    forward-focus: my-key-handler;
+
+    my-key-handler := FocusScope {
+        key-pressed(event) => {
+            root.key-pressed(event);
+            accept
+        }
+    }
+
+    HorizontalLayout {
+        VerticalLayout {
+            frontend := Frontend {}
+            Text { vertical-stretch: 1; }
+            hardware-pins := HardwarePins {}
+        }
+        Text {
+            horizontal-stretch: 1;
+        }
+        log-window := Log-Window {}
+    }
+}

@@ -1,0 +1,65 @@
+import { Button, GroupBox, HorizontalBox } from "std-widgets.slint";
+import { Global } from "global.slint";
+
+export global InPins {
+    in-out property <string> in1-text;
+    in-out property <string> in2-text;
+    in-out property <string> in3-text;
+    in-out property <string> in4-text;
+}
+
+export global OutPins {
+    in-out property <string> out1-text;
+    in-out property <string> out2-text;
+}
+
+export component HardwarePins inherits Window {
+    HorizontalBox {
+        GroupBox {
+            title: "Hardware Pins";
+            GridLayout {
+                Row {
+                    Text {text: "Input PIns:"; vertical-alignment: center; }
+                    In1-Pin := Button {
+                        text: InPins.in1-text;
+                        clicked => { 
+                            Global.process-command("1") 
+                        } 
+                    }
+                    In2-Pin := Button {
+                        text: InPins.in2-text;
+                        clicked => { 
+                            Global.process-command("2") 
+                        } 
+                    }
+                    In3-Pin := Button {
+                        text: InPins.in3-text;
+                        clicked => { 
+                            Global.process-command("3") 
+                        } 
+                    }
+                    In4-Pin := Button {
+                        text: InPins.in4-text;
+                        clicked => { 
+                            Global.process-command("4") 
+                        } 
+                    }
+                }
+                Row {
+                    Text {text: "Output PIns:"; vertical-alignment: center; }
+                    Out1-Pin := Button { 
+                        text: OutPins.out1-text;
+                        col: 1;
+                        colspan: 2; 
+                    }
+                    Out2-Pin := Button { 
+                        text: OutPins.out2-text; 
+                        col: 3;
+                        colspan: 2; 
+                    }
+                }
+            }
+        }
+    }
+}
+

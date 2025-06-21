@@ -41,6 +41,15 @@ impl core::convert::From<bool> for PinState {
     }
 }
 
+impl PinState {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            PinState::Low => "Low",
+            PinState::High => "High",
+        }
+    }
+}
+
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum ResetReason {
     NoReason,

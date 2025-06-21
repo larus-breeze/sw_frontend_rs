@@ -155,7 +155,6 @@ pub fn key_action(key_event: &mut KeyEvent, cm: &mut CoreModel, cc: &mut CoreCon
             KeyEvent::Btn1 => activate_editable(Editable::McCready, cm, cc),
             KeyEvent::Btn2 => activate_editable(Editable::WaterBallast, cm, cc),
             KeyEvent::Btn3 => activate_editable(Editable::PilotWeight, cm, cc),
-            KeyEvent::BtnEsc => activate_editable(Editable::VarioModeControl, cm, cc),
             _ => return,
         }
         *key_event = KeyEvent::NoEvent;
