@@ -247,6 +247,7 @@ impl Frontend {
                             view.display.save(Some(PathBuf::from(&img_path)));
                             img_no += 1;
                         }
+                        Com::TakeSnapshot => view.display.take_snapshot(),
                         Com::SaveScreenshot(path) => view.display.save(path),
                         Com::SaveScreenshotToClipboard => {
                             let image = view.display.image_buffer();

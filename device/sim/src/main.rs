@@ -32,6 +32,7 @@ const HW_VERSION: HwVersion = HwVersion {
 pub enum Com {
     None,
     Event(Event),
+    TakeSnapshot,
     SaveScreenshot(Option<PathBuf>),
     SaveScreenshotVarioPng,
     SaveScreenshotToClipboard,

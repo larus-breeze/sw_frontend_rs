@@ -181,6 +181,7 @@ impl AdaptInner  {
             "\u{f708}" | "\n" => Com::Event(Event::KeyItem(KeyEvent::BtnEnc)), 
             "\u{f709}" => Com::Event(Event::KeyItem(KeyEvent::BtnEncS3)),
             "\u{f70a}" => {
+                self.com_tx_event.send(Com::TakeSnapshot).unwrap();
                 let path = self.get_save_file_path("picture", &["png"]);
                 Com::SaveScreenshot(path)
             }

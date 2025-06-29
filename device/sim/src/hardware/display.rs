@@ -24,6 +24,7 @@ const BACKGROUND_IMAGE: &[u8] = include_bytes!("background.png");
 
 pub struct Display {
     pub buffer: [u32; DISPLAY_PIXELS as usize],
+    pub snapshot_buf: Option<ImageBuffer<Rgba<u8>, Vec<u8>>>,
     pub background: [u32; (DISPLAY_PIXELS_INC_PAD) as usize],
     rotation: Rotation,
 }
@@ -39,6 +40,7 @@ impl Display {
     let background = unsafe { transmute(buf) };
     Display { 
         buffer: [0; DISPLAY_PIXELS as usize],
+        snapshot_buf: None,
         rotation: Rotation::Rotate0,
         background,
     }
@@ -79,9 +81,17 @@ impl Display {
         imgbuf
     }
 
+    pub fn take_snapshot(&mut self) {
+        self.snapshot_buf = Some(self.image_buffer());
+    }
+
     pub fn save(&self, path: Option<PathBuf>) {
+        if self.snapshot_buf.is_none() {
+            eprintln!("Error, no snapshot taken!");
+            return;
+        }
         match path {
-            Some(path) => match self.image_buffer().save(&path) {
+            Some(path) => match self.snapshot_buf.as_ref().unwrap().save(&path) {
                 Ok(_) => (),
                 Err(_) => eprintln!("Could not write to '{:?}'", path),
             }
