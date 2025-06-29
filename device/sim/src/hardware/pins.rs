@@ -14,15 +14,15 @@ impl OutPins {
         let (pin_name, state) = match event {
             IdleEvent::Output1(state) => {
                 self.out1 = state;
-                ("1", (!self.out1).as_str()) // hw inverts polarity
+                ("Flash Control", (!self.out1).as_str()) // hw inverts polarity
             },
             IdleEvent::Output2(state) => {
                 self.out2 = state;
-                ("2", (!self.out2).as_str())
+                ("?", (!self.out2).as_str())
             },
             _ => return None
         };
-        Some(format!("Pin {}: {}", pin_name, state))
+        Some(format!("{}: {}", pin_name, state))
     }
 }
 
@@ -54,13 +54,19 @@ impl InPins {
     }
 
     pub fn button_text(&mut self, pin_name: &str) -> String {
+        let name = match pin_name {
+            "2" => "Sft",
+            "3" => "Gear",
+            "4" => "Break",
+            _ => "Water",
+        };
         let state = match pin_name {
             "2" => self.in2.as_str(),
             "3" => self.in3.as_str(),
             "4" => self.in4.as_str(),
             _ => self.in1.as_str(),
         };
-        format!("Pin {}: {}", pin_name, state)
+        format!("{}: {}", name, state)
     }
 
     pub fn event(&mut self, pin_name: &str) -> Event {
