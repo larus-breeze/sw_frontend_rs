@@ -82,7 +82,8 @@ pub enum PersistenceId {
     StfUpperLimit = 39,
     StfLowerLimit = 40,
     AvgClimbeRateSrc = 41,
-    LastItem = 42, // Items smaller than this are stored in eeprom
+    StfClimbrateAlt = 42,
+    LastItem = 43, // Items smaller than this are stored in eeprom
 
     UserProfile = 65533, // Special function Ids
     DeleteAll = 65534,
@@ -241,6 +242,7 @@ pub fn restore_item(cc: &mut CoreController, cm: &mut CoreModel, item: Persisten
         PersistenceId::AvgClimbeRateSrc => {
             cm.control.avg_climb_rate_src = DataSource::from(item.to_u8())
         }
+        PersistenceId::StfClimbrateAlt => cm.config.alt_stf_thermal_climb = item.to_bool(),
 
         PersistenceId::DeleteAll => (),
         PersistenceId::DoNotStore => (),

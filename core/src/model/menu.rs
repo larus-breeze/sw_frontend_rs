@@ -141,6 +141,10 @@ pub const VIEW_SETTINGS: Menu = Menu {
             next_menu_idx: VIEW_SETINGS_IDX,
         },
         MenuItem {
+            content: MenuItemContent::EditItem(Editable::Info3),
+            next_menu_idx: VIEW_SETINGS_IDX,
+        },
+        MenuItem {
             content: MenuItemContent::EditItem(Editable::CenterViewCircling),
             next_menu_idx: VIEW_SETINGS_IDX,
         },

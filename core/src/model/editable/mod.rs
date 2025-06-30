@@ -49,6 +49,7 @@ pub enum Editable {
     TcSpeedToFly,
     Theme,
     Volume,
+    Info3,
 
     // controller
     DrainPinConfig,
@@ -225,6 +226,7 @@ impl Editable {
             Editable::Info1 => Info1::this(),
             Editable::Info2 => Info2::this(),
             Editable::McCready => McCready::this(),
+            Editable::Info3 => Info3::this(),
             Editable::StfUpperLimit => StfUpperLimit::this(),
             Editable::StfLowerLimit => StfLowerLimit::this(),
             Editable::TcClimbRate => TcClimbRate::this(),

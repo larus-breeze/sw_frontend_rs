@@ -221,7 +221,7 @@ impl Frontend {
                     let msg = format!("{:?}", item);
                     logger.add(&msg);
                 }
-                // println!("Restored {:?}", item);
+                println!("Restored {:?}", item);
                 persist::restore_item(&mut cc, &mut cm, item);
             }
         

@@ -159,7 +159,7 @@ impl Vario {
                     display.draw_img(
                         cm.device_const.images.straight,
                         sizes.pic_info3_pos,
-                        Some(cm.palette().scale),
+                        Some(cm.palette().vario_pic_info1),
                     )?;
                     display.draw_img(
                         cm.device_const.images.km_h,
@@ -173,7 +173,7 @@ impl Vario {
                         sizes.info3_pos,
                         VerticalPosition::Top,
                         HorizontalAlignment::Right,
-                        FontColor::Transparent(col),
+                        FontColor::Transparent(cm.palette().scale),
                         display,
                     )?;
                 } else {

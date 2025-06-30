@@ -108,7 +108,7 @@ impl Config {
             av2_climb_rate_tc: 30.0,
             av_speed_to_fly_tc: 5.0,
             av_supply_voltage_tc: 3.0,
-            alt_stf_thermal_climb: false,
+            alt_stf_thermal_climb: true,
             theme,
             uuid,
             info1: LineView::None,

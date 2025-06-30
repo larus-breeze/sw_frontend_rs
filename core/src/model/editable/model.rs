@@ -438,6 +438,49 @@ impl EditableFuncs for Info2 {
     }
 }
 
+const ALTERNATING: &str = "StF ALternating";
+const CLIMB_RATE: &str = "Climb Rate";
+
+pub struct Info3;
+impl EditableFuncs for Info3 {
+    fn name() -> &'static str {
+        "Info 3 Content"
+    }
+
+    fn content(cm: &mut CoreModel, _cc: &mut CoreController) -> Content {
+        Content::Enum(TString::<16>::from_str(
+            if cm.config.alt_stf_thermal_climb {
+                ALTERNATING
+            } else {
+                CLIMB_RATE
+            }    
+        ))
+    }
+
+    fn params() -> Params {
+        Params::Enum(EnumParams {
+            variants: [ALTERNATING, CLIMB_RATE, "", "", ""],
+        })
+    }
+
+    fn set_content(cm: &mut CoreModel, cc: &mut CoreController, content: Content) {
+        if let Content::Enum(val) = content {
+            let b = if val.as_str() == CLIMB_RATE {
+                false
+            } else {
+                true
+            };
+            persist::persist_set(
+                cc,
+                cm,
+                Variant::Bool(b),
+                PersistenceId::StfClimbrateAlt,
+                Echo::None,
+            );
+        }
+    }
+}
+
 pub struct McCready;
 impl EditableFuncs for McCready {
     fn name() -> &'static str {
