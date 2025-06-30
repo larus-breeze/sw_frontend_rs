@@ -94,7 +94,7 @@ const BAT_PARAMS: Params = Params::F32(F32Params {
 
 impl EditableFuncs for BatteryGood {
     fn name() -> &'static str {
-        "Battery good"
+        "Battery Good"
     }
 
     fn content(cm: &mut CoreModel, _cc: &mut CoreController) -> Content {
@@ -121,7 +121,7 @@ impl EditableFuncs for BatteryGood {
 pub struct BatteryLow;
 impl EditableFuncs for BatteryLow {
     fn name() -> &'static str {
-        "Battery low"
+        "Battery Low"
     }
 
     fn content(cm: &mut CoreModel, _cc: &mut CoreController) -> Content {
@@ -518,7 +518,7 @@ impl EditableFuncs for McCready {
 pub struct StfUpperLimit;
 impl EditableFuncs for StfUpperLimit {
     fn name() -> &'static str {
-        "Stf Upper Limit"
+        "StF Upper Limit"
     }
 
     fn content(cm: &mut CoreModel, _cc: &mut CoreController) -> Content {
@@ -552,7 +552,7 @@ impl EditableFuncs for StfUpperLimit {
 pub struct StfLowerLimit;
 impl EditableFuncs for StfLowerLimit {
     fn name() -> &'static str {
-        "Stf Lower Limit"
+        "StF Lower Limit"
     }
 
     fn content(cm: &mut CoreModel, _cc: &mut CoreController) -> Content {

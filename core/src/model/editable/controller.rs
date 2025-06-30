@@ -314,7 +314,7 @@ impl EditableFuncs for Rotation_ {
 pub struct SpeedToFlyPinConfig;
 impl EditableFuncs for SpeedToFlyPinConfig {
     fn name() -> &'static str {
-        "Stf Pin Config"
+        "StF Pin Config"
     }
 
     fn content(_cm: &mut CoreModel, cc: &mut CoreController) -> Content {

@@ -229,7 +229,7 @@ impl EditableFuncs for VarioIntTc {
 pub struct WindTc;
 impl EditableFuncs for WindTc {
     fn name() -> &'static str {
-        "Wind Tc"
+        "Wind TC"
     }
 
     fn content(cm: &mut CoreModel, cc: &mut CoreController) -> Content {
@@ -367,7 +367,7 @@ const COMMAND_SENT: &str = "Command sent";
 
 impl EditableFuncs for CmdMeas1 {
     fn name() -> &'static str {
-        "Left Wing down"
+        "Left Wing Down"
     }
 
     fn content(_cm: &mut CoreModel, _cc: &mut CoreController) -> Content {
@@ -388,7 +388,7 @@ impl EditableFuncs for CmdMeas1 {
 pub struct CmdMeas2;
 impl EditableFuncs for CmdMeas2 {
     fn name() -> &'static str {
-        "Right Wing down"
+        "Right Wing Down"
     }
 
     fn content(_cm: &mut CoreModel, _cc: &mut CoreController) -> Content {
@@ -409,7 +409,7 @@ impl EditableFuncs for CmdMeas2 {
 pub struct CmdMeas3;
 impl EditableFuncs for CmdMeas3 {
     fn name() -> &'static str {
-        "Wings straight"
+        "Wings Straight"
     }
 
     fn content(_cm: &mut CoreModel, _cc: &mut CoreController) -> Content {

@@ -332,7 +332,7 @@ pub const SENSOR_BOX_COMMANDS: Menu = Menu {
 };
 
 pub const SENSOR_BOX_SETTINGS: Menu = Menu {
-    name: "Ini Settings",
+    name: "Init Settings",
     level: 3,
     items: &[
         MenuItem {
