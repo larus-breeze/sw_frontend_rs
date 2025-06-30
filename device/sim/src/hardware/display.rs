@@ -26,7 +26,7 @@ const BACKGROUND_IMAGE: &[u8] = include_bytes!("../device/air/background.png");
 #[cfg(feature = "v1")]
 const BACKGROUND_IMAGE: &[u8] = include_bytes!("../device/v1/background.png");
 
-#[cfg(feature = "v2")]
+#[cfg(all(feature = "v2", not(any(feature = "v1", feature = "air"))))]
 const BACKGROUND_IMAGE: &[u8] = include_bytes!("../device/v2/background.png");
 
 pub struct Display {

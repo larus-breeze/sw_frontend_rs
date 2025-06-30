@@ -28,9 +28,6 @@ path = "../../core"
 
 [features]
 default = ["v2"]
-
 air = []
 v1 = []
 v2 = []
-colors_rgb565 = []
-eeprom_size_8192 = []
