@@ -124,6 +124,7 @@ const DELETE_CONFIG_LIST: &[PersistenceId] = &[
     PersistenceId::StfUpperLimit,
     PersistenceId::StfLowerLimit,
     PersistenceId::AvgClimbeRateSrc,
+    PersistenceId::StfClimbrateAlt,
 ];
 
 /// The following data is deleted when a new glider is selected
