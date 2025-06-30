@@ -24,4 +24,8 @@ cd ../..
 mv device/larus_frontend_v2/*.bin .
 mv device/larus_frontend_v2/*.elf .
 
+cd device/sim
+./make_image.sh -i
+cd ../..
+
 echo "finished"

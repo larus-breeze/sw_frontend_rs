@@ -15,8 +15,8 @@ cd device/larus_frontend_v2
 cargo build -r
 cd ../..
 
-cd device/pc
-cargo build -r
+cd device/sim
+cargo build
 cd ../..
 
 echo "finished"
