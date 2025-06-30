@@ -5,10 +5,12 @@ mod adapt;
 mod config;
 mod error;
 mod gui_events;
-mod dev_const;
 mod frontend;
 mod hardware;
 mod tcp;
+
+mod device;
+use device::dev_const as dev_const;
 
 use adapt::Adapt;
 pub use error::Error;

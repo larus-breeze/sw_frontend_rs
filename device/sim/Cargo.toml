@@ -25,5 +25,12 @@ slint-build = "1.8.0"
 # local
 [dependencies.corelib]
 path = "../../core"
-default-features = false
-features = ["colors_rgb565", "eeprom_size_8192"]
+
+[features]
+default = ["v2"]
+
+air = []
+v1 = []
+v2 = []
+colors_rgb565 = []
+eeprom_size_8192 = []

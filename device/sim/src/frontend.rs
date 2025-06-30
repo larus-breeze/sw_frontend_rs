@@ -297,7 +297,7 @@ impl Frontend {
                     }
                 }
         
-                cc.tick_1ms(millis() - start_time, &mut cm);
+                cc.tick_1ms(millis().wrapping_sub(start_time), &mut cm);
                 view.prepare(&cm);
                 view.draw().unwrap();
 
