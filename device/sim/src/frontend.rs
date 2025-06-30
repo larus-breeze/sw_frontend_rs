@@ -232,6 +232,7 @@ impl Frontend {
             let mut clipboard_ctx = Clipboard::new().unwrap();
 
             let mut nmea_server = TcpServer::new("127.0.0.1:4353");
+            let start_time = millis();
 
             loop {
                 std::thread::sleep(std::time::Duration::from_millis(30));
@@ -296,7 +297,7 @@ impl Frontend {
                     }
                 }
         
-                cc.tick_1ms(millis(), &mut cm);
+                cc.tick_1ms(millis() - start_time, &mut cm);
                 view.prepare(&cm);
                 view.draw().unwrap();
 
