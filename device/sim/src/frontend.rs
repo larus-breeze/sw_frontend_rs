@@ -4,7 +4,7 @@ use std::{
 };
 
 use corelib::*;
-use slint::{ComponentHandle, Image, Rgba8Pixel, SharedPixelBuffer, Weak};
+use slint::{ComponentHandle, Image, Rgba8Pixel, SharedPixelBuffer, Weak, quit_event_loop};
 use heapless::spsc::Queue;
 use arboard::{Clipboard, ImageData};
 
@@ -332,6 +332,10 @@ impl Frontend {
                         IdleEvent::ClearEepromItems(items_list) => {
                             eeprom.delete_items_list(items_list).unwrap();
                         }
+                        IdleEvent::ResetDevice(reason) => {
+                            println!("Reset triggered by app, reason ‘{:?}’, please restart", reason);
+                            quit_event_loop().unwrap();
+                        } 
         
                         //...
                         _ => (),
