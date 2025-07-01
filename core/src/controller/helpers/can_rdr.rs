@@ -10,7 +10,7 @@ use crate::{
     model::{editable::Content, GpsState, VarioModeControl},
     AirSpeed, Angle, CanFrame, CoreController, CoreModel, F64ToCoord, FloatToAcceleration,
     FloatToAngularVelocity, FloatToDensity, FloatToLength, FloatToMass, FloatToPressure,
-    FloatToSpeed, FlyMode, Frame, GenericFrame, GenericId, Latitude, Longitude, PersistenceId,
+    FloatToSpeed, Frame, GenericFrame, GenericId, Latitude, Longitude, PersistenceId,
     SpecificFrame, Variant, DEGREE_PER_RAD,
 };
 use embedded_graphics::prelude::AngleUnit;
@@ -180,12 +180,6 @@ impl CoreController {
                 sensor_legacy::ACCELERATION => {
                     cm.sensor.g_force = ((rdr.pop_i16() as f32) * 0.001).m_s2();
                     cm.sensor.vertical_g_force = ((rdr.pop_i16() as f32) * 0.001).m_s2();
-                    let _ = ((rdr.pop_i16() as f32) * 0.001).m_s(); // gps_climb_rate
-                    match rdr.pop_u8() {
-                        0 => cm.control.fly_mode = FlyMode::StraightFlight,
-                        2 => cm.control.fly_mode = FlyMode::Circling,
-                        _ => (),
-                    }
                 }
                 sensor_legacy::AIRSPEED => {
                     let tas = (rdr.pop_i16() as f32).km_h();
@@ -346,16 +340,7 @@ impl CoreController {
                     cm.sensor.nick_angle = nick_angle.rad();
                 }
             }
-            sensor::UBATT_CIRCLE_MODE => {
-                if let Some(_ubatt) = rdr.pop_f32() {
-                    // we ignore ubatt from sensorbox device
-                }
-                match rdr.pop_u8() {
-                    0 => cm.control.fly_mode = FlyMode::StraightFlight,
-                    2 => cm.control.fly_mode = FlyMode::Circling,
-                    _ => (),
-                }
-            }
+            sensor::UBATT_CIRCLE_MODE => (), // ignore this datagram
             sensor::SYSTEM_STATE_GIT_TAG => {
                 let system_state = rdr.pop_u32();
                 cm.sensor.horizon_availaable = (system_state & 0x0001_0000) == 0;

@@ -83,7 +83,8 @@ pub enum PersistenceId {
     StfLowerLimit = 40,
     AvgClimbeRateSrc = 41,
     StfClimbrateAlt = 42,
-    LastItem = 43, // Items smaller than this are stored in eeprom
+    TcCircleHysteresis = 43,
+    LastItem = 44, // Items smaller than this are stored in eeprom
 
     UserProfile = 65533, // Special function Ids
     DeleteAll = 65534,
@@ -125,6 +126,7 @@ const DELETE_CONFIG_LIST: &[PersistenceId] = &[
     PersistenceId::StfLowerLimit,
     PersistenceId::AvgClimbeRateSrc,
     PersistenceId::StfClimbrateAlt,
+    PersistenceId::TcCircleHysteresis,
 ];
 
 /// The following data is deleted when a new glider is selected
@@ -244,6 +246,7 @@ pub fn restore_item(cc: &mut CoreController, cm: &mut CoreModel, item: Persisten
             cm.control.avg_climb_rate_src = DataSource::from(item.to_u8())
         }
         PersistenceId::StfClimbrateAlt => cm.config.alt_stf_thermal_climb = item.to_bool(),
+        PersistenceId::TcCircleHysteresis => cm.config.circle_hysteresis_tc = item.to_i8(),
 
         PersistenceId::DeleteAll => (),
         PersistenceId::DoNotStore => (),

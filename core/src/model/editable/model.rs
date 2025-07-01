@@ -583,6 +583,40 @@ impl EditableFuncs for StfLowerLimit {
     }
 }
 
+pub struct TcCircleHysteresis;
+impl EditableFuncs for TcCircleHysteresis {
+    fn name() -> &'static str {
+        "TC Circle Hyst"
+    }
+
+    fn content(cm: &mut CoreModel, _cc: &mut CoreController) -> Content {
+        Content::F32(Some(cm.config.circle_hysteresis_tc as f32))
+    }
+
+    fn params() -> Params {
+        Params::F32(F32Params {
+            min: 3.0,
+            max: 30.0,
+            small_inc: 1.0,
+            big_inc: 10.0,
+            dec_places: 0,
+            unit: "s",
+        })
+    }
+
+    fn set_content(cm: &mut CoreModel, cc: &mut CoreController, content: Content) {
+        if let Content::F32(Some(val)) = content {
+            persist::persist_set(
+                cc,
+                cm,
+                Variant::I8(val as i8),
+                PersistenceId::TcCircleHysteresis,
+                Echo::None,
+            )
+        }
+    }
+}
+
 pub struct TcClimbRate;
 impl EditableFuncs for TcClimbRate {
     fn name() -> &'static str {

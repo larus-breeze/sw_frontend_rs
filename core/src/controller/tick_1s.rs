@@ -4,6 +4,7 @@ use crate::{
     utils::Variant,
     CoreController, CoreModel, Echo, FloatToSpeed, FlyMode, IdleEvent, PersistenceId, VarioMode,
 };
+use num::clamp;
 
 pub fn recalc_polar(cm: &mut CoreModel, cc: &mut CoreController) {
     cc.polar.recalc(&cm.glider_data, cm.sensor.density);
@@ -94,6 +95,22 @@ fn speed_to_fly(cm: &mut CoreModel, cc: &mut CoreController) {
             TcrMode::StraightFlight => cm.control.tcr_start = cm.sensor.gps_altitude,
         },
     }
+
+    // decide circling or straight flight, 5°/sec --> circling
+    let mut hyst = if cm.sensor.turn_rate.to_rad_s().abs() > 0.1 {
+        cm.calculated.circle_hysteresis + 1
+    } else {
+        cm.calculated.circle_hysteresis - 1
+    };
+    hyst = clamp(hyst, 0, cm.config.circle_hysteresis_tc);
+
+    if hyst == cm.config.circle_hysteresis_tc {
+        cm.control.fly_mode = FlyMode::Circling;
+    }
+    if hyst == 0 {
+        cm.control.fly_mode = FlyMode::StraightFlight;
+    }
+    cm.calculated.circle_hysteresis = hyst;
 
     let _ = cc.scheduler.chain(can_heartbeat);
 }

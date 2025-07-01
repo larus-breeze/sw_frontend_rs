@@ -407,6 +407,10 @@ pub const SPEED_TO_FLY: Menu = Menu {
     level: 3,
     items: &[
         MenuItem {
+            content: MenuItemContent::EditItem(Editable::TcCircleHysteresis),
+            next_menu_idx: SPEED_TO_FLY_IDX,
+        },
+        MenuItem {
             content: MenuItemContent::EditItem(Editable::TcSpeedToFly),
             next_menu_idx: SPEED_TO_FLY_IDX,
         },

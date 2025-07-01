@@ -59,6 +59,7 @@ pub enum OverlayActive {
 /// Metastructur for config variables
 #[derive(Clone, Copy)]
 pub struct Config {
+    pub circle_hysteresis_tc: i8,
     pub display_active: DisplayActive,
     pub overlay_active: OverlayActive,
     pub info_active: TypeOfInfo,
@@ -92,6 +93,7 @@ pub struct Config {
 impl Config {
     pub fn default(theme: &'static Palette, uuid: u32) -> Self {
         Self {
+            circle_hysteresis_tc: 7,
             display_active: DisplayActive::Vario,
             overlay_active: OverlayActive::None,
             info_active: TypeOfInfo::None,
