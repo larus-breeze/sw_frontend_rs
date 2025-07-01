@@ -1,6 +1,5 @@
 use std::{
-    path::PathBuf, str::FromStr, sync::{Arc, Mutex}, thread, vec,
-    io::Write, fs::File,
+    collections::VecDeque, fs::File, io::Write, path::PathBuf, str::FromStr, sync::{Arc, Mutex}, thread, vec
 };
 
 use corelib::*;
@@ -215,14 +214,11 @@ impl Frontend {
             let mut cc = CoreController::new(&mut cm, p_idle_events, p_tx_frames);
             let mut view = CoreView::new(display, &cm);
 
+            let mut eeprom_init_items = VecDeque::<PersistenceItem>::new();
             let mut eeprom = Storage::new().unwrap();
             for item in eeprom.iter_over(EepromTopic::ConfigValues) {
-                if filter_idle_events {
-                    let msg = format!("{:?}", item);
-                    logger.add(&msg);
-                }
-                println!("Restored {:?}", item);
                 persist::restore_item(&mut cc, &mut cm, item);
+                let _ = eeprom_init_items.push_back(item);
             }
         
             let outputs_ = Outputs::new();
@@ -320,7 +316,14 @@ impl Frontend {
                         logger.add(&msg);
                     }
                 }
-        
+
+                while eeprom_init_items.len() > 0 {
+                    let item = eeprom_init_items.pop_front().unwrap();
+                    if filter_idle_events {
+                        let msg = format!("{:?}", item);
+                        logger.add(&msg);
+                    }
+                }
         
                 let mut ui_events = vec::Vec::<IdleEvent>::new();
                 while c_idle_events.len() > 0 {
