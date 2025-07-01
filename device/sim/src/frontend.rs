@@ -304,8 +304,7 @@ impl Frontend {
                     DISPLAY_HEIGHT,
                 );
 
-                while c_tx_frames.len() > 0 {
-                    let frame = c_tx_frames.dequeue().unwrap();
+                while let Some(frame) = c_tx_frames.dequeue() {
                     if let Frame::Specific(specific_frame) = frame {
                         if specific_frame.specific_id == 0 {
                             sound.from_can_datagram(frame);
@@ -317,8 +316,7 @@ impl Frontend {
                     }
                 }
 
-                while eeprom_init_items.len() > 0 {
-                    let item = eeprom_init_items.pop_front().unwrap();
+                while let Some(item) = eeprom_init_items.pop_front() {
                     if filter_idle_events {
                         let msg = format!("{:?}", item);
                         logger.add(&msg);
@@ -326,8 +324,7 @@ impl Frontend {
                 }
         
                 let mut ui_events = vec::Vec::<IdleEvent>::new();
-                while c_idle_events.len() > 0 {
-                    let event = c_idle_events.dequeue().unwrap(); 
+                while let Some(event) = c_idle_events.dequeue() {
                     match event {
                         IdleEvent::Output1(_) | IdleEvent::Output2(_) => ui_events.push(event),
                         IdleEvent::SetEepromItem(item) => {
