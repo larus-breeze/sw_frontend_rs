@@ -170,7 +170,7 @@ impl Palette {
             vario_wind_plus: Colors::Orange,
             vario_wind_minus: Colors::LightPink,
 
-            therm_ass_best: Colors::White,
+            therm_ass_best: Colors::Yellow,
             therm_ass_good: Colors::Red,
             therm_ass_bad: Colors::DeepSkyBlue,
             therm2_ass_best: Colors::Yellow,
