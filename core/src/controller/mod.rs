@@ -26,7 +26,7 @@ mod tick_1s;
 use tick_1s::*;
 
 pub mod persist;
-pub use persist::{store_persistence_ids, Echo, PersistenceId};
+pub use persist::{store_persistence_ids, Echo, PersistenceId, profile_always_0};
 
 use crate::{
     basic_config::{CONTROLLER_TICK_RATE, MAX_TX_FRAMES},

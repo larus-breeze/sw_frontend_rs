@@ -92,6 +92,28 @@ pub enum PersistenceId {
     DoNotStore = 65535,
 }
 
+/// This list defines which Ids are stored only in user profile 0
+const PROFILE_0_IDS: &[PersistenceId] = &[
+    PersistenceId::Glider,
+    PersistenceId::EmptyMass,
+    PersistenceId::MaxBallast,
+    PersistenceId::ReferenceWeight,
+    PersistenceId::PolarValueV1,
+    PersistenceId::PolarValueV2,
+    PersistenceId::PolarValueV3,
+    PersistenceId::PolarValueSi1,
+    PersistenceId::PolarValueSi2,
+    PersistenceId::PolarValueSi3,
+    PersistenceId::DrainPinConfig,
+    PersistenceId::FlowEmpty,
+    PersistenceId::FlowSlope,
+    PersistenceId::FlashControl,
+    PersistenceId::SpeedToFlyPinConfig,
+    PersistenceId::GearPinConfig,
+    PersistenceId::AirbrakesPinConfig,
+    PersistenceId::GearAlarmMode,
+];
+
 /// This list defines which data is destroyed when a profile is deleted
 const DELETE_CONFIG_LIST: &[PersistenceId] = &[
     PersistenceId::Volume,
@@ -114,13 +136,8 @@ const DELETE_CONFIG_LIST: &[PersistenceId] = &[
     PersistenceId::GliderSymbol,
     PersistenceId::BatteryGood,
     PersistenceId::BatteryLow,
-    PersistenceId::DrainPinConfig,
     PersistenceId::FlowEmpty,
     PersistenceId::FlowSlope,
-    PersistenceId::SpeedToFlyPinConfig,
-    PersistenceId::GearPinConfig,
-    PersistenceId::AirbrakesPinConfig,
-    PersistenceId::GearAlarmMode,
     PersistenceId::AlarmVolume,
     PersistenceId::StfUpperLimit,
     PersistenceId::StfLowerLimit,
@@ -141,6 +158,18 @@ const SPECIFIC_POLAR_SETTINGS: &[PersistenceId] = &[
     PersistenceId::PolarValueSi2,
     PersistenceId::PolarValueSi3,
 ];
+
+/// Check if PersistenceId is in the list of profile 0
+pub fn profile_always_0(id: PersistenceId) -> bool {
+    let mut is_unique = false;
+    for iter_id in PROFILE_0_IDS {
+        if *iter_id == id {
+            is_unique = true;
+            break;
+        }
+    }
+    is_unique
+}
 
 #[derive(PartialEq)]
 pub enum Echo {

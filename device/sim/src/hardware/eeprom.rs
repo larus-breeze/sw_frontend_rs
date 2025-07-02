@@ -8,13 +8,13 @@ pub struct Storage {
 }
 
 impl Storage {
-    pub fn new() -> Result<Eeprom<Storage>, CoreError> {
+    pub fn new(is_unique: fn(PersistenceId)->bool) -> Result<Eeprom<Storage>, CoreError> {
         let mut data = [0_u8; eeprom::SIZE as usize];
         if let Ok(mut f) = std::fs::File::open(FILE_NAME) {
             f.read_exact(&mut data).unwrap()
         }
         let storage = Storage { data };
-        Eeprom::new(storage)
+        Eeprom::new(storage, is_unique)
     }
 }
 

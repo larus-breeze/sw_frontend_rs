@@ -215,7 +215,7 @@ impl Frontend {
             let mut view = CoreView::new(display, &cm);
 
             let mut eeprom_init_items = VecDeque::<PersistenceItem>::new();
-            let mut eeprom = Storage::new().unwrap();
+            let mut eeprom = Storage::new(profile_always_0).unwrap();
             for item in eeprom.iter_over(EepromTopic::ConfigValues) {
                 persist::restore_item(&mut cc, &mut cm, item);
                 let _ = eeprom_init_items.push_back(item);
@@ -336,7 +336,7 @@ impl Frontend {
                         IdleEvent::ResetDevice(reason) => {
                             println!("Reset triggered by app, reason ‘{:?}’, please restart", reason);
                             quit_event_loop().unwrap();
-                        } 
+                        }
         
                         //...
                         _ => (),

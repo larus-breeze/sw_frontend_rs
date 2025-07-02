@@ -197,6 +197,7 @@ where
 {
     user_profile: u8,
     eeprom: S,
+    is_unique: fn(PersistenceId) -> bool,
 }
 
 /// Store configuration data in an EEPROM
@@ -238,7 +239,7 @@ where
     S: EepromTrait,
 {
     /// Create a Persistence Instance
-    pub fn new(mut eeprom: S) -> Result<Self, CoreError> {
+    pub fn new(mut eeprom: S, is_unique: fn(PersistenceId)->bool) -> Result<Self, CoreError> {
         eeprom.check_magic()?;
 
         let user_profile = eeprom.read_byte(ADR_USER_PROFILE)?;
@@ -250,6 +251,7 @@ where
         Ok(Eeprom {
             eeprom,
             user_profile,
+            is_unique,
         })
     }
 
@@ -307,14 +309,22 @@ where
         Ok(())
     }
 
+    fn profile(&self, id: PersistenceId) -> u32 {
+        if (self.is_unique)(id) {
+            0
+        } else {
+            self.user_profile as u32
+        }
+    }
+
     /// returns the address of an item
     fn item_address(&mut self, id: PersistenceId) -> u32 {
-        eeprom::ADR_DATA_STORAGE + self.user_profile as u32 * MAX_USER_VALUES + id as u32 * 4
+        eeprom::ADR_DATA_STORAGE + self.profile(id) * MAX_USER_VALUES + id as u32 * 4
     }
 
     /// returns address of the byte of id in DAT
     fn data_byte_adr_from_id(&mut self, id: PersistenceId) -> u32 {
-        eeprom::ADR_DAT + (id as u32 + self.user_profile as u32 * MAX_USER_VALUES) / 8
+        eeprom::ADR_DAT + (id as u32 + self.profile(id) * MAX_USER_VALUES) / 8
     }
 
     /// Returns a byte of the DAT
@@ -368,7 +378,6 @@ where
 {
     cur_id: u16,
     end_id: u16,
-    cur_byte: Result<u8, CoreError>,
     user_profile_sent: bool,
     persistence: &'a mut Eeprom<S>,
 }
@@ -382,7 +391,6 @@ where
         PersistenceIterator {
             cur_id: start_id,
             end_id,
-            cur_byte: Ok(0),
             user_profile_sent: false,
             persistence,
         }
@@ -397,23 +405,17 @@ where
     fn next(&mut self) -> Option<Self::Item> {
         if self.user_profile_sent {
             while self.cur_id < self.end_id {
-                if self.cur_id % 8 == 0 {
-                    self.cur_byte = self.persistence.read_bitfield_byte(self.cur_id.into());
-                }
-                if let Ok(cur_byte) = self.cur_byte {
-                    let cur_bit = 0x01 << (self.cur_id % 8);
-                    let id_exists = (cur_bit & cur_byte) != 0;
+                let cur_byte = self.persistence.read_bitfield_byte(self.cur_id.into()).unwrap();
+                let cur_bit = 0x01 << (self.cur_id % 8);
+                let id_exists = (cur_bit & cur_byte) != 0;
 
-                    if id_exists {
-                        let r = self
-                            .persistence
-                            .read_item_unchecked(self.cur_id.into())
-                            .unwrap();
-                        self.cur_id += 1;
-                        return Some(r);
-                    } else {
-                        self.cur_id += 1;
-                    }
+                if id_exists {
+                    let r = self
+                        .persistence
+                        .read_item_unchecked(self.cur_id.into())
+                        .unwrap();
+                    self.cur_id += 1;
+                    return Some(r);
                 } else {
                     self.cur_id += 1;
                 }

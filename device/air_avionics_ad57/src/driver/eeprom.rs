@@ -1,7 +1,7 @@
 //use defmt::trace;
 
 use crate::driver::delay_ms;
-use corelib::{CoreError, Eeprom, EepromTrait};
+use corelib::{CoreError, Eeprom, EepromTrait, profile_always_0};
 use eeprom24x::{addr_size::TwoBytes, page_size::B32, Eeprom24x, SlaveAddr};
 use stm32f4xx_hal::{i2c::I2c, pac::I2C1};
 
@@ -17,7 +17,7 @@ impl Storage {
         let addr = SlaveAddr::default();
         let eeprom24 = Eeprom24x::new_24x64(i2c, addr);
         let storage = Storage { eeprom: eeprom24 };
-        Eeprom::new(storage)
+        Eeprom::new(storage, profile_always_0)
     }
 }
 
