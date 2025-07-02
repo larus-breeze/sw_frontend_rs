@@ -52,6 +52,7 @@ pub const SENSOR_BOX_SETTINGS_IDX: usize = 8;
 pub const SPEED_TO_FLY_IDX: usize = 9;
 pub const LANDING_GEAR_ALARM_IDX: usize = 10;
 pub const AVERAGE_CLIMB_RATE_IDX: usize = 11;
+pub const RESET_CONFIG_IDX: usize = 12;
 
 pub const MENU_LIST: &[Menu] = &[
     ROOT,
@@ -66,6 +67,7 @@ pub const MENU_LIST: &[Menu] = &[
     SPEED_TO_FLY,
     LANDING_GEAR_ALARM,
     AVERAGE_CLIMB_RATE,
+    RESET_CONFIG,
 ];
 
 pub const ROOT: Menu = Menu {
@@ -192,8 +194,8 @@ pub const ADVANCED_SETTINGS: Menu = Menu {
             next_menu_idx: ADVANCED_SETTINGS_IDX,
         },
         MenuItem {
-            content: MenuItemContent::EditItem(Editable::ResetConfig),
-            next_menu_idx: ADVANCED_SETTINGS_IDX,
+            content: MenuItemContent::MenuItem(),
+            next_menu_idx: RESET_CONFIG_IDX,
         },
         MenuItem {
             content: MenuItemContent::MenuItem(),
@@ -475,6 +477,25 @@ pub const AVERAGE_CLIMB_RATE: Menu = Menu {
         MenuItem {
             content: MenuItemContent::EditItem(Editable::TcClimbRate),
             next_menu_idx: AVERAGE_CLIMB_RATE_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::Return),
+            next_menu_idx: ADVANCED_SETTINGS_IDX,
+        },
+    ],
+};
+
+pub const RESET_CONFIG: Menu = Menu {
+    name: "Config Reset",
+    level: 3,
+    items: &[
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::ResetConfig),
+            next_menu_idx: RESET_CONFIG_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::FactoryReset),
+            next_menu_idx: RESET_CONFIG_IDX,
         },
         MenuItem {
             content: MenuItemContent::EditItem(Editable::Return),

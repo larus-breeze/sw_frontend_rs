@@ -45,6 +45,47 @@ impl EditableFuncs for DrainPinConfig {
     }
 }
 
+pub struct FactoryReset;
+const DO_NOT_CHANGE: &str = "Do not change";
+const FACTORY_RESET: &str = "Delete all";
+const DO_NOT_CHANGE_2: &str = "Do not change ";
+
+impl EditableFuncs for FactoryReset {
+    fn name() -> &'static str {
+        "Factory Reset"
+    }
+
+    fn content(cm: &mut CoreModel, _cc: &mut CoreController) -> Content {
+        let s = match cm.control.reset_config {
+            1 => FACTORY_RESET,
+            _ => DO_NOT_CHANGE,
+        };
+        Content::Enum(TString::<16>::from_str(s))
+    }
+
+    fn params() -> Params {
+        Params::Enum(EnumParams {
+            variants: [DO_NOT_CHANGE, FACTORY_RESET, DO_NOT_CHANGE_2, "", ""],
+        })
+    }
+
+    fn set_content(cm: &mut CoreModel, cc: &mut CoreController, content: Content) {
+        if let Content::Enum(val) = content {
+            cm.control.reset_config = match val.as_str() {
+                DO_NOT_CHANGE => 0,
+                FACTORY_RESET => 1,
+                _ => 2,
+            };
+            if cm.control.editor.enter_pushed {
+                match cm.control.reset_config {
+                    1 => persist::factory_reset(cc),
+                    _ => (),
+                }
+            }
+        }
+    }
+}
+
 pub struct FlashControl;
 impl EditableFuncs for FlashControl {
     fn name() -> &'static str {
@@ -235,8 +276,6 @@ impl EditableFuncs for GearAlarmModeConfig {
 
 pub struct ResetConfig;
 const DEFAULT_CONFIG: &str = "Default Config";
-const FACTORY_RESET: &str = "Factory Reset";
-const DO_NOT_CHANGE: &str = "Do not change";
 
 impl EditableFuncs for ResetConfig {
     fn name() -> &'static str {
@@ -246,7 +285,6 @@ impl EditableFuncs for ResetConfig {
     fn content(cm: &mut CoreModel, _cc: &mut CoreController) -> Content {
         let s = match cm.control.reset_config {
             0 => DEFAULT_CONFIG,
-            1 => FACTORY_RESET,
             _ => DO_NOT_CHANGE,
         };
         Content::Enum(TString::<16>::from_str(s))
@@ -254,7 +292,7 @@ impl EditableFuncs for ResetConfig {
 
     fn params() -> Params {
         Params::Enum(EnumParams {
-            variants: [DEFAULT_CONFIG, FACTORY_RESET, DO_NOT_CHANGE, "", ""],
+            variants: [DEFAULT_CONFIG, DO_NOT_CHANGE, "", "", ""],
         })
     }
 
@@ -268,7 +306,6 @@ impl EditableFuncs for ResetConfig {
             if cm.control.editor.enter_pushed {
                 match cm.control.reset_config {
                     0 => persist::delete_config(cc),
-                    1 => persist::factory_reset(cc),
                     _ => (),
                 }
             }
