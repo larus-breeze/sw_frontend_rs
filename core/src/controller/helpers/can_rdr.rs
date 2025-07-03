@@ -344,6 +344,7 @@ impl CoreController {
             sensor::SYSTEM_STATE_GIT_TAG => {
                 let system_state = rdr.pop_u32();
                 cm.sensor.horizon_availaable = (system_state & 0x0001_0000) == 0;
+                cm.sensor.gnss_and_compass_ok = (system_state & 0x0000_0011) == 0x0000_0011;
                 // git_tag is not used at the moment
             }
             sensor::CONFIG_VALUE => {

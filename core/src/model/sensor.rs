@@ -47,6 +47,7 @@ pub struct Sensor {
     pub vertical_g_force: Acceleration,
     pub wind_vector: WindVector,
     pub horizon_availaable: bool,
+    pub gnss_and_compass_ok: bool,
 }
 
 impl Default for Sensor {
@@ -79,6 +80,7 @@ impl Default for Sensor {
             average_wind: WindVector::new(0.0.km_h(), 0.0_f32.deg()),
             wind_vector: WindVector::new(0.0.km_h(), 0.0_f32.deg()),
             horizon_availaable: true,
+            gnss_and_compass_ok: false,
         }
     }
 }

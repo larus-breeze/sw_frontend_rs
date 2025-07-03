@@ -104,6 +104,11 @@ impl Vario {
         };
         display.draw_img(cm.device_const.images.sat, sizes.sat_pos, Some(color))?;
 
+        // draw attention if necessary
+        if !cm.sensor.gnss_and_compass_ok {
+            display.draw_img(cm.device_const.images.attention, sizes.attention_pos, None)?;
+        }
+
         // draw center view
         self.thermal_data.update(cm);
         match cm.control.fly_mode {

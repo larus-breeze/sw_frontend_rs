@@ -60,6 +60,7 @@ pub struct VarioSizes {
     pub stf_diameter: u32, // stf speed to fly
     pub stf_width: u32,
     pub indicator_len: u32,
+    pub attention_pos: Point,
     pub glider_pos: Point,
     pub north_pos: Point,
     pub bat_pos: Point,
@@ -78,6 +79,7 @@ pub struct VarioSizes {
 }
 
 pub struct Images {
+    pub attention: &'static [u8],
     pub bat_empty: &'static [u8],
     pub bat_full: &'static [u8],
     pub bat_half: &'static [u8],

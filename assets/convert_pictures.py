@@ -214,6 +214,7 @@ class LifGen():
             raise ValueError("Format version unknown")
 
 lif_gen = LifGen(227, 285, 'assets/size_227x285', 'device/air_avionics_ad57/assets')
+lif_gen.generate(3, 'attention.png', {0: BLACK, 1: RED, 2: BACKGROUND, 3: WHITE})
 lif_gen.generate(3, 'bat_empty.png', {0: RED, 1: BACKGROUND})
 lif_gen.generate(3, 'bat_full.png', {0: DARK_GRAY, 1: LIME, 2: BACKGROUND})
 lif_gen.generate(3, 'bat_half.png', {0: DARK_GRAY, 1: GOLD, 2: BACKGROUND})
@@ -231,6 +232,7 @@ lif_gen.generate(3, 'wp_vario.png', {0: DARK_GRAY, 255: BACKGROUND})
 lif_gen.generate(3, 'wp_horizon.png', {0: DARK_GRAY, 255: BACKGROUND})
 
 lif_gen = LifGen(240, 320, 'assets/size_240x320', 'device/larus_frontend_v1/assets')
+lif_gen.generate(3, 'attention.png', {0: BLACK, 1: RED, 2: BACKGROUND, 3: WHITE})
 lif_gen.generate(3, 'bat_empty.png', {0: DARK_GRAY, 1: LIME, 2: BACKGROUND})
 lif_gen.generate(3, 'bat_full.png', {0: DARK_GRAY, 1: LIME, 2: BACKGROUND})
 lif_gen.generate(3, 'bat_half.png', {0: DARK_GRAY, 1: GOLD, 2: BACKGROUND})
@@ -248,6 +250,7 @@ lif_gen.generate(3, 'wp_vario.png', {0: WHITE, 255: BACKGROUND})
 lif_gen.generate(3, 'wp_horizon.png', {0: WHITE, 255: BACKGROUND})
 
 lif_gen = LifGen(480, 480, 'assets/size_480x480', 'device/larus_frontend_v2/assets')
+lif_gen.generate(3, 'attention.png', {0: BLACK, 1: RED, 2: BACKGROUND, 3: WHITE})
 lif_gen.generate(3, 'bat_empty.png', {0: DARK_GRAY, 1: RED, 2: BACKGROUND})
 lif_gen.generate(3, 'bat_full.png', {0: DARK_GRAY, 1: LIME, 2: BACKGROUND})
 lif_gen.generate(3, 'bat_half.png', {0: DARK_GRAY, 1: GOLD, 2: BACKGROUND})

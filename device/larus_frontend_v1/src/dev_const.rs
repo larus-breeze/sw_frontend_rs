@@ -77,6 +77,7 @@ const fn vario_sizes() -> VarioSizes {
         stf_diameter: 236,
         stf_width: 10,
         indicator_len: 45,
+        attention_pos: Point::new(60, 100),
         glider_pos: Point::new(85, 136),
         north_pos: Point::new(135, 12),
         bat_pos: Point::new(215, 90),
@@ -97,6 +98,7 @@ const fn vario_sizes() -> VarioSizes {
 
 const fn images() -> Images {
     Images {
+        attention: include_bytes_aligned!(4, "../assets/attention.lif"),
         bat_empty: include_bytes_aligned!(4, "../assets/bat_empty.lif"),
         bat_full: include_bytes_aligned!(4, "../assets/bat_full.lif"),
         bat_half: include_bytes_aligned!(4, "../assets/bat_half.lif"),
