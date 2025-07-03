@@ -184,7 +184,7 @@ const TC_PARAMS: Params = Params::F32(F32Params {
     small_inc: 0.1,
     big_inc: 1.0,
     dec_places: 1,
-    unit: "",
+    unit: "s",
 });
 
 impl EditableFuncs for VarioTc {
@@ -359,6 +359,26 @@ impl EditableFuncs for AntSlaveRight {
 
     fn set_content(cm: &mut CoreModel, cc: &mut CoreController, _content: Content) {
         send_can_config_frame(cm, cc, crate::CanConfigId::AntSlaveRight, RemoteConfig::Set);
+    }
+}
+
+pub struct VarioPressTc;
+impl EditableFuncs for VarioPressTc {
+    fn name() -> &'static str {
+        "Vario Press TC"
+    }
+
+    fn content(cm: &mut CoreModel, cc: &mut CoreController) -> Content {
+        send_can_config_frame(cm, cc, CanConfigId::VarioPressTc, RemoteConfig::Get);
+        Content::F32(None)
+    }
+
+    fn params() -> Params {
+        TC_PARAMS
+    }
+
+    fn set_content(cm: &mut CoreModel, cc: &mut CoreController, _content: Content) {
+        send_can_config_frame(cm, cc, crate::CanConfigId::VarioPressTc, RemoteConfig::Set);
     }
 }
 

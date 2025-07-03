@@ -66,6 +66,7 @@ pub enum CanConfigId {
     AntBaselen = 0x200c,
     AntSlaveDown = 0x200d,
     AntSlaveRight = 0x200e,
+    VarioPressTc = 0x200f,
 
     CmdMeasure1 = 0x3000,
     CmdMeasure2 = 0x3001,
