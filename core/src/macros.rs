@@ -122,7 +122,7 @@ macro_rules! basic_ops {
 #[allow(unused_macros)]
 macro_rules! assert_float_eq {
     ($a:expr, $b:expr) => {
-        assert!(($a - $b).abs() < $a.abs() * 0.001, "{} =! {}", $a, $b)
+        assert!(($a - $b).abs() <= $a.abs() * 0.001, "{} =! {}", $a, $b)
     };
 }
 
