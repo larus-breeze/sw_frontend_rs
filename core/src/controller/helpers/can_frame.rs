@@ -1,6 +1,6 @@
 use byteorder::{ByteOrder, LittleEndian as LE};
 
-#[derive(Copy, Clone, PartialEq, Eq, Debug)]
+#[derive(Copy, Clone, PartialEq, Eq)]
 pub enum Frame {
     Legacy(CanFrame),
     Specific(SpecificFrame),
@@ -34,25 +34,66 @@ impl Frame {
     }
 }
 
-#[derive(Copy, Clone, PartialEq, Eq, Debug)]
+impl core::fmt::Debug for Frame {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        match self {
+            Frame::Generic(frame) => write!(f, "{:?}", frame),
+            Frame::Legacy(frame) => write!(f, "{:?}", frame),
+            Frame::Specific(frame) => write!(f, "{:?}", frame),
+        }
+    }
+}
+
+#[derive(Copy, Clone, PartialEq, Eq)]
 pub struct SpecificFrame {
     pub can_frame: CanFrame,
     pub specific_id: u16,
     pub object_id: u16,
 }
 
-#[derive(Copy, Clone, PartialEq, Eq, Debug)]
+impl core::fmt::Debug for SpecificFrame {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        write!(
+            f, 
+            "spec_id 0x{:x} obj_id 0x{:x} {:?}", 
+            self.specific_id, self.object_id, self.can_frame
+        ) 
+    }
+}
+
+#[derive(Copy, Clone, PartialEq, Eq)]
 pub struct GenericFrame {
     pub can_frame: CanFrame,
     pub generic_id: u16,
 }
 
-#[derive(Copy, Clone, PartialEq, Eq, Debug)]
+impl core::fmt::Debug for GenericFrame {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        write!(
+            f, 
+            "gen_id 0x{:x} {:?}", self.generic_id, self.can_frame
+        ) 
+    }
+}
+
+#[derive(Copy, Clone, PartialEq, Eq)]
 pub struct CanFrame {
     id: u16,
     rtr: bool,
     len: u8,
     data: [u8; 8],
+}
+
+impl core::fmt::Debug for CanFrame {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        write!(
+            f, 
+            "can_id 0x{:x} data 0x{:02x}{:02x}{:02x}{:02x}_{:02x}{:02x}{:02x}{:02x}]", 
+            self.id, 
+            self.data[0], self.data[1], self.data[2], self.data[3], 
+            self.data[4], self.data[5], self.data[6], self.data[7]
+        )
+    }
 }
 
 #[allow(unused)]
