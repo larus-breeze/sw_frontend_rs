@@ -325,7 +325,7 @@ impl EditableFuncs for AntBaselen {
 pub struct AntSlaveDown;
 impl EditableFuncs for AntSlaveDown {
     fn name() -> &'static str {
-        "Ant Slave Len"
+        "Ant Slave Down"
     }
 
     fn content(cm: &mut CoreModel, cc: &mut CoreController) -> Content {
