@@ -1,5 +1,7 @@
 Changelog
 =
+v0.3.8.1 Fix thermal assistant error when horzon_active == 0
+
 v0.3.8.0 SpeedToFly Remote Control, Energy Arrow and Bug Fixes
 
 New Features

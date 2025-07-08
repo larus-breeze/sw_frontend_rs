@@ -149,7 +149,7 @@ where
     };
     let delta = DELTA_ALPHA;
 
-    let rotation = if cm.sensor.euler_roll.to_radians() > 0.0 {
+    let rotation = if cm.sensor.turn_rate.to_rad_s() > 0.0 {
         -cm.sensor.euler_yaw.to_radians() + pos::NINE_O_CLOCK
     } else {
         -cm.sensor.euler_yaw.to_radians() + pos::THREE_O_CLOCK
