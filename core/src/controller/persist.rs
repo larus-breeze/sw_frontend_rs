@@ -406,15 +406,15 @@ pub fn store_persistence_ids(cm: &mut CoreModel, cc: &mut CoreController) {
 }
 
 pub fn set_vario_mode(cm: &mut CoreModel, cc: &mut CoreController, vario_mode: VarioMode, source: VarioModeControl) {
-    let last_vario_mode = cm.control.vario_mode;
-
     let vario_mode = if source == cm.control.vario_mode_control {
+        vario_mode
+    } else if source == VarioModeControl::Can && cm.control.vario_mode_control == VarioModeControl::Nmea {
         vario_mode
     } else {
         cm.control.vario_mode
     };
 
-    if vario_mode != last_vario_mode {
+    if vario_mode != cm.control.vario_mode {
         let echo = match source {
             VarioModeControl::Auto | VarioModeControl::InputPin => Echo::NmeaAndCan,
             VarioModeControl::Nmea => Echo::Can,
