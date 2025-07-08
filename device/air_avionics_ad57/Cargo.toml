@@ -3,7 +3,7 @@ authors = ["Simsys <winfried.simon@gmail.com>"]
 edition = "2018"
 readme = "README.md"
 name = "vario"
-version = "0.3.7"
+version = "0.3.8"
 
 [dependencies]
 
