@@ -10,21 +10,16 @@ The Larus Sensorbox uses a new method that calculates the actual climb rate from
 
 The following systems and hardware variants are currently supported. Installation instructions for the development environment can be found in the respective directory:
 
+[Larus 57mm V2 Frontend](https://github.com/larus-breeze/sw_frontend_rs/tree/master/device/larus_frontend_v2) Newly developed display with an STM32H7 processor and a bright 57 mm round display
 
-[A PC simulation](https://github.com/larus-breeze/sw_frontend_rs/tree/master/device/pc) (Linux, Windows) for development and testing
-![tools](https://github.com/larus-breeze/sw_frontend_rs/assets/3678273/74c01117-cf99-40b7-b68e-ff5c3c36fc2b)
-
-[Ad57 from Air Avionics](https://github.com/larus-breeze/sw_frontend_rs/tree/master/device/air_avionics_ad57)
-
-<img src="https://github.com/user-attachments/assets/36f65970-831a-480e-8eea-c4b77a390265" width="300"><br /><br />
+<img src="https://github.com/user-attachments/assets/28192747-6cb0-42bd-bf88-59092df5014e" width="300"><br /><br />
 
 [Larus 57mm V1 Frontend](https://github.com/larus-breeze/sw_frontend_rs/tree/master/device/larus_frontend_v1) Cost-effective display with an STM32H7 processor, a reflective display and a housing that can be manufactured using standard 3D printers
 
 <img src="https://github.com/user-attachments/assets/49be542f-0b2f-41f9-a855-876065db93e9" width="300"><br /><br />
 
-[Larus 57mm V2 Frontend](https://github.com/larus-breeze/sw_frontend_rs/tree/master/device/larus_frontend_v2) Newly developed display with an STM32H7 processor and a bright 57 mm round display
-
-<img src="https://github.com/user-attachments/assets/28192747-6cb0-42bd-bf88-59092df5014e" width="300"><br /><br />
-
+[A PC simulation](https://github.com/larus-breeze/sw_frontend_rs/tree/master/device/sim) (Linux, Windows) for development and testing
+![readme](https://github.com/user-attachments/assets/70e1fc85-923c-4050-878e-e151989f4b38)
 
 The software is written in the Rust programming language.
+
