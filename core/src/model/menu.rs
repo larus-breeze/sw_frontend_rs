@@ -155,6 +155,10 @@ pub const VIEW_SETTINGS: Menu = Menu {
             next_menu_idx: VIEW_SETINGS_IDX,
         },
         MenuItem {
+            content: MenuItemContent::EditItem(Editable::EnergyArrowMult),
+            next_menu_idx: VIEW_SETINGS_IDX,
+        },
+        MenuItem {
             content: MenuItemContent::EditItem(Editable::Rotation),
             next_menu_idx: VIEW_SETINGS_IDX,
         },

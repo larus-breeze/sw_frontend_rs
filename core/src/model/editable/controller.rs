@@ -86,6 +86,40 @@ impl EditableFuncs for FactoryReset {
     }
 }
 
+pub struct EnergyArrowMult;
+impl EditableFuncs for EnergyArrowMult {
+    fn name() -> &'static str {
+        "Energy Arrow"
+    }
+
+    fn content(cm: &mut CoreModel, _cc: &mut CoreController) -> Content {
+        Content::F32(Some(cm.control.energy_arrow_mult))
+    }
+
+    fn params() -> Params {
+        Params::F32(F32Params {
+            min: 0.0,
+            max: 10.0,
+            small_inc: 0.1,
+            big_inc: 1.0,
+            dec_places: 1,
+            unit: "",
+        })
+    }
+
+    fn set_content(cm: &mut CoreModel, cc: &mut CoreController, content: Content) {
+        if let Content::F32(Some(val)) = content {
+            persist::persist_set(
+                cc,
+                cm,
+                Variant::F32(val),
+                PersistenceId::EnergyArrowMult,
+                Echo::None,
+            );
+        }
+    }
+}
+
 pub struct FlashControl;
 impl EditableFuncs for FlashControl {
     fn name() -> &'static str {

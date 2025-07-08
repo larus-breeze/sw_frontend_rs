@@ -54,6 +54,7 @@ pub enum Editable {
 
     // controller
     DrainPinConfig,
+    EnergyArrowMult,
     FactoryReset,
     FlashControl,
     FlowEmpty,
@@ -240,6 +241,7 @@ impl Editable {
 
             // controller
             Editable::DrainPinConfig => DrainPinConfig::this(),
+            Editable::EnergyArrowMult => EnergyArrowMult::this(),
             Editable::FactoryReset => FactoryReset::this(),
             Editable::FlashControl => FlashControl::this(),
             Editable::FlowEmpty => FlowEmpty::this(),

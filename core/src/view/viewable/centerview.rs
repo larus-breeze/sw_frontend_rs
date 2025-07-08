@@ -343,7 +343,7 @@ where
         .add_tail(av_angle - angle, tail_thick, delta_color)
         .draw_styled(style, display)?;
 
-    Ok(())
+    draw_energy_arrow(display, cm)
 }
 
 fn draw_double_arrow<D>(display: &mut D, cm: &CoreModel) -> Result<(), CoreError>
@@ -374,5 +374,33 @@ where
         .rotate(angle.to_radians())
         .draw_styled(style, display)?;
 
-    Ok(())
+    draw_energy_arrow(display, cm)
+}
+
+fn draw_energy_arrow<D>(display: &mut D, cm: &CoreModel) -> Result<(), CoreError>
+where
+    D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
+{
+    let energy_arrow = cm.sensor.average_wind - cm.sensor.wind_vector;
+    let wind_speed = energy_arrow.speed().to_km_h() * cm.control.energy_arrow_mult;
+    let len = if wind_speed > WIND_MAX {
+        1.0
+    } else {
+        wind_speed / WIND_MAX
+    };
+    let len = (len * cm.device_const.sizes.vario.wind_len as f32) as i32;
+
+    if len <= cm.device_const.sizes.vario.wind_len / 4 {
+        return Ok(());
+    }
+
+    let angle = match cm.control.fly_mode {
+        FlyMode::Circling => energy_arrow.angle(),
+        FlyMode::StraightFlight => energy_arrow.angle() - cm.sensor.euler_yaw,
+    };
+    let style = PrimitiveStyle::with_fill(Colors::Red);
+    Arrow::new(len, cm.device_const.sizes.display.center)
+        .zero_pos(pos::SIX_O_CLOCK)
+        .rotate(angle.to_radians())
+        .draw_styled(style, display)
 }

@@ -208,6 +208,8 @@ pub struct Control {
     pub alarm_volume: i8,
     /// Source average climb rate
     pub avg_climb_rate_src: DataSource,
+    /// Energy arrow multiplying factor
+    pub energy_arrow_mult: f32,
 }
 
 impl Default for Control {
@@ -234,6 +236,7 @@ impl Default for Control {
             reset_config: 0,
             alarm_volume: 15,
             avg_climb_rate_src: DataSource::Frontend,
+            energy_arrow_mult: 0.0,
         }
     }
 }
