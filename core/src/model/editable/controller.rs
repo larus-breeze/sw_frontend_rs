@@ -5,7 +5,7 @@ use crate::{
         ONE_PIN_MODE, PIN_IN_CLOSE, PIN_IN_OPEN, PIN_IN_TOGGLE, PIN_NONE, PIN_OUT_CLOSE,
         PIN_OUT_OPEN, TWO_PIN_MODE,
     },
-    model::control::{VARIO_MODE_CONTROL_AUTO, VARIO_MODE_CONTROL_NMEA, VARIO_MODE_CONTROL_PIN},
+    model::control::{VARIO_MODE_CONTROL_AUTO, VARIO_MODE_CONTROL_CAN, VARIO_MODE_CONTROL_NMEA, VARIO_MODE_CONTROL_PIN},
     model::VarioModeControl,
     persist,
     utils::{TString, Variant},
@@ -441,7 +441,7 @@ impl EditableFuncs for VarioModeControl_ {
                 VARIO_MODE_CONTROL_AUTO,
                 VARIO_MODE_CONTROL_PIN,
                 VARIO_MODE_CONTROL_NMEA,
-                "",
+                VARIO_MODE_CONTROL_CAN,
                 "",
             ],
         })
@@ -455,7 +455,7 @@ impl EditableFuncs for VarioModeControl_ {
                 cm,
                 Variant::U32(mode as u32),
                 PersistenceId::VarioModeControl,
-                Echo::NmeaAndCan,
+                Echo::None,
             );
         }
     }

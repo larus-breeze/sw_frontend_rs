@@ -33,7 +33,13 @@ impl CanReader {
                     specific_id: id & 0x0f,
                     object_id: 3, // GPS
                 })
-            } else {
+            } else if id >= 0x410 {
+                Frame::Generic(GenericFrame { 
+                    can_frame, 
+                    generic_id: id &0x0f, 
+                })
+            } 
+            else {
                 Frame::Legacy(can_frame)
             };
             Some(frame)

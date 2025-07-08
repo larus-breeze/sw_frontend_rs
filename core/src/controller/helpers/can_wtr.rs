@@ -1,6 +1,5 @@
 use crate::{
-    controller::helpers::RemoteConfig, model::editable::Content, CanFrame, CoreModel, Frame,
-    GenericId, SpecialId, RAD_PER_DEGREE,
+    controller::helpers::RemoteConfig, model::editable::Content, CanFrame, CoreModel, Frame, GenericId, SpecialId, RAD_PER_DEGREE
 };
 use byteorder::{ByteOrder, LittleEndian as LE};
 
@@ -52,7 +51,7 @@ impl CoreModel {
         )
     }
 
-    pub fn can_frame_sys_config(&mut self, config_id: CanConfigId) -> Option<Frame> {
+    pub fn can_frame_sys_config(&self, config_id: CanConfigId) -> Option<Frame> {
         let mut data = [0u8; 6];
         match config_id {
             CanConfigId::Volume => {
@@ -76,14 +75,15 @@ impl CoreModel {
             CanConfigId::PilotWeight => {
                 LE::write_f32(&mut data[2..6], self.glider_data.pilot_weight.to_kg());
             }
-            CanConfigId::VarioModeControl => {
-                data[0] = self.control.vario_mode_control as u8;
-            }
+            CanConfigId::VarioModeControl => return None, // do nothing
             CanConfigId::TcClimbRate => {
                 LE::write_f32(&mut data[2..6], self.config.av2_climb_rate_tc);
             }
             CanConfigId::TcSpeedToFly => {
                 LE::write_f32(&mut data[2..6], self.config.av_speed_to_fly_tc);
+            }
+            CanConfigId::VarioMode => {
+                data[0] = self.control.vario_mode as u8;
             }
             _ => return None,
         };

@@ -48,8 +48,9 @@ pub enum CanConfigId {
     VarioModeControl = 6,
     TcClimbRate = 7,
     TcSpeedToFly = 8,
+    VarioMode = 9,
     #[default]
-    Ignore = 9,
+    Ignore = 10,
 
     SensTiltRoll = 0x2000,
     SensTiltPitch = 0x2001,
@@ -85,9 +86,10 @@ impl From<PersistenceId> for CanConfigId {
             PersistenceId::Bugs => CanConfigId::Bugs,
             PersistenceId::Qnh => CanConfigId::Qnh,
             PersistenceId::PilotWeight => CanConfigId::PilotWeight,
-            PersistenceId::VarioModeControl => CanConfigId::VarioModeControl,
+            PersistenceId::VarioModeControl => CanConfigId::Ignore,
             PersistenceId::TcClimbRate => CanConfigId::TcClimbRate,
             PersistenceId::TcSpeedToFly => CanConfigId::TcSpeedToFly,
+            PersistenceId::VarioMode => CanConfigId::VarioMode,
             _ => CanConfigId::Ignore,
         }
     }

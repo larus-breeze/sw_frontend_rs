@@ -1,5 +1,5 @@
 use crate::{
-    controller::persist,
+    controller::persist::{set_vario_mode, persist_set},
     model::{GpsState, SystemState, TcrMode, VarioModeControl},
     utils::Variant,
     CoreController, CoreModel, Echo, FloatToSpeed, FlyMode, IdleEvent, PersistenceId, VarioMode,
@@ -16,31 +16,17 @@ fn speed_to_fly(cm: &mut CoreModel, cc: &mut CoreController) {
     let stf = cc.polar.speed_to_fly(0.0.m_s(), 0.0.m_s());
     cm.control.speed_to_fly_limit = stf.ias() * cm.control.vario_mode_switch_ratio;
 
-    // save vario mode to record changes
-    let vario_mode = cm.control.vario_mode;
-
     // In auto mode switch between Vario and SpeedToFly
     if cm.sensor.airspeed.ias() > cm.control.speed_to_fly_limit
         && cm.control.fly_mode == FlyMode::StraightFlight
     {
-        cm.set_vario_mode(VarioMode::SpeedToFly, VarioModeControl::Auto);
+        set_vario_mode(cm, cc, VarioMode::SpeedToFly, VarioModeControl::Auto);
     } else {
-        cm.set_vario_mode(VarioMode::Vario, VarioModeControl::Auto);
+        set_vario_mode(cm, cc, VarioMode::Vario, VarioModeControl::Auto);
     }
 
     // in pin mode set according to pin state
-    cm.set_vario_mode(
-        cc.speed_to_fly_control.vario_mode(),
-        VarioModeControl::InputPin,
-    );
-
-    // changes? then push to nmea output
-    if vario_mode != cm.control.vario_mode {
-        let _ = cc
-            .nmea_buffer
-            .pers_id
-            .push_front(PersistenceId::VarioModeControl);
-    }
+    set_vario_mode(cm, cc, cc.speed_to_fly_control.vario_mode(), VarioModeControl::InputPin);
 
     // Set 1-second-speed-to-fly value
     cm.calculated.speed_to_fly_1s = cm.calculated.av_speed_to_fly;
@@ -156,7 +142,7 @@ fn process_hardware_pins(cm: &mut CoreModel, cc: &mut CoreController) {
     // check water ballast system
     cc.drain_control.tick_1s(cm);
     if cc.drain_control.is_flowing() {
-        persist::persist_set(
+        persist_set(
             cc,
             cm,
             Variant::Mass(cm.glider_data.water_ballast),

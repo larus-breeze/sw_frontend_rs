@@ -1,17 +1,12 @@
 use crate::{
+    VarioMode, model::VarioModeControl,
     controller::{
         helpers::{
             can_ids::{gps, sensor, sensor_legacy},
             frontend_masster, object_id, CanActive,
         },
         persist, Echo,
-    },
-    into_range_0_360, into_range_180_180,
-    model::{editable::Content, GpsState, VarioModeControl},
-    AirSpeed, Angle, CanFrame, CoreController, CoreModel, F64ToCoord, FloatToAcceleration,
-    FloatToAngularVelocity, FloatToDensity, FloatToLength, FloatToMass, FloatToPressure,
-    FloatToSpeed, Frame, GenericFrame, GenericId, Latitude, Longitude, PersistenceId,
-    SpecificFrame, Variant, DEGREE_PER_RAD,
+    }, into_range_0_360, into_range_180_180, model::{editable::Content, GpsState}, persist::set_vario_mode, AirSpeed, Angle, CanFrame, CoreController, CoreModel, F64ToCoord, FloatToAcceleration, FloatToAngularVelocity, FloatToDensity, FloatToLength, FloatToMass, FloatToPressure, FloatToSpeed, Frame, GenericFrame, GenericId, Latitude, Longitude, PersistenceId, SpecificFrame, Variant, DEGREE_PER_RAD
 };
 use embedded_graphics::prelude::AngleUnit;
 
@@ -108,16 +103,7 @@ impl CoreController {
                     Echo::Nmea,
                 )
             }
-            CanConfigId::VarioModeControl => {
-                let val = VarioModeControl::from(frame.read_u8(2));
-                persist::persist_set(
-                    self,
-                    cm,
-                    Variant::U32(val as u32),
-                    PersistenceId::VarioModeControl,
-                    Echo::None,
-                );
-            }
+            CanConfigId::VarioModeControl => (), // do nothing
             CanConfigId::TcClimbRate => {
                 let val = frame.read_f32(4);
                 persist::persist_set(
@@ -137,6 +123,10 @@ impl CoreController {
                     PersistenceId::TcSpeedToFly,
                     Echo::None,
                 )
+            }
+            CanConfigId::VarioMode => {
+                let vario_mode = VarioMode::from(frame.read_u8(2));
+                set_vario_mode(cm, self, vario_mode, VarioModeControl::Can);
             }
             _ => (),
         }

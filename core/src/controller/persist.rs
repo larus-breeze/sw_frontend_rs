@@ -30,9 +30,9 @@ use crate::{
     flight_physics::polar_store,
     system_of_units::Speed,
     utils::Variant,
-    view::viewable::{centerview::CenterView, lineview::LineView},
+    view::{viewable::{centerview::CenterView, lineview::LineView}},
     CoreController, CoreModel, FloatToSpeed, IdleEvent, Mass, PersistenceItem, Pressure,
-    ResetReason, Rotation,
+    ResetReason, Rotation, VarioMode,
 };
 
 /// It is not permitted to change the sequence or assignment, as the number references the memory 
@@ -86,7 +86,9 @@ pub enum PersistenceId {
     TcCircleHysteresis = 43,
     LastItem = 44, // Items smaller than this are stored in eeprom
 
-    UserProfile = 65533, // Special function Ids
+    // Special function Ids
+    VarioMode = 65532,
+    UserProfile = 65533, 
     DeleteAll = 65534,
     #[default]
     DoNotStore = 65535,
@@ -277,6 +279,8 @@ pub fn restore_item(cc: &mut CoreController, cm: &mut CoreModel, item: Persisten
         PersistenceId::StfClimbrateAlt => cm.config.alt_stf_thermal_climb = item.to_bool(),
         PersistenceId::TcCircleHysteresis => cm.config.circle_hysteresis_tc = item.to_i8(),
 
+        PersistenceId::VarioMode => cm.control.vario_mode = VarioMode::from(item.to_u8()),
+
         PersistenceId::DeleteAll => (),
         PersistenceId::DoNotStore => (),
         PersistenceId::LastItem => (),
@@ -302,6 +306,7 @@ pub fn persist_set(
         // Buffer NMEA datagrams in IndexSet
         let _ = cc.nmea_vals.insert(id); // send only last content
     }
+
     if echo == Echo::Can || echo == Echo::NmeaAndCan {
         // Queue directly to canbus
         let frame = cm.can_frame_sys_config(CanConfigId::from(id));
@@ -309,10 +314,14 @@ pub fn persist_set(
             let _ = cc.p_tx_frames.enqueue(frame);
         }
     }
+
+    if(id as u16) < (PersistenceId::LastItem as u16) {
+        let _ = cc.pers_vals.insert(item); // Buffer item to write it to EEPROM
+    }
+
     cc.scheduler
         .after(crate::Timer::PersistSetting, PERSISTENCE_TIMEOUT.millis());
 
-    let _ = cc.pers_vals.insert(item); // Buffer item to write it to EEPROM
 }
 
 pub fn send_can_config_frame(
@@ -391,4 +400,23 @@ pub fn store_persistence_ids(cm: &mut CoreModel, cc: &mut CoreController) {
 
     // We don't know, if someone has changed glider polar settings
     cc.recalc_glider(cm);
+}
+
+pub fn set_vario_mode(cm: &mut CoreModel, cc: &mut CoreController, vario_mode: VarioMode, source: VarioModeControl) {
+    let last_vario_mode = cm.control.vario_mode;
+
+    let vario_mode = if source == cm.control.vario_mode_control {
+        vario_mode
+    } else {
+        cm.control.vario_mode
+    };
+
+    if vario_mode != last_vario_mode {
+        let echo = match source {
+            VarioModeControl::Auto | VarioModeControl::InputPin => Echo::NmeaAndCan,
+            VarioModeControl::Nmea => Echo::Can,
+            VarioModeControl::Can => Echo::Nmea,
+        };
+        persist_set(cc, cm, Variant::U8(vario_mode as u8), PersistenceId::VarioMode, echo);
+    }
 }

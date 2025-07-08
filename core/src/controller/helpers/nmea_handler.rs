@@ -1,5 +1,5 @@
 use crate::{
-    controller::{persist, Echo},
+    controller::{persist, Echo, persist::set_vario_mode},
     model::{GpsState, VarioModeControl},
     utils::ParseSlice,
     CoreController, CoreError, CoreModel, FloatToPressure, FloatToSpeed, PersistenceId, Variant,
@@ -34,8 +34,8 @@ impl CoreController {
 
     fn nmea_parse_g(&mut self, cm: &mut CoreModel) -> Result<(), CoreError> {
         match self.nmea_buffer.rx.next_chunk()? {
-            b"s0" => cm.set_vario_mode(VarioMode::Vario, VarioModeControl::Nmea),
-            b"s1" => cm.set_vario_mode(VarioMode::SpeedToFly, VarioModeControl::Nmea),
+            b"s0" => set_vario_mode(cm, self, VarioMode::Vario, VarioModeControl::Nmea),
+            b"s1" => set_vario_mode(cm, self, VarioMode::SpeedToFly, VarioModeControl::Nmea),
             b"rp" => self.key_action(cm, crate::KeyEvent::BtnEnc),
             b"rl" => self.key_action(cm, crate::KeyEvent::BtnEncS3),
             b"ru" => self.key_action(cm, crate::KeyEvent::Rotary2Left),
@@ -100,8 +100,8 @@ impl CoreController {
                 );
             }
             b"CIR" => match val as i32 {
-                0 => cm.set_vario_mode(VarioMode::SpeedToFly, VarioModeControl::Nmea),
-                1 => cm.set_vario_mode(VarioMode::Vario, VarioModeControl::Nmea),
+                0 => set_vario_mode(cm, self, VarioMode::SpeedToFly, VarioModeControl::Nmea),
+                1 => set_vario_mode(cm, self, VarioMode::Vario, VarioModeControl::Nmea),
                 _ => return Err(CoreError::ParseError),
             },
             _ => return Err(CoreError::ParseError),
@@ -115,7 +115,8 @@ impl CoreController {
             PersistenceId::Bugs
             | PersistenceId::McCready
             | PersistenceId::WaterBallast
-            | PersistenceId::Qnh => {
+            | PersistenceId::Qnh 
+            | PersistenceId::VarioMode => {
                 let _ = self.nmea_buffer.pers_id.push_back(id);
             }
             _ => (),
@@ -248,7 +249,7 @@ impl CoreController {
                 "$PLARS,L,QNH,{:.1}",
                 cm.sensor.pressure_altitude.qnh().to_hpa()
             ),
-            PersistenceId::VarioModeControl => uwrite!(
+            PersistenceId::VarioMode => uwrite!(
                 self.nmea_buffer.tx,
                 "$PLARS,L,CIR,{}",
                 if cm.control.vario_mode == VarioMode::Vario {
