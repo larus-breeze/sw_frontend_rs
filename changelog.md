@@ -1,5 +1,26 @@
 Changelog
 =
+v0.3.8.0 SpeedToFly Remote Control, Energy Arrow and Bug Fixes
+
+New Features
+- Support SpeedToFly/Vario remote switching #128
+- Add an "energy arrow" to the wind display #93
+- Reorganize User Profile System #123
+- Implement editing the time-const for the pneumatic variometer #126
+- Warn user if sensor signal quality is degraded #125
+- Add TAS in Info 1 / 2 Content #118
+- Average ("Integrator") Vario: Use average provided by sensorbox (configurable) #108
+- Shorten Time To Switch Display From Centering-Aid To Wind-Display after Circling #107
+- Enable the "Speed to Fly" as selectable Parameter for View1 / View2 #105
+- Speed to fly symbol #104
+
+Bug Fixes
+- Rename Label of "Ant Slave Len" in Sensorbox Ini Settings #129
+- Dotted Assistant should use the same colors as Spider Assistant #119
+- Typos to Correct #116
+- Please Use Consistant Abbreviations #113
+- Blanks in the NMEA PLARV data record #101
+
 v0.3.7.21 Show "Horizon not available" if AHRS is blocked by sensorbox #115
 
 v0.3.7.20 New “Reset” command for the sensor box #114
