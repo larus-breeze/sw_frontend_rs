@@ -8,7 +8,7 @@ edition = "2024"
 [dependencies]
 arboard = "3.5.0"
 byteorder = { version = "1.4", default-features = false }
-slint = "1.8.0"
+slint = "1.12.1"
 image = "0.25.6"
 embedded-graphics = "0.8.0"
 heapless = "0.8"
@@ -20,7 +20,7 @@ homedir = "0.3.4"
 rfd = "0.15.3"
 
 [build-dependencies]
-slint-build = "1.8.0"
+slint-build = "1.12.1"
 
 # local
 [dependencies.corelib]
