@@ -319,7 +319,7 @@ pub fn persist_set(
     }
 
     if(id as u16) < (PersistenceId::LastItem as u16) {
-        let _ = cc.pers_vals.insert(item); // Buffer item to write it to EEPROM
+        let _ = cc.pers_vals.insert(id, item); // Buffer item to write it to EEPROM
     }
 
     cc.scheduler
@@ -372,7 +372,7 @@ pub fn store_persistence_ids(cm: &mut CoreModel, cc: &mut CoreController) {
     let mut items = Vec::<PersistenceItem, MAX_PERS_IDS>::new();
 
     // We must first copy the ids into a Vec, because we can't borrow cc twice
-    for item in cc.pers_vals.iter() {
+    for (_id, item) in cc.pers_vals.iter() {
         let _ = items.push(*item);
     }
     cc.pers_vals.clear();

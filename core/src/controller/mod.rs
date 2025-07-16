@@ -43,7 +43,7 @@ use helpers::nmea_cyclic_200ms;
 #[allow(unused_imports)]
 use micromath::F32Ext;
 
-use heapless::FnvIndexSet;
+use heapless::{FnvIndexMap, FnvIndexSet};
 
 pub enum Direction {
     Forward,
@@ -83,7 +83,7 @@ pub struct CoreController {
     av_supply_voltage: Pt1<f32>,
     pub nmea_buffer: NmeaBuffer,
     pub scheduler: Scheduler<5>,
-    pub pers_vals: FnvIndexSet<PersistenceItem, MAX_PERS_IDS>,
+    pub pers_vals: FnvIndexMap<PersistenceId, PersistenceItem, MAX_PERS_IDS>,
     pub nmea_vals: FnvIndexSet<PersistenceId, MAX_PERS_IDS>,
     pub remote_val: Option<(CanConfigId, RemoteConfig)>,
     p_idle_events: PIdleEvents,
@@ -136,7 +136,7 @@ impl CoreController {
             nmea_buffer: NmeaBuffer::new(),
             scheduler,
             nmea_vals: FnvIndexSet::new(),
-            pers_vals: FnvIndexSet::new(),
+            pers_vals: FnvIndexMap::new(),
             remote_val: None,
             p_idle_events,
             p_tx_frames,

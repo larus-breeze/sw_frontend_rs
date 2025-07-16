@@ -32,7 +32,7 @@ pub enum EepromTopic {
 
 pub const MAX_USER_VALUES: u32 = 256;
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct PersistenceItem {
     pub id: PersistenceId,
     pub data: [u8; 4],
