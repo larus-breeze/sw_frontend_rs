@@ -316,6 +316,11 @@ pub fn persist_set(
         if let Some(frame) = frame {
             let _ = cc.p_tx_frames.enqueue(frame);
         }
+        // The sensorbox needs fraction of water ballast to be able to generate the NMEA sentence
+        if id == PersistenceId::WaterBallast {
+            let frame = cm.can_frame_sys_config(CanConfigId::WaterBallastFraction).unwrap();
+            let _ = cc.p_tx_frames.enqueue(frame);
+        }
     }
 
     if(id as u16) < (PersistenceId::LastItem as u16) {

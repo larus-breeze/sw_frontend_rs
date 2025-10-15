@@ -49,8 +49,9 @@ pub enum CanConfigId {
     TcClimbRate = 7,
     TcSpeedToFly = 8,
     VarioMode = 9,
+    WaterBallastFraction = 10,
     #[default]
-    Ignore = 10,
+    Ignore = 11,
 
     SensTiltRoll = 0x2000,
     SensTiltPitch = 0x2001,

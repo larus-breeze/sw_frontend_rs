@@ -85,6 +85,9 @@ impl CoreModel {
             CanConfigId::VarioMode => {
                 data[0] = self.control.vario_mode as u8;
             }
+            CanConfigId::WaterBallastFraction => {
+                LE::write_f32(&mut data[2..6], self.glider_data.ballast_fraction());
+            }
             _ => return None,
         };
         Some(Frame::generic(

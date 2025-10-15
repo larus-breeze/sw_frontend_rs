@@ -129,6 +129,17 @@ impl CoreController {
                 let vario_mode = VarioMode::from(frame.read_u8(2));
                 set_vario_mode(cm, self, vario_mode, VarioModeControl::Can);
             }
+            CanConfigId::WaterBallastFraction => {
+                let fraction = frame.read_f32(4);
+                cm.glider_data.set_ballast_fraction(fraction);
+                persist::persist_set(
+                    self,
+                    cm,
+                    Variant::Mass(cm.glider_data.water_ballast),
+                    PersistenceId::WaterBallast,
+                    Echo::Nmea,
+                )
+            }
             _ => (),
         }
     }
