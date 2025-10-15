@@ -210,6 +210,8 @@ pub struct Control {
     pub avg_climb_rate_src: DataSource,
     /// Energy arrow multiplying factor
     pub energy_arrow_mult: f32,
+    /// Information about CAN Master (uses device can base address or not)
+    pub is_can_master: bool,
 }
 
 impl Default for Control {
@@ -237,6 +239,7 @@ impl Default for Control {
             alarm_volume: 15,
             avg_climb_rate_src: DataSource::Frontend,
             energy_arrow_mult: 0.0,
+            is_can_master: false,
         }
     }
 }

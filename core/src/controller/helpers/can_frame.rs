@@ -5,6 +5,7 @@ pub enum Frame {
     Legacy(CanFrame),
     Specific(SpecificFrame),
     Generic(GenericFrame),
+    IsMaster(bool),
 }
 
 impl Frame {
@@ -30,6 +31,7 @@ impl Frame {
             Frame::Legacy(can_frame) => *can_frame,
             Frame::Specific(frame) => frame.can_frame,
             Frame::Generic(frame) => frame.can_frame,
+            Frame::IsMaster(_) => CanFrame::empty_from_id(0),
         }
     }
 }
@@ -40,6 +42,7 @@ impl core::fmt::Debug for Frame {
             Frame::Generic(frame) => write!(f, "{:?}", frame),
             Frame::Legacy(frame) => write!(f, "{:?}", frame),
             Frame::Specific(frame) => write!(f, "{:?}", frame),
+            Frame::IsMaster(is_master) => write!(f, "IsMaster: {}", is_master),
         }
     }
 }

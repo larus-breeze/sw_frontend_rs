@@ -154,4 +154,24 @@ fn process_hardware_pins(cm: &mut CoreModel, cc: &mut CoreController) {
     if let Some(state) = cc.flash_control.tick_1s(cm) {
         let _ = cc.p_idle_events.enqueue(IdleEvent::Output1(state));
     }
+    let _ = cc.scheduler.chain(sync_config_items);
+}
+
+fn sync_config_items(cm: &mut CoreModel, cc: &mut CoreController) {
+    // Only if frontend is can bus master
+    if cm.control.is_can_master {
+        // every 3 seconds please
+        if (cm.control.alive_ticks / 10) % 3 == 0 {
+            let bugs = Variant::F32(cm.glider_data.bugs);
+            persist_set(cc, cm, bugs, PersistenceId::Bugs, Echo::NmeaAndCan);
+            let mc = Variant::F32(cm.config.mc_cready.to_m_s());
+            persist_set(cc, cm, mc, PersistenceId::McCready, Echo::NmeaAndCan);
+            let ballast = Variant::F32(cm.glider_data.water_ballast.to_kg());
+            persist_set(cc, cm, ballast, PersistenceId::WaterBallast, Echo::NmeaAndCan);
+            let ballast = Variant::F32(cm.glider_data.water_ballast.to_kg());
+            persist_set(cc, cm, ballast, PersistenceId::WaterBallast, Echo::NmeaAndCan);
+            let vario_mode = Variant::U8(cm.control.vario_mode as u8);
+            persist_set(cc, cm, vario_mode, PersistenceId::VarioMode, Echo::NmeaAndCan);
+        }
+    }
 }

@@ -18,6 +18,7 @@ impl CoreController {
             Frame::Generic(generic_frame) => self.can_frame_read_generic(cm, generic_frame),
             Frame::Specific(specific_frame) => self.can_frame_read_specific(cm, specific_frame),
             Frame::Legacy(can_frame) => self.can_frame_read_legacy(cm, can_frame),
+            Frame::IsMaster(is_master) => cm.control.is_can_master = *is_master,
         }
     }
 

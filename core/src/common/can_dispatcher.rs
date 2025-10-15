@@ -253,6 +253,9 @@ impl<
                             while self.can_devices[self.vda as usize].is_alive() {
                                 self.vda += 1;
                             }
+                            // Send info about master to app
+                            let frame = Frame::IsMaster(self.vda == VDA);
+                            let _ = self.p_rx_frames.enqueue(frame);
                             // Send remote transmission request on heartbeat id
                             CanFrame::remote_trans_rq(self.heartbeat_id(), 0)
                         } else {
@@ -289,6 +292,7 @@ impl<
                     can_frame.set_id(self.base_id() + specific_frame.specific_id);
                     can_frame
                 }
+                Frame::IsMaster(_) => return None, // IsMast ist no real can frame
             };
             let _ = self.p_tx_irq_frames.enqueue(can_frame);
         }
