@@ -2,7 +2,7 @@ use crate::{
     basic_config::MENU_TIMEOUT,
     controller::{editor, helpers::IntToDuration, EditMode, KeyEvent, Timer},
     model::{
-        menu::{Menu, MenuItemContent, FLIGHT_MENU, MENU_LIST, ROOT, VARIO_SETTINGS},
+        menu::{Menu, MenuItemContent, FLIGHT_MENU, MENU_LIST, ROOT, SETTINGS},
         DisplayActive, OverlayActive,
     },
     CoreController, CoreModel, Editable,
@@ -98,7 +98,7 @@ pub fn key_action(key_event: &mut KeyEvent, cm: &mut CoreModel, cc: &mut CoreCon
                 *key_event = KeyEvent::NoEvent;
             }
             KeyEvent::BtnEncS3 => {
-                activate_menu(&VARIO_SETTINGS, cm, cc);
+                activate_menu(&SETTINGS, cm, cc);
                 *key_event = KeyEvent::NoEvent;
             }
             _ => (),

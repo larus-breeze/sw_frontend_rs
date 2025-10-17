@@ -42,7 +42,7 @@ impl MenuItem {
 
 pub const ROOT_IDX: usize = 0;
 pub const FLIGHT_MENU_IDX: usize = 1;
-pub const VARIO_SETINGS_IDX: usize = 2;
+pub const SETTINGS_IDX: usize = 2;
 pub const VIEW_SETINGS_IDX: usize = 3;
 pub const ADVANCED_SETTINGS_IDX: usize = 4;
 pub const DRAIN_SETTINGS_IDX: usize = 5;
@@ -51,13 +51,13 @@ pub const SENSOR_BOX_COMMANDS_IDX: usize = 7;
 pub const SENSOR_BOX_SETTINGS_IDX: usize = 8;
 pub const SPEED_TO_FLY_IDX: usize = 9;
 pub const LANDING_GEAR_ALARM_IDX: usize = 10;
-pub const AVERAGE_CLIMB_RATE_IDX: usize = 11;
+pub const VARIO_IDX: usize = 11;
 pub const RESET_CONFIG_IDX: usize = 12;
 
 pub const MENU_LIST: &[Menu] = &[
     ROOT,
     FLIGHT_MENU,
-    VARIO_SETTINGS,
+    SETTINGS,
     VIEW_SETTINGS,
     ADVANCED_SETTINGS,
     DRAIN_SETTINGS,
@@ -66,7 +66,7 @@ pub const MENU_LIST: &[Menu] = &[
     SENSOR_BOX_SETTINGS,
     SPEED_TO_FLY,
     LANDING_GEAR_ALARM,
-    AVERAGE_CLIMB_RATE,
+    VARIO,
     RESET_CONFIG,
 ];
 
@@ -103,7 +103,7 @@ pub const FLIGHT_MENU: Menu = Menu {
     ],
 };
 
-pub const VARIO_SETTINGS: Menu = Menu {
+pub const SETTINGS: Menu = Menu {
     name: "Settings",
     level: 1,
     items: &[
@@ -168,7 +168,7 @@ pub const VIEW_SETTINGS: Menu = Menu {
         },
         MenuItem {
             content: MenuItemContent::EditItem(Editable::Return),
-            next_menu_idx: VARIO_SETINGS_IDX,
+            next_menu_idx: SETTINGS_IDX,
         },
     ],
 };
@@ -203,7 +203,7 @@ pub const ADVANCED_SETTINGS: Menu = Menu {
         },
         MenuItem {
             content: MenuItemContent::MenuItem(),
-            next_menu_idx: AVERAGE_CLIMB_RATE_IDX,
+            next_menu_idx: VARIO_IDX,
         },
         MenuItem {
             content: MenuItemContent::MenuItem(),
@@ -219,7 +219,7 @@ pub const ADVANCED_SETTINGS: Menu = Menu {
         },
         MenuItem {
             content: MenuItemContent::EditItem(Editable::Return),
-            next_menu_idx: VARIO_SETINGS_IDX,
+            next_menu_idx: SETTINGS_IDX,
         },
     ],
 };
@@ -293,7 +293,7 @@ pub const POLAR_SETTINGS: Menu = Menu {
         },
         MenuItem {
             content: MenuItemContent::EditItem(Editable::Return),
-            next_menu_idx: VARIO_SETINGS_IDX,
+            next_menu_idx: SETTINGS_IDX,
         },
     ],
 };
@@ -332,7 +332,7 @@ pub const SENSOR_BOX_COMMANDS: Menu = Menu {
         },
         MenuItem {
             content: MenuItemContent::EditItem(Editable::Return),
-            next_menu_idx: VARIO_SETINGS_IDX,
+            next_menu_idx: SETTINGS_IDX,
         },
     ],
 };
@@ -474,17 +474,25 @@ pub const LANDING_GEAR_ALARM: Menu = Menu {
     ],
 };
 
-pub const AVERAGE_CLIMB_RATE: Menu = Menu {
-    name: "Avg Climb Rate",
+pub const VARIO: Menu = Menu {
+    name: "Vario",
     level: 3,
     items: &[
         MenuItem {
             content: MenuItemContent::EditItem(Editable::AvgClimbRateSrc),
-            next_menu_idx: AVERAGE_CLIMB_RATE_IDX,
+            next_menu_idx: VARIO_IDX,
         },
         MenuItem {
             content: MenuItemContent::EditItem(Editable::TcClimbRate),
-            next_menu_idx: AVERAGE_CLIMB_RATE_IDX,
+            next_menu_idx: VARIO_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::VarioUpperLimit),
+            next_menu_idx: VARIO_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::VarioLowerLimit),
+            next_menu_idx: VARIO_IDX,
         },
         MenuItem {
             content: MenuItemContent::EditItem(Editable::Return),

@@ -725,6 +725,74 @@ impl EditableFuncs for Theme {
     }
 }
 
+pub struct VarioUpperLimit;
+impl EditableFuncs for VarioUpperLimit {
+    fn name() -> &'static str {
+        "Vario Upper Limit"
+    }
+
+    fn content(cm: &mut CoreModel, _cc: &mut CoreController) -> Content {
+        Content::F32(Some(cm.config.vario_upper_limit.to_m_s()))
+    }
+
+    fn params() -> Params {
+        Params::F32(F32Params {
+            min: -10.0,
+            max: 10.0,
+            small_inc: 0.1,
+            big_inc: 1.0,
+            dec_places: 1,
+            unit: "m/s",
+        })
+    }
+
+    fn set_content(cm: &mut CoreModel, cc: &mut CoreController, content: Content) {
+        if let Content::F32(Some(val)) = content {
+            persist::persist_set(
+                cc,
+                cm,
+                Variant::Speed(val.m_s()),
+                PersistenceId::VarioUpperLimit,
+                Echo::None,
+            )
+        }
+    }
+}
+
+pub struct VarioLowerLimit;
+impl EditableFuncs for VarioLowerLimit {
+    fn name() -> &'static str {
+        "Vario Lower Limit"
+    }
+
+    fn content(cm: &mut CoreModel, _cc: &mut CoreController) -> Content {
+        Content::F32(Some(cm.config.vario_lower_limit.to_m_s()))
+    }
+
+    fn params() -> Params {
+        Params::F32(F32Params {
+            min: -10.0,
+            max: 10.0,
+            small_inc: 0.1,
+            big_inc: 1.0,
+            dec_places: 1,
+            unit: "m/s",
+        })
+    }
+
+    fn set_content(cm: &mut CoreModel, cc: &mut CoreController, content: Content) {
+        if let Content::F32(Some(val)) = content {
+            persist::persist_set(
+                cc,
+                cm,
+                Variant::Speed(val.m_s()),
+                PersistenceId::VarioLowerLimit,
+                Echo::None,
+            )
+        }
+    }
+}
+
 pub struct Volume;
 impl EditableFuncs for Volume {
     fn name() -> &'static str {

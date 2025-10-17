@@ -50,6 +50,8 @@ pub enum Editable {
     TcClimbRate,
     TcSpeedToFly,
     Theme,
+    VarioUpperLimit,
+    VarioLowerLimit,
     Volume,
 
     // controller
@@ -237,6 +239,8 @@ impl Editable {
             Editable::TcClimbRate => TcClimbRate::this(),
             Editable::TcSpeedToFly => TcSpeedToFly::this(),
             Editable::Theme => Theme::this(),
+            Editable::VarioUpperLimit => VarioUpperLimit::this(),
+            Editable::VarioLowerLimit => VarioLowerLimit::this(),
             Editable::Volume => Volume::this(),
 
             // controller

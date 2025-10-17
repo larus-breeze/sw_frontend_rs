@@ -81,11 +81,20 @@ impl SoundControl {
         let cms = &cm.sensor;
         let cmc = &cm.config;
         match cm.control.vario_mode {
-            VarioMode::Vario => (
-                (cmc.snd_center_freq * (cmc.snd_exp_mul * cms.climb_rate.to_m_s()).exp()) as u16,
-                cms.climb_rate.to_m_s() < 0.0,
-                cmc.volume,
-            ),
+            VarioMode::Vario => {
+                let climb_rate = cms.climb_rate.to_m_s();
+                if climb_rate < cmc.vario_upper_limit.to_m_s()
+                    && climb_rate > cmc.vario_lower_limit.to_m_s() 
+                {
+                    (500, true, 0) // be quiet then
+                } else {
+                    (
+                        (cmc.snd_center_freq * (cmc.snd_exp_mul * climb_rate).exp()) as u16,
+                        cms.climb_rate.to_m_s() < 0.0,
+                        cmc.volume,
+                    )
+                }
+            },
             VarioMode::SpeedToFly => {
                 let stf_dif = -cm.calculated.speed_to_fly_dif.to_km_h();
                 let stf_val_ms = stf_dif / 10.0;

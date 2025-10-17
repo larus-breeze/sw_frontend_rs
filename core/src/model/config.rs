@@ -88,6 +88,8 @@ pub struct Config {
     pub battery_low: f32,
     pub stf_upper_limit: Speed,
     pub stf_lower_limit: Speed,
+    pub vario_lower_limit: Speed,
+    pub vario_upper_limit: Speed,
 }
 
 impl Config {
@@ -122,6 +124,8 @@ impl Config {
             battery_low: 10.0,
             stf_upper_limit: 10.0.km_h(),
             stf_lower_limit: -10.0.km_h(),
+            vario_upper_limit: 0.0.m_s(),
+            vario_lower_limit: 0.0.m_s(),
         }
     }
 }

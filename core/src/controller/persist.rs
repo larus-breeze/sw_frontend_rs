@@ -85,7 +85,9 @@ pub enum PersistenceId {
     StfClimbrateAlt = 42,
     TcCircleHysteresis = 43,
     EnergyArrowMult = 44,
-    LastItem = 45, // Items smaller than this are stored in eeprom
+    VarioUpperLimit = 45,
+    VarioLowerLimit = 46,
+    LastItem = 47, // Items smaller than this are stored in eeprom
 
     // Special function Ids
     VarioMode = 65532,
@@ -281,6 +283,8 @@ pub fn restore_item(cc: &mut CoreController, cm: &mut CoreModel, item: Persisten
         PersistenceId::StfClimbrateAlt => cm.config.alt_stf_thermal_climb = item.to_bool(),
         PersistenceId::TcCircleHysteresis => cm.config.circle_hysteresis_tc = item.to_i8(),
         PersistenceId::EnergyArrowMult => cm.control.energy_arrow_mult = item.to_f32(),
+        PersistenceId::VarioUpperLimit => cm.config.vario_upper_limit = item.to_f32().m_s(),
+        PersistenceId::VarioLowerLimit => cm.config.vario_lower_limit = item.to_f32().m_s(),
 
         PersistenceId::VarioMode => cm.control.vario_mode = VarioMode::from(item.to_u8()),
 
