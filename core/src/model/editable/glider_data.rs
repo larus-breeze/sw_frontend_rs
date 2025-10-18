@@ -14,7 +14,7 @@ impl EditableFuncs for Bugs {
     fn params() -> Params {
         Params::F32(F32Params {
             min: 0.0,
-            max: 100.0,
+            max: 50.0,
             small_inc: 1.0,
             big_inc: 10.0,
             dec_places: 0,
