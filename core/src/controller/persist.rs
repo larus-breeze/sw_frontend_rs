@@ -214,7 +214,7 @@ pub fn restore_item(cc: &mut CoreController, cm: &mut CoreModel, item: Persisten
             let qnh = Pressure::from_hpa(item.to_f32());
             cm.sensor.pressure_altitude.set_qnh(qnh)
         }
-        PersistenceId::Bugs => cm.glider_data.bugs = item.to_f32(),
+        PersistenceId::Bugs => cm.glider_data.set_bugs(item.to_f32()),
         PersistenceId::Display => cm.config.display_active = item.to_u8().into(),
         PersistenceId::TcClimbRate => cm.config.av2_climb_rate_tc = item.to_f32(),
         PersistenceId::TcSpeedToFly => cm.config.av_speed_to_fly_tc = item.to_f32(),

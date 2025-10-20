@@ -162,7 +162,7 @@ fn sync_config_items(cm: &mut CoreModel, cc: &mut CoreController) {
     if cm.control.is_can_master {
         // every 3 seconds please
         if (cm.control.alive_ticks / 10) % 3 == 0 {
-            let bugs = Variant::F32(cm.glider_data.bugs);
+            let bugs = Variant::F32(cm.glider_data.bugs());
             persist_set(cc, cm, bugs, PersistenceId::Bugs, Echo::NmeaAndCan);
             let mc = Variant::F32(cm.config.mc_cready.to_m_s());
             persist_set(cc, cm, mc, PersistenceId::McCready, Echo::NmeaAndCan);

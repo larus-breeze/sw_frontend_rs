@@ -64,7 +64,7 @@ impl CoreModel {
                 LE::write_f32(&mut data[2..6], self.glider_data.water_ballast.to_kg());
             }
             CanConfigId::Bugs => {
-                LE::write_f32(&mut data[2..6], self.glider_data.bugs);
+                LE::write_f32(&mut data[2..6], self.glider_data.bugs());
             }
             CanConfigId::Qnh => {
                 LE::write_f32(

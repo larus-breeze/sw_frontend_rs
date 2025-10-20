@@ -3,6 +3,7 @@ use crate::system_of_units::{Density, Float, FloatToMass, Mass, Speed};
 
 #[allow(unused_imports)]
 use micromath::F32Ext;
+use num::clamp;
 
 #[derive(Clone, Debug)]
 pub struct PolarKoefs {
@@ -17,7 +18,7 @@ pub struct PolarKoefs {
 pub struct GliderData {
     pub pilot_weight: Mass,
     pub water_ballast: Mass,
-    pub bugs: f32,
+    bugs: f32,
     pub basic_glider_data: BasicGliderData,
 }
 
@@ -33,12 +34,31 @@ impl Default for GliderData {
 }
 
 impl GliderData {
+    pub fn from_basic_glider_data(basic_glider_data: BasicGliderData) -> GliderData {
+        let mut gd = Self::default();
+        gd.basic_glider_data = basic_glider_data;
+        gd
+    }
+
     pub fn ballast_fraction(&self) -> f32 {
         self.water_ballast.to_kg() / self.basic_glider_data.max_ballast
     }
 
     pub fn set_ballast_fraction(&mut self, fraction: f32) {
         self.water_ballast = (fraction * self.basic_glider_data.max_ballast).kg();
+    }
+
+    pub fn bugs(&self) -> f32 {
+        // This revised definition is based on XCSoar
+        // XCSoar 1.0 .. 1.5 => Display Bugs 1.0 .. 2.0
+        0.5 * (1.0 + self.bugs)
+    }
+
+    pub fn set_bugs(&mut self, bugs: f32) {
+        // This revised definition is based on XCSoar
+        // XCSoar 1.0 .. 1.5 => Display Bugs 1.0 .. 2.0
+        let bugs = clamp(bugs, 1.0, 1.5);
+        self.bugs = (bugs - 0.5) / 0.5;
     }
 }
 pub struct Polar {
@@ -368,14 +388,21 @@ mod tests {
             100.2
         );
 
-        glider_data.bugs = 1.1;
+        glider_data.set_bugs(1.05);
         polar.recalc(&glider_data, Density::AT_NN());
         assert_float_eq!(
             polar.gliding_ratio(AirSpeed::from_tas_at_nn(105.0.km_h())),
             37.7
         );
 
-        glider_data.bugs = 1.0;
+        glider_data.set_bugs(1.5);
+        polar.recalc(&glider_data, Density::AT_NN());
+        assert_float_eq!(
+            polar.gliding_ratio(AirSpeed::from_tas_at_nn(105.0.km_h())),
+            20.75
+        );
+
+        glider_data.set_bugs(1.0);
         polar.recalc(&glider_data, Density::AT_NN());
         assert_float_eq!(
             polar.gliding_ratio(AirSpeed::from_tas_at_nn(105.0.km_h())),

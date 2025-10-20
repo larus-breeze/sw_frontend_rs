@@ -242,7 +242,7 @@ impl CoreController {
             PersistenceId::Bugs => uwrite!(
                 self.nmea_buffer.tx,
                 "$PLARS,L,BUGS,{:.0}",
-                (cm.glider_data.bugs - 1.0) * 100.0
+                (cm.glider_data.bugs() - 1.0) * 100.0
             ),
             PersistenceId::Qnh => uwrite!(
                 self.nmea_buffer.tx,

@@ -8,7 +8,7 @@ impl EditableFuncs for Bugs {
     }
 
     fn content(cm: &mut CoreModel, _cc: &mut CoreController) -> Content {
-        Content::F32(Some((cm.glider_data.bugs - 1.0) * 100.0))
+        Content::F32(Some((cm.glider_data.bugs() - 1.0) * 100.0))
     }
 
     fn params() -> Params {
