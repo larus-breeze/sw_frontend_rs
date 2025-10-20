@@ -182,7 +182,7 @@ impl Persistence {
     }
 
     /// Returns an iterator to the desired topic area
-    pub fn iter_over(&mut self, p_type: PersistType) -> PersistenceIterator {
+    pub fn iter_over(&mut self, p_type: PersistType) -> PersistenceIterator<'_> {
         let (start_id, end_id) = match p_type {
             PersistType::ConfigValues => (0, 256),
         };

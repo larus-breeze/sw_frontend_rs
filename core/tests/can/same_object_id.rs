@@ -29,6 +29,10 @@ fn same_object_id() {
         ticks = nt.unwrap();
     }
 
+    let nt = dis.tick(ticks);
+    let result = format!("result {:?}, frame {:?}", nt, c_rx_frames.dequeue());
+    assert_eq!(result, "result None, frame Some(IsMaster: true)");
+
     // Let's set the filter for special data,
     dis.set_object_id_filter(17).unwrap();
 
@@ -49,7 +53,7 @@ fn same_object_id() {
     let nt = dis.tick(ticks);
     let result = format!("result {:?}, frame {:?}", nt, c_rx_frames.dequeue());
     // Now, special data is passed through
-    assert_eq!(result, "result None, frame Some(Specific(SpecificFrame { can_frame: CanFrame { id: 578, rtr: false, len: 0, data: [0, 0, 0, 0, 0, 0, 0, 0] }, specific_id: 2, object_id: 17 }))");
+    assert_eq!(result, "result None, frame Some(spec_id 0x2 obj_id 0x11 can_id 0x242 data 0x00000000_00000000])");
 
     // The second device is not passed through, even though it has the same object_id. This is
     // desirable as identical information should only be passed through to the application once.

@@ -29,6 +29,10 @@ fn filter() {
         ticks = nt.unwrap();
     }
 
+    let nt = dis.tick(ticks);
+    let result = format!("result {:?}, frame {:?}", nt, c_rx_frames.dequeue());
+    assert_eq!(result, "result None, frame Some(IsMaster: true)");
+
     // ***** ==> We do not pay attention to the time stamps because they are irrelevant for the filter functions
 
     // We are now in normal mode and try to receive a legacy datagram
@@ -47,7 +51,7 @@ fn filter() {
     let nt = dis.tick(ticks);
     let result = format!("result {:?}, frame {:?}", nt, c_rx_frames.dequeue());
     // aha, now we get the data
-    assert_eq!(result, "result None, frame Some(Legacy(CanFrame { id: 258, rtr: false, len: 0, data: [0, 0, 0, 0, 0, 0, 0, 0] }))");
+    assert_eq!(result, "result None, frame Some(can_id 0x102 data 0x00000000_00000000])");
 
     // Let's try some generic data
     let other_frame = CanFrame::empty_from_id(0x641); // Some generic data
@@ -55,7 +59,7 @@ fn filter() {
     let nt = dis.tick(ticks);
     let result = format!("result {:?}, frame {:?}", nt, c_rx_frames.dequeue());
     // Generic messages are is always passed through. It does not matter, where they come from
-    assert_eq!(result, "result None, frame Some(Generic(GenericFrame { can_frame: CanFrame { id: 1601, rtr: false, len: 0, data: [0, 0, 0, 0, 0, 0, 0, 0] }, generic_id: 1 }))");
+    assert_eq!(result, "result None, frame Some(gen_id 0x1 can_id 0x641 data 0x00000000_00000000])");
 
     // Let's try some special data
     let other_frame = CanFrame::empty_from_id(0x242); // Some special data
@@ -78,7 +82,7 @@ fn filter() {
     dis.rx_data(other_frame);
     let result = format!("result {:?}, frame {:?}", nt, c_rx_frames.dequeue());
     // Now, special data is passed through
-    assert_eq!(result, "result None, frame Some(Specific(SpecificFrame { can_frame: CanFrame { id: 578, rtr: false, len: 0, data: [0, 0, 0, 0, 0, 0, 0, 0] }, specific_id: 2, object_id: 17 }))");
+    assert_eq!(result, "result None, frame Some(spec_id 0x2 obj_id 0x11 can_id 0x242 data 0x00000000_00000000])");
 
     //println!("'{}'", result);
 }

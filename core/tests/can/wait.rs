@@ -4,14 +4,14 @@ use queues::*;
 use corelib::*;
 
 const TEST_DATA: [&str; 8] = [
-    "result Some(550000), frame Some(CanFrame { id: 15, rtr: true, len: 0, data: [0, 0, 0, 0, 0, 0, 0, 0] })",
-    "result Some(600500), frame Some(CanFrame { id: 14, rtr: true, len: 0, data: [0, 0, 0, 0, 0, 0, 0, 0] })",
-    "result Some(651000), frame Some(CanFrame { id: 13, rtr: true, len: 0, data: [0, 0, 0, 0, 0, 0, 0, 0] })",
-    "result Some(701500), frame Some(CanFrame { id: 12, rtr: true, len: 0, data: [0, 0, 0, 0, 0, 0, 0, 0] })",
-    "result Some(752000), frame Some(CanFrame { id: 11, rtr: true, len: 0, data: [0, 0, 0, 0, 0, 0, 0, 0] })",
-    "result Some(802500), frame Some(CanFrame { id: 10, rtr: true, len: 0, data: [0, 0, 0, 0, 0, 0, 0, 0] })",
-    "result Some(853000), frame Some(CanFrame { id: 9, rtr: true, len: 0, data: [0, 0, 0, 0, 0, 0, 0, 0] })",
-    "result Some(903500), frame Some(CanFrame { id: 9, rtr: true, len: 0, data: [0, 0, 0, 0, 0, 0, 0, 0] })",
+    "result Some(550000), frame Some(can_id 0xf data 0x00000000_00000000])",
+    "result Some(600500), frame Some(can_id 0xe data 0x00000000_00000000])",
+    "result Some(651000), frame Some(can_id 0xd data 0x00000000_00000000])",
+    "result Some(701500), frame Some(can_id 0xc data 0x00000000_00000000])",
+    "result Some(752000), frame Some(can_id 0xb data 0x00000000_00000000])",
+    "result Some(802500), frame Some(can_id 0xa data 0x00000000_00000000])",
+    "result Some(853000), frame Some(can_id 0x9 data 0x00000000_00000000])",
+    "result Some(903500), frame Some(can_id 0x9 data 0x00000000_00000000])",
 ];
 
 #[test]

@@ -4,21 +4,20 @@ use queues::*;
 use corelib::*;
 
 const TEST_DATA: [&str; 14] = [
-    "result Some(550000), frame Some(CanFrame { id: 15, rtr: true, len: 0, data: [0, 0, 0, 0, 0, 0, 0, 0] })",
-    "result Some(600500), frame Some(CanFrame { id: 14, rtr: true, len: 0, data: [0, 0, 0, 0, 0, 0, 0, 0] })",
-    "result Some(651000), frame Some(CanFrame { id: 13, rtr: true, len: 0, data: [0, 0, 0, 0, 0, 0, 0, 0] })",
-    "result Some(701500), frame Some(CanFrame { id: 12, rtr: true, len: 0, data: [0, 0, 0, 0, 0, 0, 0, 0] })",
-    "result Some(752000), frame Some(CanFrame { id: 11, rtr: true, len: 0, data: [0, 0, 0, 0, 0, 0, 0, 0] })",
-    "result Some(802500), frame Some(CanFrame { id: 10, rtr: true, len: 0, data: [0, 0, 0, 0, 0, 0, 0, 0] })",
-    "result Some(853000), frame Some(CanFrame { id: 9, rtr: true, len: 0, data: [0, 0, 0, 0, 0, 0, 0, 0] })",
-    "result Some(903500), frame Some(CanFrame { id: 8, rtr: true, len: 0, data: [0, 0, 0, 0, 0, 0, 0, 0] })",
-    "result Some(954000), frame Some(CanFrame { id: 7, rtr: true, len: 0, data: [0, 0, 0, 0, 0, 0, 0, 0] })",
-    "result Some(1004500), frame Some(CanFrame { id: 6, rtr: true, len: 0, data: [0, 0, 0, 0, 0, 0, 0, 0] })",
-    "result Some(1055000), frame Some(CanFrame { id: 5, rtr: true, len: 0, data: [0, 0, 0, 0, 0, 0, 0, 0] })",
-    "result Some(1105500), frame Some(CanFrame { id: 4, rtr: true, len: 0, data: [0, 0, 0, 0, 0, 0, 0, 0] })",
-    "result Some(1156000), frame Some(CanFrame { id: 3, rtr: true, len: 0, data: [0, 0, 0, 0, 0, 0, 0, 0] })",
-    "result Some(1206500), frame Some(CanFrame { id: 2, rtr: true, len: 0, data: [0, 0, 0, 0, 0, 0, 0, 0] })",
-//    "result None, frame Some(CanFrame { id: 1536, rtr: true, len: 0, data: [0, 0, 0, 0, 0, 0, 0, 0] })",        // hex(1536) -> RTR on 0x600, heartbeat(vda=32)
+    "result Some(550000), frame Some(can_id 0xf data 0x00000000_00000000])",
+    "result Some(600500), frame Some(can_id 0xe data 0x00000000_00000000])",
+    "result Some(651000), frame Some(can_id 0xd data 0x00000000_00000000])",
+    "result Some(701500), frame Some(can_id 0xc data 0x00000000_00000000])",
+    "result Some(752000), frame Some(can_id 0xb data 0x00000000_00000000])",
+    "result Some(802500), frame Some(can_id 0xa data 0x00000000_00000000])",
+    "result Some(853000), frame Some(can_id 0x9 data 0x00000000_00000000])",
+    "result Some(903500), frame Some(can_id 0x8 data 0x00000000_00000000])",
+    "result Some(954000), frame Some(can_id 0x7 data 0x00000000_00000000])",
+    "result Some(1004500), frame Some(can_id 0x6 data 0x00000000_00000000])",
+    "result Some(1055000), frame Some(can_id 0x5 data 0x00000000_00000000])",
+    "result Some(1105500), frame Some(can_id 0x4 data 0x00000000_00000000])",
+    "result Some(1156000), frame Some(can_id 0x3 data 0x00000000_00000000])",
+    "result Some(1206500), frame Some(can_id 0x2 data 0x00000000_00000000])",
 ];
 
 #[test]
@@ -56,7 +55,7 @@ fn vda_blocked() {
     let result = format!("result {:?}, frame {:?}", nt, c_tx_irq_frames.dequeue());
 
     // We use the vda 0x33 and send rtr, as 0x32 is occupied
-    assert_eq!(&result, "result None, frame Some(CanFrame { id: 1552, rtr: true, len: 0, data: [0, 0, 0, 0, 0, 0, 0, 0] })");
+    assert_eq!(&result, "result None, frame Some(can_id 0x610 data 0x00000000_00000000])");
 
     // Now create first heartbeat in normal mode, emulate application
     let frame = GenericFrame {
@@ -70,7 +69,7 @@ fn vda_blocked() {
     let result = format!("result {:?}, frame {:?}", nt, c_tx_irq_frames.dequeue());
 
     // This is the first real heartbeat
-    assert_eq!(&result, "result None, frame Some(CanFrame { id: 1552, rtr: false, len: 0, data: [0, 0, 0, 0, 0, 0, 0, 0] })");
+    assert_eq!(&result, "result None, frame Some(can_id 0x610 data 0x00000000_00000000])");
 
     //println!("    \"result {:?}, frame {:?}\",", nt, c_tx_f.dequeue());
 }
