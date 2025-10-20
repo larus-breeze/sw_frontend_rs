@@ -294,7 +294,7 @@ where
     }
 
     /// Returns an iterator to the desired topic area
-    pub fn iter_over(&mut self, p_type: EepromTopic) -> PersistenceIterator<S> {
+    pub fn iter_over(&mut self, p_type: EepromTopic) -> PersistenceIterator<'_, S> {
         let (start_id, end_id) = match p_type {
             EepromTopic::ConfigValues => (0, PersistenceId::LastItem as u16),
         };

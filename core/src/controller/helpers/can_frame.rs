@@ -131,7 +131,7 @@ impl CanFrame {
         }
     }
 
-    pub fn reader(&self) -> Reader {
+    pub fn reader(&self) -> Reader<'_> {
         Reader::new(self.data())
     }
 
