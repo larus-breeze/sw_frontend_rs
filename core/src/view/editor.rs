@@ -1,5 +1,5 @@
 use crate::{
-    model::{CoreModel, DisplayActive, EditMode},
+    model::{CoreModel, EditMode},
     utils::{Colors, TString},
     view::viewable::circle_area::draw_info,
     CoreError, DrawImage,
@@ -30,9 +30,7 @@ impl Edit {
         D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
     {
         self.val_str = cm.control.editor.get_value_line();
-        if cm.config.display_active == DisplayActive::Vario
-            || cm.config.display_active == DisplayActive::Horizon
-        {
+        if cm.config.is_base_display() {
             match cm.device_const.misc.edit_mode {
                 EditMode::Off => Ok(()),
                 EditMode::CircleArea => {

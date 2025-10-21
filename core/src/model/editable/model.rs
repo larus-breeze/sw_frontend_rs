@@ -1,9 +1,7 @@
 use super::{Content, EditableFuncs, EnumParams, F32Params, ListParams, Params};
 use crate::{
     model::{
-        control::{DATA_SOURCE_FRONTEND, DATA_SOURCE_SENSORBOX},
-        DataSource, DisplayActive, DisplayTheme,
-        config::{VARIO, HORIZON}},
+        config::{DEVICE_INFO, HORIZON, VARIO}, control::{DATA_SOURCE_FRONTEND, DATA_SOURCE_SENSORBOX}, DataSource, DisplayActive, DisplayTheme},
     persist, polar_store,
     utils::{TString, Variant},
     view::viewable::{
@@ -269,13 +267,14 @@ impl EditableFuncs for Display {
     fn content(cm: &mut CoreModel, _cc: &mut CoreController) -> Content {
         match cm.config.last_display_active {
             DisplayActive::Horizon => Content::Enum(TString::<16>::from_str(HORIZON)),
+            DisplayActive::DeviceInfo => Content::Enum(TString::<16>::from_str(DEVICE_INFO)),
             _ => Content::Enum(TString::<16>::from_str(VARIO)),
         }
     }
 
     fn params() -> Params {
         Params::Enum(EnumParams {
-            variants: [VARIO, HORIZON, "", "", ""],
+            variants: [VARIO, HORIZON, DEVICE_INFO, "", ""],
         })
     }
 

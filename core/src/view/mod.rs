@@ -4,6 +4,7 @@ pub mod editor;
 pub mod fw_update;
 pub(crate) mod thermal_data;
 
+pub(crate) mod device_info;
 pub(crate) mod horizon;
 pub(crate) mod info;
 pub(crate) mod menu;
@@ -16,7 +17,7 @@ use crate::{
     utils::Colors,
     view::{
         editor::Edit, fw_update::SwUpdate, horizon::Horizon, info::InfoView, menu::MenuView,
-        vario::Vario,
+        vario::Vario, device_info::DeviceInfo,
     },
     CoreError, DrawImage,
 };
@@ -35,6 +36,7 @@ enum PrimaryView {
     Horizon(Horizon),
     SwUpade(SwUpdate),
     MenuView(MenuView),
+    DeviceInfo(DeviceInfo),
 }
 
 #[derive(PartialEq)]
@@ -83,6 +85,7 @@ where
 
             self.primary_view = match core_model.config.display_active {
                 DisplayActive::Horizon => PrimaryView::Horizon(Horizon::new()),
+                DisplayActive::DeviceInfo => PrimaryView::DeviceInfo(DeviceInfo::new()),
                 DisplayActive::FirmwareUpdate => {
                     let update_state = core_model.control.firmware_update_state;
                     PrimaryView::SwUpade(SwUpdate::new(update_state))
@@ -110,6 +113,7 @@ where
         match &mut self.primary_view {
             PrimaryView::Vario(vario) => vario.draw(&mut self.display, &self.core_model)?,
             PrimaryView::Horizon(horizon) => horizon.draw(&mut self.display, &self.core_model)?,
+            PrimaryView::DeviceInfo(device_info) => device_info.draw(&mut self.display, &self.core_model)?,
             PrimaryView::MenuView(menu_view) => {
                 menu_view.draw(&mut self.display, &self.core_model, false)?
             }
@@ -124,12 +128,9 @@ where
                 SecondaryView::MenuView(menu) => {
                     menu.draw(&mut self.display, &self.core_model, true)?
                 }
-                SecondaryView::InfoView(info_view) => match self.primary_view {
-                    PrimaryView::Horizon(_) | PrimaryView::Vario(_) => {
+                SecondaryView::InfoView(info_view) => if self.core_model.config.is_base_display() {
                         info_view.draw(&mut self.display, &self.core_model)?
-                    }
-                    _ => (),
-                },
+                }
             }
         }
         Ok(())

@@ -13,10 +13,12 @@ pub enum DisplayActive {
     #[default]
     Vario,
     Horizon,
+    DeviceInfo,
     Menu,
     FirmwareUpdate,
 }
 
+pub const DEVICE_INFO: &str = "Device Info";
 pub const HORIZON: &str = "Horizon";
 #[allow(unused)]
 pub const VARIO: &str = "Vario";
@@ -27,6 +29,7 @@ impl From<&str> for DisplayActive {
     fn from(value: &str) -> Self {
         match value {
             HORIZON => DisplayActive::Horizon,
+            DEVICE_INFO => DisplayActive::DeviceInfo,
             FIRMWARE_UPDATE => DisplayActive::FirmwareUpdate,
             MENU => DisplayActive::Menu,
             _ => DisplayActive::Vario,
@@ -127,5 +130,11 @@ impl Config {
             vario_upper_limit: 0.0.m_s(),
             vario_lower_limit: 0.0.m_s(),
         }
+    }
+
+    pub fn is_base_display(&self) -> bool {
+        self.display_active == DisplayActive::Vario ||
+        self.display_active == DisplayActive::Horizon ||
+        self.display_active == DisplayActive::DeviceInfo
     }
 }
