@@ -1,39 +1,39 @@
-use super::viewable::dialog_box::DialogBox;
-use crate::{model::CoreModel, tformat, utils::Colors, CoreError, DrawImage};
+use crate::{model::{device_info::DEVICE_INFO_CONTENT, CoreModel}, utils::Colors, CoreError, DrawImage};
 
-use embedded_graphics::draw_target::DrawTarget;
-use heapless::String;
+use embedded_graphics::{
+    draw_target::DrawTarget, 
+    prelude::Point,
+};
+
+pub const DEVICE_INFO_LINES: usize = 11;
 
 #[derive(PartialEq)]
-pub struct DeviceInfo {
-    text: String<100>,
-}
+pub struct DeviceInfo {}
 
 impl DeviceInfo {
     pub fn new() -> DeviceInfo {
-        let text = tformat!(100, "Device Info!");
-        DeviceInfo {
-            text: text.unwrap(),
-        }
+        DeviceInfo {}
     }
 
-    pub fn draw<D>(&self, display: &mut D, cm: &CoreModel) -> Result<(), CoreError>
+    pub fn draw<D>(&mut self, display: &mut D, cm: &CoreModel) -> Result<(), CoreError>
     where
         D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
     {
-        let mut dialog_box = DialogBox::new(
-            "Device Info",
-            cm.palette().background,
-            cm.palette().scale,
-            cm.palette().scale,
-            cm.palette().text1,
-        );
-        dialog_box.draw(
-            display,
-            cm.device_const.sizes.display.height,
-            cm.device_const.sizes.display.width,
-            self.text.as_str(),
-            &cm.device_const.big_font,
-        )
+        display.clear(cm.palette().background)?;
+        let width = cm.device_const.sizes.display.width as i32;
+        let height = cm.device_const.sizes.display.height as i32;
+
+        for pos in 0..DEVICE_INFO_LINES {
+            let pos_y = height / 20 + pos as i32 * height / 12;
+            let point = Point::new(width / 2, pos_y);
+            let index = pos as usize + cm.control.device_info_control.index as usize;
+            let dev_lineview = DEVICE_INFO_CONTENT[index];
+            dev_lineview.draw(
+                display,
+                cm,
+                point
+            )?;
+        }
+        Ok(())
     }
 }

@@ -1,0 +1,44 @@
+use crate::view::viewable::device_lineview::DeviceLineView;
+
+
+pub const DEVICE_INFO_CONTENT: &[DeviceLineView] = &[
+    // Vario Display
+    DeviceLineView::Empty,
+    DeviceLineView::Empty,
+    DeviceLineView::Empty,
+    DeviceLineView::VarioDisplay,
+    DeviceLineView::DisplayVersion,
+    DeviceLineView::SupplyVoltage,
+    // DeviceLineView::IluminationVoltage,
+    // DeviceLineView::TempPcb,
+    DeviceLineView::InPinBreaks,
+    DeviceLineView::InPinDrain,
+    DeviceLineView::InPinGear,
+    DeviceLineView::InPinSpeedToFly,
+    DeviceLineView::OutPinFlash,
+
+    // Sensor Box
+    DeviceLineView::Empty,
+    DeviceLineView::SensorBox,
+    DeviceLineView::SensorboxVersion,
+    DeviceLineView::Ias,
+    DeviceLineView::Tas,
+    DeviceLineView::Density,
+    DeviceLineView::Gforce,
+    DeviceLineView::GpsAltitude,
+    DeviceLineView::GpsGroundSpeed,
+    DeviceLineView::GpsTrack,
+    DeviceLineView::GpsSats,
+    DeviceLineView::GpsState,
+    DeviceLineView::NickAngle,
+    DeviceLineView::Pressure,
+    DeviceLineView::SlipAngle,
+    DeviceLineView::TurnRate,
+    DeviceLineView::HorizonAvailable,
+    DeviceLineView::GnssAndCompassOk,
+
+    DeviceLineView::Empty,
+    DeviceLineView::Empty,
+    DeviceLineView::Empty,
+    DeviceLineView::Empty,
+];

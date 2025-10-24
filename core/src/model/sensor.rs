@@ -4,7 +4,7 @@ use crate::{
         Acceleration, AngularVelocity, FloatToAcceleration, FloatToAngularVelocity, FloatToLength,
         FloatToSpeed, Length, Pressure, Speed,
     },
-    AirSpeed, DateTime, Density, F64ToCoord, Latitude, Longitude,
+    AirSpeed, DateTime, Density, F64ToCoord, Latitude, Longitude, SwVersion,
 };
 use embedded_graphics::geometry::{Angle, AngleUnit};
 
@@ -14,6 +14,16 @@ pub enum GpsState {
     NoGps,
     PosAvail,
     HeadingAvail,
+}
+
+impl GpsState {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            GpsState::NoGps => "No GPS",
+            GpsState::PosAvail => "Pos avail",
+            GpsState::HeadingAvail => "Head avail",
+        }
+    }
 }
 
 /// Sensor Values
@@ -43,10 +53,11 @@ pub struct Sensor {
     pub pressure: Pressure,
     pub pressure_altitude: PressureAltitude,
     pub slip_angle: Angle,
+    pub sw_version: SwVersion,
     pub turn_rate: AngularVelocity,
     pub vertical_g_force: Acceleration,
     pub wind_vector: WindVector,
-    pub horizon_availaable: bool,
+    pub horizon_available: bool,
     pub gnss_and_compass_ok: bool,
 }
 
@@ -75,11 +86,12 @@ impl Default for Sensor {
             pressure: Pressure::AT_NN(),
             pressure_altitude: PressureAltitude::default(),
             slip_angle: 0.0_f32.deg(),
+            sw_version: SwVersion::from_bytes([0, 0, 0, 0]),
             turn_rate: 0.0.rad_s(),
             vertical_g_force: 9.81.m_s2(),
             average_wind: WindVector::new(0.0.km_h(), 0.0_f32.deg()),
             wind_vector: WindVector::new(0.0.km_h(), 0.0_f32.deg()),
-            horizon_availaable: true,
+            horizon_available: true,
             gnss_and_compass_ok: false,
         }
     }

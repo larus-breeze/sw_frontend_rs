@@ -1,8 +1,8 @@
 use crate::{
-    controller::{CanActive, Editor},
+    controller::{CanActive, DeviceInfoControl, Editor},
     system_of_units::{FloatToLength, FloatToSpeed, Length, Speed},
     utils::DeviceEvent,
-    MenuControl, Rotation,
+    MenuControl, Rotation, PinState,
 };
 
 /// Flymode display variants
@@ -163,6 +163,31 @@ pub enum SystemState {
     CanAndGpsOk,
 }
 
+/// Struct to store pin states
+#[derive(Clone, Copy)]
+pub struct HwPins {
+    pub in_breakes: PinState,
+    pub in_drain: PinState,
+    pub in_gear: PinState,
+    pub in_speed_to_fly: PinState,
+    pub out_flash: PinState,
+}
+
+impl Default for HwPins {
+    fn default() -> Self {
+        // Input Pins are set by hardware, simulator sets them to High
+        // Output pins are set during initialization to low 
+        HwPins { 
+            in_breakes: PinState::High, 
+            in_drain: PinState::High, 
+            in_gear: PinState::High,
+            in_speed_to_fly: PinState::High,
+            out_flash: PinState::Low, 
+        }
+    }
+}
+
+
 /// Metastructure for different control variables
 #[derive(Clone, Copy)]
 pub struct Control {
@@ -212,6 +237,10 @@ pub struct Control {
     pub energy_arrow_mult: f32,
     /// Information about CAN Master (uses device can base address or not)
     pub is_can_master: bool,
+    /// Data for Device Info Control
+    pub device_info_control: DeviceInfoControl,
+    /// Store pin states of input and output pins
+    pub hw_pins: HwPins,
 }
 
 impl Default for Control {
@@ -240,6 +269,8 @@ impl Default for Control {
             avg_climb_rate_src: DataSource::Frontend,
             energy_arrow_mult: 0.0,
             is_can_master: false,
+            device_info_control: DeviceInfoControl::default(),
+            hw_pins: HwPins::default(),
         }
     }
 }

@@ -31,7 +31,7 @@ impl Horizon {
     where
         D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
     {
-        if cm.sensor.horizon_availaable == false {
+        if cm.sensor.horizon_available == false {
             display.clear(cm.palette().horizon_sky)?;
             return draw_info(display, cm, "Horizon", "not available")
         }

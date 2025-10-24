@@ -1,12 +1,11 @@
 use crate::{
-    VarioMode, model::VarioModeControl,
     controller::{
         helpers::{
             can_ids::{gps, sensor, sensor_legacy},
             frontend_masster, object_id, CanActive,
         },
         persist, Echo,
-    }, into_range_0_360, into_range_180_180, model::{editable::Content, GpsState}, persist::set_vario_mode, AirSpeed, Angle, CanFrame, CoreController, CoreModel, F64ToCoord, FloatToAcceleration, FloatToAngularVelocity, FloatToDensity, FloatToLength, FloatToMass, FloatToPressure, FloatToSpeed, Frame, GenericFrame, GenericId, Latitude, Longitude, PersistenceId, SpecificFrame, Variant, DEGREE_PER_RAD
+    }, into_range_0_360, into_range_180_180, model::{editable::Content, GpsState, VarioModeControl}, persist::set_vario_mode, AirSpeed, Angle, CanFrame, CoreController, CoreModel, F64ToCoord, FloatToAcceleration, FloatToAngularVelocity, FloatToDensity, FloatToLength, FloatToMass, FloatToPressure, FloatToSpeed, Frame, GenericFrame, GenericId, Latitude, Longitude, PersistenceId, SpecificFrame, SwVersion, Variant, VarioMode, DEGREE_PER_RAD
 };
 use embedded_graphics::prelude::AngleUnit;
 
@@ -31,6 +30,11 @@ impl CoreController {
                 self.can_frame_read_sys_config_value(cm, config_id, &frame.can_frame)
             }
             _ => (),
+        }
+        if frame.can_frame.id() == 0x521 { // Version Sensorbox
+            let mut bytes =  [0u8; 4];
+            bytes.copy_from_slice(&frame.can_frame.data()[4..8]);
+            cm.sensor.sw_version = SwVersion::from_bytes(bytes);
         }
     }
 
@@ -345,7 +349,7 @@ impl CoreController {
             sensor::UBATT_CIRCLE_MODE => (), // ignore this datagram
             sensor::SYSTEM_STATE_GIT_TAG => {
                 let system_state = rdr.pop_u32();
-                cm.sensor.horizon_availaable = (system_state & 0x0001_0000) == 0;
+                cm.sensor.horizon_available = (system_state & 0x0001_0000) == 0;
                 cm.sensor.gnss_and_compass_ok = (system_state & 0x0000_0011) == 0x0000_0011;
                 // git_tag is not used at the moment
             }

@@ -10,6 +10,9 @@ pub(crate) use helpers::{
     PIN_NONE, PIN_OUT_CLOSE, PIN_OUT_OPEN, TWO_PIN_MODE,
 };
 
+mod device_info;
+pub use device_info::DeviceInfoControl;
+
 mod editor;
 pub use editor::{close_edit_frame, Editor};
 
@@ -29,14 +32,7 @@ pub mod persist;
 pub use persist::{store_persistence_ids, Echo, PersistenceId, profile_always_0};
 
 use crate::{
-    basic_config::{CONTROLLER_TICK_RATE, MAX_TX_FRAMES},
-    common::PTxFrames,
-    flight_physics::Polar,
-    model::{DataSource, DisplayActive, EditMode, VarioModeControl},
-    system_of_units::{FloatToSpeed, Speed},
-    utils::{KeyEvent, PIdleEvents, Pt1},
-    CoreModel, DeviceEvent, Editable, Event, IdleEvent, InputPinState, PersistenceItem, SdCardCmd,
-    VarioMode,
+    basic_config::{CONTROLLER_TICK_RATE, MAX_TX_FRAMES}, common::PTxFrames, flight_physics::Polar, model::{DataSource, DisplayActive, EditMode, VarioModeControl}, system_of_units::{FloatToSpeed, Speed}, utils::{KeyEvent, PIdleEvents, Pt1}, CoreModel, DeviceEvent, Editable, Event, IdleEvent, InputPinState, PersistenceItem, SdCardCmd, VarioMode
 };
 use helpers::nmea_cyclic_200ms;
 
@@ -232,7 +228,7 @@ impl CoreController {
     fn input_action(&mut self, cm: &mut CoreModel, input_event: InputPinState) {
         match input_event {
             InputPinState::Io1(state) => self.drain_control.set_state(cm, state),
-            InputPinState::Io2(state) => self.speed_to_fly_control.set_state(state),
+            InputPinState::Io2(state) => self.speed_to_fly_control.set_state(cm, state),
             InputPinState::Io3(state) => {
                 let active = self.gear_alarm_control.set_gear_pin_state(cm, state);
                 self.sound_control
@@ -269,5 +265,6 @@ impl CoreController {
     fn key_action(&mut self, cm: &mut CoreModel, mut key_event: KeyEvent) {
         editor::key_action(&mut key_event, cm, self);
         menu::key_action(&mut key_event, cm, self);
+        device_info::key_action(&mut key_event, cm, self);
     }
 }

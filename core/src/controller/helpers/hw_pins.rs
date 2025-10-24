@@ -147,6 +147,7 @@ impl Default for DrainControl {
 impl DrainControl {
     pub fn set_state(&mut self, cm: &mut CoreModel, pin_state: PinState) {
         self.pin_state = pin_state;
+        cm.control.hw_pins.in_drain = pin_state;
         self.adjust(cm);
     }
 
@@ -219,15 +220,19 @@ impl FlashControl {
             OutPinFunction::None => None,
             OutPinFunction::Closed => {
                 if cm.sensor.airspeed.ias().to_km_h() > 40.0 {
+                    cm.control.hw_pins.out_flash = PinState::Low;
                     Some(PinState::High)
                 } else {
+                    cm.control.hw_pins.out_flash = PinState::High;
                     Some(PinState::Low)
                 }
             }
             OutPinFunction::Opened => {
                 if cm.sensor.airspeed.ias().to_km_h() > 40.0 {
+                    cm.control.hw_pins.out_flash = PinState::High;
                     Some(PinState::Low)
                 } else {
+                    cm.control.hw_pins.out_flash = PinState::Low;
                     Some(PinState::High)
                 }
             }
@@ -258,7 +263,7 @@ impl Default for SpeedToFlyControl {
 }
 
 impl SpeedToFlyControl {
-    pub fn set_state(&mut self, pin_state: PinState) {
+    pub fn set_state(&mut self, cm: &mut CoreModel, pin_state: PinState) {
         self.vario_mode = match pin_state {
             PinState::High => match self.pin_function {
                 InTogglePinFunction::None => return,
@@ -272,7 +277,8 @@ impl SpeedToFlyControl {
                 InTogglePinFunction::OnOpen => VarioMode::Vario,
                 InTogglePinFunction::OnToggled => !self.vario_mode,
             },
-        }
+        };
+        cm.control.hw_pins.in_speed_to_fly = pin_state;
     }
 
     pub fn pin_function(&self) -> InTogglePinFunction {
@@ -358,6 +364,7 @@ impl GearAlarmControl {
                 PinState::Low => false,
             },
         };
+        cm.control.hw_pins.in_gear = state;
         self.alarm_is_active(cm)
     }
 
@@ -381,6 +388,7 @@ impl GearAlarmControl {
                 PinState::Low => false,
             },
         };
+        cm.control.hw_pins.in_breakes = state;
         self.alarm_is_active(cm)
     }
 

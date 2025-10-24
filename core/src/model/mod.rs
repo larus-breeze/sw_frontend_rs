@@ -3,6 +3,7 @@ mod config;
 mod control;
 mod device;
 mod device_const;
+pub mod device_info;
 pub mod editable;
 pub mod menu;
 mod sensor;
