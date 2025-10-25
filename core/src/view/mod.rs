@@ -73,7 +73,10 @@ where
         }
     }
 
-    pub fn prepare(&mut self, core_model: &CoreModel) {
+    pub fn prepare(&mut self, core_model: &mut CoreModel) {
+        // interpolate climb rate
+        core_model.interpolate_climb_rate();
+
         // take a snapshot
         self.core_model = *core_model;
 

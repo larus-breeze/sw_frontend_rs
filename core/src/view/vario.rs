@@ -208,7 +208,7 @@ impl Vario {
         .draw_colored(cm.palette().needle3, display)?;
 
         // draw climb rate indicator
-        let climb_rate = num::clamp(cm.sensor.climb_rate.to_m_s(), -5.1, 5.1);
+        let climb_rate = num::clamp(cm.calculated.interpolated_climb_rate.value.to_m_s(), -5.1, 5.1);
         ClassicIndicator::new(d_sizes.radius as i32, d_sizes.center)
             .zero_pos(pos::NINE_O_CLOCK)
             .rotate((climb_rate * sizes.angle_m_s).to_radians())

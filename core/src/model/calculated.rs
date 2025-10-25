@@ -1,6 +1,6 @@
 use crate::{
     system_of_units::{FloatToSpeed, Speed},
-    AirSpeed,
+    AirSpeed, CoreModel,
 };
 
 /// Metastructure for calculated or set values
@@ -17,6 +17,7 @@ pub struct Calculated {
     pub continuous: bool,
     pub gain: i8,
     pub av_supply_voltage: f32,
+    pub interpolated_climb_rate: InterpolatedClimbRate,
 }
 
 impl Default for Calculated {
@@ -34,6 +35,31 @@ impl Default for Calculated {
             continuous: false,
             gain: 2,
             av_supply_voltage: 12.0,
+            interpolated_climb_rate: InterpolatedClimbRate::default(),
         }
+    }
+}
+
+#[derive(Clone, Copy)]
+pub struct InterpolatedClimbRate {
+    pub fetch: bool,
+    pub delta: Speed,
+    pub value: Speed, 
+}
+
+impl Default for InterpolatedClimbRate {
+    fn default() -> Self {
+        InterpolatedClimbRate { fetch: true, delta: 0.0.m_s(), value: 0.0.m_s() }
+    }
+}
+
+impl CoreModel {
+    pub fn interpolate_climb_rate(&mut self) {
+        let icr = &mut self.calculated.interpolated_climb_rate;
+        icr.value += icr.delta;
+        if icr.fetch {
+            icr.delta = (self.sensor.climb_rate - icr.value) / 2.0;
+        }
+        icr.fetch = !icr.fetch;
     }
 }

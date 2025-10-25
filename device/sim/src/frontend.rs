@@ -294,7 +294,7 @@ impl Frontend {
                 }
         
                 cc.tick_1ms(millis().wrapping_sub(start_time), &mut cm);
-                view.prepare(&cm);
+                view.prepare(&mut cm);
                 view.draw().unwrap();
 
                 let buf = view.display.copy();
