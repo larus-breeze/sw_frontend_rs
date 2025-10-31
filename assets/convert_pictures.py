@@ -57,6 +57,7 @@ LIME = 75
 ORANGE_RED = 99
 RED = 112
 WHITE = 135
+LIGHT_YELLOW = 74
 
 BACKGROUND = 255
 
@@ -229,7 +230,7 @@ lif_gen.generate(3, 'm_s.png', {0: DARK_GRAY, 1: BACKGROUND})
 lif_gen.generate(3, 'sat.png', {0: DARK_GRAY, 2: BACKGROUND})
 lif_gen.generate(3, 'wp_editor.png', {1: RED, 2: BLACK, 0: BACKGROUND})
 lif_gen.generate(3, 'wp_vario.png', {0: DARK_GRAY, 255: BACKGROUND})
-lif_gen.generate(3, 'wp_horizon.png', {0: DARK_GRAY, 255: BACKGROUND})
+lif_gen.generate(3, 'wp_horizon.png', {0: BACKGROUND, 1: WHITE, 2: LIGHT_YELLOW, 3: BLACK})
 
 lif_gen = LifGen(240, 320, 'assets/size_240x320', 'device/larus_frontend_v1/assets')
 lif_gen.generate(3, 'attention.png', {0: BLACK, 1: RED, 2: BACKGROUND, 3: WHITE})
@@ -247,7 +248,7 @@ lif_gen.generate(3, 'm_s.png', {0: DARK_GRAY, 1: BACKGROUND})
 lif_gen.generate(3, 'sat.png', {0: DARK_GRAY, 1: BACKGROUND})
 lif_gen.generate(3, 'wp_editor.png', {1: RED, 2: BLACK, 0: BACKGROUND})
 lif_gen.generate(3, 'wp_vario.png', {0: WHITE, 255: BACKGROUND})
-lif_gen.generate(3, 'wp_horizon.png', {0: WHITE, 255: BACKGROUND})
+lif_gen.generate(3, 'wp_horizon.png', {0: BACKGROUND, 1: WHITE, 2: LIGHT_YELLOW, 3: BLACK})
 
 lif_gen = LifGen(480, 480, 'assets/size_480x480', 'device/larus_frontend_v2/assets')
 lif_gen.generate(3, 'attention.png', {0: BLACK, 1: RED, 2: BACKGROUND, 3: WHITE})
@@ -265,4 +266,4 @@ lif_gen.generate(3, 'm_s.png', {0: DARK_GRAY, 1: BACKGROUND})
 lif_gen.generate(3, 'sat.png', {0: DARK_GRAY, 1: BACKGROUND})
 lif_gen.generate(3, 'wp_editor.png', {1: RED, 2: BLACK, 0: BACKGROUND})
 lif_gen.generate(3, 'wp_vario.png', {0: WHITE, 255: BACKGROUND})
-lif_gen.generate(3, 'wp_horizon.png', {0: WHITE, 255: BACKGROUND})
+lif_gen.generate(3, 'wp_horizon.png', {0: BACKGROUND, 1: WHITE, 2: LIGHT_YELLOW, 3: BLACK})

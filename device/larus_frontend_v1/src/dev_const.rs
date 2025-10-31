@@ -60,15 +60,10 @@ const fn display_sizes() -> DisplaySizes {
 
 const fn horizon_sizes() -> HorizonSizes {
     HorizonSizes {
-        t_width: 100,
-        rm_len: 30,
-        rm_width: 8.0,
-        stroke_width: 2,
-        box_height: 32,
-        tc_pos_y: 290,
-        tc_needle_y: 240,
-        tc_needle_delta: 18,
         pitch_scale_len: 20,
+        lt_swing_len: (DISPLAY_HEIGHT * 65 / 100) as i32,
+        lt_mid: (DISPLAY_HEIGHT * 25 / 100) as i32,
+        lt_rad: DISPLAY_WIDTH * 70 / 1000,
     }
 }
 

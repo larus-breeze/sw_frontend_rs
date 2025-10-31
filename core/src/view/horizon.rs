@@ -1,5 +1,5 @@
 use crate::{
-    model::CoreModel, tformat, utils::Colors, view::sprites::SimpleIndicator, CoreError, DrawImage,
+    model::CoreModel, utils::Colors, view::sprites::SimpleIndicator, CoreError, DrawImage,
     view::viewable::circle_area::draw_info,
 };
 
@@ -9,13 +9,9 @@ use micromath::F32Ext;
 use embedded_graphics::{
     geometry::AngleUnit,
     prelude::*,
-    primitives::{Line, PrimitiveStyle, Rectangle, Triangle},
+    primitives::{Line, PrimitiveStyle, Rectangle, Circle},
 };
 use num::clamp;
-use u8g2_fonts::{
-    types::{FontColor, HorizontalAlignment, VerticalPosition},
-    FontRenderer,
-};
 
 use super::sprites::{DrawColored, Rotate};
 
@@ -102,7 +98,7 @@ impl Horizon {
         display.draw_img(
             cm.device_const.images.wp_horizon,
             Point::new(0, 0),
-            Some(cm.palette().scale),
+            None,
         )?;
 
         let roll_angle = -cm.sensor.euler_roll.to_radians();
@@ -134,106 +130,22 @@ impl Horizon {
             Line::new(p1, p2).into_styled(style).draw(display)?;
         }
 
-        // draw true heading
+        // draw level tube
         //
-        let th = cm.sensor.euler_yaw.to_degrees();
-        let th_txt = tformat!(10, "TH {:.0}°", th).unwrap();
-        boxed_text(
-            display,
-            th_txt.as_str(),
-            Point::new(
-                ah_center_x,
-                sizes.display.width as i32 - sizes.horizon.box_height / 2,
-            ),
-            &cm.device_const.big_font,
-            sizes.horizon.t_width,
-            sizes.horizon.box_height,
-            sizes.horizon.stroke_width,
-            cm.palette().scale,
-            cm.palette().needle4,
-            cm.palette().background,
-        )?;
+        let cmh = &cm.device_const.sizes.horizon;
+        let sin_slip = cm.sensor.slip_angle.to_radians().sin();
+        let cos_slip = cm.sensor.slip_angle.to_radians().cos();
+        let d_x = (cmh.lt_swing_len as f32 * sin_slip) as i32;
+        let x = (sizes.display.width / 2) as i32 + d_x; 
+        let d_y = (cmh.lt_swing_len as f32 * cos_slip) as i32;
+        let y = cmh.lt_mid + d_y;
+        let center = Point::new(x, y);
 
-        // draw true course
-        //
-        let tc = cm.sensor.gps_track.to_degrees();
-        let tc_txt = tformat!(10, "TC {:.0}°", tc).unwrap();
-        let mut diff = tc - th;
-        if diff > 180.0 {
-            diff -= 360.0;
-        }
-        if diff < -180.0 {
-            diff += 360.0;
-        }
-        let t_col = cm.palette().needle5;
-        let scale_inc = sizes.display.width as i32 / 10;
-        let x = ((diff * scale_inc as f32) / 10.0) as i32 + ah_center_x;
-        let p1 = Point::new(x, sizes.horizon.tc_needle_y);
-        let p2 = Point::new(
-            x + 10,
-            sizes.horizon.tc_needle_y + sizes.horizon.tc_needle_delta,
-        );
-        let p3 = Point::new(
-            x - 10,
-            sizes.horizon.tc_needle_y + sizes.horizon.tc_needle_delta,
-        );
-        Triangle::new(p1, p2, p3)
-            .into_styled(PrimitiveStyle::with_fill(t_col))
+        let style = PrimitiveStyle::with_fill(Colors::Black);
+        Circle::with_center(center, cmh.lt_rad)
+            .into_styled(style)
             .draw(display)?;
-
-        let x = clamp(
-            x,
-            sizes.horizon.t_width / 2,
-            sizes.display.width as i32 - sizes.horizon.t_width / 2,
-        );
-        boxed_text(
-            display,
-            tc_txt.as_str(),
-            Point::new(x, sizes.horizon.tc_pos_y),
-            &cm.device_const.big_font,
-            sizes.horizon.t_width,
-            sizes.horizon.box_height,
-            sizes.horizon.stroke_width,
-            cm.palette().scale,
-            cm.palette().scale,
-            cm.palette().background,
-        )?;
 
         Ok(())
     }
-}
-
-#[allow(clippy::too_many_arguments)]
-pub fn boxed_text<D>(
-    display: &mut D,
-    content: &str,
-    position: Point,
-    font: &FontRenderer,
-    width: i32,
-    height: i32,
-    stroke_width: i32,
-    frame_color: Colors,
-    text_color: Colors,
-    background_color: Colors,
-) -> Result<(), CoreError>
-where
-    D: DrawTarget<Color = Colors, Error = CoreError>,
-{
-    let top_left = Point::new(position.x - width / 2, position.y - height / 2);
-    let size = Size::new(width as u32, height as u32);
-    let mut style = PrimitiveStyle::with_stroke(frame_color, stroke_width as u32);
-    style.fill_color = Some(background_color);
-    Rectangle::new(top_left, size)
-        .into_styled(style)
-        .draw(display)?;
-
-    font.render_aligned(
-        content,
-        position,
-        VerticalPosition::Center,
-        HorizontalAlignment::Center,
-        FontColor::Transparent(text_color),
-        display,
-    )?;
-    Ok(())
 }

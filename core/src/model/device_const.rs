@@ -45,15 +45,10 @@ pub struct DisplaySizes {
 }
 
 pub struct HorizonSizes {
-    pub t_width: i32,
-    pub rm_len: i32,
-    pub rm_width: f32,
-    pub stroke_width: i32,
-    pub box_height: i32,
-    pub tc_pos_y: i32,
-    pub tc_needle_y: i32,
-    pub tc_needle_delta: i32,
     pub pitch_scale_len: i32,
+    pub lt_swing_len: i32,
+    pub lt_mid: i32,
+    pub lt_rad: u32,
 }
 
 pub struct VarioSizes {
