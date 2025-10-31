@@ -133,8 +133,9 @@ impl Horizon {
         // draw level tube
         //
         let cmh = &cm.device_const.sizes.horizon;
-        let sin_slip = cm.sensor.slip_angle.to_radians().sin();
-        let cos_slip = cm.sensor.slip_angle.to_radians().cos();
+        let slip_angle = clamp(cm.sensor.slip_angle.to_radians(), -20.0/180.0, 20.0/180.0);
+        let sin_slip = slip_angle.sin();
+        let cos_slip = slip_angle.cos();
         let d_x = (cmh.lt_swing_len as f32 * sin_slip) as i32;
         let x = (sizes.display.width / 2) as i32 + d_x; 
         let d_y = (cmh.lt_swing_len as f32 * cos_slip) as i32;
