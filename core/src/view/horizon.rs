@@ -1,3 +1,5 @@
+use core::f32::consts::PI;
+
 use crate::{
     model::CoreModel, utils::Colors, view::sprites::SimpleIndicator, CoreError, DrawImage,
     view::viewable::circle_area::draw_info,
@@ -133,7 +135,8 @@ impl Horizon {
         // draw level tube
         //
         let cmh = &cm.device_const.sizes.horizon;
-        let slip_angle = clamp(cm.sensor.slip_angle.to_radians(), -20.0/180.0, 20.0/180.0);
+        const ALPHA_MAX: f32 = (16.5 / 180.0) * PI;
+        let slip_angle = clamp(cm.sensor.slip_angle.to_radians(), -ALPHA_MAX, ALPHA_MAX);
         let sin_slip = slip_angle.sin();
         let cos_slip = slip_angle.cos();
         let d_x = (cmh.lt_swing_len as f32 * sin_slip) as i32;

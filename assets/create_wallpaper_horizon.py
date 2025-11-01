@@ -27,7 +27,7 @@ class ArtificialHorizonWallpaper():
         alpha = 0.0
         delta = math.pi*0.1/180
 
-        for idx in range(200):
+        for idx in range(165):
             self.draw.circle((w + len*math.sin(alpha), my + len*math.cos(alpha)), radius, fill=2)
             self.draw.circle((w - len*math.sin(alpha), my + len*math.cos(alpha)), radius, fill=2)
             alpha += delta
