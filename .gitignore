@@ -1,6 +1,7 @@
 /.venv
 /*.bin
 /*.elf
+/assets/details/target
 /core/target
 /core/Cargo.lock
 /device/air_avionics_ad57/*.bin
@@ -12,10 +13,6 @@
 /device/larus_frontend_v2/*.bin
 /device/larus_frontend_v2/*.elf
 /device/larus_frontend_v2/target
-/device/pc/target
-/device/pc/simulator-0.5.0/target
-/device/pc/simulator-0.5.0/Cargo.lock
-/device/pc/eeprom.bin
 /device/sim/target
 /device/sim/eeprom.bin
 *.f110

@@ -1,9 +1,9 @@
 mod airspeed;
 mod athmodphere;
 mod polar;
-pub(crate) mod polar_store;
+pub mod polar_store;
 #[rustfmt::skip]
-pub(crate) mod polar_store_idx;
+pub mod polar_store_idx;
 mod wind_vector;
 
 pub use airspeed::*;

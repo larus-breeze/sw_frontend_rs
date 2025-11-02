@@ -20,7 +20,7 @@ extern crate std;
 /// speaker). An overview of the structure can be found in the doc directory.
 mod common;
 mod controller;
-mod flight_physics;
+pub mod flight_physics;
 pub mod macros;
 mod model;
 mod system_of_units;
@@ -32,7 +32,7 @@ pub use controller::persist;
 pub use controller::*;
 pub use model::{
     CoreModel, DeviceConst, DisplaySizes, EditMode, Editable, FlyMode, HorizonSizes, Images, Misc,
-    Palette, Sizes, VarioMode, VarioSizes,
+    Palette, Sizes, VarioMode, VarioSizes, menu,
 };
 pub use view::{CoreView, FRAME_RATE};
 

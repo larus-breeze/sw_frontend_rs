@@ -6,6 +6,10 @@ set -e
 rm -f *.elf
 rm -f *.bin
 
+cd assets/details
+cargo run -r
+cd ../..
+
 cd device/air_avionics_ad57
 ./make_image.sh $1
 cd ../..
