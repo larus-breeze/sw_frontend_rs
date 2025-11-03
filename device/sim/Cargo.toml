@@ -21,10 +21,15 @@ rfd = "0.15.3"
 
 [build-dependencies]
 slint-build = "1.12.1"
+rust_xlsxwriter = "0.91.0"
 
 # local
 [dependencies.corelib]
 path = "../../core"
+
+[build-dependencies.corelib]
+path = "../../core"
+
 
 [features]
 default = ["v2"]

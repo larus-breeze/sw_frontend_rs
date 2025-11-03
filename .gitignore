@@ -1,7 +1,6 @@
 /.venv
 /*.bin
 /*.elf
-/assets/details/target
 /core/target
 /core/Cargo.lock
 /device/air_avionics_ad57/*.bin

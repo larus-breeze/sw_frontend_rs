@@ -21,10 +21,6 @@
 			"path": "device/sim"
 		},
 		{
-			"name": "details",
-			"path": "assets/details"
-		},
-		{
 			"name": "sw_frontend_rs",
 			"path": "."
 		}
