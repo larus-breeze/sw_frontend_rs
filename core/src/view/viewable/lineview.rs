@@ -1,7 +1,7 @@
 use crate::{Colors, CoreError, CoreModel, DrawImage, FloatToSpeed, Image, model::DataSource, tformat};
 use embedded_graphics::{draw_target::DrawTarget, geometry::Point};
 use num_enum::FromPrimitive;
-use u8g2_fonts::types::{FontColor, HorizontalAlignment, VerticalPosition};
+use u8g2_fonts::{FontRenderer, types::{FontColor, HorizontalAlignment, VerticalPosition}};
 
 #[allow(unused)]
 use micromath::F32Ext;
@@ -145,6 +145,49 @@ impl LineView {
     }
 }
 
+fn draw_centered_line<D>(
+    display: &mut D,
+    pos: Point,
+    img1: Option<Image>,
+    content: &str,
+    img2: Option<Image>,
+    font: &FontRenderer,
+    color: Colors,
+) -> Result<(), CoreError>
+where
+    D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
+{
+    let mut txt_x = pos.x;
+    if let Some(img) = img1 {
+        txt_x += img.width() as i32 / 2;
+    }
+    if let Some(img) = img2 {
+        txt_x -= img.width() as i32 / 2;
+    }
+    let result = font.render_aligned(
+        content,
+        Point::new(txt_x, pos.y),
+        VerticalPosition::Center,
+        HorizontalAlignment::Center,
+        FontColor::Transparent(color),
+        display,
+    )?;
+    if let Some(rectangle) = result {
+        if let Some(img) = img1 {
+            let pic_x = txt_x - (rectangle.size.width / 2 + img.width())  as i32;
+            let pic_y = pos.y - img.height() as i32 / 2;
+            img.draw(display, Point::new(pic_x, pic_y), Some(color))?;
+        }
+        if let Some(img) = img2 {
+            let pic_x = txt_x + rectangle.size.width as i32 / 2;
+            let pic_y = pos.y - img.height() as i32 / 2;
+            img.draw(display, Point::new(pic_x, pic_y), Some(color))?;
+        }
+    }
+
+    Ok(())
+}
+
 fn draw_average_climb_rate<D>(
     display: &mut D,
     cm: &CoreModel,
@@ -163,22 +206,9 @@ where
     } else {
         tformat!(5, "+{:.1}", avg_climb_rate).unwrap()
     };
-    let ms_img = Image::new(cm.device_const.images.m_s);
-    let txt_x = pos.x - ms_img.width() as i32 / 2;
-    let result = cm.device_const.big_font.render_aligned(
-        s.as_str(),
-        Point::new(txt_x, pos.y),
-        VerticalPosition::Center,
-        HorizontalAlignment::Center,
-        FontColor::Transparent(color),
-        display,
-    )?;
-    if let Some(rectangle) = result {
-        let pic_x = txt_x + 2 + (rectangle.size.width / 2) as i32;
-        let pic_y = pos.y - (ms_img.height() as i32) / 2;
-        ms_img.draw(display, Point::new(pic_x, pic_y), Some(color))?;
-    }
-    Ok(())
+    let img1 = Some(Image::new(cm.device_const.images.avg_climb_rate));
+    let img2 = Some(Image::new(cm.device_const.images.m_s));
+    draw_centered_line(display, pos, img1, s.as_str(), img2, &cm.device_const.big_font, color)
 }
 
 fn draw_drift_angle<D>(
@@ -203,19 +233,14 @@ where
         drift_angle += 360.0 // t: 5 h 355 => - 350 correct +10
     }
     let s = if drift_angle > 0.0 {
-        tformat!(12, "DA +{:.0}°", drift_angle).unwrap()
+        tformat!(12, "+{:.0}°", drift_angle).unwrap()
     } else {
-        tformat!(12, "DA {:.0}°", drift_angle).unwrap()
+        tformat!(12, "{:.0}°", drift_angle).unwrap()
     };
-    cm.device_const.big_font.render_aligned(
-        s.as_str(),
-        pos,
-        VerticalPosition::Center,
-        HorizontalAlignment::Center,
-        FontColor::Transparent(color),
-        display,
-    )?;
-    Ok(())
+
+    let img1 = Some(Image::new(cm.device_const.images.drift_angle));
+    let img2 = None;
+    draw_centered_line(display, pos, img1, s.as_str(), img2, &cm.device_const.big_font, color)
 }
 
 fn draw_flight_level<D>(
@@ -232,17 +257,11 @@ where
         // Patch to avoid -0.01 => "FL0-0"
         altitude = 0.0
     }
-    let fl = tformat!(10, "FL{:03.0}", altitude).unwrap();
+    let fl = tformat!(10, "{:03.0}", altitude).unwrap();
 
-    cm.device_const.big_font.render_aligned(
-        fl.as_str(),
-        pos,
-        VerticalPosition::Center,
-        HorizontalAlignment::Center,
-        FontColor::Transparent(color),
-        display,
-    )?;
-    Ok(())
+    let img1 = Some(Image::new(cm.device_const.images.flight_level));
+    let img2 = None;
+    draw_centered_line(display, pos, img1, fl.as_str(), img2, &cm.device_const.big_font, color)
 }
 
 fn draw_speed_to_fly<D>(
@@ -254,24 +273,12 @@ fn draw_speed_to_fly<D>(
 where
     D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
 {
-    let kmh_img = Image::new(cm.device_const.images.km_h);
     let stf = cm.calculated.speed_to_fly_1s.to_km_h();
-    let s = tformat!(8, "stf {:.0}", stf).unwrap();
-    let txt_x = pos.x - kmh_img.width() as i32 / 2;
-    let result = cm.device_const.big_font.render_aligned(
-        s.as_str(),
-        Point::new(txt_x, pos.y),
-        VerticalPosition::Center,
-        HorizontalAlignment::Center,
-        FontColor::Transparent(color),
-        display,
-    )?;
-    if let Some(rectangle) = result {
-        let pic_x = txt_x + 2 + (rectangle.size.width / 2) as i32;
-        let pic_y = pos.y - (kmh_img.height() as i32) / 2;
-        kmh_img.draw(display, Point::new(pic_x, pic_y), Some(color))?;
-    }
-    Ok(())
+    let s = tformat!(8, "{:.0}", stf).unwrap();
+
+    let img1 = Some(Image::new(cm.device_const.images.speed_to_fly));
+    let img2 = Some(Image::new(cm.device_const.images.km_h));
+    draw_centered_line(display, pos, img1, s.as_str(), img2, &cm.device_const.big_font, color)
 }
 
 fn draw_true_air_speed<D>(
@@ -283,24 +290,12 @@ fn draw_true_air_speed<D>(
 where
     D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
 {
-    let kmh_img = Image::new(cm.device_const.images.km_h);
     let tas = cm.sensor.airspeed.tas().to_km_h();
-    let s = tformat!(8, "tas {:.0}", tas).unwrap();
-    let txt_x = pos.x - kmh_img.width() as i32 / 2;
-    let result = cm.device_const.big_font.render_aligned(
-        s.as_str(),
-        Point::new(txt_x, pos.y),
-        VerticalPosition::Center,
-        HorizontalAlignment::Center,
-        FontColor::Transparent(color),
-        display,
-    )?;
-    if let Some(rectangle) = result {
-        let pic_x = txt_x + 2 + (rectangle.size.width / 2) as i32;
-        let pic_y = pos.y - (kmh_img.height() as i32) / 2;
-        kmh_img.draw(display, Point::new(pic_x, pic_y), Some(color))?;
-    }
-    Ok(())
+    let s = tformat!(8, "{:.0}", tas).unwrap();
+
+    let img1 = Some(Image::new(cm.device_const.images.tas));
+    let img2 = Some(Image::new(cm.device_const.images.km_h));
+    draw_centered_line(display, pos, img1, s.as_str(), img2, &cm.device_const.big_font, color)
 }
 
 fn draw_true_course<D>(
@@ -313,16 +308,11 @@ where
     D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
 {
     let tc = cm.sensor.gps_track.to_degrees();
-    let s = tformat!(8, "TC {:.0}°", tc).unwrap();
-    cm.device_const.big_font.render_aligned(
-        s.as_str(),
-        pos,
-        VerticalPosition::Center,
-        HorizontalAlignment::Center,
-        FontColor::Transparent(color),
-        display,
-    )?;
-    Ok(())
+    let s = tformat!(8, "{:.0}°", tc).unwrap();
+
+    let img1 = Some(Image::new(cm.device_const.images.true_course));
+    let img2 = None;
+    draw_centered_line(display, pos, img1, s.as_str(), img2, &cm.device_const.big_font, color)
 }
 
 fn draw_utc_time<D>(

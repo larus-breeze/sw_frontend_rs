@@ -4,6 +4,7 @@ use embedded_graphics::{
 };
 use crate::{Colors, CoreError, DrawImage};
 
+#[derive(Clone, Copy)]
 pub struct Image {
     img: &'static [u8],
 }
