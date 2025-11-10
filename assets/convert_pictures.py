@@ -2,7 +2,7 @@
 #
 # All data is stored least significant byte first
 #
-# Type 1
+# Type 1 (no longer used)
 #
 # u16 type = 1: absolute index on framebuffer
 # u16 width: width of the display
@@ -16,7 +16,7 @@
 # u16 color_2:
 # ...
 #
-# Type 2
+# Type 2 (no longer used)
 #
 # u32 type = 2: absolute index on framebuffer
 # u32 width: width of the display
@@ -30,7 +30,7 @@
 # u32 color_2:
 # ...
 #
-# Type 3
+# Type 3 (no longer used)
 #
 # u16 type = 3: Lengths encoded byte by byte
 # u16 width: width of the display
@@ -107,128 +107,7 @@ class LifGen():
                 print(f"*** Error color '{color} is not included in color_dict")
                 exit(1)
 
-        if version==1:
-            with open(out_path, "wb") as f:
-                f.write(struct.pack("<HHHH", 1, self.width, height, len(color_dict)-1))
-                file_size = 8
-
-                for src_color in color_dict.keys():
-                    dst_color = color_dict[src_color]
-                    if dst_color != BACKGROUND:
-                        dest_px = []
-                        for y in range(height):
-                            for x in range(width):
-                                if src_px[x, y] == src_color:
-                                    idx = x + ofs_x + (y+ofs_y)*self.width
-                                    dest_px.append(idx)
-                        file_size += 4
-                        f.write(struct.pack("<HH", dst_color, len(dest_px)))
-                        file_size += len(dest_px)*2
-                        for idx in dest_px:
-                            f.write(struct.pack("<H", idx))
-
-            print(f"File '{out_path}' {file_size} bytes written")
-
-        elif version==2:
-            with open(out_path, "wb") as f:
-                f.write(struct.pack("<LLLL", 2, self.width, height, len(color_dict)-1))
-                file_size = 16
-
-                for src_color in color_dict.keys():
-                    dst_color = color_dict[src_color]
-                    if dst_color != BACKGROUND:
-                        dest_px = []
-                        for y in range(height):
-                            for x in range(width):
-                                if src_px[x, y] == src_color:
-                                    idx = x + ofs_x + (y+ofs_y)*self.width
-                                    dest_px.append(idx)
-                        file_size += 8
-                        f.write(struct.pack("<LL", dst_color, len(dest_px)))
-                        file_size += len(dest_px)*4
-                        for idx in dest_px:
-                            f.write(struct.pack("<L", idx))
-
-            print(f"File '{out_path}' {file_size} bytes written")
-
-        elif version==3:
-
-            with open(out_path, "wb") as f:
-                last_color = None
-                file_size = 0
-                idx_backgroud = None
-
-                def write_line(idx_col, px_cnt):
-                    nonlocal last_color
-                    nonlocal file_size
-                    nonlocal idx_backgroud
-
-                    if idx_col == idx_backgroud:
-                        if px_cnt > 63:
-                            x = px_cnt // 64
-                            px_cnt -= x*64
-                            f.write(struct.pack("B", 0b1000_0000 + x))
-                            file_size += 1
-                        if px_cnt > 0:
-                            f.write(struct.pack("B", 0b0100_0000 + px_cnt))
-                            file_size += 1
-                    else:
-                        if idx_col != last_color:
-                            f.write(struct.pack("B", 0b1100_0000 | idx_col))
-                            file_size += 1
-                            last_color = idx_col
-
-                        while px_cnt > 0:
-                            if px_cnt > 63:
-                                px_cnt -= 63
-                                f.write(struct.pack("B", 63))
-                            else:
-                                f.write(struct.pack("B", px_cnt))
-                                px_cnt = 0
-                            file_size += 1
-
-                f.write(struct.pack("<HHH", 3, self.width, height))
-                file_size += 6
-
-                f.write(struct.pack("B",  len(color_dict)))
-                for c_nr in sorted(color_dict):
-                    color = color_dict[c_nr]
-                    f.write(struct.pack("B", color))
-                    if color == BACKGROUND:
-                        idx_backgroud = c_nr
-                file_size += len(color_dict) + 1
-
-                idx_col = None
-                idx_col_old = None
-                px_cnt = 0
-                delta = self.width - width
-
-                for y in range(height):
-                    for x in range(width):
-                        if idx_col == None:
-                            idx_col = src_px[x, y]
-                            px_cnt = 1
-                        else:
-                            if idx_col == src_px[x, y]:
-                                px_cnt += 1
-                            else:
-                                write_line(idx_col, px_cnt)
-                                idx_col = src_px[x, y]
-                                px_cnt = 1
-                        if idx_col != idx_col_old:
-                            # print(f"{idx_col} ", end='')
-                            idx_col_old = idx_col
-
-                    if idx_col == idx_backgroud:
-                        write_line(idx_col, px_cnt + delta)
-                    else:
-                        write_line(idx_col, px_cnt)
-                        write_line(idx_backgroud, delta)
-                    idx_col = None
-
-                print(f"File '{out_path}' {file_size} bytes written")
-
-        elif version==4:
+        if version==4:
 
             with open(out_path, "wb") as f:
                 last_color = None
@@ -309,55 +188,55 @@ class LifGen():
             raise ValueError("Format version unknown")
 
 lif_gen = LifGen(227, 285, 'assets/size_227x285', 'device/air_avionics_ad57/assets')
-lif_gen.generate(3, 'attention.png', {0: BLACK, 1: RED, 2: BACKGROUND, 3: WHITE})
-lif_gen.generate(3, 'bat_empty.png', {0: RED, 1: BACKGROUND})
-lif_gen.generate(3, 'bat_full.png', {0: DARK_GRAY, 1: LIME, 2: BACKGROUND})
-lif_gen.generate(3, 'bat_half.png', {0: DARK_GRAY, 1: GOLD, 2: BACKGROUND})
+lif_gen.generate(4, 'attention.png', {0: BLACK, 1: RED, 2: BACKGROUND, 3: WHITE})
+lif_gen.generate(4, 'bat_empty.png', {0: RED, 1: BACKGROUND})
+lif_gen.generate(4, 'bat_full.png', {0: DARK_GRAY, 1: LIME, 2: BACKGROUND})
+lif_gen.generate(4, 'bat_half.png', {0: DARK_GRAY, 1: GOLD, 2: BACKGROUND})
 lif_gen.generate(4, 'gear.png', {0: ORANGE_RED, 145: BACKGROUND}),
-lif_gen.generate(3, 'glider.png', {0: DARK_GRAY, 1: BACKGROUND}),
-lif_gen.generate(3, 'north.png', {0: DARK_GRAY, 1: BACKGROUND})
+lif_gen.generate(4, 'glider.png', {0: DARK_GRAY, 1: BACKGROUND}),
+lif_gen.generate(4, 'north.png', {0: DARK_GRAY, 1: BACKGROUND})
 lif_gen.generate(4, 'small_glider.png', {0: DARK_GRAY, 1: BACKGROUND})
-lif_gen.generate(3, 'spiral.png', {0: DARK_GRAY, 1: BACKGROUND})
-lif_gen.generate(3, 'straight.png', {0: DARK_GRAY, 1: BACKGROUND})
+lif_gen.generate(4, 'spiral.png', {0: DARK_GRAY, 1: BACKGROUND})
+lif_gen.generate(4, 'straight.png', {0: DARK_GRAY, 1: BACKGROUND})
 lif_gen.generate(4, 'km_h.png', {0: DARK_GRAY, 255: BACKGROUND})
 lif_gen.generate(4, 'm_s.png', {0: DARK_GRAY, 255: BACKGROUND})
-lif_gen.generate(3, 'sat.png', {0: DARK_GRAY, 2: BACKGROUND})
-lif_gen.generate(3, 'wp_editor.png', {1: RED, 2: BLACK, 0: BACKGROUND})
-lif_gen.generate(3, 'wp_vario.png', {0: DARK_GRAY, 255: BACKGROUND})
-lif_gen.generate(3, 'wp_horizon.png', {0: BACKGROUND, 1: WHITE, 2: LIGHT_YELLOW, 3: BLACK})
+lif_gen.generate(4, 'sat.png', {0: DARK_GRAY, 2: BACKGROUND})
+lif_gen.generate(4, 'wp_editor.png', {1: RED, 2: BLACK, 0: BACKGROUND})
+lif_gen.generate(4, 'wp_vario.png', {0: DARK_GRAY, 255: BACKGROUND})
+lif_gen.generate(4, 'wp_horizon.png', {0: BACKGROUND, 1: WHITE, 2: LIGHT_YELLOW, 3: BLACK})
 
 lif_gen = LifGen(240, 320, 'assets/size_240x320', 'device/larus_frontend_v1/assets')
-lif_gen.generate(3, 'attention.png', {0: BLACK, 1: RED, 2: BACKGROUND, 3: WHITE})
-lif_gen.generate(3, 'bat_empty.png', {0: DARK_GRAY, 1: LIME, 2: BACKGROUND})
-lif_gen.generate(3, 'bat_full.png', {0: DARK_GRAY, 1: LIME, 2: BACKGROUND})
-lif_gen.generate(3, 'bat_half.png', {0: DARK_GRAY, 1: GOLD, 2: BACKGROUND})
+lif_gen.generate(4, 'attention.png', {0: BLACK, 1: RED, 2: BACKGROUND, 3: WHITE})
+lif_gen.generate(4, 'bat_empty.png', {0: DARK_GRAY, 1: LIME, 2: BACKGROUND})
+lif_gen.generate(4, 'bat_full.png', {0: DARK_GRAY, 1: LIME, 2: BACKGROUND})
+lif_gen.generate(4, 'bat_half.png', {0: DARK_GRAY, 1: GOLD, 2: BACKGROUND})
 lif_gen.generate(4, 'gear.png', {0: ORANGE_RED, 145: BACKGROUND}),
-lif_gen.generate(3, 'glider.png', {0: DARK_GRAY, 1: BACKGROUND})
-lif_gen.generate(3, 'north.png', {0: DARK_GRAY, 1: BACKGROUND})
+lif_gen.generate(4, 'glider.png', {0: DARK_GRAY, 1: BACKGROUND})
+lif_gen.generate(4, 'north.png', {0: DARK_GRAY, 1: BACKGROUND})
 lif_gen.generate(4, 'small_glider.png', {0: DARK_GRAY, 1: BACKGROUND})
-lif_gen.generate(3, 'spiral.png', {0: DARK_GRAY, 1: BACKGROUND})
-lif_gen.generate(3, 'straight.png', {0: DARK_GRAY, 1: BACKGROUND})
+lif_gen.generate(4, 'spiral.png', {0: DARK_GRAY, 1: BACKGROUND})
+lif_gen.generate(4, 'straight.png', {0: DARK_GRAY, 1: BACKGROUND})
 lif_gen.generate(4, 'km_h.png', {0: DARK_GRAY, 255: BACKGROUND})
 lif_gen.generate(4, 'm_s.png', {0: DARK_GRAY, 255: BACKGROUND})
-lif_gen.generate(3, 'sat.png', {0: DARK_GRAY, 1: BACKGROUND})
-lif_gen.generate(3, 'wp_editor.png', {1: RED, 2: BLACK, 0: BACKGROUND})
-lif_gen.generate(3, 'wp_vario.png', {0: WHITE, 255: BACKGROUND})
-lif_gen.generate(3, 'wp_horizon.png', {0: BACKGROUND, 1: WHITE, 2: LIGHT_YELLOW, 3: BLACK})
+lif_gen.generate(4, 'sat.png', {0: DARK_GRAY, 1: BACKGROUND})
+lif_gen.generate(4, 'wp_editor.png', {1: RED, 2: BLACK, 0: BACKGROUND})
+lif_gen.generate(4, 'wp_vario.png', {0: WHITE, 255: BACKGROUND})
+lif_gen.generate(4, 'wp_horizon.png', {0: BACKGROUND, 1: WHITE, 2: LIGHT_YELLOW, 3: BLACK})
 
 lif_gen = LifGen(480, 480, 'assets/size_480x480', 'device/larus_frontend_v2/assets')
-lif_gen.generate(3, 'attention.png', {0: BLACK, 1: RED, 2: BACKGROUND, 3: WHITE})
-lif_gen.generate(3, 'bat_empty.png', {0: DARK_GRAY, 1: RED, 2: BACKGROUND})
-lif_gen.generate(3, 'bat_full.png', {0: DARK_GRAY, 1: LIME, 2: BACKGROUND})
-lif_gen.generate(3, 'bat_half.png', {0: DARK_GRAY, 1: GOLD, 2: BACKGROUND})
+lif_gen.generate(4, 'attention.png', {0: BLACK, 1: RED, 2: BACKGROUND, 3: WHITE})
+lif_gen.generate(4, 'bat_empty.png', {0: DARK_GRAY, 1: RED, 2: BACKGROUND})
+lif_gen.generate(4, 'bat_full.png', {0: DARK_GRAY, 1: LIME, 2: BACKGROUND})
+lif_gen.generate(4, 'bat_half.png', {0: DARK_GRAY, 1: GOLD, 2: BACKGROUND})
 lif_gen.generate(4, 'gear.png', {0: ORANGE_RED, 1: BACKGROUND}),
-lif_gen.generate(3, 'glider.png', {0: DARK_GRAY, 1: BACKGROUND})
-lif_gen.generate(3, 'north.png', {0: DARK_GRAY, 1: BACKGROUND})
+lif_gen.generate(4, 'glider.png', {0: DARK_GRAY, 1: BACKGROUND})
+lif_gen.generate(4, 'north.png', {0: DARK_GRAY, 1: BACKGROUND})
 lif_gen.generate(4, 'small_glider.png', {0: DARK_GRAY, 1: BACKGROUND})
-lif_gen.generate(3, 'spiral.png', {0: DARK_GRAY, 1: BACKGROUND})
-lif_gen.generate(3, 'straight.png', {0: DARK_GRAY, 1: BACKGROUND})
+lif_gen.generate(4, 'spiral.png', {0: DARK_GRAY, 1: BACKGROUND})
+lif_gen.generate(4, 'straight.png', {0: DARK_GRAY, 1: BACKGROUND})
 lif_gen.generate(4, 'km_h.png', {0: DARK_GRAY, 255: BACKGROUND})
 lif_gen.generate(4, 'm_s.png', {0: DARK_GRAY, 255: BACKGROUND})
-lif_gen.generate(3, 'sat.png', {0: DARK_GRAY, 1: BACKGROUND})
-lif_gen.generate(3, 'wp_editor.png', {1: RED, 2: BLACK, 0: BACKGROUND})
-lif_gen.generate(3, 'wp_vario.png', {0: WHITE, 255: BACKGROUND})
-lif_gen.generate(3, 'wp_horizon.png', {0: BACKGROUND, 1: WHITE, 2: LIGHT_YELLOW, 3: BLACK})
+lif_gen.generate(4, 'sat.png', {0: DARK_GRAY, 1: BACKGROUND})
+lif_gen.generate(4, 'wp_editor.png', {1: RED, 2: BLACK, 0: BACKGROUND})
+lif_gen.generate(4, 'wp_vario.png', {0: WHITE, 255: BACKGROUND})
+lif_gen.generate(4, 'wp_horizon.png', {0: BACKGROUND, 1: WHITE, 2: LIGHT_YELLOW, 3: BLACK})
