@@ -62,7 +62,7 @@ pub trait DrawImage {
         Self: Sized,
     {
         let img_vers = img[0];
-        assert!((img_vers == 1) || img_vers == 2 || img_vers == 3);
+        assert!((img_vers > 0) || img_vers <= 4);
 
         if img_vers == 1 {
             // Safety: the img format has been defined in terms of compatibility, so the conversion is ok here
@@ -149,7 +149,53 @@ pub trait DrawImage {
 
             // Let's write the pixels
             let idx_col_arr: usize = 7;
-            let mut idx = img[6] as usize + 7;
+            let mut idx = img[6] as usize + idx_col_arr;
+            let mut img_idx = (offset.x + offset.y * Self::DISPLAY_WIDTH as i32) as u32;
+            let mut color = Colors::from(0);
+            while idx < img.len() {
+                let n = img[idx] & 0b0011_1111;
+                match img[idx] & 0b1100_0000 {
+                    0b0000_0000 => {
+                        // We know, that we are within the display limits, so unsafe is ok
+                        unsafe {
+                            self.draw_line_unchecked(img_idx as usize, n as usize, color);
+                        }
+                        img_idx += n as u32;
+                    }
+                    0b0100_0000 => img_idx += n as u32,
+                    0b1000_0000 => img_idx += 64 * n as u32,
+                    0b1100_0000 => {
+                        color = if let Some(color) = cover_up {
+                            color
+                        } else {
+                            let u8_col = img[idx_col_arr + n as usize];
+
+                            #[cfg(feature = "colors_rgb565")]
+                            let u16_col = RGB565_COLORS[u8_col as usize];
+                            #[cfg(feature = "colors_rgb565")]
+                            let stroke_color = Colors::from(u16_col);
+
+                            #[cfg(feature = "colors_8_indexed")]
+                            let stroke_color = Colors::from(u8_col);
+
+                            stroke_color
+                        };
+                    }
+                    _ => (),
+                }
+                idx += 1;
+            }
+        }
+        if img_vers == 4 {
+            // The image is really built for our display?
+            assert!(img[2] as u32 + (img[3] as u32) * 256 == Self::DISPLAY_WIDTH);
+            assert!(
+                img[6] as u32 + (img[7] as u32) * 256 + offset.y as u32 <= Self::DISPLAY_HEIGHT
+            );
+
+            // Let's write the pixels
+            let idx_col_arr: usize = 9;
+            let mut idx = img[8] as usize + idx_col_arr;
             let mut img_idx = (offset.x + offset.y * Self::DISPLAY_WIDTH as i32) as u32;
             let mut color = Colors::from(0);
             while idx < img.len() {

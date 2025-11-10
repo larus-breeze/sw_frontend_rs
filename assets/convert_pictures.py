@@ -32,9 +32,26 @@
 #
 # Type 3
 #
-# u16 type = 3: absolute index on framebuffer
+# u16 type = 3: Lengths encoded byte by byte
 # u16 width: width of the display
-# u16 height: height of the display
+# u16 pic_height: height of the picture
+# u8 colors: number of colors
+# u8 color[1]
+# u8 color[2]
+# u8 ..
+# [u8]  picture data
+#
+# 0b00xx_xxxx plot x pixells with foreground color
+# 0b01xx_xxxx skip x pixels
+# 0b10xx_xxxx skip x*64 pixels
+# 0b11xx_xxxx select foreground color x
+#
+# Type 4
+#
+# u16 type = 4: Lengths encoded byte by byte with pic width
+# u16 width: width of the display
+# u16 pic_width: width of the picture
+# u16 pic_height: height of the picture
 # u8 colors: number of colors
 # u8 color[1]
 # u8 color[2]
@@ -171,6 +188,83 @@ class LifGen():
                             file_size += 1
 
                 f.write(struct.pack("<HHH", 3, self.width, height))
+                file_size += 6
+
+                f.write(struct.pack("B",  len(color_dict)))
+                for c_nr in sorted(color_dict):
+                    color = color_dict[c_nr]
+                    f.write(struct.pack("B", color))
+                    if color == BACKGROUND:
+                        idx_backgroud = c_nr
+                file_size += len(color_dict) + 1
+
+                idx_col = None
+                idx_col_old = None
+                px_cnt = 0
+                delta = self.width - width
+
+                for y in range(height):
+                    for x in range(width):
+                        if idx_col == None:
+                            idx_col = src_px[x, y]
+                            px_cnt = 1
+                        else:
+                            if idx_col == src_px[x, y]:
+                                px_cnt += 1
+                            else:
+                                write_line(idx_col, px_cnt)
+                                idx_col = src_px[x, y]
+                                px_cnt = 1
+                        if idx_col != idx_col_old:
+                            # print(f"{idx_col} ", end='')
+                            idx_col_old = idx_col
+
+                    if idx_col == idx_backgroud:
+                        write_line(idx_col, px_cnt + delta)
+                    else:
+                        write_line(idx_col, px_cnt)
+                        write_line(idx_backgroud, delta)
+                    idx_col = None
+
+                print(f"File '{out_path}' {file_size} bytes written")
+
+        elif version==4:
+
+            with open(out_path, "wb") as f:
+                last_color = None
+                file_size = 0
+                idx_backgroud = None
+
+                def write_line(idx_col, px_cnt):
+                    nonlocal last_color
+                    nonlocal file_size
+                    nonlocal idx_backgroud
+
+                    if idx_col == idx_backgroud:
+                        if px_cnt > 63:
+                            x = px_cnt // 64
+                            px_cnt -= x*64
+                            f.write(struct.pack("B", 0b1000_0000 + x))
+                            file_size += 1
+                        if px_cnt > 0:
+                            f.write(struct.pack("B", 0b0100_0000 + px_cnt))
+                            file_size += 1
+                    else:
+                        if idx_col != last_color:
+                            f.write(struct.pack("B", 0b1100_0000 | idx_col))
+                            file_size += 1
+                            last_color = idx_col
+
+                        while px_cnt > 0:
+                            if px_cnt > 63:
+                                px_cnt -= 63
+                                f.write(struct.pack("B", 63))
+                            else:
+                                f.write(struct.pack("B", px_cnt))
+                                px_cnt = 0
+                            file_size += 1
+
+                f.write(struct.pack("<HHHH", 4, self.width, width, height))
                 file_size += 6
 
                 f.write(struct.pack("B",  len(color_dict)))
