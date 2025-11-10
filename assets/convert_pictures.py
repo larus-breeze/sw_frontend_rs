@@ -90,7 +90,7 @@ class LifGen():
         out_path = os.path.join(self.dst_dir, in_file[:-3] + 'lif')
         img = Image.open(in_path)
         width, height = img.size
-        print(f"Reading '{in_file}': format {img.format}, size {img.size}, mode {img.mode}")
+        print(f"  Reading '{in_file}': format {img.format}, size {img.size}, mode {img.mode} ... ", end='')
 
         src_px = img.load()
 
@@ -103,7 +103,7 @@ class LifGen():
                     src_colors.append(color)
         for color in src_colors:
             if color not in color_dict:
-                print("source colors", src_colors)
+                print("\nsource colors", src_colors)
                 print(f"*** Error color '{color} is not included in color_dict")
                 exit(1)
 
@@ -182,7 +182,7 @@ class LifGen():
                         write_line(idx_backgroud, delta)
                     idx_col = None
 
-                print(f"File '{out_path}' {file_size} bytes written")
+                print(f"{file_size} bytes written")
 
         else:
             raise ValueError("Format version unknown")
@@ -218,10 +218,12 @@ PICTURES = (
     (4, 'wp_horizon.png', {0: BACKGROUND, 1: WHITE, 2: LIGHT_YELLOW, 3: BLACK}),
 )
 
-def generate(dim_x, dim_y, dst1, dst2):
-        lif_gen = LifGen(dim_x, dim_y, dst1, dst2)
-        for params in PICTURES:
-            lif_gen.generate(*params)
+def generate(dim_x, dim_y, src, dst):
+    print(f"Generate '{src}/*.png' -> '{dst}/*.lif'")
+    lif_gen = LifGen(dim_x, dim_y, src, dst)
+    for params in PICTURES:
+        lif_gen.generate(*params)
+    print()
 
 generate(227, 285, 'assets/size_227x285', 'device/air_avionics_ad57/assets')
 generate(240, 320, 'assets/size_240x320', 'device/larus_frontend_v1/assets')
