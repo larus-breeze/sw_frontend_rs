@@ -65,7 +65,6 @@ pub struct VarioSizes {
     pub info2_pos: Point,
     pub info3_pos: Point,
     pub pic_info3_pos: Point,
-    pub small_gld_size: Size,
     pub ta_circle_radius: u32, // ta thermal assistant
     pub ta_point_diameter: u32,
     pub wind_len: i32,

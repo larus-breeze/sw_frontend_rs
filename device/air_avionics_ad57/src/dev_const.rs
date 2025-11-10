@@ -82,7 +82,6 @@ const fn vario_sizes() -> VarioSizes {
         info2_pos: Point::new(142, 215),
         info3_pos: Point::new(40, 258),
         pic_info3_pos: Point::new(2, 222),
-        small_gld_size: Size::new(30, 13),
         ta_circle_radius: 45,
         ta_point_diameter: 12,
         wind_len: 105,

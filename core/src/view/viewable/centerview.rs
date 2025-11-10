@@ -1,7 +1,7 @@
-use crate::view::{
-    sprites::{pos, Arrow, DrawStyled, PolarCoordinate, Rotate, WindArrow},
-    thermal_data::{ThermalData, DELTA_ALPHA, THERMAL_DATA_CNT},
-};
+use crate::{Image, view::{
+    sprites::{Arrow, DrawStyled, PolarCoordinate, Rotate, WindArrow, pos},
+    thermal_data::{DELTA_ALPHA, THERMAL_DATA_CNT, ThermalData},
+}};
 use crate::{Colors, CoreError, CoreModel, DrawImage, FloatToSpeed, FlyMode, VarioSizes};
 
 use embedded_graphics::{
@@ -169,20 +169,16 @@ where
         pcoord.rotate(delta);
     }
 
-    let dy = (sizes.vario.small_gld_size.height / 2) as i32;
+    let glider_img = Image::new(cm.device_const.images.small_glider);
+    let dy = (glider_img.height() / 2) as i32;
     let p_gld = if cm.sensor.turn_rate.to_rad_s() > 0.0 {
-        let dx = (sizes.vario.ta_circle_radius + sizes.vario.small_gld_size.width / 2) as i32;
+        let dx = (sizes.vario.ta_circle_radius + glider_img.width() / 2) as i32;
         sizes.display.center + Point::new(-dx, -dy)
     } else {
-        let dx = (sizes.vario.ta_circle_radius - sizes.vario.small_gld_size.width / 2) as i32;
+        let dx = (sizes.vario.ta_circle_radius - glider_img.width() / 2) as i32;
         sizes.display.center + Point::new(dx, -dy)
     };
-    display.draw_img(
-        cm.device_const.images.small_glider,
-        p_gld,
-        Some(cm.palette().scale),
-    )?;
-    Ok(())
+    glider_img.draw(display, p_gld, Some(cm.palette().scale))
 }
 
 fn draw_thermal_assitant2<D>(
@@ -237,20 +233,16 @@ where
         .into_styled(PrimitiveStyle::with_stroke(cm.palette().scale, 1))
         .draw(display)?;
 
-    let dy = (sizes.vario.small_gld_size.height / 2) as i32;
+    let glider_img = Image::new(cm.device_const.images.small_glider);
+    let dy = (glider_img.height() / 2) as i32;
     let p_gld = if cm.sensor.turn_rate.to_rad_s() > 0.0 {
-        let dx = (sizes.vario.ta_circle_radius + sizes.vario.small_gld_size.width / 2) as i32;
+        let dx = (sizes.vario.ta_circle_radius + glider_img.width() / 2) as i32;
         sizes.display.center + Point::new(-dx, -dy)
     } else {
-        let dx = (sizes.vario.ta_circle_radius - sizes.vario.small_gld_size.width / 2) as i32;
+        let dx = (sizes.vario.ta_circle_radius - glider_img.width() / 2) as i32;
         sizes.display.center + Point::new(dx, -dy)
     };
-    display.draw_img(
-        cm.device_const.images.small_glider,
-        p_gld,
-        Some(cm.palette().scale),
-    )?;
-    Ok(())
+    glider_img.draw(display, p_gld, Some(cm.palette().scale))
 }
 
 fn draw_and_calc_wind_basics<D>(
