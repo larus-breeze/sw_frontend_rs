@@ -1,6 +1,13 @@
 import os
 
 PICS = [
+    "tas.png",
+    "speed_to_fly.png",
+    "flight_level.png",
+    "drift_angle.png",
+    "avg_climb_rate.png",
+    "true_course.png",
+
     "km_h.png",
     "mph.png",
     "kt.png",
