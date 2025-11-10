@@ -254,9 +254,10 @@ fn draw_speed_to_fly<D>(
 where
     D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
 {
+    let kmh_img = Image::new(cm.device_const.images.km_h);
     let stf = cm.calculated.speed_to_fly_1s.to_km_h();
     let s = tformat!(8, "stf {:.0}", stf).unwrap();
-    let txt_x = pos.x - cm.device_const.sizes.display.km_h.width as i32 / 2;
+    let txt_x = pos.x - kmh_img.width() as i32 / 2;
     let result = cm.device_const.big_font.render_aligned(
         s.as_str(),
         Point::new(txt_x, pos.y),
@@ -267,12 +268,8 @@ where
     )?;
     if let Some(rectangle) = result {
         let pic_x = txt_x + 2 + (rectangle.size.width / 2) as i32;
-        let pic_y = pos.y - (cm.device_const.sizes.display.km_h.height as i32) / 2;
-        display.draw_img(
-            cm.device_const.images.km_h,
-            Point::new(pic_x, pic_y),
-            Some(color),
-        )?;
+        let pic_y = pos.y - (kmh_img.height() as i32) / 2;
+        kmh_img.draw(display, Point::new(pic_x, pic_y), Some(color))?;
     }
     Ok(())
 }
@@ -286,9 +283,10 @@ fn draw_true_air_speed<D>(
 where
     D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
 {
+    let kmh_img = Image::new(cm.device_const.images.km_h);
     let tas = cm.sensor.airspeed.tas().to_km_h();
     let s = tformat!(8, "tas {:.0}", tas).unwrap();
-    let txt_x = pos.x - cm.device_const.sizes.display.km_h.width as i32 / 2;
+    let txt_x = pos.x - kmh_img.width() as i32 / 2;
     let result = cm.device_const.big_font.render_aligned(
         s.as_str(),
         Point::new(txt_x, pos.y),
@@ -299,12 +297,8 @@ where
     )?;
     if let Some(rectangle) = result {
         let pic_x = txt_x + 2 + (rectangle.size.width / 2) as i32;
-        let pic_y = pos.y - (cm.device_const.sizes.display.km_h.height as i32) / 2;
-        display.draw_img(
-            cm.device_const.images.km_h,
-            Point::new(pic_x, pic_y),
-            Some(color),
-        )?;
+        let pic_y = pos.y - (kmh_img.height() as i32) / 2;
+        kmh_img.draw(display, Point::new(pic_x, pic_y), Some(color))?;
     }
     Ok(())
 }
@@ -371,9 +365,10 @@ where
         cm.sensor.wind_vector.angle()
     };
 
+    let kmh_img = Image::new(cm.device_const.images.km_h);
     let wind_deg = angle.to_degrees();
     let wind_speed = cm.sensor.wind_vector.speed().to_km_h();
-    let wind_x = pos.x - cm.device_const.sizes.display.km_h.width as i32 / 2;
+    let wind_x = pos.x - kmh_img.width() as i32 / 2;
     let wind_y = pos.y - (total_height as i32) / 2;
     let s = tformat!(25, "{:.0}° {:.0}", wind_deg, wind_speed).unwrap();
     let result = cm.device_const.big_font.render_aligned(
@@ -387,11 +382,7 @@ where
 
     if let Some(rectangle) = result {
         let pic_x = wind_x + 2 + (rectangle.size.width / 2) as i32;
-        display.draw_img(
-            cm.device_const.images.km_h,
-            Point::new(pic_x, wind_y),
-            Some(color),
-        )?;
+        kmh_img.draw(display, Point::new(pic_x, wind_y), Some(color))?;
     }
 
     let avg_wind_spped = cm.sensor.average_wind.speed().to_km_h();
@@ -440,9 +431,10 @@ where
         cm.sensor.wind_vector.angle()
     };
 
+    let kmh_img = Image::new(cm.device_const.images.km_h);
     let wind_deg = angle.to_degrees();
     let wind_speed = cm.sensor.wind_vector.speed().to_km_h();
-    let wind_x = pos.x - cm.device_const.sizes.display.km_h.width as i32 / 2;
+    let wind_x = pos.x - kmh_img.width() as i32 / 2;
     let wind_y = pos.y - (total_height as i32) / 2;
     let s = tformat!(25, "{:.0}° {:.0}", wind_deg, wind_speed).unwrap();
     let result = cm.device_const.big_font.render_aligned(
@@ -456,11 +448,7 @@ where
 
     if let Some(rectangle) = result {
         let pic_x = wind_x + 2 + (rectangle.size.width / 2) as i32;
-        display.draw_img(
-            cm.device_const.images.km_h,
-            Point::new(pic_x, wind_y),
-            Some(color),
-        )?;
+        kmh_img.draw(display, Point::new(pic_x, wind_y), Some(color))?;
     }
 
     let avg_wind_spped = cm.sensor.average_wind.speed().to_km_h();
