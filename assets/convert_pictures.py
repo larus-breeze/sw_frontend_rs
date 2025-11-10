@@ -187,56 +187,42 @@ class LifGen():
         else:
             raise ValueError("Format version unknown")
 
-lif_gen = LifGen(227, 285, 'assets/size_227x285', 'device/air_avionics_ad57/assets')
-lif_gen.generate(4, 'attention.png', {0: BLACK, 1: RED, 2: BACKGROUND, 3: WHITE})
-lif_gen.generate(4, 'bat_empty.png', {0: RED, 1: BACKGROUND})
-lif_gen.generate(4, 'bat_full.png', {0: DARK_GRAY, 1: LIME, 2: BACKGROUND})
-lif_gen.generate(4, 'bat_half.png', {0: DARK_GRAY, 1: GOLD, 2: BACKGROUND})
-lif_gen.generate(4, 'gear.png', {0: ORANGE_RED, 145: BACKGROUND}),
-lif_gen.generate(4, 'glider.png', {0: DARK_GRAY, 1: BACKGROUND}),
-lif_gen.generate(4, 'north.png', {0: DARK_GRAY, 1: BACKGROUND})
-lif_gen.generate(4, 'small_glider.png', {0: DARK_GRAY, 1: BACKGROUND})
-lif_gen.generate(4, 'spiral.png', {0: DARK_GRAY, 1: BACKGROUND})
-lif_gen.generate(4, 'straight.png', {0: DARK_GRAY, 1: BACKGROUND})
-lif_gen.generate(4, 'km_h.png', {0: DARK_GRAY, 255: BACKGROUND})
-lif_gen.generate(4, 'm_s.png', {0: DARK_GRAY, 255: BACKGROUND})
-lif_gen.generate(4, 'sat.png', {0: DARK_GRAY, 2: BACKGROUND})
-lif_gen.generate(4, 'wp_editor.png', {1: RED, 2: BLACK, 0: BACKGROUND})
-lif_gen.generate(4, 'wp_vario.png', {0: DARK_GRAY, 255: BACKGROUND})
-lif_gen.generate(4, 'wp_horizon.png', {0: BACKGROUND, 1: WHITE, 2: LIGHT_YELLOW, 3: BLACK})
 
-lif_gen = LifGen(240, 320, 'assets/size_240x320', 'device/larus_frontend_v1/assets')
-lif_gen.generate(4, 'attention.png', {0: BLACK, 1: RED, 2: BACKGROUND, 3: WHITE})
-lif_gen.generate(4, 'bat_empty.png', {0: DARK_GRAY, 1: LIME, 2: BACKGROUND})
-lif_gen.generate(4, 'bat_full.png', {0: DARK_GRAY, 1: LIME, 2: BACKGROUND})
-lif_gen.generate(4, 'bat_half.png', {0: DARK_GRAY, 1: GOLD, 2: BACKGROUND})
-lif_gen.generate(4, 'gear.png', {0: ORANGE_RED, 145: BACKGROUND}),
-lif_gen.generate(4, 'glider.png', {0: DARK_GRAY, 1: BACKGROUND})
-lif_gen.generate(4, 'north.png', {0: DARK_GRAY, 1: BACKGROUND})
-lif_gen.generate(4, 'small_glider.png', {0: DARK_GRAY, 1: BACKGROUND})
-lif_gen.generate(4, 'spiral.png', {0: DARK_GRAY, 1: BACKGROUND})
-lif_gen.generate(4, 'straight.png', {0: DARK_GRAY, 1: BACKGROUND})
-lif_gen.generate(4, 'km_h.png', {0: DARK_GRAY, 255: BACKGROUND})
-lif_gen.generate(4, 'm_s.png', {0: DARK_GRAY, 255: BACKGROUND})
-lif_gen.generate(4, 'sat.png', {0: DARK_GRAY, 1: BACKGROUND})
-lif_gen.generate(4, 'wp_editor.png', {1: RED, 2: BLACK, 0: BACKGROUND})
-lif_gen.generate(4, 'wp_vario.png', {0: WHITE, 255: BACKGROUND})
-lif_gen.generate(4, 'wp_horizon.png', {0: BACKGROUND, 1: WHITE, 2: LIGHT_YELLOW, 3: BLACK})
+PICTURES = (
+    (4, 'attention.png', {0: BLACK, 1: RED, 2: BACKGROUND, 3: WHITE}),
+    (4, 'avg_climb_rate.png', {0: DARK_GRAY, 255: BACKGROUND}),
+    (4, 'bat_empty.png', {0: DARK_GRAY, 1: RED, 2: BACKGROUND}),
+    (4, 'bat_full.png', {0: DARK_GRAY, 1: LIME, 2: BACKGROUND}),
+    (4, 'bat_half.png', {0: DARK_GRAY, 1: GOLD, 2: BACKGROUND}),
+    (4, 'drift_angle.png', {0: DARK_GRAY, 255: BACKGROUND}),
+    (4, 'flight_level.png', {0: DARK_GRAY, 255: BACKGROUND}),
+    (4, 'fpm.png', {0: DARK_GRAY, 255: BACKGROUND}),
+    (4, 'ft.png', {0: DARK_GRAY, 255: BACKGROUND}),
+    (4, 'gear.png', {0: ORANGE_RED, 255: BACKGROUND}),
+    (4, 'glider.png', {0: DARK_GRAY, 1: BACKGROUND}),
+    (4, 'km_h.png', {0: DARK_GRAY, 255: BACKGROUND}),
+    (4, 'kt.png', {0: DARK_GRAY, 255: BACKGROUND}),
+    (4, 'm.png', {0: DARK_GRAY, 255: BACKGROUND}),
+    (4, 'mph.png', {0: DARK_GRAY, 255: BACKGROUND}),
+    (4, 'm_s.png', {0: DARK_GRAY, 255: BACKGROUND}),
+    (4, 'north.png', {0: DARK_GRAY, 1: BACKGROUND}),
+    (4, 'sat.png', {0: DARK_GRAY, 255: BACKGROUND}),
+    (4, 'small_glider.png', {0: DARK_GRAY, 1: BACKGROUND}),
+    (4, 'speed_to_fly.png', {0: DARK_GRAY, 255: BACKGROUND}),
+    (4, 'spiral.png', {0: DARK_GRAY, 1: BACKGROUND}),
+    (4, 'straight.png', {0: DARK_GRAY, 1: BACKGROUND}),
+    (4, 'tas.png', {0: DARK_GRAY, 255: BACKGROUND}),
+    (4, 'true_course.png', {0: DARK_GRAY, 255: BACKGROUND}),
+    (4, 'wp_editor.png', {1: RED, 2: BLACK, 0: BACKGROUND}),
+    (4, 'wp_vario.png', {0: WHITE, 255: BACKGROUND}),
+    (4, 'wp_horizon.png', {0: BACKGROUND, 1: WHITE, 2: LIGHT_YELLOW, 3: BLACK}),
+)
 
-lif_gen = LifGen(480, 480, 'assets/size_480x480', 'device/larus_frontend_v2/assets')
-lif_gen.generate(4, 'attention.png', {0: BLACK, 1: RED, 2: BACKGROUND, 3: WHITE})
-lif_gen.generate(4, 'bat_empty.png', {0: DARK_GRAY, 1: RED, 2: BACKGROUND})
-lif_gen.generate(4, 'bat_full.png', {0: DARK_GRAY, 1: LIME, 2: BACKGROUND})
-lif_gen.generate(4, 'bat_half.png', {0: DARK_GRAY, 1: GOLD, 2: BACKGROUND})
-lif_gen.generate(4, 'gear.png', {0: ORANGE_RED, 1: BACKGROUND}),
-lif_gen.generate(4, 'glider.png', {0: DARK_GRAY, 1: BACKGROUND})
-lif_gen.generate(4, 'north.png', {0: DARK_GRAY, 1: BACKGROUND})
-lif_gen.generate(4, 'small_glider.png', {0: DARK_GRAY, 1: BACKGROUND})
-lif_gen.generate(4, 'spiral.png', {0: DARK_GRAY, 1: BACKGROUND})
-lif_gen.generate(4, 'straight.png', {0: DARK_GRAY, 1: BACKGROUND})
-lif_gen.generate(4, 'km_h.png', {0: DARK_GRAY, 255: BACKGROUND})
-lif_gen.generate(4, 'm_s.png', {0: DARK_GRAY, 255: BACKGROUND})
-lif_gen.generate(4, 'sat.png', {0: DARK_GRAY, 1: BACKGROUND})
-lif_gen.generate(4, 'wp_editor.png', {1: RED, 2: BLACK, 0: BACKGROUND})
-lif_gen.generate(4, 'wp_vario.png', {0: WHITE, 255: BACKGROUND})
-lif_gen.generate(4, 'wp_horizon.png', {0: BACKGROUND, 1: WHITE, 2: LIGHT_YELLOW, 3: BLACK})
+def generate(dim_x, dim_y, dst1, dst2):
+        lif_gen = LifGen(dim_x, dim_y, dst1, dst2)
+        for params in PICTURES:
+            lif_gen.generate(*params)
+
+generate(227, 285, 'assets/size_227x285', 'device/air_avionics_ad57/assets')
+generate(240, 320, 'assets/size_240x320', 'device/larus_frontend_v1/assets')
+generate(480, 480, 'assets/size_480x480', 'device/larus_frontend_v2/assets')
