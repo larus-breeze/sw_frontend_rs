@@ -313,7 +313,7 @@ lif_gen.generate(3, 'attention.png', {0: BLACK, 1: RED, 2: BACKGROUND, 3: WHITE}
 lif_gen.generate(3, 'bat_empty.png', {0: RED, 1: BACKGROUND})
 lif_gen.generate(3, 'bat_full.png', {0: DARK_GRAY, 1: LIME, 2: BACKGROUND})
 lif_gen.generate(3, 'bat_half.png', {0: DARK_GRAY, 1: GOLD, 2: BACKGROUND})
-lif_gen.generate(3, 'gear.png', {0: ORANGE_RED, 145: BACKGROUND}),
+lif_gen.generate(4, 'gear.png', {0: ORANGE_RED, 145: BACKGROUND}),
 lif_gen.generate(3, 'glider.png', {0: DARK_GRAY, 1: BACKGROUND}),
 lif_gen.generate(3, 'north.png', {0: DARK_GRAY, 1: BACKGROUND})
 lif_gen.generate(4, 'small_glider.png', {0: DARK_GRAY, 1: BACKGROUND})
@@ -331,7 +331,7 @@ lif_gen.generate(3, 'attention.png', {0: BLACK, 1: RED, 2: BACKGROUND, 3: WHITE}
 lif_gen.generate(3, 'bat_empty.png', {0: DARK_GRAY, 1: LIME, 2: BACKGROUND})
 lif_gen.generate(3, 'bat_full.png', {0: DARK_GRAY, 1: LIME, 2: BACKGROUND})
 lif_gen.generate(3, 'bat_half.png', {0: DARK_GRAY, 1: GOLD, 2: BACKGROUND})
-lif_gen.generate(3, 'gear.png', {0: ORANGE_RED, 145: BACKGROUND}),
+lif_gen.generate(4, 'gear.png', {0: ORANGE_RED, 145: BACKGROUND}),
 lif_gen.generate(3, 'glider.png', {0: DARK_GRAY, 1: BACKGROUND})
 lif_gen.generate(3, 'north.png', {0: DARK_GRAY, 1: BACKGROUND})
 lif_gen.generate(4, 'small_glider.png', {0: DARK_GRAY, 1: BACKGROUND})
@@ -349,7 +349,7 @@ lif_gen.generate(3, 'attention.png', {0: BLACK, 1: RED, 2: BACKGROUND, 3: WHITE}
 lif_gen.generate(3, 'bat_empty.png', {0: DARK_GRAY, 1: RED, 2: BACKGROUND})
 lif_gen.generate(3, 'bat_full.png', {0: DARK_GRAY, 1: LIME, 2: BACKGROUND})
 lif_gen.generate(3, 'bat_half.png', {0: DARK_GRAY, 1: GOLD, 2: BACKGROUND})
-lif_gen.generate(3, 'gear.png', {0: ORANGE_RED, 1: BACKGROUND}),
+lif_gen.generate(4, 'gear.png', {0: ORANGE_RED, 1: BACKGROUND}),
 lif_gen.generate(3, 'glider.png', {0: DARK_GRAY, 1: BACKGROUND})
 lif_gen.generate(3, 'north.png', {0: DARK_GRAY, 1: BACKGROUND})
 lif_gen.generate(4, 'small_glider.png', {0: DARK_GRAY, 1: BACKGROUND})

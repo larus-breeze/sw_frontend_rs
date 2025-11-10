@@ -1,4 +1,4 @@
-use crate::{model::CoreModel, utils::Colors, CoreError, DrawImage};
+use crate::{CoreError, DrawImage, Image, model::CoreModel, utils::Colors};
 use embedded_graphics::prelude::*;
 use u8g2_fonts::types::{FontColor, HorizontalAlignment, VerticalPosition};
 
@@ -58,9 +58,10 @@ where
     )?;
 
     if (cm.control.alive_ticks / 10) % 2 == 1 {
-        let x = -(d_sizes.alarm.width as i32) / 2;
-        let y = -(d_sizes.alarm.height as i32) / 2 + d_sizes.height as i32 / 8;
-        display.draw_img(img, d_sizes.screen_center + Point { x, y }, None)?;
+        let alarm_img = Image::new(img);
+        let x = -(alarm_img.width() as i32) / 2;
+        let y = -(alarm_img.height() as i32) / 2 + d_sizes.height as i32 / 8;
+        alarm_img.draw(display, d_sizes.screen_center + Point { x, y }, None)?;
     }
     Ok(())
 }

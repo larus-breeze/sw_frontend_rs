@@ -2,7 +2,7 @@ use crate::{HW_VERSION, SW_VERSION};
 use corelib::{
     DeviceConst, DisplaySizes, EditMode, HorizonSizes, Images, Misc, Palette, Sizes, VarioSizes,
 };
-use embedded_graphics::geometry::{Point, Size};
+use embedded_graphics::geometry::Point;
 use u8g2_fonts::{fonts, FontRenderer};
 
 pub const DISPLAY_HEIGHT: u32 = 480;
@@ -52,7 +52,6 @@ const fn display_sizes() -> DisplaySizes {
         radius: 238,
         center: Point::new(240, 240),
         screen_center: Point::new(240, 240),
-        alarm: Size::new(100, 100),
     }
 }
 

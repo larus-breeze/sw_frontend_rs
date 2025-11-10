@@ -1,5 +1,5 @@
 use crate::{utils::Colors, CoreModel, HwVersion, SwVersion};
-use embedded_graphics::geometry::{Point, Size};
+use embedded_graphics::geometry::Point;
 use u8g2_fonts::FontRenderer;
 
 use super::EditMode;
@@ -39,7 +39,6 @@ pub struct DisplaySizes {
     pub radius: u32,
     pub center: Point,
     pub screen_center: Point,
-    pub alarm: Size,
 }
 
 pub struct HorizonSizes {
