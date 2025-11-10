@@ -15,7 +15,7 @@ impl DeviceInfo {
         DeviceInfo {}
     }
 
-    pub fn draw<D>(&mut self, display: &mut D, cm: &CoreModel) -> Result<(), CoreError>
+    pub fn draw<D>(&mut self, display: &mut D, cm: &CoreModel, cm_1s: &CoreModel) -> Result<(), CoreError>
     where
         D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
     {
@@ -30,7 +30,7 @@ impl DeviceInfo {
             let dev_lineview = DEVICE_INFO_CONTENT[index];
             dev_lineview.draw(
                 display,
-                cm,
+                cm_1s,
                 point
             )?;
         }

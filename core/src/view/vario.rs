@@ -55,7 +55,7 @@ impl Vario {
         }
     }
 
-    pub fn draw<D>(&mut self, display: &mut D, cm: &CoreModel) -> Result<(), CoreError>
+    pub fn draw<D>(&mut self, display: &mut D, cm: &CoreModel, cm_1s: &CoreModel) -> Result<(), CoreError>
     where
         D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
     {
@@ -76,13 +76,13 @@ impl Vario {
         )?;
 
         // draw battery symbol
-        if cm.calculated.av_supply_voltage > cm.config.battery_good {
+        if cm_1s.device.supply_voltage > cm.config.battery_good {
             display.draw_img(
                 cm.device_const.images.bat_full,
                 sizes.bat_pos,
                 Some(cm.palette().signal_go),
             )?;
-        } else if cm.calculated.av_supply_voltage < cm.config.battery_low {
+        } else if cm_1s.device.supply_voltage < cm.config.battery_low {
             display.draw_img(
                 cm.device_const.images.bat_empty,
                 sizes.bat_pos,
@@ -128,7 +128,7 @@ impl Vario {
         if cm.control.alive_ticks > 70 {
             cm.config
                 .info1
-                .draw(display, cm, sizes.info1_pos, cm.palette().scale)?;
+                .draw(display, cm_1s, sizes.info1_pos, cm.palette().scale)?;
         } else {
             // draw software version during the first N seconds
             let s = cm.device_const.misc.sw_version.as_string();
@@ -145,7 +145,7 @@ impl Vario {
         // draw info2 field
         cm.config
             .info2
-            .draw(display, cm, sizes.info2_pos, cm.palette().scale)?;
+            .draw(display, cm_1s, sizes.info2_pos, cm.palette().scale)?;
 
         // draw info3 field
         match cm.control.vario_mode {
