@@ -52,7 +52,6 @@ const fn display_sizes() -> DisplaySizes {
         radius: 158,
         center: Point::new(160, 160),
         screen_center: Point::new(120, 160),
-        m_s: Size::new(29, 19),
         km_h: Size::new(37, 24),
         alarm: Size::new(67, 67),
     }

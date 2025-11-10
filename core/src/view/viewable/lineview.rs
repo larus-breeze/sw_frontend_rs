@@ -1,4 +1,4 @@
-use crate::{model::DataSource, tformat, Colors, CoreError, CoreModel, DrawImage, FloatToSpeed};
+use crate::{Colors, CoreError, CoreModel, DrawImage, FloatToSpeed, Image, model::DataSource, tformat};
 use embedded_graphics::{draw_target::DrawTarget, geometry::Point};
 use num_enum::FromPrimitive;
 use u8g2_fonts::types::{FontColor, HorizontalAlignment, VerticalPosition};
@@ -163,7 +163,8 @@ where
     } else {
         tformat!(5, "+{:.1}", avg_climb_rate).unwrap()
     };
-    let txt_x = pos.x - cm.device_const.sizes.display.m_s.width as i32 / 2;
+    let ms_img = Image::new(cm.device_const.images.m_s);
+    let txt_x = pos.x - ms_img.width() as i32 / 2;
     let result = cm.device_const.big_font.render_aligned(
         s.as_str(),
         Point::new(txt_x, pos.y),
@@ -174,12 +175,8 @@ where
     )?;
     if let Some(rectangle) = result {
         let pic_x = txt_x + 2 + (rectangle.size.width / 2) as i32;
-        let pic_y = pos.y - (cm.device_const.sizes.display.m_s.height as i32) / 2;
-        display.draw_img(
-            cm.device_const.images.m_s,
-            Point::new(pic_x, pic_y),
-            Some(color),
-        )?;
+        let pic_y = pos.y - (ms_img.height() as i32) / 2;
+        ms_img.draw(display, Point::new(pic_x, pic_y), Some(color))?;
     }
     Ok(())
 }

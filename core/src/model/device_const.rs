@@ -39,7 +39,6 @@ pub struct DisplaySizes {
     pub radius: u32,
     pub center: Point,
     pub screen_center: Point,
-    pub m_s: Size,
     pub km_h: Size,
     pub alarm: Size,
 }
