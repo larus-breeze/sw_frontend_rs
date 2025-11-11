@@ -135,10 +135,6 @@ pub const VIEW_SETTINGS: Menu = Menu {
     level: 2,
     items: &[
         MenuItem {
-            content: MenuItemContent::EditItem(Editable::Info3),
-            next_menu_idx: VIEW_SETINGS_IDX,
-        },
-        MenuItem {
             content: MenuItemContent::EditItem(Editable::CenterViewCircling),
             next_menu_idx: VIEW_SETINGS_IDX,
         },
@@ -417,6 +413,10 @@ pub const SPEED_TO_FLY: Menu = Menu {
             next_menu_idx: SPEED_TO_FLY_IDX,
         },
         MenuItem {
+            content: MenuItemContent::EditItem(Editable::Info3Stf),
+            next_menu_idx: SPEED_TO_FLY_IDX,
+        },
+        MenuItem {
             content: MenuItemContent::EditItem(Editable::TcCircleHysteresis),
             next_menu_idx: SPEED_TO_FLY_IDX,
         },
@@ -484,6 +484,10 @@ pub const VARIO: Menu = Menu {
         },
         MenuItem {
             content: MenuItemContent::EditItem(Editable::Info2Vario),
+            next_menu_idx: VARIO_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::Info3Vario),
             next_menu_idx: VARIO_IDX,
         },
         MenuItem {

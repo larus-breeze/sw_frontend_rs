@@ -1,9 +1,7 @@
 use num_enum::FromPrimitive;
 use core::convert::From;
 use crate::{
-    system_of_units::{FloatToSpeed, Speed},
-    view::viewable::{centerview::CenterView, lineview::LineView},
-    Palette,
+    Palette, system_of_units::{FloatToSpeed, Speed}, view::viewable::{centerview::CenterView, vario_infoview::{Info3View, LineView}}
 };
 
 /// Possible displays
@@ -79,13 +77,14 @@ pub struct Config {
     pub av2_climb_rate_tc: f32,
     pub av_speed_to_fly_tc: f32,
     pub av_supply_voltage_tc: f32,
-    pub alt_stf_thermal_climb: bool,
     pub theme: &'static Palette,
     pub uuid: u32,
     pub info1_vario: LineView,
     pub info2_vario: LineView,
+    pub info3_vario: Info3View,
     pub info1_stf: LineView,
     pub info2_stf: LineView,
+    pub info3_stf: Info3View,
     pub center_circling: CenterView,
     pub center_straight: CenterView,
     pub glider_symbol: bool,
@@ -117,13 +116,14 @@ impl Config {
             av2_climb_rate_tc: 30.0,
             av_speed_to_fly_tc: 5.0,
             av_supply_voltage_tc: 3.0,
-            alt_stf_thermal_climb: true,
             theme,
             uuid,
             info1_vario: LineView::None,
             info2_vario: LineView::WindAndDelta,
+            info3_vario: Info3View::Climbing,
             info1_stf: LineView::None,
             info2_stf: LineView::WindAndDelta,
+            info3_stf: Info3View::SpeedToFly,
             center_circling: CenterView::SingleArrowCircling,
             center_straight: CenterView::SingleArrowStraight,
             glider_symbol: true,

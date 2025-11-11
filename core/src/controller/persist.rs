@@ -30,7 +30,7 @@ use crate::{
     flight_physics::polar_store,
     system_of_units::Speed,
     utils::Variant,
-    view::{viewable::{centerview::CenterView, lineview::LineView}},
+    view::viewable::{centerview::CenterView, vario_infoview::{LineView, Info3View}},
     CoreController, CoreModel, FloatToSpeed, IdleEvent, Mass, PersistenceItem, Pressure,
     ResetReason, Rotation, VarioMode,
 };
@@ -82,14 +82,16 @@ pub enum PersistenceId {
     StfUpperLimit = 39,
     StfLowerLimit = 40,
     AvgClimbeRateSrc = 41,
-    StfClimbrateAlt = 42,
+    StfClimbrateAlt = 42,   // no longer in use
     TcCircleHysteresis = 43,
     EnergyArrowMult = 44,
     VarioUpperLimit = 45,
     VarioLowerLimit = 46,
     Info1Stf = 47,
     Info2Stf = 48,
-    LastItem = 49, // Items smaller than this are stored in eeprom
+    Info3Vario = 49,
+    Info3Stf = 50,
+    LastItem = 51, // Items smaller than this are stored in eeprom
 
     // Special function Ids
     VarioMode = 65532,
@@ -154,6 +156,8 @@ const DELETE_CONFIG_LIST: &[PersistenceId] = &[
     PersistenceId::EnergyArrowMult,
     PersistenceId::Info1Stf,
     PersistenceId::Info2Stf,
+    PersistenceId::Info3Vario,
+    PersistenceId::Info3Stf,
 ];
 
 /// The following data is deleted when a new glider is selected
@@ -284,14 +288,15 @@ pub fn restore_item(cc: &mut CoreController, cm: &mut CoreModel, item: Persisten
         PersistenceId::AvgClimbeRateSrc => {
             cm.control.avg_climb_rate_src = DataSource::from(item.to_u8())
         }
-        PersistenceId::StfClimbrateAlt => cm.config.alt_stf_thermal_climb = item.to_bool(),
+        PersistenceId::StfClimbrateAlt => (),
         PersistenceId::TcCircleHysteresis => cm.config.circle_hysteresis_tc = item.to_i8(),
         PersistenceId::EnergyArrowMult => cm.control.energy_arrow_mult = item.to_f32(),
         PersistenceId::VarioUpperLimit => cm.config.vario_upper_limit = item.to_f32().m_s(),
         PersistenceId::VarioLowerLimit => cm.config.vario_lower_limit = item.to_f32().m_s(),
         PersistenceId::Info1Stf => cm.config.info1_stf = LineView::from(item.to_u8()),
         PersistenceId::Info2Stf => cm.config.info2_stf = LineView::from(item.to_u8()),
-
+        PersistenceId::Info3Vario => cm.config.info3_vario = Info3View::from(item.to_u8()),
+        PersistenceId::Info3Stf => cm.config.info3_stf = Info3View::from(item.to_u8()),
 
         PersistenceId::VarioMode => cm.control.vario_mode = VarioMode::from(item.to_u8()),
 

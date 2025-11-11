@@ -1,7 +1,6 @@
 use super::{sprites::*, thermal_data::ThermalData};
 use crate::{
     model::{CoreModel, DataSource, FlyMode, SystemState, VarioMode},
-    tformat,
     utils::Colors,
     CoreError, DrawImage,
 };
@@ -13,35 +12,6 @@ use embedded_graphics::{
 };
 use num::clamp;
 use u8g2_fonts::types::{FontColor, HorizontalAlignment, VerticalPosition};
-
-pub fn draw_thermal_climb<D>(display: &mut D, cm: &CoreModel) -> Result<(), CoreError>
-where
-    D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
-{
-    let sizes = &cm.device_const.sizes.vario;
-
-    display.draw_img(
-        cm.device_const.images.spiral,
-        sizes.pic_info3_pos,
-        Some(cm.palette().vario_pic_info1),
-    )?;
-    display.draw_img(
-        cm.device_const.images.m_s,
-        sizes.info3_pos,
-        Some(cm.palette().scale),
-    )?;
-    let acr = num::clamp(cm.calculated.thermal_climb_rate.to_m_s(), -9.9, 99.9);
-    let txt = tformat!(10, "{:.1}", acr).unwrap();
-    cm.device_const.big_font.render_aligned(
-        txt.as_str(),
-        sizes.info3_pos,
-        VerticalPosition::Top,
-        HorizontalAlignment::Right,
-        FontColor::Transparent(cm.palette().scale),
-        display,
-    )?;
-    Ok(())
-}
 
 pub fn draw_info1<D>(display: &mut D, cm: &CoreModel, cm_1s: &CoreModel, vario_mode: bool) -> Result<(), CoreError>
 where
@@ -166,7 +136,11 @@ impl Vario {
                     .info2_vario
                     .draw(display, cm_1s, sizes.info2_pos, cm.palette().scale)?;
 
-                draw_thermal_climb(display, cm)?;
+                // draw info3 field
+                cm.config
+                    .info3_vario
+                    .draw(display, cm_1s)?;
+
             }
             VarioMode::SpeedToFly => {
                 // draw info1 field
@@ -174,40 +148,21 @@ impl Vario {
 
                 // draw info2 field
                 cm.config
-                    .info2_vario
+                    .info2_stf
                     .draw(display, cm_1s, sizes.info2_pos, cm.palette().scale)?;
 
+                // draw info3 field
+                cm.config
+                    .info3_stf
+                    .draw(display, cm_1s)?;
+
+                // draw scal arc
                 let stf = num::clamp(-cm.calculated.speed_to_fly_dif.to_km_h() / 10.0, -5.0, 5.0);
                 let angle_sweep = (sizes.angle_m_s * stf).deg();
                 let col = cm.palette().vario_speed_to_fly;
                 Arc::with_center(d_sizes.center, sizes.stf_diameter, 180.0.deg(), angle_sweep)
                     .into_styled(PrimitiveStyle::with_stroke(col, sizes.stf_width))
                     .draw(display)?;
-
-                if cm.config.alt_stf_thermal_climb {
-                    display.draw_img(
-                        cm.device_const.images.straight,
-                        sizes.pic_info3_pos,
-                        Some(cm.palette().vario_pic_info1),
-                    )?;
-                    display.draw_img(
-                        cm.device_const.images.km_h,
-                        sizes.info3_pos,
-                        Some(cm.palette().scale),
-                    )?;
-                    let stf = num::clamp(cm.calculated.speed_to_fly_1s.to_km_h(), 0.0, 999.0);
-                    let txt = tformat!(10, "{:.0}", stf).unwrap();
-                    cm.device_const.big_font.render_aligned(
-                        txt.as_str(),
-                        sizes.info3_pos,
-                        VerticalPosition::Top,
-                        HorizontalAlignment::Right,
-                        FontColor::Transparent(cm.palette().scale),
-                        display,
-                    )?;
-                } else {
-                    draw_thermal_climb(display, cm)?;
-                }
             }
         }
 

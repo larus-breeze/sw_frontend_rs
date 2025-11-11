@@ -466,3 +466,112 @@ where
     )?;
     Ok(())
 }
+
+#[derive(Clone, Copy, PartialEq, PartialOrd, FromPrimitive)]
+#[repr(u8)]
+pub enum Info3View {
+    #[default]
+    None,
+    Climbing,
+    SpeedToFly,
+}
+
+const INFO3_LIST: &[Info3View] = &[
+    Info3View::None,
+    Info3View::Climbing,
+    Info3View::SpeedToFly,
+];
+
+impl Info3View {
+    pub fn name(&self) -> &'static str {
+        match self {
+            Info3View::None => "None",
+            Info3View::Climbing => "Climbing",
+            Info3View::SpeedToFly => "Speed to fly",
+        }
+    }
+
+    pub fn max() -> i32 {
+        INFO3_LIST.len() as i32 - 1
+    }
+
+    pub fn draw<D>(
+        &self,
+        display: &mut D,
+        cm: &CoreModel,
+    ) -> Result<(), CoreError>
+    where
+        D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
+    {
+        match self {
+            Info3View::None => (),
+            Info3View::Climbing => draw_info3_climbing(display, cm)?,
+            Info3View::SpeedToFly => draw_info3_stf(display, cm)?,
+        }
+        Ok(())
+    }
+}
+
+fn draw_info3_climbing<D> (
+    display: &mut D,
+    cm: &CoreModel,
+) -> Result<(), CoreError>
+where
+    D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
+{
+    let sizes = &cm.device_const.sizes.vario;
+
+    display.draw_img(
+        cm.device_const.images.spiral,
+        sizes.pic_info3_pos,
+        Some(cm.palette().vario_pic_info1),
+    )?;
+    display.draw_img(
+        cm.device_const.images.m_s,
+        sizes.info3_pos,
+        Some(cm.palette().scale),
+    )?;
+    let acr = num::clamp(cm.calculated.thermal_climb_rate.to_m_s(), -9.9, 99.9);
+    let txt = tformat!(10, "{:.1}", acr).unwrap();
+    cm.device_const.big_font.render_aligned(
+        txt.as_str(),
+        sizes.info3_pos,
+        VerticalPosition::Top,
+        HorizontalAlignment::Right,
+        FontColor::Transparent(cm.palette().scale),
+        display,
+    )?;
+    Ok(())
+}
+
+fn draw_info3_stf<D> (
+    display: &mut D,
+    cm: &CoreModel,
+) -> Result<(), CoreError>
+where
+    D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
+{
+    let sizes = &cm.device_const.sizes.vario;
+
+    display.draw_img(
+        cm.device_const.images.straight,
+        sizes.pic_info3_pos,
+        Some(cm.palette().vario_pic_info1),
+    )?;
+    display.draw_img(
+        cm.device_const.images.km_h,
+        sizes.info3_pos,
+        Some(cm.palette().scale),
+    )?;
+    let stf = num::clamp(cm.calculated.speed_to_fly_1s.to_km_h(), 0.0, 999.0);
+    let txt = tformat!(10, "{:.0}", stf).unwrap();
+    cm.device_const.big_font.render_aligned(
+        txt.as_str(),
+        sizes.info3_pos,
+        VerticalPosition::Top,
+        HorizontalAlignment::Right,
+        FontColor::Transparent(cm.palette().scale),
+        display,
+    )?;
+    Ok(())
+}

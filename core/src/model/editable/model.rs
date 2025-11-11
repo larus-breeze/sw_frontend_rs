@@ -1,14 +1,10 @@
 use super::{Content, EditableFuncs, EnumParams, F32Params, ListParams, Params};
 use crate::{
-    model::{
-        config::{DEVICE_INFO, HORIZON, VARIO}, control::{DATA_SOURCE_FRONTEND, DATA_SOURCE_SENSORBOX}, DataSource, DisplayActive, DisplayTheme},
-    persist, polar_store,
-    utils::{TString, Variant},
-    view::viewable::{
+    CoreController, CoreModel, Echo, FloatToSpeed, PersistenceId, model::{
+        DataSource, DisplayActive, DisplayTheme, config::{DEVICE_INFO, HORIZON, VARIO}, control::{DATA_SOURCE_FRONTEND, DATA_SOURCE_SENSORBOX}}, persist, polar_store, utils::{TString, Variant}, view::viewable::{
         centerview::{CenterType, CenterView},
-        lineview::{LineView, Placement},
-    },
-    CoreController, CoreModel, Echo, FloatToSpeed, PersistenceId,
+        vario_infoview::{Info3View, LineView, Placement},
+    }
 };
 use tfmt::Convert;
 
@@ -401,42 +397,6 @@ impl EditableFuncs for Info1Vario {
     }
 }
 
-pub struct Info2Vario;
-impl EditableFuncs for Info2Vario {
-    fn name() -> &'static str {
-        "Info 2 Content"
-    }
-
-    fn content(cm: &mut CoreModel, _cc: &mut CoreController) -> Content {
-        Content::List(cm.config.info2_vario.sorted_as_i32(Placement::Bottom))
-    }
-
-    fn content_as_str(convert: &mut Convert<20>, idx: i32) {
-        convert
-            .write_str(LineView::from_sorted(idx as usize, Placement::Bottom).name())
-            .unwrap()
-    }
-
-    fn params() -> Params {
-        Params::List(ListParams {
-            max: LineView::max(Placement::Bottom) as i32,
-        })
-    }
-
-    fn set_content(cm: &mut CoreModel, cc: &mut CoreController, content: Content) {
-        if let Content::List(value) = content {
-            let variant = LineView::from_sorted(value as usize, Placement::Bottom) as i32;
-            persist::persist_set(
-                cc,
-                cm,
-                Variant::I32(variant),
-                PersistenceId::Info2Vario,
-                Echo::None,
-            )
-        }
-    }
-}
-
 pub struct Info1Stf;
 impl EditableFuncs for Info1Stf {
     fn name() -> &'static str {
@@ -467,6 +427,42 @@ impl EditableFuncs for Info1Stf {
                 cm,
                 Variant::I32(variant),
                 PersistenceId::Info1Stf,
+                Echo::None,
+            )
+        }
+    }
+}
+
+pub struct Info2Vario;
+impl EditableFuncs for Info2Vario {
+    fn name() -> &'static str {
+        "Info 2 Content"
+    }
+
+    fn content(cm: &mut CoreModel, _cc: &mut CoreController) -> Content {
+        Content::List(cm.config.info2_vario.sorted_as_i32(Placement::Bottom))
+    }
+
+    fn content_as_str(convert: &mut Convert<20>, idx: i32) {
+        convert
+            .write_str(LineView::from_sorted(idx as usize, Placement::Bottom).name())
+            .unwrap()
+    }
+
+    fn params() -> Params {
+        Params::List(ListParams {
+            max: LineView::max(Placement::Bottom) as i32,
+        })
+    }
+
+    fn set_content(cm: &mut CoreModel, cc: &mut CoreController, content: Content) {
+        if let Content::List(value) = content {
+            let variant = LineView::from_sorted(value as usize, Placement::Bottom) as i32;
+            persist::persist_set(
+                cc,
+                cm,
+                Variant::I32(variant),
+                PersistenceId::Info2Vario,
                 Echo::None,
             )
         }
@@ -509,45 +505,72 @@ impl EditableFuncs for Info2Stf {
     }
 }
 
-const ALTERNATING: &str = "StF ALternating";
-const CLIMB_RATE: &str = "Climb Rate";
-
-pub struct Info3;
-impl EditableFuncs for Info3 {
+pub struct Info3Vario;
+impl EditableFuncs for Info3Vario {
     fn name() -> &'static str {
         "Info 3 Content"
     }
 
     fn content(cm: &mut CoreModel, _cc: &mut CoreController) -> Content {
-        Content::Enum(TString::<16>::from_str(
-            if cm.config.alt_stf_thermal_climb {
-                ALTERNATING
-            } else {
-                CLIMB_RATE
-            }    
-        ))
+        Content::List(cm.config.info3_vario as i32)
+    }
+
+    fn content_as_str(convert: &mut Convert<20>, idx: i32) {
+        convert
+            .write_str(Info3View::from(idx as u8).name())
+            .unwrap()
     }
 
     fn params() -> Params {
-        Params::Enum(EnumParams {
-            variants: [ALTERNATING, CLIMB_RATE, "", "", ""],
+        Params::List(ListParams {
+            max: Info3View::max(),
         })
     }
 
     fn set_content(cm: &mut CoreModel, cc: &mut CoreController, content: Content) {
-        if let Content::Enum(val) = content {
-            let b = if val.as_str() == CLIMB_RATE {
-                false
-            } else {
-                true
-            };
+        if let Content::List(value) = content {
             persist::persist_set(
                 cc,
                 cm,
-                Variant::Bool(b),
-                PersistenceId::StfClimbrateAlt,
+                Variant::I32(value),
+                PersistenceId::Info3Vario,
                 Echo::None,
-            );
+            )
+        }
+    }
+}
+
+pub struct Info3Stf;
+impl EditableFuncs for Info3Stf {
+    fn name() -> &'static str {
+        "Info 3 Content"
+    }
+
+    fn content(cm: &mut CoreModel, _cc: &mut CoreController) -> Content {
+        Content::List(cm.config.info3_stf as i32)
+    }
+
+    fn content_as_str(convert: &mut Convert<20>, idx: i32) {
+        convert
+            .write_str(Info3View::from(idx as u8).name())
+            .unwrap()
+    }
+
+    fn params() -> Params {
+        Params::List(ListParams {
+            max: Info3View::max(),
+        })
+    }
+
+    fn set_content(cm: &mut CoreModel, cc: &mut CoreController, content: Content) {
+        if let Content::List(value) = content {
+            persist::persist_set(
+                cc,
+                cm,
+                Variant::I32(value),
+                PersistenceId::Info3Stf,
+                Echo::None,
+            )
         }
     }
 }
