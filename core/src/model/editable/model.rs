@@ -365,14 +365,14 @@ impl EditableFuncs for GliderSymbol {
     }
 }
 
-pub struct Info1;
-impl EditableFuncs for Info1 {
+pub struct Info1Vario;
+impl EditableFuncs for Info1Vario {
     fn name() -> &'static str {
         "Info 1 Content"
     }
 
     fn content(cm: &mut CoreModel, _cc: &mut CoreController) -> Content {
-        Content::List(cm.config.info1.sorted_as_i32(Placement::Top))
+        Content::List(cm.config.info1_vario.sorted_as_i32(Placement::Top))
     }
 
     fn content_as_str(convert: &mut Convert<20>, idx: i32) {
@@ -394,21 +394,21 @@ impl EditableFuncs for Info1 {
                 cc,
                 cm,
                 Variant::I32(variant),
-                PersistenceId::Info1,
+                PersistenceId::Info1Vario,
                 Echo::None,
             )
         }
     }
 }
 
-pub struct Info2;
-impl EditableFuncs for Info2 {
+pub struct Info2Vario;
+impl EditableFuncs for Info2Vario {
     fn name() -> &'static str {
         "Info 2 Content"
     }
 
     fn content(cm: &mut CoreModel, _cc: &mut CoreController) -> Content {
-        Content::List(cm.config.info2.sorted_as_i32(Placement::Bottom))
+        Content::List(cm.config.info2_vario.sorted_as_i32(Placement::Bottom))
     }
 
     fn content_as_str(convert: &mut Convert<20>, idx: i32) {
@@ -430,7 +430,79 @@ impl EditableFuncs for Info2 {
                 cc,
                 cm,
                 Variant::I32(variant),
-                PersistenceId::Info2,
+                PersistenceId::Info2Vario,
+                Echo::None,
+            )
+        }
+    }
+}
+
+pub struct Info1Stf;
+impl EditableFuncs for Info1Stf {
+    fn name() -> &'static str {
+        "Info 1 Content"
+    }
+
+    fn content(cm: &mut CoreModel, _cc: &mut CoreController) -> Content {
+        Content::List(cm.config.info1_stf.sorted_as_i32(Placement::Top))
+    }
+
+    fn content_as_str(convert: &mut Convert<20>, idx: i32) {
+        convert
+            .write_str(LineView::from_sorted(idx as usize, Placement::Top).name())
+            .unwrap()
+    }
+
+    fn params() -> Params {
+        Params::List(ListParams {
+            max: LineView::max(Placement::Top) as i32,
+        })
+    }
+
+    fn set_content(cm: &mut CoreModel, cc: &mut CoreController, content: Content) {
+        if let Content::List(value) = content {
+            let variant = LineView::from_sorted(value as usize, Placement::Top) as i32;
+            persist::persist_set(
+                cc,
+                cm,
+                Variant::I32(variant),
+                PersistenceId::Info1Stf,
+                Echo::None,
+            )
+        }
+    }
+}
+
+pub struct Info2Stf;
+impl EditableFuncs for Info2Stf {
+    fn name() -> &'static str {
+        "Info 2 Content"
+    }
+
+    fn content(cm: &mut CoreModel, _cc: &mut CoreController) -> Content {
+        Content::List(cm.config.info2_stf.sorted_as_i32(Placement::Bottom))
+    }
+
+    fn content_as_str(convert: &mut Convert<20>, idx: i32) {
+        convert
+            .write_str(LineView::from_sorted(idx as usize, Placement::Bottom).name())
+            .unwrap()
+    }
+
+    fn params() -> Params {
+        Params::List(ListParams {
+            max: LineView::max(Placement::Bottom) as i32,
+        })
+    }
+
+    fn set_content(cm: &mut CoreModel, cc: &mut CoreController, content: Content) {
+        if let Content::List(value) = content {
+            let variant = LineView::from_sorted(value as usize, Placement::Bottom) as i32;
+            persist::persist_set(
+                cc,
+                cm,
+                Variant::I32(variant),
+                PersistenceId::Info2Stf,
                 Echo::None,
             )
         }

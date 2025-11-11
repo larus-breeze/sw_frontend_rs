@@ -43,6 +43,37 @@ where
     Ok(())
 }
 
+pub fn draw_info1<D>(display: &mut D, cm: &CoreModel, cm_1s: &CoreModel, vario_mode: bool) -> Result<(), CoreError>
+where
+    D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
+{
+    // draw info1 field or firmware version
+    let sizes = &cm.device_const.sizes.vario;
+    if cm.control.alive_ticks > 70 {
+        if vario_mode {
+            cm.config
+                .info1_vario
+                .draw(display, cm_1s, sizes.info1_pos, cm.palette().scale)?;
+        } else {
+            cm.config
+                .info1_stf
+                .draw(display, cm_1s, sizes.info1_pos, cm.palette().scale)?;
+        }
+    } else {
+        // draw software version during the first N seconds
+        let s = cm.device_const.misc.sw_version.as_string();
+        cm.device_const.big_font.render_aligned(
+            s.as_str(),
+            sizes.info1_pos,
+            VerticalPosition::Center,
+            HorizontalAlignment::Center,
+            FontColor::Transparent(cm.palette().scale),
+            display,
+        )?;
+    }
+    Ok(())
+}
+
 #[derive(PartialEq)]
 pub struct Vario {
     thermal_data: ThermalData,
@@ -124,35 +155,28 @@ impl Vario {
             }
         }?;
 
-        // draw info1 field or firmware version
-        if cm.control.alive_ticks > 70 {
-            cm.config
-                .info1
-                .draw(display, cm_1s, sizes.info1_pos, cm.palette().scale)?;
-        } else {
-            // draw software version during the first N seconds
-            let s = cm.device_const.misc.sw_version.as_string();
-            cm.device_const.big_font.render_aligned(
-                s.as_str(),
-                sizes.info1_pos,
-                VerticalPosition::Center,
-                HorizontalAlignment::Center,
-                FontColor::Transparent(cm.palette().scale),
-                display,
-            )?;
-        }
-
-        // draw info2 field
-        cm.config
-            .info2
-            .draw(display, cm_1s, sizes.info2_pos, cm.palette().scale)?;
-
         // draw info3 field
         match cm.control.vario_mode {
             VarioMode::Vario => {
+                // draw info1 field
+                draw_info1(display, cm, cm_1s, true)?;
+
+                // draw info2 field
+                cm.config
+                    .info2_vario
+                    .draw(display, cm_1s, sizes.info2_pos, cm.palette().scale)?;
+
                 draw_thermal_climb(display, cm)?;
             }
             VarioMode::SpeedToFly => {
+                // draw info1 field
+                draw_info1(display, cm, cm_1s, false)?;
+
+                // draw info2 field
+                cm.config
+                    .info2_vario
+                    .draw(display, cm_1s, sizes.info2_pos, cm.palette().scale)?;
+
                 let stf = num::clamp(-cm.calculated.speed_to_fly_dif.to_km_h() / 10.0, -5.0, 5.0);
                 let angle_sweep = (sizes.angle_m_s * stf).deg();
                 let col = cm.palette().vario_speed_to_fly;

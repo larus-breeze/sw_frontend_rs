@@ -52,8 +52,8 @@ pub enum PersistenceId {
     Display = 9,
     TcClimbRate = 10,
     TcSpeedToFly = 11,
-    Info1 = 12,
-    Info2 = 13,
+    Info1Vario = 12,
+    Info2Vario = 13,
     Rotation = 14,
     CenterFrequency = 15,
     CenterViewCircling = 16,
@@ -87,7 +87,9 @@ pub enum PersistenceId {
     EnergyArrowMult = 44,
     VarioUpperLimit = 45,
     VarioLowerLimit = 46,
-    LastItem = 47, // Items smaller than this are stored in eeprom
+    Info1Stf = 47,
+    Info2Stf = 48,
+    LastItem = 49, // Items smaller than this are stored in eeprom
 
     // Special function Ids
     VarioMode = 65532,
@@ -132,8 +134,8 @@ const DELETE_CONFIG_LIST: &[PersistenceId] = &[
     PersistenceId::Display,
     PersistenceId::TcClimbRate,
     PersistenceId::TcSpeedToFly,
-    PersistenceId::Info1,
-    PersistenceId::Info2,
+    PersistenceId::Info1Vario,
+    PersistenceId::Info2Vario,
     PersistenceId::Rotation,
     PersistenceId::CenterFrequency,
     PersistenceId::CenterViewCircling,
@@ -150,6 +152,8 @@ const DELETE_CONFIG_LIST: &[PersistenceId] = &[
     PersistenceId::StfClimbrateAlt,
     PersistenceId::TcCircleHysteresis,
     PersistenceId::EnergyArrowMult,
+    PersistenceId::Info1Stf,
+    PersistenceId::Info2Stf,
 ];
 
 /// The following data is deleted when a new glider is selected
@@ -218,8 +222,8 @@ pub fn restore_item(cc: &mut CoreController, cm: &mut CoreModel, item: Persisten
         PersistenceId::Display => cm.config.display_active = item.to_u8().into(),
         PersistenceId::TcClimbRate => cm.config.av2_climb_rate_tc = item.to_f32(),
         PersistenceId::TcSpeedToFly => cm.config.av_speed_to_fly_tc = item.to_f32(),
-        PersistenceId::Info1 => cm.config.info1 = LineView::from(item.to_u8()),
-        PersistenceId::Info2 => cm.config.info2 = LineView::from(item.to_u8()),
+        PersistenceId::Info1Vario => cm.config.info1_vario = LineView::from(item.to_u8()),
+        PersistenceId::Info2Vario => cm.config.info2_vario = LineView::from(item.to_u8()),
         PersistenceId::Rotation => cm.control.rotation = Rotation::from(item.to_u8()),
         PersistenceId::CenterFrequency => cm.config.snd_center_freq = item.to_f32(),
         PersistenceId::CenterViewCircling => {
@@ -285,6 +289,9 @@ pub fn restore_item(cc: &mut CoreController, cm: &mut CoreModel, item: Persisten
         PersistenceId::EnergyArrowMult => cm.control.energy_arrow_mult = item.to_f32(),
         PersistenceId::VarioUpperLimit => cm.config.vario_upper_limit = item.to_f32().m_s(),
         PersistenceId::VarioLowerLimit => cm.config.vario_lower_limit = item.to_f32().m_s(),
+        PersistenceId::Info1Stf => cm.config.info1_stf = LineView::from(item.to_u8()),
+        PersistenceId::Info2Stf => cm.config.info2_stf = LineView::from(item.to_u8()),
+
 
         PersistenceId::VarioMode => cm.control.vario_mode = VarioMode::from(item.to_u8()),
 

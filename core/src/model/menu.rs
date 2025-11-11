@@ -135,14 +135,6 @@ pub const VIEW_SETTINGS: Menu = Menu {
     level: 2,
     items: &[
         MenuItem {
-            content: MenuItemContent::EditItem(Editable::Info1),
-            next_menu_idx: VIEW_SETINGS_IDX,
-        },
-        MenuItem {
-            content: MenuItemContent::EditItem(Editable::Info2),
-            next_menu_idx: VIEW_SETINGS_IDX,
-        },
-        MenuItem {
             content: MenuItemContent::EditItem(Editable::Info3),
             next_menu_idx: VIEW_SETINGS_IDX,
         },
@@ -417,6 +409,14 @@ pub const SPEED_TO_FLY: Menu = Menu {
     level: 3,
     items: &[
         MenuItem {
+            content: MenuItemContent::EditItem(Editable::Info1Stf),
+            next_menu_idx: SPEED_TO_FLY_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::Info2Stf),
+            next_menu_idx: SPEED_TO_FLY_IDX,
+        },
+        MenuItem {
             content: MenuItemContent::EditItem(Editable::TcCircleHysteresis),
             next_menu_idx: SPEED_TO_FLY_IDX,
         },
@@ -478,6 +478,14 @@ pub const VARIO: Menu = Menu {
     name: "Vario",
     level: 3,
     items: &[
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::Info1Vario),
+            next_menu_idx: VARIO_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::Info2Vario),
+            next_menu_idx: VARIO_IDX,
+        },
         MenuItem {
             content: MenuItemContent::EditItem(Editable::AvgClimbRateSrc),
             next_menu_idx: VARIO_IDX,
