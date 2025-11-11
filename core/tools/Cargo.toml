@@ -1,0 +1,17 @@
+[package]
+name = "tools"
+version = "0.1.0"
+edition = "2024"
+
+[[bin]]
+name = "extract_infos"
+path = "src/extract_infos.rs"
+
+[dependencies]
+rust_xlsxwriter = "0.91.0"
+
+[dependencies.corelib]
+path = ".."
+default-features = false 
+features = ["colors_8_indexed", "eeprom_size_8192"]
+

@@ -2,6 +2,7 @@
 /*.bin
 /*.elf
 /core/target
+/core/tools/target
 /core/Cargo.lock
 /device/air_avionics_ad57/*.bin
 /device/air_avionics_ad57/*.elf

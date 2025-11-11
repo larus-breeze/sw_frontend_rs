@@ -6,10 +6,6 @@ set -e
 rm -f *.elf
 rm -f *.bin
 
-cd assets/details
-cargo run -r
-cd ../..
-
 cd device/air_avionics_ad57
 ./make_image.sh $1
 cd ../..
@@ -30,6 +26,10 @@ mv device/larus_frontend_v2/*.elf .
 
 cd device/sim
 ./make_image.sh -i
+cd ../..
+
+cd core/tools
+cargo run --bin extract_infos -r 
 cd ../..
 
 echo "finished"
