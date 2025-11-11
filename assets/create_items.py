@@ -1,6 +1,9 @@
 import os
 
 PICS = [
+    "spiral.png",
+    "straight.png",
+
     "tas.png",
     "speed_to_fly.png",
     "flight_level.png",
