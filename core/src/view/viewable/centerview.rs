@@ -178,7 +178,7 @@ where
         let dx = (sizes.vario.ta_circle_radius - glider_img.width() / 2) as i32;
         sizes.display.center + Point::new(dx, -dy)
     };
-    glider_img.draw(display, p_gld, Some(cm.palette().scale))
+    glider_img.draw(display, p_gld, Some(cm.palette().vario.scale))
 }
 
 fn draw_thermal_assitant2<D>(
@@ -217,7 +217,7 @@ where
                 .into_styled(PrimitiveStyle::with_fill(fill_color))
                 .draw(display)?;
             Line::new(p1, p2)
-                .into_styled(PrimitiveStyle::with_stroke(cm.palette().scale, 1))
+                .into_styled(PrimitiveStyle::with_stroke(cm.palette().vario.scale, 1))
                 .draw(display)?;
         } else {
             p_first = Some(p2);
@@ -230,7 +230,7 @@ where
         .into_styled(PrimitiveStyle::with_fill(fill_color))
         .draw(display)?;
     Line::new(p1.unwrap(), p_first.unwrap())
-        .into_styled(PrimitiveStyle::with_stroke(cm.palette().scale, 1))
+        .into_styled(PrimitiveStyle::with_stroke(cm.palette().vario.scale, 1))
         .draw(display)?;
 
     let glider_img = Image::new(cm.device_const.images.small_glider);
@@ -242,7 +242,7 @@ where
         let dx = (sizes.vario.ta_circle_radius - glider_img.width() / 2) as i32;
         sizes.display.center + Point::new(dx, -dy)
     };
-    glider_img.draw(display, p_gld, Some(cm.palette().scale))
+    glider_img.draw(display, p_gld, Some(cm.palette().vario.scale))
 }
 
 fn draw_and_calc_wind_basics<D>(
@@ -259,7 +259,7 @@ where
             display.draw_img(
                 cm.device_const.images.north,
                 sizes.north_pos,
-                Some(cm.palette().background),
+                Some(cm.palette().vario.background),
             )?;
             // return absolut wind vector
             (
@@ -273,7 +273,7 @@ where
                 display.draw_img(
                     cm.device_const.images.glider,
                     sizes.glider_pos,
-                    Some(cm.palette().scale),
+                    Some(cm.palette().vario.scale),
                 )?;
             }
             (
@@ -317,15 +317,11 @@ where
     let len = calc_len(wind_speed, sizes);
     let avg_wind_spped = cm.sensor.average_wind.speed().to_km_h();
     let delta_speed = wind_speed - avg_wind_spped;
-    let delta_color = if delta_speed < 0.0 {
-        cm.palette().vario_wind_minus
-    } else {
-        cm.palette().vario_wind_plus
-    };
+    let delta_color = cm.palette().vario.wind_diff;
     let tail_thick = (num::clamp(num::abs(delta_speed), 2.0, 10.0)) as u32;
     let style = PrimitiveStyleBuilder::new()
-        .fill_color(cm.palette().sprite1_fill)
-        .stroke_color(cm.palette().sprite1_stroke)
+        .fill_color(cm.palette().vario.wind_fill)
+        .stroke_color(cm.palette().vario.wind_stroke)
         .stroke_width(2)
         .build();
 
@@ -349,7 +345,7 @@ where
     let (angle, av_angle) = draw_and_calc_wind_basics(display, cm)?;
 
     let len = calc_len(cm.sensor.average_wind.speed().to_km_h(), sizes);
-    let style = PrimitiveStyle::with_fill(cm.palette().sprite2_fill);
+    let style = PrimitiveStyle::with_fill(cm.palette().vario.avg_wind_fill);
     Arrow::new(len, d_sizes.center)
         .zero_pos(pos::SIX_O_CLOCK)
         .rotate(av_angle.to_radians())
@@ -357,8 +353,8 @@ where
 
     let len = calc_len(cm.sensor.wind_vector.speed().to_km_h(), sizes);
     let style = PrimitiveStyleBuilder::new()
-        .fill_color(cm.palette().sprite1_fill)
-        .stroke_color(cm.palette().sprite2_stroke)
+        .fill_color(cm.palette().vario.wind_fill)
+        .stroke_color(cm.palette().vario.avg_wind_stroke)
         .stroke_width(1)
         .build();
     Arrow::new(len, d_sizes.center)

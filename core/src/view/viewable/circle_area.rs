@@ -7,6 +7,7 @@ pub fn draw_info<D>(
     cm: &CoreModel,
     header: &str,
     value: &str,
+    color: Option<Colors>,
 ) -> Result<(), CoreError>
 where
     D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
@@ -15,12 +16,17 @@ where
 
     let d_sizes = &cm.device_const.sizes.display;
     let delta_y = d_sizes.height as i32 / 15;
+    let color = if let Some(color) = color {
+        color
+    } else {
+        cm.palette().list_edit.item
+    };
     cm.device_const.big_font.render_aligned(
         header,
         d_sizes.screen_center + Point::new(0, -delta_y),
         VerticalPosition::Center,
         HorizontalAlignment::Center,
-        FontColor::Transparent(cm.palette().text2),
+        FontColor::Transparent(cm.palette().list_edit.item),
         display,
     )?;
 
@@ -29,7 +35,7 @@ where
         d_sizes.screen_center + Point::new(0, delta_y),
         VerticalPosition::Center,
         HorizontalAlignment::Center,
-        FontColor::Transparent(cm.palette().text2_bold),
+        FontColor::Transparent(color),
         display,
     )?;
     Ok(())
@@ -50,10 +56,10 @@ where
     let delta_y = d_sizes.height as i32 / 15;
     cm.device_const.big_font.render_aligned(
         header,
-        d_sizes.screen_center + Point::new(0, -delta_y),
+        d_sizes.center + Point::new(0, -delta_y),
         VerticalPosition::Center,
         HorizontalAlignment::Center,
-        FontColor::Transparent(cm.palette().alarm),
+        FontColor::Transparent(cm.palette().signal.alarm),
         display,
     )?;
 
@@ -61,7 +67,7 @@ where
         let alarm_img = Image::new(img);
         let x = -(alarm_img.width() as i32) / 2;
         let y = -(alarm_img.height() as i32) / 2 + d_sizes.height as i32 / 8;
-        alarm_img.draw(display, d_sizes.screen_center + Point { x, y }, None)?;
+        alarm_img.draw(display, d_sizes.center + Point { x, y }, None)?;
     }
     Ok(())
 }

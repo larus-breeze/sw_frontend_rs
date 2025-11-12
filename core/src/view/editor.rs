@@ -34,7 +34,13 @@ impl Edit {
             match cm.device_const.misc.edit_mode {
                 EditMode::Off => Ok(()),
                 EditMode::CircleArea => {
-                    draw_info(display, cm, self.name_str, self.val_str.as_str())
+                    draw_info(
+                        display, 
+                        cm, 
+                        self.name_str, 
+                        self.val_str.as_str(), 
+                        Some(cm.palette().list_edit.value)
+                    )
                 }
                 EditMode::Fullscreen => self.draw_rectangle_editor(display, cm, true),
                 EditMode::Window => self.draw_rectangle_editor(display, cm, false),
@@ -55,12 +61,12 @@ impl Edit {
     {
         let d_sizes = &cm.device_const.sizes.display;
         if fullscreen {
-            display.clear(cm.palette().edit_background)?;
+            display.clear(cm.palette().list_edit.background)?;
         } else {
             let style = PrimitiveStyleBuilder::new()
-                .stroke_color(cm.palette().edit_stroke)
+                .stroke_color(cm.palette().list_edit.frame)
                 .stroke_width(2)
-                .fill_color(cm.palette().edit_background)
+                .fill_color(cm.palette().list_edit.background)
                 .build();
 
             let d_sizes = &cm.device_const.sizes.display;
@@ -78,7 +84,7 @@ impl Edit {
             d_sizes.screen_center + Point::new(0, -delta_y),
             VerticalPosition::Center,
             HorizontalAlignment::Center,
-            FontColor::Transparent(cm.palette().text2),
+            FontColor::Transparent(cm.palette().list_edit.name),
             display,
         )?;
 
@@ -87,7 +93,7 @@ impl Edit {
             d_sizes.screen_center + Point::new(0, delta_y),
             VerticalPosition::Center,
             HorizontalAlignment::Center,
-            FontColor::Transparent(cm.palette().text2_bold),
+            FontColor::Transparent(cm.palette().list_edit.value),
             display,
         )?;
         Ok(())

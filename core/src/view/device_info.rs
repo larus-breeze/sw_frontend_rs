@@ -19,7 +19,7 @@ impl DeviceInfo {
     where
         D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
     {
-        display.clear(cm.palette().background)?;
+        display.clear(cm.palette().list_edit.background)?;
         let width = cm.device_const.sizes.display.width as i32;
         let height = cm.device_const.sizes.display.height as i32;
 

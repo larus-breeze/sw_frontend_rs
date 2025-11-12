@@ -71,7 +71,7 @@ impl DeviceLineView {
                 point, 
                 VerticalPosition::Top, 
                 HorizontalAlignment::Center, 
-                FontColor::Transparent(cm.palette().text1_bold), 
+                FontColor::Transparent(cm.palette().list_edit.header), 
                 display
             )?;
         } else {
@@ -82,7 +82,7 @@ impl DeviceLineView {
                 p1, 
                 VerticalPosition::Top, 
                 HorizontalAlignment::Right, 
-                FontColor::Transparent(cm.palette().text1), 
+                FontColor::Transparent(cm.palette().list_edit.item), 
                 display
             )?;
             let p2 = Point::new(point.x + 10, point.y);
@@ -91,7 +91,7 @@ impl DeviceLineView {
                 p2, 
                 VerticalPosition::Top, 
                 HorizontalAlignment::Left, 
-                FontColor::Transparent(cm.palette().text1), 
+                FontColor::Transparent(cm.palette().list_edit.item), 
                 display
             )?;
 

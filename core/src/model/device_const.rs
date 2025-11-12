@@ -101,36 +101,103 @@ pub struct Images {
 
 #[derive(PartialEq)]
 pub struct Palette {
+    pub horizon: HorizonPalette,
+    pub list_edit: ListEditorPalette,
+    pub signal: SignalPalette,
+    pub vario: VarioPalette,
+}
+
+impl Palette {
+    pub const fn default() -> Self {
+        Self {
+            horizon: HorizonPalette::default(),
+            list_edit: ListEditorPalette::default(),
+            signal: SignalPalette::default(),
+            vario: VarioPalette::default(),
+        }
+    }
+}
+
+#[derive(PartialEq)]
+pub struct ListEditorPalette {
+    pub background: Colors,
+    pub header: Colors,
+    pub item: Colors,
+    pub frame: Colors,
+    pub name: Colors,
+    pub value: Colors,
+}
+
+impl ListEditorPalette {
+    pub const fn default() -> Self {
+        Self {
+            background: Colors::Black,
+            header: Colors::LightBlue,
+            item: Colors::Bisque,
+            frame: Colors::White,
+            name: Colors::Bisque,
+            value: Colors::White,
+        }
+    }
+}
+
+#[derive(PartialEq)]
+pub struct HorizonPalette {
+    pub sky: Colors,
+    pub earth: Colors,
+    pub scale: Colors,
+    pub needle: Colors,
+}
+
+impl HorizonPalette {
+    pub const fn default() -> Self {
+        Self {
+            sky: Colors::LightSkyBlue,
+            earth: Colors::Sienna,
+            scale: Colors::White,
+            needle: Colors::Red,
+        }
+    }
+}
+
+#[derive(PartialEq)]
+pub struct SignalPalette {
+    pub stop: Colors,
+    pub warning: Colors,
+    pub go: Colors,
+    pub alarm: Colors,
+}
+
+impl SignalPalette {
+    pub const fn default() -> Self {
+        Self {
+            stop: Colors::Red,
+            warning: Colors::Yellow,
+            go: Colors::LimeGreen,
+            alarm: Colors::OrangeRed,
+        }
+    }
+}
+
+#[derive(PartialEq)]
+pub struct VarioPalette {
     pub background: Colors,
     pub scale: Colors,
-    pub needle1: Colors,
-    pub needle2: Colors,
-    pub needle3: Colors,
-    pub needle4: Colors,
-    pub needle5: Colors,
-    pub sprite1_stroke: Colors,
-    pub sprite1_fill: Colors,
-    pub sprite2_stroke: Colors,
-    pub sprite2_fill: Colors,
-    pub signal_stop: Colors,
-    pub signal_warning: Colors,
-    pub signal_go: Colors,
-    pub text1: Colors,
-    pub text1_bold: Colors,
-    pub text2: Colors,
-    pub text2_bold: Colors,
-    pub alarm: Colors,
 
-    pub edit_background: Colors,
-    pub edit_stroke: Colors,
+    pub needle: Colors,
+    pub avg_climb: Colors,
+    pub mc_cready: Colors,
+    pub stf_arc: Colors,
 
-    pub horizon_sky: Colors,
-    pub horizon_earth: Colors,
+    pub wind_stroke: Colors,
+    pub wind_fill: Colors,
+    pub avg_wind_stroke: Colors,
+    pub avg_wind_fill: Colors,
+    pub wind_diff: Colors,
 
-    pub vario_speed_to_fly: Colors,
-    pub vario_pic_info1: Colors,
-    pub vario_wind_plus: Colors,
-    pub vario_wind_minus: Colors,
+    pub icon: Colors,
+    pub value: Colors,
+    pub unit: Colors,
 
     pub therm_ass_best: Colors,
     pub therm_ass_good: Colors,
@@ -140,39 +207,26 @@ pub struct Palette {
     pub therm2_ass_bad: Colors,
 }
 
-impl Palette {
+impl VarioPalette {
     pub const fn default() -> Self {
         Self {
             background: Colors::Black,
             scale: Colors::White,
-            needle1: Colors::DarkRed,
-            needle2: Colors::Red,
-            needle3: Colors::Green,
-            needle4: Colors::Yellow,
-            needle5: Colors::Red,
-            sprite1_stroke: Colors::White,
-            sprite1_fill: Colors::DodgerBlue,
-            sprite2_stroke: Colors::Blue,
-            sprite2_fill: Colors::LightGray,
-            signal_stop: Colors::Red,
-            signal_warning: Colors::Yellow,
-            signal_go: Colors::LimeGreen,
-            text1: Colors::LightSalmon,
-            text1_bold: Colors::Wheat,
-            text2: Colors::DeepSkyBlue,
-            text2_bold: Colors::LightSkyBlue,
-            alarm: Colors::OrangeRed,
 
-            edit_background: Colors::DarkBlue,
-            edit_stroke: Colors::DodgerBlue,
+            needle: Colors::DarkRed,
+            avg_climb: Colors::Green,
+            mc_cready: Colors::Red,
+            stf_arc: Colors::Orange,
 
-            horizon_sky: Colors::LightSkyBlue,
-            horizon_earth: Colors::Sienna,
+            wind_stroke: Colors::White,
+            wind_fill: Colors::DodgerBlue,
+            avg_wind_stroke: Colors::Blue,
+            avg_wind_fill: Colors::LightGray,
+            wind_diff: Colors::LightPink,
 
-            vario_speed_to_fly: Colors::Orange,
-            vario_pic_info1: Colors::Orange,
-            vario_wind_plus: Colors::Orange,
-            vario_wind_minus: Colors::LightPink,
+            icon: Colors::Orange,
+            value: Colors::White,
+            unit: Colors::DarkGray,
 
             therm_ass_best: Colors::Yellow,
             therm_ass_good: Colors::Red,

@@ -61,7 +61,7 @@ impl MenuView {
         );
         let p_delta = Point::new(d_sizes.width as i32 * 70 / 100, 0);
         Line::with_delta(p_start, p_delta)
-            .into_styled(PrimitiveStyle::with_stroke(cm.palette().scale, 1))
+            .into_styled(PrimitiveStyle::with_stroke(cm.palette().list_edit.frame, 1))
             .draw(display)?;
 
         let p_start = Point::new(
@@ -69,7 +69,7 @@ impl MenuView {
             d_sizes.center.y + delta_y / 2 - 1,
         );
         Line::with_delta(p_start, p_delta)
-            .into_styled(PrimitiveStyle::with_stroke(cm.palette().scale, 1))
+            .into_styled(PrimitiveStyle::with_stroke(cm.palette().list_edit.frame, 1))
             .draw(display)?;
 
         for menu_idx in 0..7 {
@@ -99,21 +99,21 @@ impl MenuView {
         let pos = cm.control.menu_control.pos[menu.level];
         let d_sizes = &cm.device_const.sizes.display;
 
-        display.clear(cm.palette().background)?;
+        display.clear(cm.palette().list_edit.background)?;
 
         cm.device_const.big_font.render_aligned(
             menu.name,
             Point::new(d_sizes.width as i32 / 2, d_sizes.height as i32 * 12 / 100),
             VerticalPosition::Top,
             HorizontalAlignment::Center,
-            FontColor::Transparent(cm.palette().scale),
+            FontColor::Transparent(cm.palette().list_edit.header),
             display,
         )?;
 
         let y = d_sizes.height as i32 * 22 / 100;
 
         Line::new(Point::new(0, y), Point::new(d_sizes.width as i32, y))
-            .into_styled(PrimitiveStyle::with_stroke(cm.palette().scale, 1))
+            .into_styled(PrimitiveStyle::with_stroke(cm.palette().list_edit.frame, 1))
             .draw(display)?;
 
         let mut y_pos = d_sizes.height as i32 / 4;
@@ -127,7 +127,7 @@ impl MenuView {
             Point::new(x_margin, y_pos + y_delta),
             Size::new(d_sizes.width - 2 * x_margin as u32, y_size),
         )
-        .into_styled(PrimitiveStyle::with_stroke(cm.palette().scale, 1))
+        .into_styled(PrimitiveStyle::with_stroke(cm.palette().list_edit.frame, 1))
         .draw(display)?;
 
         for menu_idx in 0..7 {
@@ -149,19 +149,19 @@ impl MenuView {
         let idx_max = (menu.items.len() - 1) as isize;
         let item_idx = pos as isize + menu_idx - 3;
         if item_idx < 0 || item_idx > idx_max {
-            ("", cm.palette().background)
+            ("", cm.palette().list_edit.background)
         } else {
             let menu_item = menu.items[item_idx as usize];
             let color = if menu_idx == 3 {
                 if menu_item.is_menu() {
-                    cm.palette().text2_bold
+                    cm.palette().list_edit.header
                 } else {
-                    cm.palette().text1_bold
+                    cm.palette().list_edit.item
                 }
             } else if menu_item.is_menu() {
-                cm.palette().text2
+                cm.palette().list_edit.header
             } else {
-                cm.palette().text1
+                cm.palette().list_edit.item
             };
             (menu_item.name(), color)
         }

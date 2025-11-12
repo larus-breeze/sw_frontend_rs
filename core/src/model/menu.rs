@@ -166,6 +166,26 @@ pub const ADVANCED_SETTINGS: Menu = Menu {
     level: 2,
     items: &[
         MenuItem {
+            content: MenuItemContent::MenuItem(),
+            next_menu_idx: VARIO_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::MenuItem(),
+            next_menu_idx: SPEED_TO_FLY_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::MenuItem(),
+            next_menu_idx: LANDING_GEAR_ALARM_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::MenuItem(),
+            next_menu_idx: DRAIN_SETTINGS_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::MenuItem(),
+            next_menu_idx: RESET_CONFIG_IDX,
+        },
+        MenuItem {
             content: MenuItemContent::EditItem(Editable::UserProfile),
             next_menu_idx: ADVANCED_SETTINGS_IDX,
         },
@@ -184,26 +204,6 @@ pub const ADVANCED_SETTINGS: Menu = Menu {
         MenuItem {
             content: MenuItemContent::EditItem(Editable::FlashControl),
             next_menu_idx: ADVANCED_SETTINGS_IDX,
-        },
-        MenuItem {
-            content: MenuItemContent::MenuItem(),
-            next_menu_idx: RESET_CONFIG_IDX,
-        },
-        MenuItem {
-            content: MenuItemContent::MenuItem(),
-            next_menu_idx: VARIO_IDX,
-        },
-        MenuItem {
-            content: MenuItemContent::MenuItem(),
-            next_menu_idx: SPEED_TO_FLY_IDX,
-        },
-        MenuItem {
-            content: MenuItemContent::MenuItem(),
-            next_menu_idx: LANDING_GEAR_ALARM_IDX,
-        },
-        MenuItem {
-            content: MenuItemContent::MenuItem(),
-            next_menu_idx: DRAIN_SETTINGS_IDX,
         },
         MenuItem {
             content: MenuItemContent::EditItem(Editable::Return),

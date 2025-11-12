@@ -30,11 +30,11 @@ impl Horizon {
         D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
     {
         if cm.sensor.horizon_available == false {
-            display.clear(cm.palette().horizon_sky)?;
-            return draw_info(display, cm, "Horizon", "not available")
+            display.clear(cm.palette().horizon.sky)?;
+            return draw_info(display, cm, "Horizon", "not available", None)
         }
 
-        display.clear(cm.palette().horizon_sky)?;
+        display.clear(cm.palette().horizon.sky)?;
         let sizes = &cm.device_const.sizes;
 
         // draw horizon
@@ -52,7 +52,7 @@ impl Horizon {
             let corner_1 = Point::new(0, ah_pitch_center_y);
             let corner_2 = Point::new(sizes.display.width as i32, sizes.display.height as i32);
             Rectangle::with_corners(corner_1, corner_2)
-                .into_styled(PrimitiveStyle::with_fill(cm.palette().horizon_earth))
+                .into_styled(PrimitiveStyle::with_fill(cm.palette().horizon.earth))
                 .draw(display)?;
         } else if m_roll > 0.0 {
             let start_y = ah_pitch_center_y - (m_roll * ah_center_x as f32) as i32;
@@ -66,7 +66,7 @@ impl Horizon {
                     display.draw_line_unchecked(
                         y * sizes.display.width as usize,
                         len,
-                        cm.palette().horizon_earth,
+                        cm.palette().horizon.earth,
                     );
                 }
                 y += 1;
@@ -89,7 +89,7 @@ impl Horizon {
                 let p_idx = y * sizes.display.width as usize + x as usize;
                 // We know, that we are within the display limits, so unsafe is ok
                 unsafe {
-                    display.draw_line_unchecked(p_idx, len, cm.palette().horizon_earth);
+                    display.draw_line_unchecked(p_idx, len, cm.palette().horizon.earth);
                 }
                 y += 1;
             }
@@ -109,7 +109,7 @@ impl Horizon {
         //
         SimpleIndicator::at_tip(ah_center_y - 3, Point::new(ah_center_x, ah_center_y))
             .rotate(roll_angle)
-            .draw_colored(cm.palette().needle2, display)?;
+            .draw_colored(cm.palette().horizon.needle, display)?;
 
         // draw pitch scale
         //
@@ -120,7 +120,7 @@ impl Horizon {
         let dcx = cos_alpha * (sizes.display.width / 9) as f32;
         let dcy = sin_alpha * (sizes.display.width / 9) as f32;
 
-        let style = PrimitiveStyle::with_stroke(cm.palette().scale, 2);
+        let style = PrimitiveStyle::with_stroke(cm.palette().horizon.scale, 2);
         for mul in 1_i32..4 {
             let mul_dcx = (mul as f32 * dcx) as i32;
             let mul_dcy = (mul as f32 * dcy) as i32;

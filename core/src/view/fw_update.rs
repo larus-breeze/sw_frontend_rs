@@ -30,10 +30,10 @@ impl SwUpdate {
     {
         let mut dialog_box = DialogBox::new(
             "FW Update",
-            cm.palette().background,
-            cm.palette().scale,
-            cm.palette().scale,
-            cm.palette().text1,
+            cm.palette().list_edit.background,
+            cm.palette().list_edit.header,
+            cm.palette().list_edit.header,
+            cm.palette().list_edit.item,
         );
         dialog_box.draw(
             display,

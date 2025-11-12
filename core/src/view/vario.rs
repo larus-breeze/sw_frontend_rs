@@ -23,11 +23,11 @@ where
         if vario_mode {
             cm.config
                 .info1_vario
-                .draw(display, cm_1s, sizes.info1_pos, cm.palette().scale)?;
+                .draw(display, cm_1s, sizes.info1_pos)?;
         } else {
             cm.config
                 .info1_stf
-                .draw(display, cm_1s, sizes.info1_pos, cm.palette().scale)?;
+                .draw(display, cm_1s, sizes.info1_pos)?;
         }
     } else {
         // draw software version during the first N seconds
@@ -37,7 +37,7 @@ where
             sizes.info1_pos,
             VerticalPosition::Center,
             HorizontalAlignment::Center,
-            FontColor::Transparent(cm.palette().scale),
+            FontColor::Transparent(cm.palette().vario.scale),
             display,
         )?;
     }
@@ -64,16 +64,16 @@ impl Vario {
         let d_sizes = &cm.device_const.sizes.display;
 
         // draaw wallpaper
-        display.clear(cm.palette().background)?;
+        display.clear(cm.palette().vario.background)?;
         display.draw_img(
             cm.device_const.images.wp_vario,
             Point::new(0, 0),
-            Some(cm.palette().scale),
+            Some(cm.palette().vario.scale),
         )?;
         display.draw_img(
             cm.device_const.images.m_s,
             sizes.unit_pos,
-            Some(cm.palette().background),
+            Some(cm.palette().vario.background),
         )?;
 
         // draw battery symbol
@@ -81,27 +81,27 @@ impl Vario {
             display.draw_img(
                 cm.device_const.images.bat_full,
                 sizes.bat_pos,
-                Some(cm.palette().signal_go),
+                Some(cm.palette().signal.go),
             )?;
         } else if cm_1s.device.supply_voltage < cm.config.battery_low {
             display.draw_img(
                 cm.device_const.images.bat_empty,
                 sizes.bat_pos,
-                Some(cm.palette().signal_stop),
+                Some(cm.palette().signal.stop),
             )?;
         } else {
             display.draw_img(
                 cm.device_const.images.bat_half,
                 sizes.bat_pos,
-                Some(cm.palette().signal_warning),
+                Some(cm.palette().signal.warning),
             )?;
         }
 
         // draw sat symbol
         let color = match cm.control.system_state {
-            SystemState::NoCom => cm.palette().signal_stop,
-            SystemState::CanOk => cm.palette().signal_warning,
-            SystemState::CanAndGpsOk => cm.palette().signal_go,
+            SystemState::NoCom => cm.palette().signal.stop,
+            SystemState::CanOk => cm.palette().signal.warning,
+            SystemState::CanAndGpsOk => cm.palette().signal.go,
         };
         display.draw_img(cm.device_const.images.sat, sizes.sat_pos, Some(color))?;
 
@@ -134,7 +134,7 @@ impl Vario {
                 // draw info2 field
                 cm.config
                     .info2_vario
-                    .draw(display, cm_1s, sizes.info2_pos, cm.palette().scale)?;
+                    .draw(display, cm_1s, sizes.info2_pos)?;
 
                 // draw info3 field
                 cm.config
@@ -149,7 +149,7 @@ impl Vario {
                 // draw info2 field
                 cm.config
                     .info2_stf
-                    .draw(display, cm_1s, sizes.info2_pos, cm.palette().scale)?;
+                    .draw(display, cm_1s, sizes.info2_pos)?;
 
                 // draw info3 field
                 cm.config
@@ -159,7 +159,7 @@ impl Vario {
                 // draw scal arc
                 let stf = num::clamp(-cm.calculated.speed_to_fly_dif.to_km_h() / 10.0, -5.0, 5.0);
                 let angle_sweep = (sizes.angle_m_s * stf).deg();
-                let col = cm.palette().vario_speed_to_fly;
+                let col = cm.palette().vario.stf_arc;
                 Arc::with_center(d_sizes.center, sizes.stf_diameter, 180.0.deg(), angle_sweep)
                     .into_styled(PrimitiveStyle::with_stroke(col, sizes.stf_width))
                     .draw(display)?;
@@ -170,7 +170,7 @@ impl Vario {
         ScaleMarker::new(d_sizes.radius as i32, d_sizes.center)
             .zero_pos(pos::NINE_O_CLOCK)
             .rotate((cm.config.mc_cready.to_m_s() * sizes.angle_m_s).to_radians())
-            .draw_colored(cm.palette().needle2, display)?;
+            .draw_colored(cm.palette().vario.mc_cready, display)?;
 
         // draw average climb rate marker
         let avg_climb_rate = match cm.control.avg_climb_rate_src {
@@ -184,14 +184,14 @@ impl Vario {
         )
         .zero_pos(pos::NINE_O_CLOCK)
         .rotate((av_climb_rate * sizes.angle_m_s).to_radians())
-        .draw_colored(cm.palette().needle3, display)?;
+        .draw_colored(cm.palette().vario.avg_climb, display)?;
 
         // draw climb rate indicator
         let climb_rate = num::clamp(cm.calculated.interpolated_climb_rate.value.to_m_s(), -5.1, 5.1);
         ClassicIndicator::new(d_sizes.radius as i32, d_sizes.center)
             .zero_pos(pos::NINE_O_CLOCK)
             .rotate((climb_rate * sizes.angle_m_s).to_radians())
-            .draw_colored(cm.palette().needle1, display)?;
+            .draw_colored(cm.palette().vario.needle, display)?;
         Ok(())
     }
 }
