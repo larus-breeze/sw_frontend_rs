@@ -13,7 +13,7 @@ pub(crate) mod vario;
 pub(crate) mod viewable;
 
 use crate::{
-    model::{CoreModel, DisplayActive, OverlayActive, TypeOfInfo},
+    model::{CoreModel, DisplayActive, OverlayActive},
     utils::Colors,
     view::{
         editor::Edit, fw_update::SwUpdate, horizon::Horizon, info::InfoView, menu::MenuView,
@@ -110,15 +110,13 @@ where
         self.secondary_view = match core_model.config.overlay_active {
             OverlayActive::Editor => Some(SecondaryView::Edit(Edit::new(core_model))),
             OverlayActive::Menu => Some(SecondaryView::MenuView(MenuView::new())),
+            OverlayActive::Info => if let Some(info_view) = InfoView::new(core_model.config.type_of_info) {
+                Some(SecondaryView::InfoView(info_view))
+                } else {
+                    None
+                }
             OverlayActive::None => None,
         };
-
-        if self.secondary_view.is_none() {
-            let type_of_info = core_model.config.info_active;
-            if type_of_info != TypeOfInfo::None {
-                self.secondary_view = Some(SecondaryView::InfoView(InfoView::new(type_of_info)));
-            }
-        }
     }
 
     pub fn draw(&mut self) -> Result<(), CoreError> {

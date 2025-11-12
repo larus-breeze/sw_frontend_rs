@@ -1,4 +1,4 @@
-use crate::{model::TypeOfInfo, CoreModel, FloatToMass, PinState, VarioMode};
+use crate::{CoreModel, FloatToMass, PinState, VarioMode, model::{OverlayActive, TypeOfInfo}};
 
 pub const PIN_NONE: &str = "Not connected";
 pub const PIN_IN_CLOSE: &str = "When closed";
@@ -192,12 +192,19 @@ impl DrainControl {
                 InPinFunction::None => false,
             }
         };
+
         if self.is_flowing {
-            if cm.config.info_active == TypeOfInfo::None {
-                cm.config.info_active = TypeOfInfo::WaterBallast;
+            if cm.config.overlay_active == OverlayActive::None {
+                cm.config.overlay_active = OverlayActive::Info;
+                if cm.config.type_of_info == TypeOfInfo::None {
+                    cm.config.type_of_info = TypeOfInfo::WaterBallast;
+                }
             }
-        } else if cm.config.info_active == TypeOfInfo::WaterBallast {
-            cm.config.info_active = TypeOfInfo::None
+        } else if cm.config.type_of_info == TypeOfInfo::WaterBallast {
+            cm.config.type_of_info = TypeOfInfo::None;
+            if cm.config.overlay_active == OverlayActive::Info {
+                cm.config.overlay_active = OverlayActive::None;
+            }
         }
     }
 }
@@ -408,15 +415,22 @@ impl GearAlarmControl {
         self.gear_pins = mode;
     }
 
-    fn alarm_is_active(&self, cm: &mut CoreModel) -> bool {
+    pub fn alarm_is_active(&self, cm: &mut CoreModel) -> bool {
         let alarm = match self.gear_pins {
             GearPins::OnePinMode => self.gear_state,
             GearPins::TwoPinMode => self.gear_state && self.airbrakes_state,
         };
+
         if alarm {
-            cm.config.info_active = TypeOfInfo::GearAlarm;
-        } else if cm.config.info_active == TypeOfInfo::GearAlarm {
-            cm.config.info_active = TypeOfInfo::None;
+            if cm.config.overlay_active == OverlayActive::None {
+                cm.config.overlay_active = OverlayActive::Info;
+                cm.config.type_of_info = TypeOfInfo::GearAlarm;
+            }
+        } else if cm.config.type_of_info == TypeOfInfo::GearAlarm {
+            cm.config.type_of_info = TypeOfInfo::None;
+            if cm.config.overlay_active == OverlayActive::Info {
+                cm.config.overlay_active = OverlayActive::None;
+            }
         }
         alarm
     }

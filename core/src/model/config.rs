@@ -5,7 +5,7 @@ use crate::{
 };
 
 /// Possible displays
-#[derive(Clone, Copy, PartialEq, FromPrimitive)]
+#[derive(Clone, Copy, PartialEq, FromPrimitive, Debug)]
 #[repr(u8)]
 pub enum DisplayActive {
     #[default]
@@ -43,18 +43,19 @@ pub enum DisplayTheme {
     Bright,
 }
 
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 pub enum TypeOfInfo {
     None,
     WaterBallast,
     GearAlarm,
 }
 
-#[derive(Clone, Copy, PartialEq)]
+#[derive(Clone, Copy, PartialEq, Debug)]
 pub enum OverlayActive {
     None,
     Editor,
     Menu,
+    Info,
 }
 
 /// Metastructur for config variables
@@ -63,7 +64,7 @@ pub struct Config {
     pub circle_hysteresis_tc: i8,
     pub display_active: DisplayActive,
     pub overlay_active: OverlayActive,
-    pub info_active: TypeOfInfo,
+    pub type_of_info: TypeOfInfo,
     pub last_display_active: DisplayActive,
     pub user_profile: u8,
     pub glider_idx: i32,
@@ -102,7 +103,7 @@ impl Config {
             circle_hysteresis_tc: 7,
             display_active: DisplayActive::Vario,
             overlay_active: OverlayActive::None,
-            info_active: TypeOfInfo::None,
+            type_of_info: TypeOfInfo::None,
             last_display_active: DisplayActive::Vario,
             user_profile: 0,
             glider_idx: 104,

@@ -150,6 +150,7 @@ fn process_hardware_pins(cm: &mut CoreModel, cc: &mut CoreController) {
             Echo::NmeaAndCan,
         )
     }
+    let _ = cc.gear_alarm_control.alarm_is_active(cm);
 
     if let Some(state) = cc.flash_control.tick_1s(cm) {
         let _ = cc.p_idle_events.enqueue(IdleEvent::Output1(state));

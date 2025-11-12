@@ -1,8 +1,6 @@
 use super::{sprites::*, thermal_data::ThermalData};
 use crate::{
-    model::{CoreModel, DataSource, FlyMode, SystemState, VarioMode},
-    utils::Colors,
-    CoreError, DrawImage,
+    CoreError, DrawImage, model::{CoreModel, DataSource, FlyMode, OverlayActive, SystemState, VarioMode}, utils::Colors
 };
 
 use embedded_graphics::{
@@ -110,59 +108,62 @@ impl Vario {
             display.draw_img(cm.device_const.images.attention, sizes.attention_pos, None)?;
         }
 
-        // draw center view
-        self.thermal_data.update(cm);
-        match cm.control.fly_mode {
-            FlyMode::Circling => {
-                cm.config
-                    .center_circling
-                    .draw(display, cm, &mut self.thermal_data)
-            }
-            FlyMode::StraightFlight => {
-                cm.config
-                    .center_straight
-                    .draw(display, cm, &mut self.thermal_data)
-            }
-        }?;
+        // to save computing power: Only draw the central elements when they are visible.
+        if cm.config.overlay_active == OverlayActive::None {
+            // draw center view
+            self.thermal_data.update(cm);
+            match cm.control.fly_mode {
+                FlyMode::Circling => {
+                    cm.config
+                        .center_circling
+                        .draw(display, cm, &mut self.thermal_data)
+                }
+                FlyMode::StraightFlight => {
+                    cm.config
+                        .center_straight
+                        .draw(display, cm, &mut self.thermal_data)
+                }
+            }?;
 
-        // draw info3 field
-        match cm.control.vario_mode {
-            VarioMode::Vario => {
-                // draw info1 field
-                draw_info1(display, cm, cm_1s, true)?;
+            // draw info fields
+            match cm.control.vario_mode {
+                VarioMode::Vario => {
+                    // draw info1 field
+                    draw_info1(display, cm, cm_1s, true)?;
 
-                // draw info2 field
-                cm.config
-                    .info2_vario
-                    .draw(display, cm_1s, sizes.info2_pos)?;
+                    // draw info2 field
+                    cm.config
+                        .info2_vario
+                        .draw(display, cm_1s, sizes.info2_pos)?;
 
-                // draw info3 field
-                cm.config
-                    .info3_vario
-                    .draw(display, cm_1s)?;
+                    // draw info3 field
+                    cm.config
+                        .info3_vario
+                        .draw(display, cm_1s)?;
 
-            }
-            VarioMode::SpeedToFly => {
-                // draw info1 field
-                draw_info1(display, cm, cm_1s, false)?;
+                }
+                VarioMode::SpeedToFly => {
+                    // draw info1 field
+                    draw_info1(display, cm, cm_1s, false)?;
 
-                // draw info2 field
-                cm.config
-                    .info2_stf
-                    .draw(display, cm_1s, sizes.info2_pos)?;
+                    // draw info2 field
+                    cm.config
+                        .info2_stf
+                        .draw(display, cm_1s, sizes.info2_pos)?;
 
-                // draw info3 field
-                cm.config
-                    .info3_stf
-                    .draw(display, cm_1s)?;
+                    // draw info3 field
+                    cm.config
+                        .info3_stf
+                        .draw(display, cm_1s)?;
 
-                // draw scal arc
-                let stf = num::clamp(-cm.calculated.speed_to_fly_dif.to_km_h() / 10.0, -5.0, 5.0);
-                let angle_sweep = (sizes.angle_m_s * stf).deg();
-                let col = cm.palette().vario.stf_arc;
-                Arc::with_center(d_sizes.center, sizes.stf_diameter, 180.0.deg(), angle_sweep)
-                    .into_styled(PrimitiveStyle::with_stroke(col, sizes.stf_width))
-                    .draw(display)?;
+                    // draw scal arc
+                    let stf = num::clamp(-cm.calculated.speed_to_fly_dif.to_km_h() / 10.0, -5.0, 5.0);
+                    let angle_sweep = (sizes.angle_m_s * stf).deg();
+                    let col = cm.palette().vario.stf_arc;
+                    Arc::with_center(d_sizes.center, sizes.stf_diameter, 180.0.deg(), angle_sweep)
+                        .into_styled(PrimitiveStyle::with_stroke(col, sizes.stf_width))
+                        .draw(display)?;
+                }
             }
         }
 

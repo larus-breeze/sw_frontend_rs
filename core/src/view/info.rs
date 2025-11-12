@@ -16,8 +16,12 @@ pub struct InfoView {
 }
 
 impl InfoView {
-    pub fn new(type_of_info: TypeOfInfo) -> Self {
-        Self { type_of_info }
+    pub fn new(type_of_info: TypeOfInfo) -> Option<Self> {
+        if type_of_info == TypeOfInfo::None {
+            None
+        } else {
+            Some(Self { type_of_info })
+        }
     }
 
     pub fn draw<D>(&self, display: &mut D, cm: &CoreModel) -> Result<(), CoreError>
