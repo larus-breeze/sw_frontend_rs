@@ -891,7 +891,7 @@ pub struct UnitHeigth_;
 
 impl EditableFuncs for UnitHeigth_ {
     fn name() -> &'static str {
-        "Unit Height"
+        "Height"
     }
 
     fn content(cm: &mut CoreModel, _cc: &mut CoreController) -> Content {
@@ -925,7 +925,7 @@ pub struct UnitHorizontalSpeed_;
 
 impl EditableFuncs for UnitHorizontalSpeed_ {
     fn name() -> &'static str {
-        "Unit Hor. Speed"
+        "Horizontal Speed"
     }
 
     fn content(cm: &mut CoreModel, _cc: &mut CoreController) -> Content {
@@ -960,7 +960,7 @@ pub struct UnitVerticalSpeed_;
 
 impl EditableFuncs for UnitVerticalSpeed_ {
     fn name() -> &'static str {
-        "Unit Vert. Speed"
+        "Vertical Speed"
     }
 
     fn content(cm: &mut CoreModel, _cc: &mut CoreController) -> Content {

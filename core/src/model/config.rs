@@ -1,7 +1,9 @@
+use heapless::String;
+use num::clamp;
 use num_enum::FromPrimitive;
 use core::convert::From;
 use crate::{
-    Palette, system_of_units::{FloatToSpeed, Speed}, view::viewable::{centerview::CenterView, vario_infoview::{Info3View, LineView}}
+    CoreModel, Image, Length, Palette, system_of_units::{FloatToSpeed, Speed}, tformat, view::viewable::{centerview::CenterView, vario_infoview::{Info3View, LineView}}
 };
 
 /// Possible displays
@@ -87,6 +89,25 @@ impl UnitHorizontalSpeed {
             UnitHorizontalSpeed::Mph => UNIT_MPH,
         }
     }
+
+    pub fn image(&self, cm: &CoreModel) -> Image {
+        let data = match self {
+            UnitHorizontalSpeed::Kmph => cm.device_const.images.km_h,
+            UnitHorizontalSpeed::Mph => cm.device_const.images.mph,
+            UnitHorizontalSpeed::Knots => cm.device_const.images.kt,
+        };
+        Image::new(data)
+    }
+
+    pub fn value_str(&self, speed: Speed) -> String<3> {
+        let s = match self {
+            UnitHorizontalSpeed::Kmph => speed.to_km_h(),
+            UnitHorizontalSpeed::Mph => speed.to_mph(),
+            UnitHorizontalSpeed::Knots => speed.to_kt(),
+        };
+        let s = clamp(s, -99.0, 999.0);
+        tformat!(3, "{:.0}", s).unwrap()
+    }
 }
 
 #[derive(Clone, Copy, PartialEq, Debug, FromPrimitive)]
@@ -117,6 +138,32 @@ impl UnitVerticalSpeed {
             UnitVerticalSpeed::Knots => UNIT_KNOTS,
         }
     }
+
+    pub fn image(&self, cm: &CoreModel) -> Image {
+        let data = match self {
+            UnitVerticalSpeed::Mps => cm.device_const.images.m_s,
+            UnitVerticalSpeed::Fpm => cm.device_const.images.fpm,
+            UnitVerticalSpeed::Knots => cm.device_const.images.kt,
+        };
+        Image::new(data)
+    }
+
+    pub fn value_str(&self, speed: Speed) -> String<5> {
+        match self {
+            UnitVerticalSpeed::Mps => {
+                let s = clamp(speed.to_m_s(), -99.0, 99.0);
+                tformat!(5, "{:.1}", s).unwrap()
+            },
+            UnitVerticalSpeed::Fpm => {
+                let s = clamp(speed.to_ft_min(), -9999.0, 9999.0);
+                tformat!(5, "{:.0}", s).unwrap()
+            },
+            UnitVerticalSpeed::Knots => {
+                let s = clamp(speed.to_kt(), -99.0, 99.0);
+                tformat!(5, "{:.1}", s).unwrap()
+            },
+        }
+    }
 }
 
 #[derive(Clone, Copy, PartialEq, Debug, FromPrimitive)]
@@ -143,6 +190,23 @@ impl UnitHeight {
             UnitHeight::Meter => UNIT_METER,
             UnitHeight::Feet => UNIT_FEET,
         }
+    }
+
+    pub fn image(&self, cm: &CoreModel) -> Image {
+        let data = match self {
+            UnitHeight::Meter => cm.device_const.images.m,
+            UnitHeight::Feet => cm.device_const.images.ft,
+        };
+        Image::new(data)
+    }
+
+    pub fn value_str(&self, height: Length) -> String<5> {
+        let h = match self {
+            UnitHeight::Meter => height.to_m(),
+            UnitHeight::Feet => height.to_ft(),
+        };
+        let h = clamp(h, -9999.0, 99999.0);
+        tformat!(5, "{:.0}", h).unwrap()
     }
 }
 
