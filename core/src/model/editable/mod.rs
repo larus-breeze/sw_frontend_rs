@@ -173,7 +173,7 @@ struct EditableFptrs {
     name: fn() -> &'static str,
     content: fn(&mut CoreModel, &mut CoreController) -> Content,
     content_as_str: fn(&mut Convert<20>, i32),
-    params: fn() -> Params,
+    params: fn(& CoreModel) -> Params,
     set_content: fn(&mut CoreModel, &mut CoreController, Content),
 }
 
@@ -188,7 +188,7 @@ trait EditableFuncs {
 
     fn content_as_str(_convert: &mut Convert<20>, _idx: i32) {}
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         Params::String(StringParams {
             content: TString::<16>::from_str(""),
         })
@@ -315,9 +315,9 @@ impl Editable {
         }
     }
 
-    pub fn content_as_str(&self, content: Content) -> TString<20> {
+    pub fn content_as_str(&self, content: Content, cm: &CoreModel) -> TString<20> {
         let mut conv = Convert::<20>::new(b' ');
-        let params = self.params();
+        let params = self.params(cm);
 
         match params {
             Params::Enum(_params) => {
@@ -361,8 +361,8 @@ impl Editable {
         ((self.this()).name)()
     }
 
-    pub fn params(&self) -> Params {
-        ((self.this()).params)()
+    pub fn params(&self, cm: &CoreModel) -> Params {
+        ((self.this()).params)(cm)
     }
 
     pub fn set_content(&self, cm: &mut CoreModel, cc: &mut CoreController, content: Content) {

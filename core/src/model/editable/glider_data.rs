@@ -11,7 +11,7 @@ impl EditableFuncs for Bugs {
         Content::F32(Some((cm.glider_data.bugs() - 1.0) * 100.0))
     }
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         Params::F32(F32Params {
             min: 0.0,
             max: 50.0,
@@ -45,7 +45,7 @@ impl EditableFuncs for PilotWeight {
         Content::F32(Some(cm.glider_data.pilot_weight.to_kg()))
     }
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         Params::F32(F32Params {
             min: 0.0,
             max: 250.0,
@@ -79,10 +79,11 @@ impl EditableFuncs for WaterBallast {
         Content::F32(Some(cm.glider_data.water_ballast.to_kg()))
     }
 
-    fn params() -> Params {
+    fn params(cm: &CoreModel) -> Params {
+        let max = cm.glider_data.basic_glider_data.max_ballast;
         Params::F32(F32Params {
             min: 0.0,
-            max: 250.0,
+            max,
             small_inc: 1.0,
             big_inc: 10.0,
             dec_places: 0,
@@ -113,7 +114,7 @@ impl EditableFuncs for EmptyMass {
         Content::F32(Some(cm.glider_data.basic_glider_data.empty_mass))
     }
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         Params::F32(F32Params {
             min: 100.0,
             max: 850.0,
@@ -147,7 +148,7 @@ impl EditableFuncs for MaxBallast {
         Content::F32(Some(cm.glider_data.basic_glider_data.max_ballast))
     }
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         Params::F32(F32Params {
             min: 0.0,
             max: 300.0,
@@ -181,7 +182,7 @@ impl EditableFuncs for ReferenceWeight {
         Content::F32(Some(cm.glider_data.basic_glider_data.reference_weight))
     }
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         Params::F32(F32Params {
             min: 100.0,
             max: 1000.0,
@@ -224,7 +225,7 @@ impl EditableFuncs for PolarValueV1 {
         Content::F32(Some(cm.glider_data.basic_glider_data.polar_values[0][0]))
     }
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         V_PARAMS
     }
 
@@ -251,7 +252,7 @@ impl EditableFuncs for PolarValueV2 {
         Content::F32(Some(cm.glider_data.basic_glider_data.polar_values[1][0]))
     }
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         V_PARAMS
     }
 
@@ -278,7 +279,7 @@ impl EditableFuncs for PolarValueV3 {
         Content::F32(Some(cm.glider_data.basic_glider_data.polar_values[2][0]))
     }
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         V_PARAMS
     }
 
@@ -314,7 +315,7 @@ impl EditableFuncs for PolarValueSi1 {
         Content::F32(Some(cm.glider_data.basic_glider_data.polar_values[0][1]))
     }
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         SI_PARAMS
     }
 
@@ -341,7 +342,7 @@ impl EditableFuncs for PolarValueSi2 {
         Content::F32(Some(cm.glider_data.basic_glider_data.polar_values[1][1]))
     }
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         SI_PARAMS
     }
 
@@ -368,7 +369,7 @@ impl EditableFuncs for PolarValueSi3 {
         Content::F32(Some(cm.glider_data.basic_glider_data.polar_values[2][1]))
     }
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         SI_PARAMS
     }
 

@@ -28,7 +28,7 @@ impl EditableFuncs for DrainPinConfig {
         ))
     }
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         PIN_PARAMS
     }
 
@@ -63,7 +63,7 @@ impl EditableFuncs for FactoryReset {
         Content::Enum(TString::<16>::from_str(s))
     }
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         Params::Enum(EnumParams {
             variants: [DO_NOT_CHANGE, FACTORY_RESET, DO_NOT_CHANGE_2, "", ""],
         })
@@ -96,7 +96,7 @@ impl EditableFuncs for EnergyArrowMult {
         Content::F32(Some(cm.control.energy_arrow_mult))
     }
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         Params::F32(F32Params {
             min: 0.0,
             max: 10.0,
@@ -132,7 +132,7 @@ impl EditableFuncs for FlashControl {
         ))
     }
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         Params::Enum(EnumParams {
             variants: [PIN_NONE, PIN_OUT_CLOSE, PIN_OUT_OPEN, "", ""],
         })
@@ -161,7 +161,7 @@ impl EditableFuncs for FlowEmpty {
         Content::F32(Some(cc.drain_control.flow_rate_offset))
     }
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         Params::F32(F32Params {
             min: 1.0,
             max: 200.0,
@@ -195,7 +195,7 @@ impl EditableFuncs for FlowSlope {
         Content::F32(Some(cc.drain_control.flow_rate_slope))
     }
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         Params::F32(F32Params {
             min: -1.0,
             max: 1.0,
@@ -231,7 +231,7 @@ impl EditableFuncs for GearPinConfig {
         ))
     }
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         PIN_PARAMS
     }
 
@@ -260,7 +260,7 @@ impl EditableFuncs for AirbrakesPinConfig {
         ))
     }
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         PIN_PARAMS
     }
 
@@ -289,7 +289,7 @@ impl EditableFuncs for GearAlarmModeConfig {
         ))
     }
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         Params::Enum(EnumParams {
             variants: [ONE_PIN_MODE, TWO_PIN_MODE, "", "", ""],
         })
@@ -324,7 +324,7 @@ impl EditableFuncs for ResetConfig {
         Content::Enum(TString::<16>::from_str(s))
     }
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         Params::Enum(EnumParams {
             variants: [DEFAULT_CONFIG, DO_NOT_CHANGE, "", "", ""],
         })
@@ -357,7 +357,7 @@ impl EditableFuncs for Rotation_ {
         Content::Enum(TString::<16>::from_str(cm.control.rotation.name()))
     }
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         Params::Enum(EnumParams {
             variants: [
                 Rotation::Rotate0.name(),
@@ -394,7 +394,7 @@ impl EditableFuncs for SpeedToFlyPinConfig {
         ))
     }
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         Params::Enum(EnumParams {
             variants: [PIN_NONE, PIN_IN_CLOSE, PIN_IN_OPEN, PIN_IN_TOGGLE, ""],
         })
@@ -435,7 +435,7 @@ impl EditableFuncs for UserProfile {
         Content::Enum(TString::<16>::from_str(s))
     }
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         Params::Enum(EnumParams {
             variants: [USER_1, USER_2, USER_3, USER_4, DO_NOT_CHANGE],
         })
@@ -469,7 +469,7 @@ impl EditableFuncs for VarioModeControl_ {
         ))
     }
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         Params::Enum(EnumParams {
             variants: [
                 VARIO_MODE_CONTROL_AUTO,

@@ -25,7 +25,7 @@ impl EditableFuncs for SensTiltRoll {
         Content::F32(None)
     }
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         SENS_TILT_PARAMS
     }
 
@@ -45,7 +45,7 @@ impl EditableFuncs for SensTiltPitch {
         Content::F32(None)
     }
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         SENS_TILT_PARAMS
     }
 
@@ -65,7 +65,7 @@ impl EditableFuncs for SensTiltYaw {
         Content::F32(None)
     }
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         SENS_TILT_PARAMS
     }
 
@@ -94,7 +94,7 @@ impl EditableFuncs for PitotOffset {
         Content::F32(None)
     }
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         PA_PARAMS
     }
 
@@ -114,7 +114,7 @@ impl EditableFuncs for PitotSpan {
         Content::F32(None)
     }
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         Params::F32(F32Params {
             min: 0.7,
             max: 1.3,
@@ -141,7 +141,7 @@ impl EditableFuncs for QnhDelta {
         Content::F32(None)
     }
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         PA_PARAMS
     }
 
@@ -161,7 +161,7 @@ impl EditableFuncs for MagAutoCalib {
         Content::F32(None)
     }
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         Params::F32(F32Params {
             min: 0.0,
             max: 2.0,
@@ -197,7 +197,7 @@ impl EditableFuncs for VarioTc {
         Content::F32(None)
     }
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         TC_PARAMS
     }
 
@@ -217,7 +217,7 @@ impl EditableFuncs for VarioIntTc {
         Content::F32(None)
     }
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         TC_PARAMS
     }
 
@@ -237,7 +237,7 @@ impl EditableFuncs for WindTc {
         Content::F32(None)
     }
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         TC_PARAMS
     }
 
@@ -257,7 +257,7 @@ impl EditableFuncs for MeanWindTc {
         Content::F32(None)
     }
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         TC_PARAMS
     }
 
@@ -277,7 +277,7 @@ impl EditableFuncs for GnssConfig {
         Content::F32(None)
     }
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         Params::F32(F32Params {
             min: 1.0,
             max: 3.0,
@@ -313,7 +313,7 @@ impl EditableFuncs for AntBaselen {
         Content::F32(None)
     }
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         ANT_PARAMS
     }
 
@@ -333,7 +333,7 @@ impl EditableFuncs for AntSlaveDown {
         Content::F32(None)
     }
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         ANT_PARAMS
     }
 
@@ -353,7 +353,7 @@ impl EditableFuncs for AntSlaveRight {
         Content::F32(None)
     }
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         ANT_PARAMS
     }
 
@@ -373,7 +373,7 @@ impl EditableFuncs for VarioPressTc {
         Content::F32(None)
     }
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         TC_PARAMS
     }
 
@@ -394,7 +394,7 @@ impl EditableFuncs for CmdMeas1 {
         Content::Command(TString::<16>::from_str(COMMAND_SENT))
     }
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         Params::Cmd(CmdParams {
             content: TString::<16>::from_str(COMMAND_SENT),
         })
@@ -415,7 +415,7 @@ impl EditableFuncs for CmdMeas2 {
         Content::Command(TString::<16>::from_str(COMMAND_SENT))
     }
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         Params::Cmd(CmdParams {
             content: TString::<16>::from_str(COMMAND_SENT),
         })
@@ -436,7 +436,7 @@ impl EditableFuncs for CmdMeas3 {
         Content::Command(TString::<16>::from_str(COMMAND_SENT))
     }
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         Params::Cmd(CmdParams {
             content: TString::<16>::from_str(COMMAND_SENT),
         })
@@ -457,7 +457,7 @@ impl EditableFuncs for CmdCalcOrientation {
         Content::Command(TString::<16>::from_str(COMMAND_SENT))
     }
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         Params::Cmd(CmdParams {
             content: TString::<16>::from_str(COMMAND_SENT),
         })
@@ -483,7 +483,7 @@ impl EditableFuncs for CmdFineTuneOrientation {
         Content::Command(TString::<16>::from_str(COMMAND_SENT))
     }
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         Params::Cmd(CmdParams {
             content: TString::<16>::from_str(COMMAND_SENT),
         })
@@ -509,7 +509,7 @@ impl EditableFuncs for CmdResetSensorbox {
         Content::Command(TString::<16>::from_str(COMMAND_SENT))
     }
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         Params::Cmd(CmdParams {
             content: TString::<16>::from_str(COMMAND_SENT),
         })

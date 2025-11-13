@@ -21,7 +21,7 @@ impl Edit {
     pub fn new(cm: &CoreModel) -> Edit {
         Edit {
             name_str: cm.control.editor.get_head_line(),
-            val_str: cm.control.editor.get_value_line(),
+            val_str: cm.control.editor.get_value_line(cm),
         }
     }
 
@@ -29,7 +29,7 @@ impl Edit {
     where
         D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
     {
-        self.val_str = cm.control.editor.get_value_line();
+        self.val_str = cm.control.editor.get_value_line(cm);
         if cm.config.is_base_display() {
             match cm.device_const.misc.edit_mode {
                 EditMode::Off => Ok(()),

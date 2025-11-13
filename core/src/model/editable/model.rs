@@ -27,7 +27,7 @@ impl EditableFuncs for AlarmVolume {
         Content::F32(Some(cm.control.alarm_volume as f32))
     }
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         VOLUME_PARAMS
     }
 
@@ -56,7 +56,7 @@ impl EditableFuncs for AvgClimbRateSrc {
         ))
     }
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         Params::Enum(EnumParams {
             variants: [DATA_SOURCE_FRONTEND, DATA_SOURCE_SENSORBOX, "", "", ""],
         })
@@ -95,7 +95,7 @@ impl EditableFuncs for BatteryGood {
         Content::F32(Some(cm.config.battery_good))
     }
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         BAT_PARAMS
     }
 
@@ -122,7 +122,7 @@ impl EditableFuncs for BatteryLow {
         Content::F32(Some(cm.config.battery_low))
     }
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         BAT_PARAMS
     }
 
@@ -149,7 +149,7 @@ impl EditableFuncs for CenterFrequency {
         Content::F32(Some(cm.config.snd_center_freq))
     }
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         Params::F32(F32Params {
             min: 500.0,
             max: 1000.0,
@@ -193,7 +193,7 @@ impl EditableFuncs for CenterViewCircling {
             .unwrap()
     }
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         Params::List(ListParams {
             max: CenterView::max(CenterType::Circling) as i32,
         })
@@ -233,7 +233,7 @@ impl EditableFuncs for CenterViewStraight {
             .unwrap()
     }
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         Params::List(ListParams {
             max: CenterView::max(CenterType::Straight) as i32,
         })
@@ -268,7 +268,7 @@ impl EditableFuncs for Display {
         }
     }
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         Params::Enum(EnumParams {
             variants: [VARIO, HORIZON, DEVICE_INFO, "", ""],
         })
@@ -305,7 +305,7 @@ impl EditableFuncs for Glider {
         convert.write_str(name).unwrap()
     }
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         Params::List(ListParams {
             max: polar_store::size() as i32 - 1,
         })
@@ -342,7 +342,7 @@ impl EditableFuncs for GliderSymbol {
         }
     }
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         Params::Enum(EnumParams {
             variants: [ON, OFF, "", "", ""],
         })
@@ -377,7 +377,7 @@ impl EditableFuncs for Info1Vario {
             .unwrap()
     }
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         Params::List(ListParams {
             max: LineView::max(Placement::Top) as i32,
         })
@@ -413,7 +413,7 @@ impl EditableFuncs for Info1Stf {
             .unwrap()
     }
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         Params::List(ListParams {
             max: LineView::max(Placement::Top) as i32,
         })
@@ -449,7 +449,7 @@ impl EditableFuncs for Info2Vario {
             .unwrap()
     }
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         Params::List(ListParams {
             max: LineView::max(Placement::Bottom) as i32,
         })
@@ -485,7 +485,7 @@ impl EditableFuncs for Info2Stf {
             .unwrap()
     }
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         Params::List(ListParams {
             max: LineView::max(Placement::Bottom) as i32,
         })
@@ -521,7 +521,7 @@ impl EditableFuncs for Info3Vario {
             .unwrap()
     }
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         Params::List(ListParams {
             max: Info3View::max(),
         })
@@ -556,7 +556,7 @@ impl EditableFuncs for Info3Stf {
             .unwrap()
     }
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         Params::List(ListParams {
             max: Info3View::max(),
         })
@@ -585,7 +585,7 @@ impl EditableFuncs for McCready {
         Content::F32(Some(cm.config.mc_cready.to_m_s()))
     }
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         Params::F32(F32Params {
             min: 0.0,
             max: 5.0,
@@ -619,7 +619,7 @@ impl EditableFuncs for StfUpperLimit {
         Content::F32(Some(cm.config.stf_upper_limit.to_km_h()))
     }
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         Params::F32(F32Params {
             min: 0.0,
             max: 50.0,
@@ -653,7 +653,7 @@ impl EditableFuncs for StfLowerLimit {
         Content::F32(Some(cm.config.stf_lower_limit.to_km_h()))
     }
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         Params::F32(F32Params {
             min: -50.0,
             max: 0.0,
@@ -687,7 +687,7 @@ impl EditableFuncs for TcCircleHysteresis {
         Content::F32(Some(cm.config.circle_hysteresis_tc as f32))
     }
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         Params::F32(F32Params {
             min: 3.0,
             max: 30.0,
@@ -721,7 +721,7 @@ impl EditableFuncs for TcClimbRate {
         Content::F32(Some(cm.config.av2_climb_rate_tc))
     }
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         Params::F32(F32Params {
             min: 15.0,
             max: 120.0,
@@ -755,7 +755,7 @@ impl EditableFuncs for TcSpeedToFly {
         Content::F32(Some(cm.config.av_speed_to_fly_tc))
     }
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         Params::F32(F32Params {
             min: 1.0,
             max: 60.0,
@@ -796,7 +796,7 @@ impl EditableFuncs for Theme {
         }
     }
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         Params::Enum(EnumParams {
             variants: [DARK, BRIGHT, "", "", ""],
         })
@@ -829,7 +829,7 @@ impl EditableFuncs for VarioUpperLimit {
         Content::F32(Some(cm.config.vario_upper_limit.to_m_s()))
     }
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         Params::F32(F32Params {
             min: -10.0,
             max: 10.0,
@@ -863,7 +863,7 @@ impl EditableFuncs for VarioLowerLimit {
         Content::F32(Some(cm.config.vario_lower_limit.to_m_s()))
     }
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         Params::F32(F32Params {
             min: -10.0,
             max: 10.0,
@@ -901,7 +901,7 @@ impl EditableFuncs for UnitHeigth_ {
         }
     }
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         Params::Enum(EnumParams {
             variants: [UNIT_METER, UNIT_FEET, "", "", ""],
         })
@@ -936,7 +936,7 @@ impl EditableFuncs for UnitHorizontalSpeed_ {
         }
     }
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         Params::Enum(EnumParams {
             variants: [UNIT_KMPH, UNIT_MPH, UNIT_KNOTS, "", ""],
         })
@@ -971,7 +971,7 @@ impl EditableFuncs for UnitVerticalSpeed_ {
         }
     }
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         Params::Enum(EnumParams {
             variants: [UNIT_MPS, UNIT_FPM, UNIT_KNOTS, "", ""],
         })
@@ -1001,7 +1001,7 @@ impl EditableFuncs for Volume {
         Content::F32(Some(cm.config.volume as f32))
     }
 
-    fn params() -> Params {
+    fn params(_cm: &CoreModel) -> Params {
         VOLUME_PARAMS
     }
 

@@ -164,7 +164,7 @@ pub fn key_action(key_event: &mut KeyEvent, cm: &mut CoreModel, cc: &mut CoreCon
 
 pub fn activate_editable(editable: Editable, cm: &mut CoreModel, cc: &mut CoreController) {
     cm.control.editor.target = editable;
-    cm.control.editor.params = editable.params();
+    cm.control.editor.params = editable.params(cm);
     cm.control.editor.content = editable.content(cm, cc);
     cm.control.editor.enter_pushed = false;
     if cm.config.display_active == DisplayActive::Menu {
@@ -208,7 +208,7 @@ impl Editor {
         Editor {
             target: Editable::None,
             mode: EditMode::Off,
-            params: Editable::None.params(),
+            params: Params::String(StringParams {content: TString::<16>::from_str("")}),
             content: Content::String(TString::new()),
             enter_pushed: false,
         }
@@ -218,7 +218,7 @@ impl Editor {
         self.target.name()
     }
 
-    pub fn get_value_line(&self) -> TString<20> {
-        self.target.content_as_str(self.content)
+    pub fn get_value_line(&self, cm: &CoreModel) -> TString<20> {
+        self.target.content_as_str(self.content, cm)
     }
 }
