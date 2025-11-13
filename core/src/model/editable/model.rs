@@ -1,7 +1,7 @@
 use super::{Content, EditableFuncs, EnumParams, F32Params, ListParams, Params};
 use crate::{
     CoreController, CoreModel, Echo, FloatToSpeed, PersistenceId, model::{
-        DataSource, DisplayActive, DisplayTheme, config::{DEVICE_INFO, HORIZON, VARIO}, control::{DATA_SOURCE_FRONTEND, DATA_SOURCE_SENSORBOX}}, persist, polar_store, utils::{TString, Variant}, view::viewable::{
+        DataSource, DisplayActive, DisplayTheme, config::{DEVICE_INFO, HORIZON, UNIT_FEET, UNIT_FPM, UNIT_KMPH, UNIT_KNOTS, UNIT_METER, UNIT_MPH, UNIT_MPS, UnitHeight, UnitHorizontalSpeed, UnitVerticalSpeed, VARIO}, control::{DATA_SOURCE_FRONTEND, DATA_SOURCE_SENSORBOX}}, persist, polar_store, utils::{TString, Variant}, view::viewable::{
         centerview::{CenterType, CenterView},
         vario_infoview::{Info3View, LineView, Placement},
     }
@@ -883,6 +883,110 @@ impl EditableFuncs for VarioLowerLimit {
                 PersistenceId::VarioLowerLimit,
                 Echo::None,
             )
+        }
+    }
+}
+
+pub struct UnitHeigth_;
+
+impl EditableFuncs for UnitHeigth_ {
+    fn name() -> &'static str {
+        "Unit Height"
+    }
+
+    fn content(cm: &mut CoreModel, _cc: &mut CoreController) -> Content {
+        match cm.config.unit_height {
+            UnitHeight::Feet => Content::Enum(TString::<16>::from_str(UNIT_FEET)),
+            _ => Content::Enum(TString::<16>::from_str(UNIT_METER)),
+        }
+    }
+
+    fn params() -> Params {
+        Params::Enum(EnumParams {
+            variants: [UNIT_METER, UNIT_FEET, "", "", ""],
+        })
+    }
+
+    fn set_content(cm: &mut CoreModel, cc: &mut CoreController, content: Content) {
+        if let Content::Enum(val) = content {
+            let unit = UnitHeight::from_str(val.as_str());
+            persist::persist_set(
+                cc,
+                cm,
+                Variant::I32(unit as i32),
+                PersistenceId::UnitHeight,
+                Echo::None,
+            );
+        }
+    }
+}
+
+pub struct UnitHorizontalSpeed_;
+
+impl EditableFuncs for UnitHorizontalSpeed_ {
+    fn name() -> &'static str {
+        "Unit Hor. Speed"
+    }
+
+    fn content(cm: &mut CoreModel, _cc: &mut CoreController) -> Content {
+        match cm.config.unit_horizontal_spped {
+            UnitHorizontalSpeed::Mph => Content::Enum(TString::<16>::from_str(UNIT_MPH)),
+            UnitHorizontalSpeed::Knots => Content::Enum(TString::<16>::from_str(UNIT_KNOTS)),
+            _ => Content::Enum(TString::<16>::from_str(UNIT_KMPH)),
+        }
+    }
+
+    fn params() -> Params {
+        Params::Enum(EnumParams {
+            variants: [UNIT_KMPH, UNIT_MPH, UNIT_KNOTS, "", ""],
+        })
+    }
+
+    fn set_content(cm: &mut CoreModel, cc: &mut CoreController, content: Content) {
+        if let Content::Enum(val) = content {
+            let unit = UnitHorizontalSpeed::from_str(val.as_str());
+            persist::persist_set(
+                cc,
+                cm,
+                Variant::I32(unit as i32),
+                PersistenceId::UnitHorizontalSpeed,
+                Echo::None,
+            );
+        }
+    }
+}
+
+pub struct UnitVerticalSpeed_;
+
+impl EditableFuncs for UnitVerticalSpeed_ {
+    fn name() -> &'static str {
+        "Unit Vert. Speed"
+    }
+
+    fn content(cm: &mut CoreModel, _cc: &mut CoreController) -> Content {
+        match cm.config.unit_vertical_spped {
+            UnitVerticalSpeed::Fpm => Content::Enum(TString::<16>::from_str(UNIT_FPM)),
+            UnitVerticalSpeed::Knots => Content::Enum(TString::<16>::from_str(UNIT_KNOTS)),
+            _ => Content::Enum(TString::<16>::from_str(UNIT_MPS)),
+        }
+    }
+
+    fn params() -> Params {
+        Params::Enum(EnumParams {
+            variants: [UNIT_MPS, UNIT_FPM, UNIT_KNOTS, "", ""],
+        })
+    }
+
+    fn set_content(cm: &mut CoreModel, cc: &mut CoreController, content: Content) {
+        if let Content::Enum(val) = content {
+            let unit = UnitVerticalSpeed::from_str(val.as_str());
+            persist::persist_set(
+                cc,
+                cm,
+                Variant::I32(unit as i32),
+                PersistenceId::UnitVerticalSpeed,
+                Echo::None,
+            );
         }
     }
 }

@@ -58,6 +58,94 @@ pub enum OverlayActive {
     Info,
 }
 
+#[derive(Clone, Copy, PartialEq, Debug, FromPrimitive)]
+#[repr(u8)]
+pub enum UnitHorizontalSpeed {
+    #[default]
+    Kmph,
+    Mph,
+    Knots,
+}
+
+pub const UNIT_KMPH: &'static str = "km/h";
+pub const UNIT_KNOTS: &'static str = "knots";
+pub const UNIT_MPH: &'static str = "mph";
+
+impl UnitHorizontalSpeed {
+    pub fn from_str(name: &str) -> Self {
+        match name {
+            UNIT_KNOTS => UnitHorizontalSpeed::Knots,
+            UNIT_MPH => UnitHorizontalSpeed::Mph,
+            _ => UnitHorizontalSpeed::Kmph,
+        }
+    }
+
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            UnitHorizontalSpeed::Kmph => UNIT_KMPH,
+            UnitHorizontalSpeed::Knots => UNIT_KNOTS,
+            UnitHorizontalSpeed::Mph => UNIT_MPH,
+        }
+    }
+}
+
+#[derive(Clone, Copy, PartialEq, Debug, FromPrimitive)]
+#[repr(u8)]
+pub enum UnitVerticalSpeed {
+    #[default]
+    Mps,
+    Fpm,
+    Knots,
+}
+
+pub const UNIT_MPS: &'static str = "m/s";
+pub const UNIT_FPM: &'static str = "fpm";
+
+impl UnitVerticalSpeed {
+    pub fn from_str(name: &str) -> Self {
+        match name {
+            UNIT_KNOTS => UnitVerticalSpeed::Knots,
+            UNIT_FPM => UnitVerticalSpeed::Fpm,
+            _ => UnitVerticalSpeed::Mps,
+        }
+    }
+
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            UnitVerticalSpeed::Mps => UNIT_MPS,
+            UnitVerticalSpeed::Fpm => UNIT_FPM,
+            UnitVerticalSpeed::Knots => UNIT_KNOTS,
+        }
+    }
+}
+
+#[derive(Clone, Copy, PartialEq, Debug, FromPrimitive)]
+#[repr(u8)]
+pub enum UnitHeight {
+    #[default]
+    Meter,
+    Feet,
+}
+
+pub const UNIT_METER: &'static str = "m";
+pub const UNIT_FEET: &'static str = "ft";
+
+impl UnitHeight {
+    pub fn from_str(name: &str) -> Self {
+        match name {
+            UNIT_FEET => UnitHeight::Feet,
+            _ => UnitHeight::Meter,
+        }
+    }
+
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            UnitHeight::Meter => UNIT_METER,
+            UnitHeight::Feet => UNIT_FEET,
+        }
+    }
+}
+
 /// Metastructur for config variables
 #[derive(Clone, Copy)]
 pub struct Config {
@@ -95,6 +183,9 @@ pub struct Config {
     pub stf_lower_limit: Speed,
     pub vario_lower_limit: Speed,
     pub vario_upper_limit: Speed,
+    pub unit_horizontal_spped: UnitHorizontalSpeed,
+    pub unit_vertical_spped: UnitVerticalSpeed,
+    pub unit_height: UnitHeight,
 }
 
 impl Config {
@@ -134,6 +225,9 @@ impl Config {
             stf_lower_limit: -10.0.km_h(),
             vario_upper_limit: 0.0.m_s(),
             vario_lower_limit: 0.0.m_s(),
+            unit_horizontal_spped: UnitHorizontalSpeed::Kmph,
+            unit_vertical_spped: UnitVerticalSpeed::Mps,
+            unit_height: UnitHeight::Meter,
         }
     }
 

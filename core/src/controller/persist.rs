@@ -28,6 +28,7 @@ use crate::{
         RemoteConfig,
     },
     flight_physics::polar_store,
+    model::{UnitHorizontalSpeed, UnitVerticalSpeed, UnitHeight},
     system_of_units::Speed,
     utils::Variant,
     view::viewable::{centerview::CenterView, vario_infoview::{LineView, Info3View}},
@@ -91,7 +92,10 @@ pub enum PersistenceId {
     Info2Stf = 48,
     Info3Vario = 49,
     Info3Stf = 50,
-    LastItem = 51, // Items smaller than this are stored in eeprom
+    UnitHorizontalSpeed = 51,
+    UnitVerticalSpeed = 52,
+    UnitHeight = 53,
+    LastItem = 54, // Items smaller than this are stored in eeprom
 
     // Special function Ids
     VarioMode = 65532,
@@ -297,6 +301,9 @@ pub fn restore_item(cc: &mut CoreController, cm: &mut CoreModel, item: Persisten
         PersistenceId::Info2Stf => cm.config.info2_stf = LineView::from(item.to_u8()),
         PersistenceId::Info3Vario => cm.config.info3_vario = Info3View::from(item.to_u8()),
         PersistenceId::Info3Stf => cm.config.info3_stf = Info3View::from(item.to_u8()),
+        PersistenceId::UnitHorizontalSpeed => cm.config.unit_horizontal_spped = UnitHorizontalSpeed::from(item.to_u8()),
+        PersistenceId::UnitVerticalSpeed => cm.config.unit_vertical_spped = UnitVerticalSpeed::from(item.to_u8()),
+        PersistenceId::UnitHeight => cm.config.unit_height = UnitHeight::from(item.to_u8()),
 
         PersistenceId::VarioMode => cm.control.vario_mode = VarioMode::from(item.to_u8()),
 

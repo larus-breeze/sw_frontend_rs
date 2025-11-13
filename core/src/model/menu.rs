@@ -53,6 +53,7 @@ pub const SPEED_TO_FLY_IDX: usize = 9;
 pub const LANDING_GEAR_ALARM_IDX: usize = 10;
 pub const VARIO_IDX: usize = 11;
 pub const RESET_CONFIG_IDX: usize = 12;
+pub const UNITS_IDX: usize = 13;
 
 pub const MENU_LIST: &[Menu] = &[
     ROOT,
@@ -68,6 +69,7 @@ pub const MENU_LIST: &[Menu] = &[
     LANDING_GEAR_ALARM,
     VARIO,
     RESET_CONFIG,
+    UNITS,
 ];
 
 pub const ROOT: Menu = Menu {
@@ -153,6 +155,10 @@ pub const VIEW_SETTINGS: Menu = Menu {
         MenuItem {
             content: MenuItemContent::EditItem(Editable::GliderSymbol),
             next_menu_idx: VIEW_SETINGS_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::MenuItem(),
+            next_menu_idx: UNITS_IDX,
         },
         MenuItem {
             content: MenuItemContent::EditItem(Editable::Return),
@@ -528,6 +534,29 @@ pub const RESET_CONFIG: Menu = Menu {
         MenuItem {
             content: MenuItemContent::EditItem(Editable::Return),
             next_menu_idx: ADVANCED_SETTINGS_IDX,
+        },
+    ],
+};
+
+pub const UNITS: Menu = Menu {
+    name: "Units",
+    level: 3,
+    items: &[
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::UnitHeight),
+            next_menu_idx: UNITS_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::UnitHorizontalSpeed),
+            next_menu_idx: UNITS_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::UnitVerticalSpeed),
+            next_menu_idx: UNITS_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::Return),
+            next_menu_idx: VIEW_SETINGS_IDX,
         },
     ],
 };

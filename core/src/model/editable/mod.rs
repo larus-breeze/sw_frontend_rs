@@ -55,6 +55,9 @@ pub enum Editable {
     Theme,
     VarioUpperLimit,
     VarioLowerLimit,
+    UnitHeight,
+    UnitHorizontalSpeed,
+    UnitVerticalSpeed,
     Volume,
 
     // controller
@@ -247,6 +250,9 @@ impl Editable {
             Editable::Theme => Theme::this(),
             Editable::VarioUpperLimit => VarioUpperLimit::this(),
             Editable::VarioLowerLimit => VarioLowerLimit::this(),
+            Editable::UnitHeight => UnitHeigth_::this(),
+            Editable::UnitHorizontalSpeed => UnitHorizontalSpeed_::this(),
+            Editable::UnitVerticalSpeed => UnitVerticalSpeed_::this(),
             Editable::Volume => Volume::this(),
 
             // controller
