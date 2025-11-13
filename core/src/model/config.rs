@@ -82,6 +82,22 @@ impl UnitHorizontalSpeed {
         }
     }
 
+    pub fn as_f32(&self, speed: Speed) -> f32 {
+        match self {
+            UnitHorizontalSpeed::Kmph => speed.to_km_h(),
+            UnitHorizontalSpeed::Mph => speed.to_mph(),
+            UnitHorizontalSpeed::Knots => speed.to_kt(),
+        }    
+    }
+
+    pub fn as_speed(&self, value: f32) -> Speed {
+        match self {
+            UnitHorizontalSpeed::Kmph => Speed::from_km_h(value),
+            UnitHorizontalSpeed::Knots => Speed::from_kt(value),
+            UnitHorizontalSpeed::Mph => Speed::from_mph(value),
+        }
+    }
+
     pub fn as_str(&self) -> &'static str {
         match self {
             UnitHorizontalSpeed::Kmph => UNIT_KMPH,
@@ -100,12 +116,7 @@ impl UnitHorizontalSpeed {
     }
 
     pub fn value_str(&self, speed: Speed) -> String<3> {
-        let s = match self {
-            UnitHorizontalSpeed::Kmph => speed.to_km_h(),
-            UnitHorizontalSpeed::Mph => speed.to_mph(),
-            UnitHorizontalSpeed::Knots => speed.to_kt(),
-        };
-        let s = clamp(s, -99.0, 999.0);
+        let s = clamp(self.as_f32(speed), -99.0, 999.0);
         tformat!(3, "{:.0}", s).unwrap()
     }
 }
@@ -128,6 +139,22 @@ impl UnitVerticalSpeed {
             UNIT_KNOTS => UnitVerticalSpeed::Knots,
             UNIT_FPM => UnitVerticalSpeed::Fpm,
             _ => UnitVerticalSpeed::Mps,
+        }
+    }
+    
+    pub fn as_f32(&self, speed: Speed) -> f32 {
+        match self {
+            UnitVerticalSpeed::Mps => speed.to_m_s(),
+            UnitVerticalSpeed::Fpm => speed.to_ft_min(),
+            UnitVerticalSpeed::Knots => speed.to_kt(),
+        }    
+    }
+
+    pub fn as_speed(&self, value: f32) -> Speed {
+        match self {
+            UnitVerticalSpeed::Mps => Speed::from_m_s(value),
+            UnitVerticalSpeed::Fpm => Speed::from_ft_min(value),
+            UnitVerticalSpeed::Knots => Speed::from_kt(value),
         }
     }
 
@@ -247,8 +274,8 @@ pub struct Config {
     pub stf_lower_limit: Speed,
     pub vario_lower_limit: Speed,
     pub vario_upper_limit: Speed,
-    pub unit_horizontal_spped: UnitHorizontalSpeed,
-    pub unit_vertical_spped: UnitVerticalSpeed,
+    pub unit_horizontal_speed: UnitHorizontalSpeed,
+    pub unit_vertical_speed: UnitVerticalSpeed,
     pub unit_height: UnitHeight,
 }
 
@@ -289,8 +316,8 @@ impl Config {
             stf_lower_limit: -10.0.km_h(),
             vario_upper_limit: 0.0.m_s(),
             vario_lower_limit: 0.0.m_s(),
-            unit_horizontal_spped: UnitHorizontalSpeed::Kmph,
-            unit_vertical_spped: UnitVerticalSpeed::Mps,
+            unit_horizontal_speed: UnitHorizontalSpeed::Kmph,
+            unit_vertical_speed: UnitVerticalSpeed::Mps,
             unit_height: UnitHeight::Meter,
         }
     }

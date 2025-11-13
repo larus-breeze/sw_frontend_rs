@@ -301,8 +301,8 @@ pub fn restore_item(cc: &mut CoreController, cm: &mut CoreModel, item: Persisten
         PersistenceId::Info2Stf => cm.config.info2_stf = LineView::from(item.to_u8()),
         PersistenceId::Info3Vario => cm.config.info3_vario = Info3View::from(item.to_u8()),
         PersistenceId::Info3Stf => cm.config.info3_stf = Info3View::from(item.to_u8()),
-        PersistenceId::UnitHorizontalSpeed => cm.config.unit_horizontal_spped = UnitHorizontalSpeed::from(item.to_u8()),
-        PersistenceId::UnitVerticalSpeed => cm.config.unit_vertical_spped = UnitVerticalSpeed::from(item.to_u8()),
+        PersistenceId::UnitHorizontalSpeed => cm.config.unit_horizontal_speed = UnitHorizontalSpeed::from(item.to_u8()),
+        PersistenceId::UnitVerticalSpeed => cm.config.unit_vertical_speed = UnitVerticalSpeed::from(item.to_u8()),
         PersistenceId::UnitHeight => cm.config.unit_height = UnitHeight::from(item.to_u8()),
 
         PersistenceId::VarioMode => cm.control.vario_mode = VarioMode::from(item.to_u8()),

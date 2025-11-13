@@ -196,11 +196,11 @@ where
     D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
 {
     let s = match cm.control.avg_climb_rate_src {
-        DataSource::Frontend => cm.config.unit_vertical_spped.value_str(cm.calculated.av2_climb_rate),
-        DataSource::Sensorbox => cm.config.unit_vertical_spped.value_str(cm.sensor.average_climb_rate),
+        DataSource::Frontend => cm.config.unit_vertical_speed.value_str(cm.calculated.av2_climb_rate),
+        DataSource::Sensorbox => cm.config.unit_vertical_speed.value_str(cm.sensor.average_climb_rate),
     };
     let img1 = Some(Image::new(cm.device_const.images.avg_climb_rate));
-    let img2 = Some(cm.config.unit_vertical_spped.image(cm));
+    let img2 = Some(cm.config.unit_vertical_speed.image(cm));
     draw_centered_line(display, pos, img1, s.as_str(), img2, &cm.device_const.big_font, cm.palette())
 }
 
@@ -263,9 +263,9 @@ fn draw_speed_to_fly<D>(
 where
     D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
 {
-    let stf = cm.config.unit_horizontal_spped.value_str(cm.calculated.speed_to_fly_1s);
+    let stf = cm.config.unit_horizontal_speed.value_str(cm.calculated.speed_to_fly_1s);
     let img1 = Some(Image::new(cm.device_const.images.speed_to_fly));
-    let img2 = Some(cm.config.unit_horizontal_spped.image(cm));
+    let img2 = Some(cm.config.unit_horizontal_speed.image(cm));
     draw_centered_line(display, pos, img1, stf.as_str(), img2, &cm.device_const.big_font, cm.palette())
 }
 
@@ -277,9 +277,9 @@ fn draw_true_air_speed<D>(
 where
     D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
 {
-    let tas = cm.config.unit_horizontal_spped.value_str(cm.sensor.airspeed.tas());
+    let tas = cm.config.unit_horizontal_speed.value_str(cm.sensor.airspeed.tas());
     let img1 = Some(Image::new(cm.device_const.images.tas));
-    let img2 = Some(cm.config.unit_horizontal_spped.image(cm));
+    let img2 = Some(cm.config.unit_horizontal_speed.image(cm));
     draw_centered_line(display, pos, img1, tas.as_str(), img2, &cm.device_const.big_font, cm.palette())
 }
 
@@ -337,10 +337,10 @@ where
         cm.sensor.wind_vector.angle()
     };
 
-    let unit_img = cm.config.unit_horizontal_spped.image(cm);
+    let unit_img = cm.config.unit_horizontal_speed.image(cm);
     let wind_deg = angle.to_degrees();
     let wind_speed = cm.sensor.wind_vector.speed();
-    let ws_str = cm.config.unit_horizontal_spped.value_str(wind_speed);
+    let ws_str = cm.config.unit_horizontal_speed.value_str(wind_speed);
     let wind_x = pos.x - unit_img.width() as i32 / 2;
     let wind_y = pos.y - (total_height as i32) / 2;
     let s = tformat!(25, "{:.0}° {}", wind_deg, ws_str.as_str()).unwrap();
@@ -359,7 +359,7 @@ where
     }
 
     let avg_wind_spped = cm.sensor.average_wind.speed();
-    let avg_str = cm.config.unit_horizontal_spped.value_str(avg_wind_spped);
+    let avg_str = cm.config.unit_horizontal_speed.value_str(avg_wind_spped);
     let avg_wind_angle = cm.sensor.average_wind.angle().to_degrees();
     let avg_txt = tformat!(25, "{:.0}° {}", avg_wind_angle, avg_str.as_str()).unwrap();
     let avg_color = cm.palette().vario.wind_diff;
@@ -394,10 +394,10 @@ where
         cm.sensor.wind_vector.angle()
     };
 
-    let unit_img = cm.config.unit_horizontal_spped.image(cm);
+    let unit_img = cm.config.unit_horizontal_speed.image(cm);
     let wind_deg = angle.to_degrees();
     let wind_speed = cm.sensor.wind_vector.speed();
-    let wind_str = cm.config.unit_horizontal_spped.value_str(wind_speed);
+    let wind_str = cm.config.unit_horizontal_speed.value_str(wind_speed);
     let wind_x = pos.x - unit_img.width() as i32 / 2;
     let wind_y = pos.y - (total_height as i32) / 2;
     let s = tformat!(25, "{:.0}° {}", wind_deg, wind_str.as_str()).unwrap();
@@ -417,7 +417,7 @@ where
 
     let avg_wind_spped = cm.sensor.average_wind.speed();
     let delta_speed = wind_speed - avg_wind_spped;
-    let delta_txt = cm.config.unit_horizontal_spped.value_str(delta_speed);
+    let delta_txt = cm.config.unit_horizontal_speed.value_str(delta_speed);
     let delta_y = pos.y + (total_height as i32) / 2;
     let delta_color = cm.palette().vario.wind_diff;
 
@@ -491,10 +491,10 @@ where
         sizes.pic_info3_pos,
         Some(cm.palette().vario.icon),
     )?;
-    let img = cm.config.unit_vertical_spped.image(cm);
+    let img = cm.config.unit_vertical_speed.image(cm);
     img.draw(display, sizes.info3_pos, Some(cm.palette().vario.unit))?;
 
-    let txt  = cm.config.unit_vertical_spped.value_str(cm.calculated.thermal_climb_rate);
+    let txt  = cm.config.unit_vertical_speed.value_str(cm.calculated.thermal_climb_rate);
     cm.device_const.big_font.render_aligned(
         txt.as_str(),
         sizes.info3_pos,
@@ -519,9 +519,9 @@ where
         sizes.pic_info3_pos,
         Some(cm.palette().vario.icon),
     )?;
-    let img = cm.config.unit_horizontal_spped.image(cm);
+    let img = cm.config.unit_horizontal_speed.image(cm);
     img.draw(display, sizes.info3_pos, Some(cm.palette().vario.unit))?;
-    let txt = cm.config.unit_horizontal_spped.value_str(cm.calculated.speed_to_fly_1s);
+    let txt = cm.config.unit_horizontal_speed.value_str(cm.calculated.speed_to_fly_1s);
     cm.device_const.big_font.render_aligned(
         txt.as_str(),
         sizes.info3_pos,
