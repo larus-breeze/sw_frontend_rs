@@ -16,6 +16,7 @@ PICS = [
     "kt.png",
     "m_s.png",
     "fpm.png",
+    "fpm-100.png",
     "m.png",
     "ft.png",
 ]

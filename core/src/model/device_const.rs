@@ -66,7 +66,7 @@ pub struct VarioSizes {
     pub ta_point_diameter: u32,
     pub wind_len: i32,
     pub wind_len_min: i32,
-    pub angle_m_s: f32,
+    pub scale_factor: f32, // angle in degrees betwenn 0 and the first entry
 }
 
 pub struct Images {
@@ -78,6 +78,7 @@ pub struct Images {
     pub drift_angle: &'static [u8],
     pub flight_level: &'static [u8],
     pub fpm: &'static [u8],
+    pub fpm_100: &'static [u8],
     pub ft: &'static [u8],
     pub gear: &'static [u8],
     pub glider: &'static [u8],
@@ -96,7 +97,8 @@ pub struct Images {
     pub true_course: &'static [u8],
     pub wp_editor: &'static [u8],
     pub wp_horizon: &'static [u8],
-    pub wp_vario: &'static [u8],
+    pub wp_vario_5: &'static [u8],
+    pub wp_vario_10: &'static [u8],
 }
 
 #[derive(PartialEq)]

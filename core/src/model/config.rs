@@ -212,6 +212,20 @@ impl UnitHeight {
         }
     }
 
+    pub fn as_f32(&self, height: Length) -> f32 {
+        match self {
+            UnitHeight::Meter => height.to_m(),
+            UnitHeight::Feet => height.to_ft(),
+        }    
+    }
+
+    pub fn as_length(&self, value: f32) -> Length {
+        match self {
+            UnitHeight::Meter => Length::from_m(value),
+            UnitHeight::Feet => Length::from_ft(value),
+        }
+    }
+
     pub fn as_str(&self) -> &'static str {
         match self {
             UnitHeight::Meter => UNIT_METER,

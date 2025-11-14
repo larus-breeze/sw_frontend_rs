@@ -83,7 +83,7 @@ const fn vario_sizes() -> VarioSizes {
         ta_point_diameter: 12,
         wind_len: 105,
         wind_len_min: 50,
-        angle_m_s: 24.0,
+        scale_factor: 24.0,
     }
 }
 
@@ -97,6 +97,7 @@ const fn images() -> Images {
         drift_angle: include_bytes_aligned!(4, "../assets/drift_angle.lif"),
         flight_level: include_bytes_aligned!(4, "../assets/flight_level.lif"),
         fpm: include_bytes_aligned!(4, "../assets/fpm.lif"),
+        fpm_100: include_bytes_aligned!(4, "../assets/fpm-100.lif"),
         ft: include_bytes_aligned!(4, "../assets/ft.lif"),
         gear: include_bytes_aligned!(4, "../assets/gear.lif"),
         glider: include_bytes_aligned!(4, "../assets/glider.lif"),
@@ -115,7 +116,8 @@ const fn images() -> Images {
         true_course: include_bytes_aligned!(4, "../assets/true_course.lif"),
         wp_editor: include_bytes_aligned!(4, "../assets/wp_editor.lif"),
         wp_horizon: include_bytes_aligned!(4, "../assets/wp_horizon.lif"),
-        wp_vario: include_bytes_aligned!(4, "../assets/wp_vario.lif"),
+        wp_vario_5: include_bytes_aligned!(4, "../assets/wp_vario-5.lif"),
+        wp_vario_10: include_bytes_aligned!(4, "../assets/wp_vario-10.lif"),
     }
 }
 

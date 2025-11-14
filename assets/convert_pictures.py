@@ -197,6 +197,7 @@ PICTURES = (
     (4, 'drift_angle.png', {0: DARK_GRAY, 255: BACKGROUND}),
     (4, 'flight_level.png', {0: DARK_GRAY, 255: BACKGROUND}),
     (4, 'fpm.png', {0: DARK_GRAY, 255: BACKGROUND}),
+    (4, 'fpm-100.png', {0: DARK_GRAY, 255: BACKGROUND}),
     (4, 'ft.png', {0: DARK_GRAY, 255: BACKGROUND}),
     (4, 'gear.png', {0: ORANGE_RED, 255: BACKGROUND}),
     (4, 'glider.png', {0: DARK_GRAY, 1: BACKGROUND}),
@@ -214,8 +215,9 @@ PICTURES = (
     (4, 'tas.png', {0: DARK_GRAY, 255: BACKGROUND}),
     (4, 'true_course.png', {0: DARK_GRAY, 255: BACKGROUND}),
     (4, 'wp_editor.png', {1: RED, 2: BLACK, 0: BACKGROUND}),
-    (4, 'wp_vario.png', {0: WHITE, 255: BACKGROUND}),
     (4, 'wp_horizon.png', {0: BACKGROUND, 1: WHITE, 2: LIGHT_YELLOW, 3: BLACK}),
+    (4, 'wp_vario-5.png', {0: WHITE, 255: BACKGROUND}),
+    (4, 'wp_vario-10.png', {0: WHITE, 255: BACKGROUND}),
 )
 
 def generate(dim_x, dim_y, src, dst):

@@ -13,9 +13,9 @@ class VarioWallpaper():
         self.center_y = self.radius
         self.font = ImageFont.truetype("assets/Arial_Bold.ttf", self.font_size)
 
-    def stroke(self, value):
+    def stroke(self, value, div):
         # draw stroke
-        angle = value*self.angle*TO_RAD
+        angle = value*self.angle*TO_RAD*div
         start_x = int(self.center_x - math.cos(angle)*(self.radius+1))
         start_y = int(self.center_y - math.sin(angle)*(self.radius+1))
         end_x = int(self.center_x - math.cos(angle)*(self.radius - self.stroke_len))
@@ -27,12 +27,17 @@ class VarioWallpaper():
         text_y = int(self.center_y - math.sin(angle)*(self.radius - self.stroke_text_pos)) + self.font_off_y
         self.draw.text((text_x, text_y), str(abs(value)), font=self.font, fill=1)
 
-    def generate(self, path):
+    def generate(self, path, is_ten=False):
         self.draw.arc((0, 0, self.diameter, self.diameter), self.min_arc, self.max_arc, width=self.margin, fill=0)
         self.draw.arc((self.dx, self.dy, self.margin+self.dx, self.margin+self.dy), 0, 360, width=self.margin, fill=0)
         self.draw.arc((self.dx, self.height - self.margin - self.dy - 1, self.margin+self.dx, self.height - self.dy - 1), 0, 360, width=self.margin, fill=0)
-        for value  in (-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5):
-            self.stroke(value)
+
+        if is_ten:
+            for value  in (-10, -8, -6, -4, -2, 0, 2, 4, 6, 8, 10):
+                self.stroke(value, 0.5)
+        else:
+            for value  in (-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5):
+                self.stroke(value, 1.0)
         self.img.save(path)
         print(f"Save as '{path}'")
     
@@ -94,8 +99,11 @@ DIMS_480_480 = {
 }
 
 wp = VarioWallpaper(DIMS_227_285)
-wp.generate("assets/size_227x285/wp_vario.png")
+wp.generate("assets/size_227x285/wp_vario-5.png")
+wp.generate("assets/size_227x285/wp_vario-10.png", is_ten=10)
 wp = VarioWallpaper(DIMS_240_320)
-wp.generate("assets/size_240x320/wp_vario.png")
+wp.generate("assets/size_240x320/wp_vario-5.png")
+wp.generate("assets/size_240x320/wp_vario-10.png", is_ten=10)
 wp = VarioWallpaper(DIMS_480_480)
-wp.generate("assets/size_480x480/wp_vario.png")
+wp.generate("assets/size_480x480/wp_vario-5.png")
+wp.generate("assets/size_480x480/wp_vario-10.png", is_ten=10)
