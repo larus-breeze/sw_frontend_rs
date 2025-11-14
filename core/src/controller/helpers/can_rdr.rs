@@ -288,9 +288,10 @@ impl CoreController {
             sensor::TAS_IAS => {
                 let tas = rdr.pop_f32();
                 let ias = rdr.pop_f32();
-                if tas.is_some() && ias.is_some() {
-                    cm.sensor.airspeed =
-                        AirSpeed::from_speeds(ias.unwrap().m_s(), tas.unwrap().m_s());
+                if let Some(tas) = tas {
+                    if let Some(ias) = ias {
+                        AirSpeed::from_speeds(ias.m_s(), tas.m_s());
+                    }
                 }
             }
             sensor::VARIO_AV_VARIO => {

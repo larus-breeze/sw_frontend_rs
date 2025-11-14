@@ -69,9 +69,9 @@ pub enum UnitHorizontalSpeed {
     Knots,
 }
 
-pub const UNIT_KMPH: &'static str = "km/h";
-pub const UNIT_KNOTS: &'static str = "knots";
-pub const UNIT_MPH: &'static str = "mph";
+pub const UNIT_KMPH: & str = "km/h";
+pub const UNIT_KNOTS: & str = "knots";
+pub const UNIT_MPH: & str = "mph";
 
 impl UnitHorizontalSpeed {
     pub fn from_str(name: &str) -> Self {
@@ -130,8 +130,8 @@ pub enum UnitVerticalSpeed {
     Knots,
 }
 
-pub const UNIT_MPS: &'static str = "m/s";
-pub const UNIT_FPM: &'static str = "fpm";
+pub const UNIT_MPS: & str = "m/s";
+pub const UNIT_FPM: & str = "fpm";
 
 impl UnitVerticalSpeed {
     pub fn from_str(name: &str) -> Self {
@@ -201,8 +201,8 @@ pub enum UnitHeight {
     Feet,
 }
 
-pub const UNIT_METER: &'static str = "m";
-pub const UNIT_FEET: &'static str = "ft";
+pub const UNIT_METER: & str = "m";
+pub const UNIT_FEET: & str = "ft";
 
 impl UnitHeight {
     pub fn from_str(name: &str) -> Self {

@@ -83,7 +83,7 @@ where
         self.core_model = *core_model;
 
         // every second take another snapshop
-        if core_model.control.alive_ticks % 10 == 0 && 
+        if core_model.control.alive_ticks.is_multiple_of(10) && 
             core_model.control.alive_ticks != self.core_model_1s.control.alive_ticks {
 
             self.core_model_1s = *core_model;
@@ -110,11 +110,7 @@ where
         self.secondary_view = match core_model.config.overlay_active {
             OverlayActive::Editor => Some(SecondaryView::Edit(Edit::new(core_model))),
             OverlayActive::Menu => Some(SecondaryView::MenuView(MenuView::new())),
-            OverlayActive::Info => if let Some(info_view) = InfoView::new(core_model.config.type_of_info) {
-                Some(SecondaryView::InfoView(info_view))
-                } else {
-                    None
-                }
+            OverlayActive::Info => InfoView::new(core_model.config.type_of_info).map(SecondaryView::InfoView),
             OverlayActive::None => None,
         };
     }

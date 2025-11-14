@@ -35,9 +35,10 @@ impl Default for GliderData {
 
 impl GliderData {
     pub fn from_basic_glider_data(basic_glider_data: BasicGliderData) -> GliderData {
-        let mut gd = Self::default();
-        gd.basic_glider_data = basic_glider_data;
-        gd
+        GliderData { 
+            basic_glider_data, 
+            ..Default::default() 
+        }
     }
 
     pub fn ballast_fraction(&self) -> f32 {

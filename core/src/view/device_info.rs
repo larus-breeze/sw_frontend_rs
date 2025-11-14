@@ -26,7 +26,7 @@ impl DeviceInfo {
         for pos in 0..DEVICE_INFO_LINES {
             let pos_y = height / 20 + pos as i32 * height / 12;
             let point = Point::new(width / 2, pos_y);
-            let index = pos as usize + cm.control.device_info_control.index as usize;
+            let index = pos + cm.control.device_info_control.index as usize;
             let dev_lineview = DEVICE_INFO_CONTENT[index];
             dev_lineview.draw(
                 display,

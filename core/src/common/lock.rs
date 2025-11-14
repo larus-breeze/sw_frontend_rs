@@ -71,6 +71,7 @@ impl<'a, T> Lock<T> {
     /// If the value has just been used, this function returns an
     /// error. In all other cases, an option with or without content
     /// is returned
+    #[allow(clippy::mut_from_ref)]
     #[allow(clippy::result_unit_err)]
     pub fn get_mut(&'a self) -> Result<Option<&'a mut T>, ()> {
         let r = self

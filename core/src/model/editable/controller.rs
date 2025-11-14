@@ -76,11 +76,9 @@ impl EditableFuncs for FactoryReset {
                 FACTORY_RESET => 1,
                 _ => 2,
             };
-            if cm.control.editor.enter_pushed {
-                match cm.control.reset_config {
-                    1 => persist::factory_reset(cc),
-                    _ => (),
-                }
+            if cm.control.editor.enter_pushed 
+                && cm.control.reset_config == 1 { 
+                    persist::factory_reset(cc) 
             }
         }
     }
@@ -337,11 +335,9 @@ impl EditableFuncs for ResetConfig {
                 FACTORY_RESET => 1,
                 _ => 2,
             };
-            if cm.control.editor.enter_pushed {
-                match cm.control.reset_config {
-                    0 => persist::delete_config(cc),
-                    _ => (),
-                }
+            if cm.control.editor.enter_pushed 
+                && cm.control.reset_config == 0 { 
+                    persist::delete_config(cc) 
             }
         }
     }

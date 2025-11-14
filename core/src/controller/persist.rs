@@ -434,6 +434,7 @@ pub fn store_persistence_ids(cm: &mut CoreModel, cc: &mut CoreController) {
 }
 
 pub fn set_vario_mode(cm: &mut CoreModel, cc: &mut CoreController, vario_mode: VarioMode, source: VarioModeControl) {
+    #[allow(clippy::if_same_then_else)]    
     let vario_mode = if source == cm.control.vario_mode_control {
         vario_mode
     } else if source == VarioModeControl::Can && cm.control.vario_mode_control == VarioModeControl::Nmea {
