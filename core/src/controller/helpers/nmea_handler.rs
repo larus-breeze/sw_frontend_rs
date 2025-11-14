@@ -1,5 +1,5 @@
 use crate::{
-    controller::{persist, Echo, persist::set_vario_mode},
+    controller::{persist, persist::set_vario_mode, Echo},
     model::{GpsState, VarioModeControl},
     utils::ParseSlice,
     CoreController, CoreError, CoreModel, FloatToPressure, FloatToSpeed, PersistenceId, Variant,
@@ -115,7 +115,7 @@ impl CoreController {
             PersistenceId::Bugs
             | PersistenceId::McCready
             | PersistenceId::WaterBallast
-            | PersistenceId::Qnh 
+            | PersistenceId::Qnh
             | PersistenceId::VarioMode => {
                 let _ = self.nmea_buffer.pers_id.push_back(id);
             }

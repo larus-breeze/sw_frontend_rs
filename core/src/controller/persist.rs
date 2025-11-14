@@ -1,7 +1,7 @@
 /// The Persistence Layer stores Data in EEPROM an distributes it to NMEA and Can Bus interfaces
 ///
 /// Data points that can be processed must be recorded by the PersistenceId. The
-/// restore_item() method writes the data read from the EEPROM to the CoreModel. 
+/// restore_item() method writes the data read from the EEPROM to the CoreModel.
 ///
 /// The persist_set() method receives data from the NMEA and CAN bus interfaces and from the editor,
 /// saves it in the EEPROM if necessary and distributes the data to interfaces if required. The
@@ -28,15 +28,18 @@ use crate::{
         RemoteConfig,
     },
     flight_physics::polar_store,
-    model::{UnitHorizontalSpeed, UnitVerticalSpeed, UnitHeight},
+    model::{UnitHeight, UnitHorizontalSpeed, UnitVerticalSpeed},
     system_of_units::Speed,
     utils::Variant,
-    view::viewable::{centerview::CenterView, vario_infoview::{LineView, Info3View}},
+    view::viewable::{
+        centerview::CenterView,
+        vario_infoview::{Info3View, LineView},
+    },
     CoreController, CoreModel, FloatToSpeed, IdleEvent, Mass, PersistenceItem, Pressure,
     ResetReason, Rotation, VarioMode,
 };
 
-/// It is not permitted to change the sequence or assignment, as the number references the memory 
+/// It is not permitted to change the sequence or assignment, as the number references the memory
 /// location in the EEPROM. New memory data may only ever be inserted before the LastItem.
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash, FromPrimitive, defmt::Format)]
 #[repr(u16)]
@@ -83,7 +86,7 @@ pub enum PersistenceId {
     StfUpperLimit = 39,
     StfLowerLimit = 40,
     AvgClimbeRateSrc = 41,
-    StfClimbrateAlt = 42,   // no longer in use
+    StfClimbrateAlt = 42, // no longer in use
     TcCircleHysteresis = 43,
     EnergyArrowMult = 44,
     VarioUpperLimit = 45,
@@ -99,7 +102,7 @@ pub enum PersistenceId {
 
     // Special function Ids
     VarioMode = 65532,
-    UserProfile = 65533, 
+    UserProfile = 65533,
     DeleteAll = 65534,
     #[default]
     DoNotStore = 65535,
@@ -301,8 +304,12 @@ pub fn restore_item(cc: &mut CoreController, cm: &mut CoreModel, item: Persisten
         PersistenceId::Info2Stf => cm.config.info2_stf = LineView::from(item.to_u8()),
         PersistenceId::Info3Vario => cm.config.info3_vario = Info3View::from(item.to_u8()),
         PersistenceId::Info3Stf => cm.config.info3_stf = Info3View::from(item.to_u8()),
-        PersistenceId::UnitHorizontalSpeed => cm.config.unit_horizontal_speed = UnitHorizontalSpeed::from(item.to_u8()),
-        PersistenceId::UnitVerticalSpeed => cm.config.unit_vertical_speed = UnitVerticalSpeed::from(item.to_u8()),
+        PersistenceId::UnitHorizontalSpeed => {
+            cm.config.unit_horizontal_speed = UnitHorizontalSpeed::from(item.to_u8())
+        }
+        PersistenceId::UnitVerticalSpeed => {
+            cm.config.unit_vertical_speed = UnitVerticalSpeed::from(item.to_u8())
+        }
         PersistenceId::UnitHeight => cm.config.unit_height = UnitHeight::from(item.to_u8()),
 
         PersistenceId::VarioMode => cm.control.vario_mode = VarioMode::from(item.to_u8()),
@@ -341,18 +348,19 @@ pub fn persist_set(
         }
         // The sensorbox needs fraction of water ballast to be able to generate the NMEA sentence
         if id == PersistenceId::WaterBallast {
-            let frame = cm.can_frame_sys_config(CanConfigId::WaterBallastFraction).unwrap();
+            let frame = cm
+                .can_frame_sys_config(CanConfigId::WaterBallastFraction)
+                .unwrap();
             let _ = cc.p_tx_frames.enqueue(frame);
         }
     }
 
-    if(id as u16) < (PersistenceId::LastItem as u16) {
+    if (id as u16) < (PersistenceId::LastItem as u16) {
         let _ = cc.pers_vals.insert(id, item); // Buffer item to write it to EEPROM
     }
 
     cc.scheduler
         .after(crate::Timer::PersistSetting, PERSISTENCE_TIMEOUT.millis());
-
 }
 
 pub fn send_can_config_frame(
@@ -433,11 +441,18 @@ pub fn store_persistence_ids(cm: &mut CoreModel, cc: &mut CoreController) {
     cc.recalc_glider(cm);
 }
 
-pub fn set_vario_mode(cm: &mut CoreModel, cc: &mut CoreController, vario_mode: VarioMode, source: VarioModeControl) {
-    #[allow(clippy::if_same_then_else)]    
+pub fn set_vario_mode(
+    cm: &mut CoreModel,
+    cc: &mut CoreController,
+    vario_mode: VarioMode,
+    source: VarioModeControl,
+) {
+    #[allow(clippy::if_same_then_else)]
     let vario_mode = if source == cm.control.vario_mode_control {
         vario_mode
-    } else if source == VarioModeControl::Can && cm.control.vario_mode_control == VarioModeControl::Nmea {
+    } else if source == VarioModeControl::Can
+        && cm.control.vario_mode_control == VarioModeControl::Nmea
+    {
         vario_mode
     } else {
         cm.control.vario_mode
@@ -449,6 +464,12 @@ pub fn set_vario_mode(cm: &mut CoreModel, cc: &mut CoreController, vario_mode: V
             VarioModeControl::Nmea => Echo::Can,
             VarioModeControl::Can => Echo::Nmea,
         };
-        persist_set(cc, cm, Variant::U8(vario_mode as u8), PersistenceId::VarioMode, echo);
+        persist_set(
+            cc,
+            cm,
+            Variant::U8(vario_mode as u8),
+            PersistenceId::VarioMode,
+            echo,
+        );
     }
 }

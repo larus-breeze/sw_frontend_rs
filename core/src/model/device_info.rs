@@ -1,6 +1,5 @@
 use crate::view::viewable::device_lineview::DeviceLineView;
 
-
 pub const DEVICE_INFO_CONTENT: &[DeviceLineView] = &[
     // Vario Display
     DeviceLineView::Empty,
@@ -16,7 +15,6 @@ pub const DEVICE_INFO_CONTENT: &[DeviceLineView] = &[
     DeviceLineView::InPinGear,
     DeviceLineView::InPinSpeedToFly,
     DeviceLineView::OutPinFlash,
-
     // Sensor Box
     DeviceLineView::Empty,
     DeviceLineView::SensorBox,
@@ -36,7 +34,6 @@ pub const DEVICE_INFO_CONTENT: &[DeviceLineView] = &[
     DeviceLineView::TurnRate,
     DeviceLineView::HorizonAvailable,
     DeviceLineView::GnssAndCompassOk,
-
     DeviceLineView::Empty,
     DeviceLineView::Empty,
     DeviceLineView::Empty,

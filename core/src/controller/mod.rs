@@ -29,10 +29,17 @@ mod tick_1s;
 use tick_1s::*;
 
 pub mod persist;
-pub use persist::{store_persistence_ids, Echo, PersistenceId, profile_always_0};
+pub use persist::{profile_always_0, store_persistence_ids, Echo, PersistenceId};
 
 use crate::{
-    basic_config::{CONTROLLER_TICK_RATE, MAX_TX_FRAMES}, common::PTxFrames, flight_physics::Polar, model::{DataSource, DisplayActive, EditMode, VarioModeControl}, system_of_units::{FloatToSpeed, Speed}, utils::{KeyEvent, PIdleEvents, Pt1}, CoreModel, DeviceEvent, Editable, Event, IdleEvent, InputPinState, PersistenceItem, SdCardCmd, VarioMode
+    basic_config::{CONTROLLER_TICK_RATE, MAX_TX_FRAMES},
+    common::PTxFrames,
+    flight_physics::Polar,
+    model::{DataSource, DisplayActive, EditMode, VarioModeControl},
+    system_of_units::{FloatToSpeed, Speed},
+    utils::{KeyEvent, PIdleEvents, Pt1},
+    CoreModel, DeviceEvent, Editable, Event, IdleEvent, InputPinState, PersistenceItem, SdCardCmd,
+    VarioMode,
 };
 use helpers::nmea_cyclic_200ms;
 

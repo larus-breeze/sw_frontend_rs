@@ -1,7 +1,10 @@
-use crate::{Image, view::{
-    sprites::{Arrow, DrawStyled, PolarCoordinate, Rotate, WindArrow, pos},
-    thermal_data::{DELTA_ALPHA, THERMAL_DATA_CNT, ThermalData},
-}};
+use crate::{
+    view::{
+        sprites::{pos, Arrow, DrawStyled, PolarCoordinate, Rotate, WindArrow},
+        thermal_data::{ThermalData, DELTA_ALPHA, THERMAL_DATA_CNT},
+    },
+    Image,
+};
 use crate::{Colors, CoreError, CoreModel, DrawImage, FloatToSpeed, FlyMode, VarioSizes};
 
 use embedded_graphics::{

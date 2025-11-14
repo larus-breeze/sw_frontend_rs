@@ -17,7 +17,7 @@ impl Frame {
         };
         Frame::Specific(specific_frame)
     }
-    
+
     pub fn generic(can_frame: CanFrame, generic_id: u16) -> Self {
         let generic_frame = GenericFrame {
             can_frame,
@@ -57,10 +57,10 @@ pub struct SpecificFrame {
 impl core::fmt::Debug for SpecificFrame {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         write!(
-            f, 
-            "spec_id 0x{:x} obj_id 0x{:x} {:?}", 
+            f,
+            "spec_id 0x{:x} obj_id 0x{:x} {:?}",
             self.specific_id, self.object_id, self.can_frame
-        ) 
+        )
     }
 }
 
@@ -72,10 +72,7 @@ pub struct GenericFrame {
 
 impl core::fmt::Debug for GenericFrame {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-        write!(
-            f, 
-            "gen_id 0x{:x} {:?}", self.generic_id, self.can_frame
-        ) 
+        write!(f, "gen_id 0x{:x} {:?}", self.generic_id, self.can_frame)
     }
 }
 
@@ -90,11 +87,17 @@ pub struct CanFrame {
 impl core::fmt::Debug for CanFrame {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         write!(
-            f, 
-            "can_id 0x{:x} data 0x{:02x}{:02x}{:02x}{:02x}_{:02x}{:02x}{:02x}{:02x}]", 
-            self.id, 
-            self.data[0], self.data[1], self.data[2], self.data[3], 
-            self.data[4], self.data[5], self.data[6], self.data[7]
+            f,
+            "can_id 0x{:x} data 0x{:02x}{:02x}{:02x}{:02x}_{:02x}{:02x}{:02x}{:02x}]",
+            self.id,
+            self.data[0],
+            self.data[1],
+            self.data[2],
+            self.data[3],
+            self.data[4],
+            self.data[5],
+            self.data[6],
+            self.data[7]
         )
     }
 }

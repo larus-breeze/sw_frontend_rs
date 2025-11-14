@@ -18,7 +18,7 @@ const TEST_DATA: [&str; 15] = [
     "result Some(1105500), frame Some(can_id 0x4 data 0x00000000_00000000])",
     "result Some(1156000), frame Some(can_id 0x3 data 0x00000000_00000000])",
     "result Some(1206500), frame Some(can_id 0x2 data 0x00000000_00000000])",
-    "result None, frame Some(can_id 0x600 data 0x00000000_00000000])",        // hex(1536) -> RTR on 0x600, heartbeat(vda=32)
+    "result None, frame Some(can_id 0x600 data 0x00000000_00000000])", // hex(1536) -> RTR on 0x600, heartbeat(vda=32)
 ];
 
 #[test]
@@ -60,7 +60,10 @@ fn simple() {
     let result = format!("result {:?}, frame {:?}", nt, c_tx_irq_frames.dequeue());
 
     // This is the first real heartbeat
-    assert_eq!(&result, "result None, frame Some(can_id 0x600 data 0x00000000_00000000])");
+    assert_eq!(
+        &result,
+        "result None, frame Some(can_id 0x600 data 0x00000000_00000000])"
+    );
 
     // An other guy sends a heartbeat on our vda -> we look for a new free vda
     let other_guys_frame = CanFrame::empty_from_id(0x600);
@@ -69,7 +72,10 @@ fn simple() {
     let result = format!("result {:?}, frame {:?}", nt, c_tx_irq_frames.dequeue());
 
     // We return to startup mode and will aquire a new vda
-    assert_eq!(&result, "result Some(1756500), frame Some(can_id 0xf data 0x00000000_00000000])");
+    assert_eq!(
+        &result,
+        "result Some(1756500), frame Some(can_id 0xf data 0x00000000_00000000])"
+    );
 
     //println!("    \"result {:?}, frame {:?}\",", nt, c_tx_f.dequeue());
 }

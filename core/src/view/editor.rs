@@ -33,15 +33,13 @@ impl Edit {
         if cm.config.is_base_display() {
             match cm.device_const.misc.edit_mode {
                 EditMode::Off => Ok(()),
-                EditMode::CircleArea => {
-                    draw_info(
-                        display, 
-                        cm, 
-                        self.name_str, 
-                        self.val_str.as_str(), 
-                        Some(cm.palette().list_edit.value)
-                    )
-                }
+                EditMode::CircleArea => draw_info(
+                    display,
+                    cm,
+                    self.name_str,
+                    self.val_str.as_str(),
+                    Some(cm.palette().list_edit.value),
+                ),
                 EditMode::Fullscreen => self.draw_rectangle_editor(display, cm, true),
                 EditMode::Window => self.draw_rectangle_editor(display, cm, false),
             }

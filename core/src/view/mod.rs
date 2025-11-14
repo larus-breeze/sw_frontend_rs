@@ -16,8 +16,8 @@ use crate::{
     model::{CoreModel, DisplayActive, OverlayActive},
     utils::Colors,
     view::{
-        editor::Edit, fw_update::SwUpdate, horizon::Horizon, info::InfoView, menu::MenuView,
-        vario::Vario, device_info::DeviceInfo,
+        device_info::DeviceInfo, editor::Edit, fw_update::SwUpdate, horizon::Horizon,
+        info::InfoView, menu::MenuView, vario::Vario,
     },
     CoreError, DrawImage,
 };
@@ -83,9 +83,9 @@ where
         self.core_model = *core_model;
 
         // every second take another snapshop
-        if core_model.control.alive_ticks.is_multiple_of(10) && 
-            core_model.control.alive_ticks != self.core_model_1s.control.alive_ticks {
-
+        if core_model.control.alive_ticks.is_multiple_of(10)
+            && core_model.control.alive_ticks != self.core_model_1s.control.alive_ticks
+        {
             self.core_model_1s = *core_model;
         }
 
@@ -110,60 +110,40 @@ where
         self.secondary_view = match core_model.config.overlay_active {
             OverlayActive::Editor => Some(SecondaryView::Edit(Edit::new(core_model))),
             OverlayActive::Menu => Some(SecondaryView::MenuView(MenuView::new())),
-            OverlayActive::Info => InfoView::new(core_model.config.type_of_info).map(SecondaryView::InfoView),
+            OverlayActive::Info => {
+                InfoView::new(core_model.config.type_of_info).map(SecondaryView::InfoView)
+            }
             OverlayActive::None => None,
         };
     }
 
     pub fn draw(&mut self) -> Result<(), CoreError> {
         match &mut self.primary_view {
-            PrimaryView::Vario(vario) => vario.draw(
-                &mut self.display, 
-                &self.core_model,
-                &self.core_model_1s,
-            )?,
-            PrimaryView::Horizon(horizon) => horizon.draw(
-                &mut self.display, 
-                &self.core_model
-            )?,
-            PrimaryView::DeviceInfo(device_info) => device_info.draw(
-                &mut self.display,
-                &self.core_model,
-                &self.core_model_1s
-            )?,
+            PrimaryView::Vario(vario) => {
+                vario.draw(&mut self.display, &self.core_model, &self.core_model_1s)?
+            }
+            PrimaryView::Horizon(horizon) => horizon.draw(&mut self.display, &self.core_model)?,
+            PrimaryView::DeviceInfo(device_info) => {
+                device_info.draw(&mut self.display, &self.core_model, &self.core_model_1s)?
+            }
             PrimaryView::MenuView(menu_view) => {
-                menu_view.draw(
-                    &mut self.display, 
-                    &self.core_model, 
-                    false
-                )?
+                menu_view.draw(&mut self.display, &self.core_model, false)?
             }
             PrimaryView::SwUpade(sw_update) => {
-                sw_update.draw(
-                    &mut self.display, 
-                    &self.core_model
-                )?
+                sw_update.draw(&mut self.display, &self.core_model)?
             }
         }
 
         if let Some(secondary_view) = &mut self.secondary_view {
             match secondary_view {
-                SecondaryView::Edit(edit) => edit.draw(
-                    &mut self.display, 
-                    &self.core_model
-                )?,
+                SecondaryView::Edit(edit) => edit.draw(&mut self.display, &self.core_model)?,
                 SecondaryView::MenuView(menu) => {
-                    menu.draw(
-                        &mut self.display, 
-                        &self.core_model, 
-                        true
-                    )?
+                    menu.draw(&mut self.display, &self.core_model, true)?
                 }
-                SecondaryView::InfoView(info_view) => if self.core_model.config.is_base_display() {
-                        info_view.draw(
-                            &mut self.display, 
-                            &self.core_model
-                        )?
+                SecondaryView::InfoView(info_view) => {
+                    if self.core_model.config.is_base_display() {
+                        info_view.draw(&mut self.display, &self.core_model)?
+                    }
                 }
             }
         }

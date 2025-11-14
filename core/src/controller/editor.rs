@@ -150,9 +150,11 @@ pub fn key_action(key_event: &mut KeyEvent, cm: &mut CoreModel, cc: &mut CoreCon
                 activate_editable(Editable::McCready, cm, cc);
                 *key_event = KeyEvent::NoEvent;
             }
-            KeyEvent::Rotary2Left | KeyEvent::Rotary2Right => if cm.config.display_active != DisplayActive::DeviceInfo {
-                activate_editable(Editable::Volume, cm, cc);
-                *key_event = KeyEvent::NoEvent;
+            KeyEvent::Rotary2Left | KeyEvent::Rotary2Right => {
+                if cm.config.display_active != DisplayActive::DeviceInfo {
+                    activate_editable(Editable::Volume, cm, cc);
+                    *key_event = KeyEvent::NoEvent;
+                }
             }
             KeyEvent::Btn1 => activate_editable(Editable::McCready, cm, cc),
             KeyEvent::Btn2 => activate_editable(Editable::WaterBallast, cm, cc),
@@ -208,7 +210,9 @@ impl Editor {
         Editor {
             target: Editable::None,
             mode: EditMode::Off,
-            params: Params::String(StringParams {content: TString::<16>::from_str("")}),
+            params: Params::String(StringParams {
+                content: TString::<16>::from_str(""),
+            }),
             content: Content::String(TString::new()),
             enter_pushed: false,
         }

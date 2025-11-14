@@ -84,7 +84,7 @@ impl SoundControl {
             VarioMode::Vario => {
                 let climb_rate = cms.climb_rate.to_m_s();
                 if climb_rate < cmc.vario_upper_limit.to_m_s()
-                    && climb_rate > cmc.vario_lower_limit.to_m_s() 
+                    && climb_rate > cmc.vario_lower_limit.to_m_s()
                 {
                     (500, true, 0) // be quiet then
                 } else {
@@ -94,7 +94,7 @@ impl SoundControl {
                         cmc.volume,
                     )
                 }
-            },
+            }
             VarioMode::SpeedToFly => {
                 let stf_dif = -cm.calculated.speed_to_fly_dif.to_km_h();
                 let stf_val_ms = stf_dif / 10.0;

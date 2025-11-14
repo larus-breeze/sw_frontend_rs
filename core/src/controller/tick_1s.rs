@@ -1,5 +1,5 @@
 use crate::{
-    controller::persist::{set_vario_mode, persist_set},
+    controller::persist::{persist_set, set_vario_mode},
     model::{GpsState, SystemState, TcrMode, VarioModeControl},
     utils::Variant,
     CoreController, CoreModel, Echo, FloatToSpeed, FlyMode, IdleEvent, PersistenceId, VarioMode,
@@ -26,7 +26,12 @@ fn speed_to_fly(cm: &mut CoreModel, cc: &mut CoreController) {
     }
 
     // in pin mode set according to pin state
-    set_vario_mode(cm, cc, cc.speed_to_fly_control.vario_mode(), VarioModeControl::InputPin);
+    set_vario_mode(
+        cm,
+        cc,
+        cc.speed_to_fly_control.vario_mode(),
+        VarioModeControl::InputPin,
+    );
 
     // Set 1-second-speed-to-fly value
     cm.calculated.speed_to_fly_1s = cm.calculated.av_speed_to_fly;
@@ -168,11 +173,29 @@ fn sync_config_items(cm: &mut CoreModel, cc: &mut CoreController) {
             let mc = Variant::F32(cm.config.mc_cready.to_m_s());
             persist_set(cc, cm, mc, PersistenceId::McCready, Echo::NmeaAndCan);
             let ballast = Variant::F32(cm.glider_data.water_ballast.to_kg());
-            persist_set(cc, cm, ballast, PersistenceId::WaterBallast, Echo::NmeaAndCan);
+            persist_set(
+                cc,
+                cm,
+                ballast,
+                PersistenceId::WaterBallast,
+                Echo::NmeaAndCan,
+            );
             let ballast = Variant::F32(cm.glider_data.water_ballast.to_kg());
-            persist_set(cc, cm, ballast, PersistenceId::WaterBallast, Echo::NmeaAndCan);
+            persist_set(
+                cc,
+                cm,
+                ballast,
+                PersistenceId::WaterBallast,
+                Echo::NmeaAndCan,
+            );
             let vario_mode = Variant::U8(cm.control.vario_mode as u8);
-            persist_set(cc, cm, vario_mode, PersistenceId::VarioMode, Echo::NmeaAndCan);
+            persist_set(
+                cc,
+                cm,
+                vario_mode,
+                PersistenceId::VarioMode,
+                Echo::NmeaAndCan,
+            );
         }
     }
 }

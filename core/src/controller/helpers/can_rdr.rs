@@ -5,7 +5,14 @@ use crate::{
             frontend_masster, object_id, CanActive,
         },
         persist, Echo,
-    }, into_range_0_360, into_range_180_180, model::{editable::Content, GpsState, VarioModeControl}, persist::set_vario_mode, AirSpeed, Angle, CanFrame, CoreController, CoreModel, F64ToCoord, FloatToAcceleration, FloatToAngularVelocity, FloatToDensity, FloatToLength, FloatToMass, FloatToPressure, FloatToSpeed, Frame, GenericFrame, GenericId, Latitude, Longitude, PersistenceId, SpecificFrame, SwVersion, Variant, VarioMode, DEGREE_PER_RAD
+    },
+    into_range_0_360, into_range_180_180,
+    model::{editable::Content, GpsState, VarioModeControl},
+    persist::set_vario_mode,
+    AirSpeed, Angle, CanFrame, CoreController, CoreModel, F64ToCoord, FloatToAcceleration,
+    FloatToAngularVelocity, FloatToDensity, FloatToLength, FloatToMass, FloatToPressure,
+    FloatToSpeed, Frame, GenericFrame, GenericId, Latitude, Longitude, PersistenceId,
+    SpecificFrame, SwVersion, Variant, VarioMode, DEGREE_PER_RAD,
 };
 use embedded_graphics::prelude::AngleUnit;
 
@@ -31,8 +38,9 @@ impl CoreController {
             }
             _ => (),
         }
-        if frame.can_frame.id() == 0x521 { // Version Sensorbox
-            let mut bytes =  [0u8; 4];
+        if frame.can_frame.id() == 0x521 {
+            // Version Sensorbox
+            let mut bytes = [0u8; 4];
             bytes.copy_from_slice(&frame.can_frame.data()[4..8]);
             cm.sensor.sw_version = SwVersion::from_bytes(bytes);
         }

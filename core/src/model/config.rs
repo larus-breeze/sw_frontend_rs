@@ -1,10 +1,16 @@
+use crate::{
+    system_of_units::{FloatToSpeed, Speed},
+    tformat,
+    view::viewable::{
+        centerview::CenterView,
+        vario_infoview::{Info3View, LineView},
+    },
+    CoreModel, Image, Length, Palette,
+};
+use core::convert::From;
 use heapless::String;
 use num::clamp;
 use num_enum::FromPrimitive;
-use core::convert::From;
-use crate::{
-    CoreModel, Image, Length, Palette, system_of_units::{FloatToSpeed, Speed}, tformat, view::viewable::{centerview::CenterView, vario_infoview::{Info3View, LineView}}
-};
 
 /// Possible displays
 #[derive(Clone, Copy, PartialEq, FromPrimitive, Debug)]
@@ -69,9 +75,9 @@ pub enum UnitHorizontalSpeed {
     Knots,
 }
 
-pub const UNIT_KMPH: & str = "km/h";
-pub const UNIT_KNOTS: & str = "knots";
-pub const UNIT_MPH: & str = "mph";
+pub const UNIT_KMPH: &str = "km/h";
+pub const UNIT_KNOTS: &str = "knots";
+pub const UNIT_MPH: &str = "mph";
 
 impl UnitHorizontalSpeed {
     pub fn from_str(name: &str) -> Self {
@@ -87,7 +93,7 @@ impl UnitHorizontalSpeed {
             UnitHorizontalSpeed::Kmph => speed.to_km_h(),
             UnitHorizontalSpeed::Mph => speed.to_mph(),
             UnitHorizontalSpeed::Knots => speed.to_kt(),
-        }    
+        }
     }
 
     pub fn as_speed(&self, value: f32) -> Speed {
@@ -130,8 +136,8 @@ pub enum UnitVerticalSpeed {
     Knots,
 }
 
-pub const UNIT_MPS: & str = "m/s";
-pub const UNIT_FPM: & str = "fpm";
+pub const UNIT_MPS: &str = "m/s";
+pub const UNIT_FPM: &str = "fpm";
 
 impl UnitVerticalSpeed {
     pub fn from_str(name: &str) -> Self {
@@ -141,13 +147,13 @@ impl UnitVerticalSpeed {
             _ => UnitVerticalSpeed::Mps,
         }
     }
-    
+
     pub fn as_f32(&self, speed: Speed) -> f32 {
         match self {
             UnitVerticalSpeed::Mps => speed.to_m_s(),
             UnitVerticalSpeed::Fpm => speed.to_ft_min(),
             UnitVerticalSpeed::Knots => speed.to_kt(),
-        }    
+        }
     }
 
     pub fn as_speed(&self, value: f32) -> Speed {
@@ -180,15 +186,15 @@ impl UnitVerticalSpeed {
             UnitVerticalSpeed::Mps => {
                 let s = clamp(speed.to_m_s(), -99.0, 99.0);
                 tformat!(5, "{:.1}", s).unwrap()
-            },
+            }
             UnitVerticalSpeed::Fpm => {
                 let s = clamp(speed.to_ft_min(), -9999.0, 9999.0);
                 tformat!(5, "{:.0}", s).unwrap()
-            },
+            }
             UnitVerticalSpeed::Knots => {
                 let s = clamp(speed.to_kt(), -99.0, 99.0);
                 tformat!(5, "{:.1}", s).unwrap()
-            },
+            }
         }
     }
 }
@@ -201,8 +207,8 @@ pub enum UnitHeight {
     Feet,
 }
 
-pub const UNIT_METER: & str = "m";
-pub const UNIT_FEET: & str = "ft";
+pub const UNIT_METER: &str = "m";
+pub const UNIT_FEET: &str = "ft";
 
 impl UnitHeight {
     pub fn from_str(name: &str) -> Self {
@@ -216,7 +222,7 @@ impl UnitHeight {
         match self {
             UnitHeight::Meter => height.to_m(),
             UnitHeight::Feet => height.to_ft(),
-        }    
+        }
     }
 
     pub fn as_length(&self, value: f32) -> Length {
@@ -337,8 +343,8 @@ impl Config {
     }
 
     pub fn is_base_display(&self) -> bool {
-        self.display_active == DisplayActive::Vario ||
-        self.display_active == DisplayActive::Horizon ||
-        self.display_active == DisplayActive::DeviceInfo
+        self.display_active == DisplayActive::Vario
+            || self.display_active == DisplayActive::Horizon
+            || self.display_active == DisplayActive::DeviceInfo
     }
 }

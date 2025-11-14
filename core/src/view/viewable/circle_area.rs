@@ -1,4 +1,4 @@
-use crate::{CoreError, DrawImage, Image, model::CoreModel, utils::Colors};
+use crate::{model::CoreModel, utils::Colors, CoreError, DrawImage, Image};
 use embedded_graphics::prelude::*;
 use u8g2_fonts::types::{FontColor, HorizontalAlignment, VerticalPosition};
 

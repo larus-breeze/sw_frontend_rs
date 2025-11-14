@@ -42,12 +42,16 @@ impl Default for Calculated {
 pub struct InterpolatedClimbRate {
     pub fetch: bool,
     pub delta: Speed,
-    pub value: Speed, 
+    pub value: Speed,
 }
 
 impl Default for InterpolatedClimbRate {
     fn default() -> Self {
-        InterpolatedClimbRate { fetch: true, delta: 0.0.m_s(), value: 0.0.m_s() }
+        InterpolatedClimbRate {
+            fetch: true,
+            delta: 0.0.m_s(),
+            value: 0.0.m_s(),
+        }
     }
 }
 

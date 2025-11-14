@@ -239,7 +239,7 @@ where
     S: EepromTrait,
 {
     /// Create a Persistence Instance
-    pub fn new(mut eeprom: S, is_unique: fn(PersistenceId)->bool) -> Result<Self, CoreError> {
+    pub fn new(mut eeprom: S, is_unique: fn(PersistenceId) -> bool) -> Result<Self, CoreError> {
         eeprom.check_magic()?;
 
         let user_profile = eeprom.read_byte(ADR_USER_PROFILE)?;
@@ -405,7 +405,10 @@ where
     fn next(&mut self) -> Option<Self::Item> {
         if self.user_profile_sent {
             while self.cur_id < self.end_id {
-                let cur_byte = self.persistence.read_bitfield_byte(self.cur_id.into()).unwrap();
+                let cur_byte = self
+                    .persistence
+                    .read_bitfield_byte(self.cur_id.into())
+                    .unwrap();
                 let cur_bit = 0x01 << (self.cur_id % 8);
                 let id_exists = (cur_bit & cur_byte) != 0;
 

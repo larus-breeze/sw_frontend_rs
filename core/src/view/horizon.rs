@@ -1,8 +1,8 @@
 use core::f32::consts::PI;
 
 use crate::{
-    model::CoreModel, utils::Colors, view::sprites::SimpleIndicator, CoreError, DrawImage,
-    view::viewable::circle_area::draw_info,
+    model::CoreModel, utils::Colors, view::sprites::SimpleIndicator,
+    view::viewable::circle_area::draw_info, CoreError, DrawImage,
 };
 
 #[allow(unused_imports)]
@@ -11,7 +11,7 @@ use micromath::F32Ext;
 use embedded_graphics::{
     geometry::AngleUnit,
     prelude::*,
-    primitives::{Line, PrimitiveStyle, Rectangle, Circle},
+    primitives::{Circle, Line, PrimitiveStyle, Rectangle},
 };
 use num::clamp;
 
@@ -31,7 +31,7 @@ impl Horizon {
     {
         if !cm.sensor.horizon_available {
             display.clear(cm.palette().horizon.sky)?;
-            return draw_info(display, cm, "Horizon", "not available", None)
+            return draw_info(display, cm, "Horizon", "not available", None);
         }
 
         display.clear(cm.palette().horizon.sky)?;
@@ -97,11 +97,7 @@ impl Horizon {
 
         // draw background image / scale
         //
-        display.draw_img(
-            cm.device_const.images.wp_horizon,
-            Point::new(0, 0),
-            None,
-        )?;
+        display.draw_img(cm.device_const.images.wp_horizon, Point::new(0, 0), None)?;
 
         let roll_angle = -cm.sensor.euler_roll.to_radians();
 
@@ -140,7 +136,7 @@ impl Horizon {
         let sin_slip = slip_angle.sin();
         let cos_slip = slip_angle.cos();
         let d_x = (cmh.lt_swing_len as f32 * sin_slip) as i32;
-        let x = (sizes.display.width / 2) as i32 + d_x; 
+        let x = (sizes.display.width / 2) as i32 + d_x;
         let d_y = (cmh.lt_swing_len as f32 * cos_slip) as i32;
         let y = cmh.lt_mid + d_y;
         let center = Point::new(x, y);

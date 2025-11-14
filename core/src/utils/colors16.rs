@@ -156,7 +156,7 @@ impl From<Colors> for RawU16 {
     }
 }
 
-use embedded_graphics::pixelcolor::{BinaryColor, Rgb888, Bgr888};
+use embedded_graphics::pixelcolor::{Bgr888, BinaryColor, Rgb888};
 use embedded_graphics::prelude::WebColors;
 
 impl From<Bgr888> for Colors {

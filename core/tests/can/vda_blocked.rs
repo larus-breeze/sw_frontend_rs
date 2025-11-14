@@ -55,7 +55,10 @@ fn vda_blocked() {
     let result = format!("result {:?}, frame {:?}", nt, c_tx_irq_frames.dequeue());
 
     // We use the vda 0x33 and send rtr, as 0x32 is occupied
-    assert_eq!(&result, "result None, frame Some(can_id 0x610 data 0x00000000_00000000])");
+    assert_eq!(
+        &result,
+        "result None, frame Some(can_id 0x610 data 0x00000000_00000000])"
+    );
 
     // Now create first heartbeat in normal mode, emulate application
     let frame = GenericFrame {
@@ -69,7 +72,10 @@ fn vda_blocked() {
     let result = format!("result {:?}, frame {:?}", nt, c_tx_irq_frames.dequeue());
 
     // This is the first real heartbeat
-    assert_eq!(&result, "result None, frame Some(can_id 0x610 data 0x00000000_00000000])");
+    assert_eq!(
+        &result,
+        "result None, frame Some(can_id 0x610 data 0x00000000_00000000])"
+    );
 
     //println!("    \"result {:?}, frame {:?}\",", nt, c_tx_f.dequeue());
 }

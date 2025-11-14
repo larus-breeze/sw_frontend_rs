@@ -1,4 +1,7 @@
-use crate::{CoreModel, FloatToMass, PinState, VarioMode, model::{OverlayActive, TypeOfInfo}};
+use crate::{
+    model::{OverlayActive, TypeOfInfo},
+    CoreModel, FloatToMass, PinState, VarioMode,
+};
 
 pub const PIN_NONE: &str = "Not connected";
 pub const PIN_IN_CLOSE: &str = "When closed";

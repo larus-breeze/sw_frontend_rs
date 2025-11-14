@@ -1,7 +1,7 @@
 use crate::{
-    model::{device_info::DEVICE_INFO_CONTENT, DisplayActive}, 
-    view::{device_info::DEVICE_INFO_LINES, viewable::device_lineview::DeviceLineView}, 
-    CoreController, CoreModel, KeyEvent
+    model::{device_info::DEVICE_INFO_CONTENT, DisplayActive},
+    view::{device_info::DEVICE_INFO_LINES, viewable::device_lineview::DeviceLineView},
+    CoreController, CoreModel, KeyEvent,
 };
 
 #[derive(Clone, Copy)]
@@ -12,8 +12,8 @@ pub struct DeviceInfoControl {
 
 impl Default for DeviceInfoControl {
     fn default() -> Self {
-        DeviceInfoControl { 
-            index: 0, 
+        DeviceInfoControl {
+            index: 0,
             content: DEVICE_INFO_CONTENT,
         }
     }
@@ -21,7 +21,7 @@ impl Default for DeviceInfoControl {
 
 pub fn key_action(key_event: &mut KeyEvent, cm: &mut CoreModel, _cc: &mut CoreController) {
     if cm.config.display_active != DisplayActive::DeviceInfo {
-        return
+        return;
     }
 
     match key_event {
@@ -31,7 +31,9 @@ pub fn key_action(key_event: &mut KeyEvent, cm: &mut CoreModel, _cc: &mut CoreCo
             }
         }
         KeyEvent::Rotary2Right => {
-            if cm.control.device_info_control.index < (DEVICE_INFO_CONTENT.len() - DEVICE_INFO_LINES) as u32 {
+            if cm.control.device_info_control.index
+                < (DEVICE_INFO_CONTENT.len() - DEVICE_INFO_LINES) as u32
+            {
                 cm.control.device_info_control.index += 1;
             }
         }

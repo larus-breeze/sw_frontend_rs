@@ -1,6 +1,4 @@
-use crate::{
-    Mass, Pressure, Speed,
-};
+use crate::{Mass, Pressure, Speed};
 
 pub enum Variant {
     Bool(bool),

@@ -31,8 +31,8 @@ mod view;
 pub use controller::persist;
 pub use controller::*;
 pub use model::{
-    CoreModel, DeviceConst, DisplaySizes, EditMode, Editable, FlyMode, HorizonSizes, Images, Misc,
-    Palette, Sizes, VarioMode, VarioSizes, menu,
+    menu, CoreModel, DeviceConst, DisplaySizes, EditMode, Editable, FlyMode, HorizonSizes, Images,
+    Misc, Palette, Sizes, VarioMode, VarioSizes,
 };
 pub use view::{CoreView, FRAME_RATE};
 

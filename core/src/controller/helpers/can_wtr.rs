@@ -1,5 +1,6 @@
 use crate::{
-    controller::helpers::RemoteConfig, model::editable::Content, CanFrame, CoreModel, Frame, GenericId, SpecialId, RAD_PER_DEGREE
+    controller::helpers::RemoteConfig, model::editable::Content, CanFrame, CoreModel, Frame,
+    GenericId, SpecialId, RAD_PER_DEGREE,
 };
 use byteorder::{ByteOrder, LittleEndian as LE};
 

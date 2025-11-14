@@ -1,6 +1,10 @@
 use super::{sprites::*, thermal_data::ThermalData};
 use crate::{
-    CoreError, DrawImage, Image, model::{CoreModel, DataSource, FlyMode, OverlayActive, SystemState, UnitVerticalSpeed, VarioMode}, utils::Colors
+    model::{
+        CoreModel, DataSource, FlyMode, OverlayActive, SystemState, UnitVerticalSpeed, VarioMode,
+    },
+    utils::Colors,
+    CoreError, DrawImage, Image,
 };
 
 use embedded_graphics::{
@@ -11,7 +15,12 @@ use embedded_graphics::{
 use num::clamp;
 use u8g2_fonts::types::{FontColor, HorizontalAlignment, VerticalPosition};
 
-pub fn draw_info1<D>(display: &mut D, cm: &CoreModel, cm_1s: &CoreModel, vario_mode: bool) -> Result<(), CoreError>
+pub fn draw_info1<D>(
+    display: &mut D,
+    cm: &CoreModel,
+    cm_1s: &CoreModel,
+    vario_mode: bool,
+) -> Result<(), CoreError>
 where
     D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
 {
@@ -23,9 +32,7 @@ where
                 .info1_vario
                 .draw(display, cm_1s, sizes.info1_pos)?;
         } else {
-            cm.config
-                .info1_stf
-                .draw(display, cm_1s, sizes.info1_pos)?;
+            cm.config.info1_stf.draw(display, cm_1s, sizes.info1_pos)?;
         }
     } else {
         // draw software version during the first N seconds
@@ -54,7 +61,12 @@ impl Vario {
         }
     }
 
-    pub fn draw<D>(&mut self, display: &mut D, cm: &CoreModel, cm_1s: &CoreModel) -> Result<(), CoreError>
+    pub fn draw<D>(
+        &mut self,
+        display: &mut D,
+        cm: &CoreModel,
+        cm_1s: &CoreModel,
+    ) -> Result<(), CoreError>
     where
         D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
     {
@@ -116,7 +128,6 @@ impl Vario {
 
         // to save computing power: Only draw the central elements when they are visible.
         if cm.config.overlay_active == OverlayActive::None {
-
             // draw attention if necessary
             if !cm.sensor.gnss_and_compass_ok {
                 display.draw_img(cm.device_const.images.attention, sizes.attention_pos, None)?;
@@ -149,27 +160,21 @@ impl Vario {
                         .draw(display, cm_1s, sizes.info2_pos)?;
 
                     // draw info3 field
-                    cm.config
-                        .info3_vario
-                        .draw(display, cm_1s)?;
-
+                    cm.config.info3_vario.draw(display, cm_1s)?;
                 }
                 VarioMode::SpeedToFly => {
                     // draw info1 field
                     draw_info1(display, cm, cm_1s, false)?;
 
                     // draw info2 field
-                    cm.config
-                        .info2_stf
-                        .draw(display, cm_1s, sizes.info2_pos)?;
+                    cm.config.info2_stf.draw(display, cm_1s, sizes.info2_pos)?;
 
                     // draw info3 field
-                    cm.config
-                        .info3_stf
-                        .draw(display, cm_1s)?;
+                    cm.config.info3_stf.draw(display, cm_1s)?;
 
                     // draw scal arc
-                    let stf = num::clamp(-cm.calculated.speed_to_fly_dif.to_km_h() / 10.0, -5.0, 5.0);
+                    let stf =
+                        num::clamp(-cm.calculated.speed_to_fly_dif.to_km_h() / 10.0, -5.0, 5.0);
                     let angle_sweep = (sizes.scale_factor * stf).deg();
                     let col = cm.palette().vario.stf_arc;
                     Arc::with_center(d_sizes.center, sizes.stf_diameter, 180.0.deg(), angle_sweep)
@@ -185,37 +190,50 @@ impl Vario {
             DataSource::Sensorbox => cm.sensor.average_climb_rate,
         };
 
-        let (mc_cready_angle, avg_climb_angle, climb_rate_angle) = match cm.config.unit_vertical_speed {
-            UnitVerticalSpeed::Fpm => {
-                let av_climb_rate = clamp(avg_climb_rate.to_ft_min(), -1000.0, 1000.0);
-                let climb_rate = num::clamp(cm.calculated.interpolated_climb_rate.value.to_ft_min(), -1020.0, 1020.0);
-                let scale_factor = sizes.scale_factor / 200.0;
-                (
-                    (cm.config.mc_cready.to_ft_min() * scale_factor).to_radians(),
-                    (av_climb_rate * scale_factor).to_radians(),
-                    (climb_rate * scale_factor).to_radians()
-                )
-            }
-            UnitVerticalSpeed::Knots => {
-                let av_climb_rate = clamp(avg_climb_rate.to_kt(), -10.0, 10.0);
-                let climb_rate = num::clamp(cm.calculated.interpolated_climb_rate.value.to_kt(), -10.2, 10.2);
-                let scale_factor = sizes.scale_factor / 2.0;
-                (
-                    (cm.config.mc_cready.to_kt() * scale_factor).to_radians(),
-                    (av_climb_rate * scale_factor).to_radians(),
-                    (climb_rate * scale_factor).to_radians()
-                )
-            }
-            UnitVerticalSpeed::Mps => {
-                let av_climb_rate = clamp(avg_climb_rate.to_m_s(), -5.0, 5.0);
-                let climb_rate = num::clamp(cm.calculated.interpolated_climb_rate.value.to_m_s(), -5.1, 5.1);
-                (
-                    (cm.config.mc_cready.to_m_s() * sizes.scale_factor).to_radians(),
-                    (av_climb_rate * sizes.scale_factor).to_radians(),
-                    (climb_rate * sizes.scale_factor).to_radians()
-                )
-            }
-        };
+        let (mc_cready_angle, avg_climb_angle, climb_rate_angle) =
+            match cm.config.unit_vertical_speed {
+                UnitVerticalSpeed::Fpm => {
+                    let av_climb_rate = clamp(avg_climb_rate.to_ft_min(), -1000.0, 1000.0);
+                    let climb_rate = num::clamp(
+                        cm.calculated.interpolated_climb_rate.value.to_ft_min(),
+                        -1020.0,
+                        1020.0,
+                    );
+                    let scale_factor = sizes.scale_factor / 200.0;
+                    (
+                        (cm.config.mc_cready.to_ft_min() * scale_factor).to_radians(),
+                        (av_climb_rate * scale_factor).to_radians(),
+                        (climb_rate * scale_factor).to_radians(),
+                    )
+                }
+                UnitVerticalSpeed::Knots => {
+                    let av_climb_rate = clamp(avg_climb_rate.to_kt(), -10.0, 10.0);
+                    let climb_rate = num::clamp(
+                        cm.calculated.interpolated_climb_rate.value.to_kt(),
+                        -10.2,
+                        10.2,
+                    );
+                    let scale_factor = sizes.scale_factor / 2.0;
+                    (
+                        (cm.config.mc_cready.to_kt() * scale_factor).to_radians(),
+                        (av_climb_rate * scale_factor).to_radians(),
+                        (climb_rate * scale_factor).to_radians(),
+                    )
+                }
+                UnitVerticalSpeed::Mps => {
+                    let av_climb_rate = clamp(avg_climb_rate.to_m_s(), -5.0, 5.0);
+                    let climb_rate = num::clamp(
+                        cm.calculated.interpolated_climb_rate.value.to_m_s(),
+                        -5.1,
+                        5.1,
+                    );
+                    (
+                        (cm.config.mc_cready.to_m_s() * sizes.scale_factor).to_radians(),
+                        (av_climb_rate * sizes.scale_factor).to_radians(),
+                        (climb_rate * sizes.scale_factor).to_radians(),
+                    )
+                }
+            };
 
         // draw mc_cready indicator
         ScaleMarker::new(d_sizes.radius as i32, d_sizes.center)

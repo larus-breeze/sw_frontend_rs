@@ -1,7 +1,13 @@
-use crate::{Colors, CoreError, CoreModel, DrawImage, FloatToSpeed, Image, Palette, model::DataSource, tformat};
+use crate::{
+    model::DataSource, tformat, Colors, CoreError, CoreModel, DrawImage, FloatToSpeed, Image,
+    Palette,
+};
 use embedded_graphics::{draw_target::DrawTarget, geometry::Point};
 use num_enum::FromPrimitive;
-use u8g2_fonts::{FontRenderer, types::{FontColor, HorizontalAlignment, VerticalPosition}};
+use u8g2_fonts::{
+    types::{FontColor, HorizontalAlignment, VerticalPosition},
+    FontRenderer,
+};
 
 #[allow(unused)]
 use micromath::F32Ext;
@@ -119,12 +125,7 @@ impl LineView {
     }
 
     /// Draw viewable
-    pub fn draw<D>(
-        &self,
-        display: &mut D,
-        cm: &CoreModel,
-        pos: Point,
-    ) -> Result<(), CoreError>
+    pub fn draw<D>(&self, display: &mut D, cm: &CoreModel, pos: Point) -> Result<(), CoreError>
     where
         D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
     {
@@ -173,7 +174,7 @@ where
     )?;
     if let Some(rectangle) = result {
         if let Some(img) = img1 {
-            let pic_x = txt_x - (rectangle.size.width / 2 + img.width())  as i32;
+            let pic_x = txt_x - (rectangle.size.width / 2 + img.width()) as i32;
             let pic_y = pos.y - img.height() as i32 / 2;
             img.draw(display, Point::new(pic_x, pic_y), Some(color.vario.icon))?;
         }
@@ -187,28 +188,34 @@ where
     Ok(())
 }
 
-fn draw_average_climb_rate<D>(
-    display: &mut D,
-    cm: &CoreModel,
-    pos: Point,
-) -> Result<(), CoreError>
+fn draw_average_climb_rate<D>(display: &mut D, cm: &CoreModel, pos: Point) -> Result<(), CoreError>
 where
     D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
 {
     let s = match cm.control.avg_climb_rate_src {
-        DataSource::Frontend => cm.config.unit_vertical_speed.value_str(cm.calculated.av2_climb_rate),
-        DataSource::Sensorbox => cm.config.unit_vertical_speed.value_str(cm.sensor.average_climb_rate),
+        DataSource::Frontend => cm
+            .config
+            .unit_vertical_speed
+            .value_str(cm.calculated.av2_climb_rate),
+        DataSource::Sensorbox => cm
+            .config
+            .unit_vertical_speed
+            .value_str(cm.sensor.average_climb_rate),
     };
     let img1 = Some(Image::new(cm.device_const.images.avg_climb_rate));
     let img2 = Some(cm.config.unit_vertical_speed.image(cm));
-    draw_centered_line(display, pos, img1, s.as_str(), img2, &cm.device_const.big_font, cm.palette())
+    draw_centered_line(
+        display,
+        pos,
+        img1,
+        s.as_str(),
+        img2,
+        &cm.device_const.big_font,
+        cm.palette(),
+    )
 }
 
-fn draw_drift_angle<D>(
-    display: &mut D,
-    cm: &CoreModel,
-    pos: Point,
-) -> Result<(), CoreError>
+fn draw_drift_angle<D>(display: &mut D, cm: &CoreModel, pos: Point) -> Result<(), CoreError>
 where
     D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
 {
@@ -232,14 +239,18 @@ where
 
     let img1 = Some(Image::new(cm.device_const.images.drift_angle));
     let img2 = None;
-    draw_centered_line(display, pos, img1, s.as_str(), img2, &cm.device_const.big_font, cm.palette())
+    draw_centered_line(
+        display,
+        pos,
+        img1,
+        s.as_str(),
+        img2,
+        &cm.device_const.big_font,
+        cm.palette(),
+    )
 }
 
-fn draw_flight_level<D>(
-    display: &mut D,
-    cm: &CoreModel,
-    pos: Point,
-) -> Result<(), CoreError>
+fn draw_flight_level<D>(display: &mut D, cm: &CoreModel, pos: Point) -> Result<(), CoreError>
 where
     D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
 {
@@ -252,42 +263,60 @@ where
 
     let img1 = Some(Image::new(cm.device_const.images.flight_level));
     let img2 = None;
-    draw_centered_line(display, pos, img1, fl.as_str(), img2, &cm.device_const.big_font, cm.palette())
+    draw_centered_line(
+        display,
+        pos,
+        img1,
+        fl.as_str(),
+        img2,
+        &cm.device_const.big_font,
+        cm.palette(),
+    )
 }
 
-fn draw_speed_to_fly<D>(
-    display: &mut D,
-    cm: &CoreModel,
-    pos: Point,
-) -> Result<(), CoreError>
+fn draw_speed_to_fly<D>(display: &mut D, cm: &CoreModel, pos: Point) -> Result<(), CoreError>
 where
     D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
 {
-    let stf = cm.config.unit_horizontal_speed.value_str(cm.calculated.speed_to_fly_1s);
+    let stf = cm
+        .config
+        .unit_horizontal_speed
+        .value_str(cm.calculated.speed_to_fly_1s);
     let img1 = Some(Image::new(cm.device_const.images.speed_to_fly));
     let img2 = Some(cm.config.unit_horizontal_speed.image(cm));
-    draw_centered_line(display, pos, img1, stf.as_str(), img2, &cm.device_const.big_font, cm.palette())
+    draw_centered_line(
+        display,
+        pos,
+        img1,
+        stf.as_str(),
+        img2,
+        &cm.device_const.big_font,
+        cm.palette(),
+    )
 }
 
-fn draw_true_air_speed<D>(
-    display: &mut D,
-    cm: &CoreModel,
-    pos: Point,
-) -> Result<(), CoreError>
+fn draw_true_air_speed<D>(display: &mut D, cm: &CoreModel, pos: Point) -> Result<(), CoreError>
 where
     D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
 {
-    let tas = cm.config.unit_horizontal_speed.value_str(cm.sensor.airspeed.tas());
+    let tas = cm
+        .config
+        .unit_horizontal_speed
+        .value_str(cm.sensor.airspeed.tas());
     let img1 = Some(Image::new(cm.device_const.images.tas));
     let img2 = Some(cm.config.unit_horizontal_speed.image(cm));
-    draw_centered_line(display, pos, img1, tas.as_str(), img2, &cm.device_const.big_font, cm.palette())
+    draw_centered_line(
+        display,
+        pos,
+        img1,
+        tas.as_str(),
+        img2,
+        &cm.device_const.big_font,
+        cm.palette(),
+    )
 }
 
-fn draw_true_course<D>(
-    display: &mut D,
-    cm: &CoreModel,
-    pos: Point,
-) -> Result<(), CoreError>
+fn draw_true_course<D>(display: &mut D, cm: &CoreModel, pos: Point) -> Result<(), CoreError>
 where
     D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
 {
@@ -296,14 +325,18 @@ where
 
     let img1 = Some(Image::new(cm.device_const.images.true_course));
     let img2 = None;
-    draw_centered_line(display, pos, img1, s.as_str(), img2, &cm.device_const.big_font, cm.palette())
+    draw_centered_line(
+        display,
+        pos,
+        img1,
+        s.as_str(),
+        img2,
+        &cm.device_const.big_font,
+        cm.palette(),
+    )
 }
 
-fn draw_utc_time<D>(
-    display: &mut D,
-    cm: &CoreModel,
-    pos: Point,
-) -> Result<(), CoreError>
+fn draw_utc_time<D>(display: &mut D, cm: &CoreModel, pos: Point) -> Result<(), CoreError>
 where
     D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
 {
@@ -319,11 +352,7 @@ where
     Ok(())
 }
 
-fn draw_wind_and_avg_wind<D>(
-    display: &mut D,
-    cm: &CoreModel,
-    pos: Point,
-) -> Result<(), CoreError>
+fn draw_wind_and_avg_wind<D>(display: &mut D, cm: &CoreModel, pos: Point) -> Result<(), CoreError>
 where
     D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
 {
@@ -355,7 +384,11 @@ where
 
     if let Some(rectangle) = result {
         let pic_x = wind_x + 2 + (rectangle.size.width / 2) as i32;
-        unit_img.draw(display, Point::new(pic_x, wind_y), Some(cm.palette().vario.unit))?;
+        unit_img.draw(
+            display,
+            Point::new(pic_x, wind_y),
+            Some(cm.palette().vario.unit),
+        )?;
     }
 
     let avg_wind_spped = cm.sensor.average_wind.speed();
@@ -376,11 +409,7 @@ where
     Ok(())
 }
 
-fn draw_wind_and_delta<D>(
-    display: &mut D,
-    cm: &CoreModel,
-    pos: Point,
-) -> Result<(), CoreError>
+fn draw_wind_and_delta<D>(display: &mut D, cm: &CoreModel, pos: Point) -> Result<(), CoreError>
 where
     D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
 {
@@ -412,7 +441,11 @@ where
 
     if let Some(rectangle) = result {
         let pic_x = wind_x + 2 + (rectangle.size.width / 2) as i32;
-        unit_img.draw(display, Point::new(pic_x, wind_y), Some(cm.palette().vario.unit))?;
+        unit_img.draw(
+            display,
+            Point::new(pic_x, wind_y),
+            Some(cm.palette().vario.unit),
+        )?;
     }
 
     let avg_wind_spped = cm.sensor.average_wind.speed();
@@ -441,11 +474,7 @@ pub enum Info3View {
     SpeedToFly,
 }
 
-const INFO3_LIST: &[Info3View] = &[
-    Info3View::None,
-    Info3View::Climbing,
-    Info3View::SpeedToFly,
-];
+const INFO3_LIST: &[Info3View] = &[Info3View::None, Info3View::Climbing, Info3View::SpeedToFly];
 
 impl Info3View {
     pub fn name(&self) -> &'static str {
@@ -460,11 +489,7 @@ impl Info3View {
         INFO3_LIST.len() as i32 - 1
     }
 
-    pub fn draw<D>(
-        &self,
-        display: &mut D,
-        cm: &CoreModel,
-    ) -> Result<(), CoreError>
+    pub fn draw<D>(&self, display: &mut D, cm: &CoreModel) -> Result<(), CoreError>
     where
         D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
     {
@@ -477,10 +502,7 @@ impl Info3View {
     }
 }
 
-fn draw_info3_climbing<D> (
-    display: &mut D,
-    cm: &CoreModel,
-) -> Result<(), CoreError>
+fn draw_info3_climbing<D>(display: &mut D, cm: &CoreModel) -> Result<(), CoreError>
 where
     D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
 {
@@ -494,7 +516,10 @@ where
     let img = cm.config.unit_vertical_speed.image(cm);
     img.draw(display, sizes.info3_pos, Some(cm.palette().vario.unit))?;
 
-    let txt  = cm.config.unit_vertical_speed.value_str(cm.calculated.thermal_climb_rate);
+    let txt = cm
+        .config
+        .unit_vertical_speed
+        .value_str(cm.calculated.thermal_climb_rate);
     cm.device_const.big_font.render_aligned(
         txt.as_str(),
         sizes.info3_pos,
@@ -506,10 +531,7 @@ where
     Ok(())
 }
 
-fn draw_info3_stf<D> (
-    display: &mut D,
-    cm: &CoreModel,
-) -> Result<(), CoreError>
+fn draw_info3_stf<D>(display: &mut D, cm: &CoreModel) -> Result<(), CoreError>
 where
     D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
 {
@@ -521,7 +543,10 @@ where
     )?;
     let img = cm.config.unit_horizontal_speed.image(cm);
     img.draw(display, sizes.info3_pos, Some(cm.palette().vario.unit))?;
-    let txt = cm.config.unit_horizontal_speed.value_str(cm.calculated.speed_to_fly_1s);
+    let txt = cm
+        .config
+        .unit_horizontal_speed
+        .value_str(cm.calculated.speed_to_fly_1s);
     cm.device_const.big_font.render_aligned(
         txt.as_str(),
         sizes.info3_pos,

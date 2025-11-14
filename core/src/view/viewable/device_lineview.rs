@@ -1,12 +1,12 @@
-use crate::{model::{CoreModel, SystemState}, tformat, utils::Colors, CoreError, DrawImage};
+use crate::{
+    model::{CoreModel, SystemState},
+    tformat,
+    utils::Colors,
+    CoreError, DrawImage,
+};
 
-use embedded_graphics::{
-    draw_target::DrawTarget, 
-    prelude::Point,
-};
-use u8g2_fonts:: {
-    types::{FontColor, VerticalPosition, HorizontalAlignment},
-};
+use embedded_graphics::{draw_target::DrawTarget, prelude::Point};
+use u8g2_fonts::types::{FontColor, HorizontalAlignment, VerticalPosition};
 
 #[allow(unused)]
 use micromath::F32Ext;
@@ -15,7 +15,6 @@ struct LineInfo {
     name: &'static str,
     value: heapless::String<30>,
 }
-
 
 #[derive(Clone, Copy, PartialEq)]
 #[repr(u8)]
@@ -56,45 +55,39 @@ pub enum DeviceLineView {
 }
 
 impl DeviceLineView {
-    pub fn draw<D>(
-        &self,
-        display: &mut D,
-        cm: &CoreModel,
-        point: Point,
-    ) -> Result<(), CoreError>
+    pub fn draw<D>(&self, display: &mut D, cm: &CoreModel, point: Point) -> Result<(), CoreError>
     where
         D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
     {
         if let Some(header_text) = self.header_text() {
             cm.device_const.small_font.render_aligned(
-                header_text, 
-                point, 
-                VerticalPosition::Top, 
-                HorizontalAlignment::Center, 
-                FontColor::Transparent(cm.palette().list_edit.header), 
-                display
+                header_text,
+                point,
+                VerticalPosition::Top,
+                HorizontalAlignment::Center,
+                FontColor::Transparent(cm.palette().list_edit.header),
+                display,
             )?;
         } else {
             let line_info = self.line_info(cm);
             let p1 = Point::new(point.x - 3, point.y);
             cm.device_const.small_font.render_aligned(
-                line_info.name, 
-                p1, 
-                VerticalPosition::Top, 
-                HorizontalAlignment::Right, 
-                FontColor::Transparent(cm.palette().list_edit.item), 
-                display
+                line_info.name,
+                p1,
+                VerticalPosition::Top,
+                HorizontalAlignment::Right,
+                FontColor::Transparent(cm.palette().list_edit.item),
+                display,
             )?;
             let p2 = Point::new(point.x + 10, point.y);
             cm.device_const.small_font.render_aligned(
-                line_info.value.as_str(), 
-                p2, 
-                VerticalPosition::Top, 
-                HorizontalAlignment::Left, 
-                FontColor::Transparent(cm.palette().list_edit.item), 
-                display
+                line_info.value.as_str(),
+                p2,
+                VerticalPosition::Top,
+                HorizontalAlignment::Left,
+                FontColor::Transparent(cm.palette().list_edit.item),
+                display,
             )?;
-
         }
         Ok(())
     }
@@ -112,7 +105,12 @@ impl DeviceLineView {
         let mut lv = match self {
             DeviceLineView::DisplayVersion => LineInfo {
                 name: "FW Version: ",
-                value: tformat!(30, "{}", cm.device_const.misc.sw_version.as_string().as_str()).unwrap(),
+                value: tformat!(
+                    30,
+                    "{}",
+                    cm.device_const.misc.sw_version.as_string().as_str()
+                )
+                .unwrap(),
             },
             DeviceLineView::SupplyVoltage => LineInfo {
                 name: "Sup Volt: ",

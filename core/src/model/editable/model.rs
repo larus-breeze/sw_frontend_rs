@@ -1,10 +1,20 @@
 use super::{Content, EditableFuncs, EnumParams, F32Params, ListParams, Params};
 use crate::{
-    CoreController, CoreModel, Echo, PersistenceId, model::{
-        DataSource, DisplayActive, DisplayTheme, config::{DEVICE_INFO, HORIZON, UNIT_FEET, UNIT_FPM, UNIT_KMPH, UNIT_KNOTS, UNIT_METER, UNIT_MPH, UNIT_MPS, UnitHeight, UnitHorizontalSpeed, UnitVerticalSpeed, VARIO}, control::{DATA_SOURCE_FRONTEND, DATA_SOURCE_SENSORBOX}}, persist, polar_store, utils::{TString, Variant}, view::viewable::{
+    model::{
+        config::{
+            UnitHeight, UnitHorizontalSpeed, UnitVerticalSpeed, DEVICE_INFO, HORIZON, UNIT_FEET,
+            UNIT_FPM, UNIT_KMPH, UNIT_KNOTS, UNIT_METER, UNIT_MPH, UNIT_MPS, VARIO,
+        },
+        control::{DATA_SOURCE_FRONTEND, DATA_SOURCE_SENSORBOX},
+        DataSource, DisplayActive, DisplayTheme,
+    },
+    persist, polar_store,
+    utils::{TString, Variant},
+    view::viewable::{
         centerview::{CenterType, CenterView},
         vario_infoview::{Info3View, LineView, Placement},
-    }
+    },
+    CoreController, CoreModel, Echo, PersistenceId,
 };
 use tfmt::Convert;
 
@@ -589,36 +599,30 @@ impl EditableFuncs for McCready {
     fn params(cm: &CoreModel) -> Params {
         let unit = cm.config.unit_vertical_speed.as_str();
         match cm.config.unit_vertical_speed {
-            UnitVerticalSpeed::Fpm => {
-                Params::F32(F32Params {
-                    min: 0.0,
-                    max: 1000.0,
-                    small_inc: 20.0,
-                    big_inc: 20.0,
-                    dec_places: 0,
-                    unit,
-                })            
-            },
-            UnitVerticalSpeed::Knots => {
-                Params::F32(F32Params {
-                    min: 0.0,
-                    max: 10.0,
-                    small_inc: 0.2,
-                    big_inc: 0.2,
-                    dec_places: 1,
-                    unit,
-                })            
-            },
-            UnitVerticalSpeed::Mps => {
-                Params::F32(F32Params {
-                    min: 0.0,
-                    max: 5.0,
-                    small_inc: 0.1,
-                    big_inc: 0.1,
-                    dec_places: 1,
-                    unit,
-                })            
-            },
+            UnitVerticalSpeed::Fpm => Params::F32(F32Params {
+                min: 0.0,
+                max: 1000.0,
+                small_inc: 20.0,
+                big_inc: 20.0,
+                dec_places: 0,
+                unit,
+            }),
+            UnitVerticalSpeed::Knots => Params::F32(F32Params {
+                min: 0.0,
+                max: 10.0,
+                small_inc: 0.2,
+                big_inc: 0.2,
+                dec_places: 1,
+                unit,
+            }),
+            UnitVerticalSpeed::Mps => Params::F32(F32Params {
+                min: 0.0,
+                max: 5.0,
+                small_inc: 0.1,
+                big_inc: 0.1,
+                dec_places: 1,
+                unit,
+            }),
         }
     }
 
@@ -642,7 +646,10 @@ impl EditableFuncs for StfUpperLimit {
     }
 
     fn content(cm: &mut CoreModel, _cc: &mut CoreController) -> Content {
-        let value = cm.config.unit_horizontal_speed.as_f32(cm.config.stf_upper_limit);
+        let value = cm
+            .config
+            .unit_horizontal_speed
+            .as_f32(cm.config.stf_upper_limit);
         Content::F32(Some(value))
     }
 
@@ -678,7 +685,10 @@ impl EditableFuncs for StfLowerLimit {
     }
 
     fn content(cm: &mut CoreModel, _cc: &mut CoreController) -> Content {
-        let value = cm.config.unit_horizontal_speed.as_f32(cm.config.stf_lower_limit);
+        let value = cm
+            .config
+            .unit_horizontal_speed
+            .as_f32(cm.config.stf_lower_limit);
         Content::F32(Some(value))
     }
 
@@ -856,43 +866,40 @@ impl EditableFuncs for VarioUpperLimit {
     }
 
     fn content(cm: &mut CoreModel, _cc: &mut CoreController) -> Content {
-        let value = cm.config.unit_vertical_speed.as_f32(cm.config.vario_upper_limit);
+        let value = cm
+            .config
+            .unit_vertical_speed
+            .as_f32(cm.config.vario_upper_limit);
         Content::F32(Some(value))
     }
 
     fn params(cm: &CoreModel) -> Params {
         let unit = cm.config.unit_vertical_speed.as_str();
         match cm.config.unit_vertical_speed {
-            UnitVerticalSpeed::Fpm => {
-                Params::F32(F32Params {
-                    min: -2000.0,
-                    max: 2000.0,
-                    small_inc: 20.0,
-                    big_inc: 200.0,
-                    dec_places: 0,
-                    unit,
-                })            
-            },
-            UnitVerticalSpeed::Knots => {
-                Params::F32(F32Params {
-                    min: -20.0,
-                    max: 20.0,
-                    small_inc: 0.2,
-                    big_inc: 2.0,
-                    dec_places: 1,
-                    unit,
-                })            
-            },
-            UnitVerticalSpeed::Mps => {
-                Params::F32(F32Params {
-                    min: -10.0,
-                    max: 10.0,
-                    small_inc: 0.1,
-                    big_inc: 1.0,
-                    dec_places: 1,
-                    unit,
-                })            
-            },
+            UnitVerticalSpeed::Fpm => Params::F32(F32Params {
+                min: -2000.0,
+                max: 2000.0,
+                small_inc: 20.0,
+                big_inc: 200.0,
+                dec_places: 0,
+                unit,
+            }),
+            UnitVerticalSpeed::Knots => Params::F32(F32Params {
+                min: -20.0,
+                max: 20.0,
+                small_inc: 0.2,
+                big_inc: 2.0,
+                dec_places: 1,
+                unit,
+            }),
+            UnitVerticalSpeed::Mps => Params::F32(F32Params {
+                min: -10.0,
+                max: 10.0,
+                small_inc: 0.1,
+                big_inc: 1.0,
+                dec_places: 1,
+                unit,
+            }),
         }
     }
 
@@ -916,44 +923,40 @@ impl EditableFuncs for VarioLowerLimit {
     }
 
     fn content(cm: &mut CoreModel, _cc: &mut CoreController) -> Content {
-        let value = cm.config.unit_vertical_speed.as_f32(cm.config.vario_lower_limit);
+        let value = cm
+            .config
+            .unit_vertical_speed
+            .as_f32(cm.config.vario_lower_limit);
         Content::F32(Some(value))
     }
 
     fn params(cm: &CoreModel) -> Params {
         let unit = cm.config.unit_vertical_speed.as_str();
         match cm.config.unit_vertical_speed {
-            UnitVerticalSpeed::Fpm => {
-                Params::F32(F32Params {
-                    min: -2000.0,
-                    max: 2000.0,
-                    small_inc: 20.0,
-                    big_inc: 200.0,
-                    dec_places: 0,
-                    unit,
-                })            
-            },
-            UnitVerticalSpeed::Knots => {
-                Params::F32(F32Params {
-                    min: -20.0,
-                    max: 20.0,
-                    small_inc: 0.2,
-                    big_inc: 2.0,
-                    dec_places: 1,
-                    unit,
-                })            
-            },
-            UnitVerticalSpeed::Mps => {
-                Params::F32(F32Params {
-                    min: -10.0,
-                    max: 10.0,
-                    small_inc: 0.1,
-                    big_inc: 1.0,
-                    dec_places: 1,
-                    unit,
-                })            
-            },
-
+            UnitVerticalSpeed::Fpm => Params::F32(F32Params {
+                min: -2000.0,
+                max: 2000.0,
+                small_inc: 20.0,
+                big_inc: 200.0,
+                dec_places: 0,
+                unit,
+            }),
+            UnitVerticalSpeed::Knots => Params::F32(F32Params {
+                min: -20.0,
+                max: 20.0,
+                small_inc: 0.2,
+                big_inc: 2.0,
+                dec_places: 1,
+                unit,
+            }),
+            UnitVerticalSpeed::Mps => Params::F32(F32Params {
+                min: -10.0,
+                max: 10.0,
+                small_inc: 0.1,
+                big_inc: 1.0,
+                dec_places: 1,
+                unit,
+            }),
         }
     }
 

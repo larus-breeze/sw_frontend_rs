@@ -35,9 +35,9 @@ impl Default for GliderData {
 
 impl GliderData {
     pub fn from_basic_glider_data(basic_glider_data: BasicGliderData) -> GliderData {
-        GliderData { 
-            basic_glider_data, 
-            ..Default::default() 
+        GliderData {
+            basic_glider_data,
+            ..Default::default()
         }
     }
 

@@ -32,7 +32,6 @@ impl MenuControl {
 }
 
 pub fn key_action(key_event: &mut KeyEvent, cm: &mut CoreModel, cc: &mut CoreController) {
-
     fn menu_action(cm: &mut CoreModel, cc: &mut CoreController, level: usize, pos: usize) {
         // get next menu and level
         let menu_item = cm.control.menu_control.menu.items[pos];

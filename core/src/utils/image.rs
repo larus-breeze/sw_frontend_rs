@@ -1,8 +1,8 @@
+use crate::{Colors, CoreError, DrawImage};
 use embedded_graphics::{
     draw_target::DrawTarget,
     geometry::{Point, Size},
 };
-use crate::{Colors, CoreError, DrawImage};
 
 #[derive(Clone, Copy)]
 pub struct Image {
@@ -25,7 +25,10 @@ impl Image {
     }
 
     pub fn size(&self) -> Size {
-        Size { width: self.width(), height: self.height() }
+        Size {
+            width: self.width(),
+            height: self.height(),
+        }
     }
 
     pub fn draw<D>(

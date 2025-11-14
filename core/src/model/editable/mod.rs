@@ -1,3 +1,5 @@
+mod controller;
+mod glider_data;
 /// Elements that can be changed by the user
 ///
 /// Editables are always saved in the model or controllerand can be changed by the user. These
@@ -14,13 +16,11 @@
 ///   - Add reference to fn Editable::this()
 ///   - Add the new editable to the menu structure (src/model/menu)
 mod model;
-mod controller;
-mod glider_data;
 mod sensorbox;
 
-use model::*;
 use controller::*;
 use glider_data::*;
+use model::*;
 use sensorbox::*;
 
 use crate::{utils::TString, CoreController, CoreModel};
@@ -173,7 +173,7 @@ struct EditableFptrs {
     name: fn() -> &'static str,
     content: fn(&mut CoreModel, &mut CoreController) -> Content,
     content_as_str: fn(&mut Convert<20>, i32),
-    params: fn(& CoreModel) -> Params,
+    params: fn(&CoreModel) -> Params,
     set_content: fn(&mut CoreModel, &mut CoreController, Content),
 }
 

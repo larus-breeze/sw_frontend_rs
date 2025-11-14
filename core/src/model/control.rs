@@ -2,7 +2,7 @@ use crate::{
     controller::{CanActive, DeviceInfoControl, Editor},
     system_of_units::{FloatToLength, FloatToSpeed, Length, Speed},
     utils::DeviceEvent,
-    MenuControl, Rotation, PinState,
+    MenuControl, PinState, Rotation,
 };
 
 /// Flymode display variants
@@ -176,17 +176,16 @@ pub struct HwPins {
 impl Default for HwPins {
     fn default() -> Self {
         // Input Pins are set by hardware, simulator sets them to High
-        // Output pins are set during initialization to low 
-        HwPins { 
-            in_breakes: PinState::High, 
-            in_drain: PinState::High, 
+        // Output pins are set during initialization to low
+        HwPins {
+            in_breakes: PinState::High,
+            in_drain: PinState::High,
             in_gear: PinState::High,
             in_speed_to_fly: PinState::High,
-            out_flash: PinState::Low, 
+            out_flash: PinState::Low,
         }
     }
 }
-
 
 /// Metastructure for different control variables
 #[derive(Clone, Copy)]
