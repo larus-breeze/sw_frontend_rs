@@ -1,7 +1,5 @@
-use rust_xlsxwriter::{Format, Workbook, Worksheet, XlsxError, FormatAlign};
+use rust_xlsxwriter::{Format, Workbook, XlsxError, FormatAlign};
 use corelib::{
-    Editable,
-    menu::{MenuItemContent, Menu, MENU_LIST, SETTINGS_IDX},
     flight_physics::{polar_store::POLARS, polar_store_idx::TO_RAW}
 };
 
@@ -9,48 +7,11 @@ use corelib::{
 fn main() -> Result<(), XlsxError> {
     let mut workbook = Workbook::new();
 
-    add_menu_sturcture(&mut workbook)?;
     add_polars(&mut workbook)?;
 
-    let path = "../doc/menu-polar.xlsx";
+    let path = "../doc/polar_store.xlsx";
     workbook.save(path)?;
     println!("File '{}' created", path);
-
-    Ok(())
-}
-
-pub fn add_menu_sturcture(workbook: &mut Workbook) -> Result<(), XlsxError> {
-
-    fn store_menu(worksheet: &mut Worksheet, row: &mut u32, d_menu: Menu, level: u16) {
-        let s = format!("Menu <{}>", d_menu.name);
-        let _ = worksheet.write(*row, level, &s);
-        *row += 1;
-
-
-        for menu_entry in d_menu.items {
-            match menu_entry.content {
-                MenuItemContent::EditItem(item) => {
-                    if item != Editable::Return {
-                        let _ = worksheet.write(*row, level + 1, item.name());
-                        *row += 1;
-                    }
-                }
-                MenuItemContent::MenuItem() => {
-                    let sub_menu = MENU_LIST[menu_entry.next_menu_idx];
-                    store_menu(worksheet, row, sub_menu, level + 1);
-                }
-            }
-        }
-    }
-
-    let worksheet = workbook.add_worksheet().set_name("Menu Structure")?;
-
-    let header_format = Format::new().set_font_size(14).set_bold();
-    let _ = worksheet.write_with_format(0, 0, "Menu Structure", &header_format)?;
-
-    let main_menu = MENU_LIST[SETTINGS_IDX];
-    let mut row = 2_u32;
-    store_menu(worksheet, &mut row, main_menu, 0);
 
     Ok(())
 }

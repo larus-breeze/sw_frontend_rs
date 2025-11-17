@@ -29,7 +29,8 @@ cd device/sim
 cd ../..
 
 cd core/tools
-cargo run --bin extract_infos -r 
+cargo run --bin extract_polar_store -r 
+cargo run --bin extract_menus -r 
 cd ../..
 
 echo "finished"
