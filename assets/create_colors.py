@@ -208,7 +208,7 @@ impl From<Colors> for RawU8 {
     }
 }
 
-use embedded_graphics::pixelcolor::{BinaryColor, Rgb888, Bgr888};
+use embedded_graphics::pixelcolor::{Bgr888, BinaryColor, Rgb888};
 use embedded_graphics::prelude::WebColors;
 
 impl From<Bgr888> for Colors {
@@ -274,7 +274,7 @@ impl From<Colors> for RawU16 {
     }
 }
 
-use embedded_graphics::pixelcolor::{BinaryColor, Rgb888, Bgr888};
+use embedded_graphics::pixelcolor::{Bgr888, BinaryColor, Rgb888};
 use embedded_graphics::prelude::WebColors;
 
 impl From<Bgr888> for Colors {
@@ -355,7 +355,8 @@ def color_name_to_css_name(name):
     return r
 
 
-with open("core/src/utils/colors8.rs", "w") as f:
+path = "core/src/utils/colors8.rs"
+with open(path, "w") as f:
     colors = ''
     for idx, color_name in enumerate(sorted(color_names)):
         rgb = name_to_rgb(color_name.lower())
@@ -389,8 +390,12 @@ EXCEPTIONS = {
     'Chartreuse': 0x7fe1,
     'GhostWhite': rgb565(248, 247, 255),
 }
+print("create_colors.py")
+print(f"  Path '{path} created")
 
-with open("core/src/utils/colors16.rs", "w") as f:
+
+path = "core/src/utils/colors16.rs"
+with open(path, "w") as f:
     colors = ''
     rgb888_colors = ''
     bgr888_colors = ''
@@ -417,9 +422,10 @@ with open("core/src/utils/colors16.rs", "w") as f:
             .replace('@bgr888_colors@', bgr888_colors)
             .replace('@rgb888_colors@', rgb888_colors)
     )
+print(f"  Path '{path} created")
 
-
-with open(f"core/src/utils/rgb565_colors.rs", "w") as f:    
+path = "core/src/utils/rgb565_colors.rs"
+with open(path, "w") as f:    
     rgb888_colors = ''        
     for color_name in sorted(color_names):
         css_color_name = color_name_to_css_name(color_name)
@@ -441,9 +447,10 @@ with open(f"core/src/utils/rgb565_colors.rs", "w") as f:
             .replace('@col_cnt@', col_cnt)
             .replace('@colors565@', colors565)
     )
+print(f"  Path '{path} created")
 
-
-with open('assets/colors.html', 'w') as f:
+path = 'assets/colors.html'
+with open(path, 'w') as f:
     content = ''
     for col in color_names:
         rgb = name_to_rgb(col)
@@ -458,8 +465,10 @@ with open('assets/colors.html', 'w') as f:
         HTML_TEMPLATE
             .replace('@@@', content)
     )
+print(f"  Path '{path} created")
 
-with open('device/larus_frontend_v2/examples/driver/clut_colors.rs', 'w') as f:
+path = 'device/larus_frontend_v2/examples/driver/clut_colors.rs'
+with open(path, 'w') as f:
     clut_colors = ''
     for idx, color_name in enumerate(sorted(color_names)):
         hex_str = name_to_hex(color_name).replace('#', '')
@@ -469,3 +478,4 @@ with open('device/larus_frontend_v2/examples/driver/clut_colors.rs', 'w') as f:
         CLUT_COLORS_TEMPLATE
             .replace('@clut_colors@', clut_colors)
     )
+print(f"  Path '{path} created")

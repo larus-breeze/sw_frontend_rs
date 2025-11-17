@@ -119,4 +119,5 @@ sprites.add(PCoordSprite(*CLASSIC_INDICATOR))
 file_name = 'core/src/view/sprites/polar_defs.rs'
 sprites.to_file(file_name)
 
-print(f"'{file_name}' generated")
+print("create_spreite_coords.py")
+print(f"  '{file_name}' generated")

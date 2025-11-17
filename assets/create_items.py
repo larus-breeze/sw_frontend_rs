@@ -29,10 +29,10 @@ EXPORT_DIRS = [
 
 def export_png(source, f_name, dir_name, dpi):
     cmd = f"inkscape --export-id={f_name} --export-filename={dir_name}/{f_name} --export-png-color-mode=Gray_1 --export-dpi={dpi} {source}"
-    print(f"writing {dir_name}/{f_name}")
+    print(f"  writing {dir_name}/{f_name}")
     os.system(cmd)
 
-
+print("create_items.py")
 for f_name in PICS:
     for dir_name, dpi in EXPORT_DIRS:
         export_png("assets/items.svg", f_name, dir_name, dpi)

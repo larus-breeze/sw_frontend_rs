@@ -39,7 +39,7 @@ class VarioWallpaper():
             for value  in (-5, -4, -3, -2, -1, 0, 1, 2, 3, 4, 5):
                 self.stroke(value, 1.0)
         self.img.save(path)
-        print(f"Save as '{path}'")
+        print(f"  Save as '{path}'")
     
     def show(self):
         self.img.show()
@@ -98,6 +98,7 @@ DIMS_480_480 = {
     "max_arc": 305,
 }
 
+print("create_wallpaper_vario.py")
 wp = VarioWallpaper(DIMS_227_285)
 wp.generate("assets/size_227x285/wp_vario-5.png")
 wp.generate("assets/size_227x285/wp_vario-10.png", is_ten=10)

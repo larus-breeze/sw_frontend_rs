@@ -52,8 +52,10 @@ def create_polars_idx(file_name, items):
     with open(file_name, 'w') as f:
         f.write(file_content)
 
+    print(f"  file '{file_name}' created")
 
 
 
+print("create_polar_idx.py")
 items = parse_polar_store('core/src/flight_physics/polar_store.rs')
 create_polars_idx("core/src/flight_physics/polar_store_idx.rs", items)

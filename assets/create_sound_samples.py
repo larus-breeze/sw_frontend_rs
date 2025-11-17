@@ -79,6 +79,7 @@ def get_samples(f, name, exact):
     
     s = '\n'
     s += "#[allow(unused)]\n"
+    s += "#[rustfmt::skip]\n"
     s += f"pub const {name}: [f32; SAMPLES_COUNT] = [\n" 
     s += "    " + ", ".join(to_store)
     s += "];\n"
@@ -97,8 +98,9 @@ def get_file_content():
 def write_to_file(file_name, content):
     with open(file_name, 'w') as f:
         f.write(content)
-    print(f"file '{file_name}' created")
+    print(f"  file '{file_name}' created")
 
+print("create_sound_samples.py")
 content = get_file_content()
 write_to_file('device/larus_frontend_v1/src/utils/samples.rs', content)
 write_to_file('device/larus_frontend_v2/src/utils/samples.rs', content)

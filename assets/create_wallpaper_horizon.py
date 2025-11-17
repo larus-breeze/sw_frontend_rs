@@ -81,11 +81,10 @@ class ArtificialHorizonWallpaper():
 
 
     def generate(self, path):
-        print("Size", self.width, self.height)
         self.ah_wallpaper()
         self.level_tube()
         self.img.save(path)
-        print(f"Save as '{path}'\n")
+        print(f"  Save as '{path}'")
     
     def show(self):
         self.img.show()
@@ -129,9 +128,10 @@ DIMS_480_480 = {
     "comp_stroke_width": 3,
 }
 
+print("create_wallpaper_horizon.py")
 wp = ArtificialHorizonWallpaper(DIMS_227_285)
-wp.generate("assets/arthorizon_wp_227x285.png")
+wp.generate("assets/size_227x285/wp_horizon.png")
 wp = ArtificialHorizonWallpaper(DIMS_240_320)
-wp.generate("assets/arthorizon_wp_240x320.png")
+wp.generate("assets/size_240x320/wp_horizon.png")
 wp = ArtificialHorizonWallpaper(DIMS_480_480)
-wp.generate("assets/arthorizon_wp_480x480.png")
+wp.generate("assets/size_480x480/wp_horizon.png")
