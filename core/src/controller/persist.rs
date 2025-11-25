@@ -231,8 +231,16 @@ pub fn restore_item(cc: &mut CoreController, cm: &mut CoreModel, item: Persisten
         }
         PersistenceId::Bugs => cm.glider_data.set_bugs(item.to_f32()),
         PersistenceId::Display => cm.config.display_active = item.to_u8().into(),
-        PersistenceId::TcClimbRate => cm.config.av2_climb_rate_tc = item.to_f32(),
-        PersistenceId::TcSpeedToFly => cm.config.av_speed_to_fly_tc = item.to_f32(),
+        PersistenceId::TcClimbRate => {
+            let tc = item.to_f32();
+            cm.config.av2_climb_rate_tc = tc;
+            cc.av2_climb_rate.set_time_const(tc);
+        }
+        PersistenceId::TcSpeedToFly => {
+            let tc = item.to_f32();
+            cm.config.av_speed_to_fly_tc = tc;
+            cc.av_speed_to_fly.set_time_const(tc);
+        }
         PersistenceId::Info1Vario => cm.config.info1_vario = LineView::from(item.to_u8()),
         PersistenceId::Info2Vario => cm.config.info2_vario = LineView::from(item.to_u8()),
         PersistenceId::Rotation => cm.control.rotation = Rotation::from(item.to_u8()),

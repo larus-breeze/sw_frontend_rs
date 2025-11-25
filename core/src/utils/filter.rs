@@ -6,6 +6,7 @@ where
 {
     value: T,
     factor: f32,
+    tick_rate: u32,
 }
 
 impl<T> Pt1<T>
@@ -14,15 +15,19 @@ where
 {
     pub fn new(value: T, tick_rate: u32, time_const: f32) -> Self {
         let factor = Pt1::<T>::calc_factor(tick_rate, time_const);
-        Pt1 { value, factor }
+        Pt1 {
+            value,
+            factor,
+            tick_rate,
+        }
     }
 
     pub fn set_value(&mut self, value: T) {
         self.value = value;
     }
 
-    pub fn set_time_const(&mut self, tick_rate: u32, time_const: f32) {
-        self.factor = Pt1::<T>::calc_factor(tick_rate, time_const);
+    pub fn set_time_const(&mut self, time_const: f32) {
+        self.factor = Pt1::<T>::calc_factor(self.tick_rate, time_const);
     }
 
     pub fn tick(&mut self, new_value: T) {
@@ -57,7 +62,7 @@ mod tests {
         pt1.set_value(0.0);
         assert_eq!(pt1.value(), 0.0);
 
-        pt1.set_time_const(10, 2.0);
+        pt1.set_time_const(2.0);
         for _ in 0..20 {
             pt1.tick(1.0);
         }
