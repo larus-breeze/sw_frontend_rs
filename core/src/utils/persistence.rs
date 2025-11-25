@@ -249,10 +249,7 @@ where
         eeprom.check_magic()?;
 
         let user_profile = eeprom.read_byte(ADR_USER_PROFILE)?;
-        let user_profile = match user_profile {
-            0..=3 => user_profile,
-            _ => 0,
-        };
+        let user_profile = num::clamp(user_profile, 0, 3);
 
         Ok(Eeprom {
             eeprom,
@@ -301,6 +298,7 @@ where
 
     /// Returns an iterator to the desired topic area
     pub fn iter_over(&mut self, p_type: EepromTopic) -> PersistenceIterator<'_, S> {
+        let _ = self.set_user_profile();
         let (start_id, end_id) = match p_type {
             EepromTopic::ConfigValues => (0, PersistenceId::LastItem as u16),
         };
@@ -312,6 +310,12 @@ where
         for item_id in items_list {
             self.clear_id(*item_id)?;
         }
+        Ok(())
+    }
+
+    fn set_user_profile(&mut self) -> Result<(), CoreError> {
+        let user_profile = self.eeprom.read_byte(ADR_USER_PROFILE)?;
+        self.user_profile = num::clamp(user_profile, 0, 3);
         Ok(())
     }
 
