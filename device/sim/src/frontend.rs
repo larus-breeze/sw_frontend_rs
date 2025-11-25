@@ -343,6 +343,15 @@ impl Frontend {
                         IdleEvent::ClearEepromItems(items_list) => {
                             eeprom.delete_items_list(items_list).unwrap();
                         }
+                        IdleEvent::RestoreEepromItems => {
+                            for item in eeprom.iter_over(EepromTopic::ConfigValues) {
+                                if !p_persistence_items.ready() {
+                                    cc.tick_1ms(millis().wrapping_sub(start_time), &mut cm);
+                                }
+                                p_persistence_items.enqueue(item).unwrap();
+                                eeprom_init_items.push_back(item);
+                            }
+                        }
                         IdleEvent::ResetDevice(reason) => {
                             println!("Reset triggered by app, reason ‘{:?}’, please restart", reason);
                             quit_event_loop().unwrap();

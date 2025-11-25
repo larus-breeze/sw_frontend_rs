@@ -63,4 +63,15 @@ impl CoreModel {
             sensor,
         }
     }
+
+    pub fn reset(&mut self) {
+        self.calculated = Calculated::default();
+        self.config = Config::default(&self.device_const.dark_theme, self.config.uuid);
+        self.control = Control::default();
+        self.device = Device::default();
+        self.glider_data = GliderData::from_basic_glider_data(*polar_store::from_raw_idx(
+            self.config.glider_idx as usize,
+        ));
+        self.sensor = Sensor::default();
+    }
 }

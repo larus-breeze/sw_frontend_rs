@@ -5,6 +5,7 @@ use heapless::spsc::{Consumer, Producer, Queue};
 pub enum IdleEvent {
     SetEepromItem(PersistenceItem),
     ClearEepromItems(&'static [PersistenceId]),
+    RestoreEepromItems,
     SdCardItem(SdCardCmd),
     FeedTheDog,
     SetGain(u8),

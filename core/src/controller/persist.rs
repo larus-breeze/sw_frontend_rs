@@ -35,8 +35,8 @@ use crate::{
         centerview::CenterView,
         vario_infoview::{Info3View, LineView},
     },
-    CoreController, CoreModel, FloatToSpeed, IdleEvent, Mass, PersistenceItem, Pressure,
-    ResetReason, Rotation, VarioMode,
+    CoreController, CoreModel, FloatToSpeed, IdleEvent, Mass, PersistenceItem, Pressure, Rotation,
+    VarioMode,
 };
 
 /// It is not permitted to change the sequence or assignment, as the number references the memory
@@ -393,21 +393,24 @@ pub fn send_can_config_frame(
     }
 }
 
-pub fn delete_config(cc: &mut CoreController) {
+pub fn delete_config(cm: &mut CoreModel, cc: &mut CoreController) {
     cc.send_idle_event(IdleEvent::ClearEepromItems(DELETE_CONFIG_LIST));
-    cc.send_idle_event(IdleEvent::ResetDevice(ResetReason::ConfigChanged));
+    cm.reset();
+    cc.send_idle_event(IdleEvent::RestoreEepromItems);
 }
 
-pub fn factory_reset(cc: &mut CoreController) {
+pub fn factory_reset(cm: &mut CoreModel, cc: &mut CoreController) {
     let item = PersistenceItem::from_i8(PersistenceId::DeleteAll, 0);
     cc.send_idle_event(IdleEvent::SetEepromItem(item));
-    cc.send_idle_event(IdleEvent::ResetDevice(ResetReason::ConfigChanged));
+    cm.reset();
+    cc.send_idle_event(IdleEvent::RestoreEepromItems);
 }
 
-pub fn user_profile(cc: &mut CoreController, cm: &CoreModel) {
+pub fn user_profile(cm: &mut CoreModel, cc: &mut CoreController) {
     let item = PersistenceItem::from_u8(PersistenceId::UserProfile, cm.config.user_profile);
     cc.send_idle_event(IdleEvent::SetEepromItem(item));
-    cc.send_idle_event(IdleEvent::ResetDevice(ResetReason::ConfigChanged));
+    cm.reset();
+    cc.send_idle_event(IdleEvent::RestoreEepromItems);
 }
 
 // This function is called by Timer::PersistSetting after a short period to avoid

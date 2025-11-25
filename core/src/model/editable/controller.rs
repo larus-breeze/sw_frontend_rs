@@ -80,7 +80,7 @@ impl EditableFuncs for FactoryReset {
                 _ => 2,
             };
             if cm.control.editor.enter_pushed && cm.control.reset_config == 1 {
-                persist::factory_reset(cc)
+                persist::factory_reset(cm, cc)
             }
         }
     }
@@ -338,7 +338,7 @@ impl EditableFuncs for ResetConfig {
                 _ => 2,
             };
             if cm.control.editor.enter_pushed && cm.control.reset_config == 0 {
-                persist::delete_config(cc)
+                persist::delete_config(cm, cc)
             }
         }
     }
@@ -448,7 +448,7 @@ impl EditableFuncs for UserProfile {
                     USER_4 => 3,
                     _ => 0,
                 };
-                persist::user_profile(cc, cm); // store value and reset device
+                persist::user_profile(cm, cc); // store value and reset device
             }
         }
     }

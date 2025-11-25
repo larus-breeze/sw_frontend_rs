@@ -45,16 +45,22 @@ impl IdleLoop {
     }
 
     pub fn idle_loop(&mut self) -> ! {
-        // load all PersistencItems from eeprom and push the to application
-        for item in self.eeprom.iter_over(corelib::EepromTopic::ConfigValues) {
-            while !self.queue_from_idle_task.ready() {
-                // wait for space in Queue
-                rtic::export::wfi()
-            }
-            let _ = self.queue_from_idle_task.enqueue(item);
-        }
 
+        let mut restore_eeprom_items = true;
         loop {
+
+            if restore_eeprom_items {
+                // load all PersistencItems from eeprom and push the to application
+                for item in self.eeprom.iter_over(corelib::EepromTopic::ConfigValues) {
+                    while !self.queue_from_idle_task.ready() {
+                        // wait for space in Queue
+                        rtic::export::wfi()
+                    }
+                    let _ = self.queue_from_idle_task.enqueue(item);
+                }
+                restore_eeprom_items = false;
+            }
+
             while self.queue_to_idle_task.len() > 0 {
                 let idle_event = self.queue_to_idle_task.dequeue().unwrap();
                 match idle_event {
@@ -65,6 +71,7 @@ impl IdleLoop {
                     IdleEvent::ClearEepromItems(items_list) => {
                         self.eeprom.delete_items_list(items_list).unwrap();
                     }
+                    IdleEvent::RestoreEepromItems => restore_eeprom_items = true,
                     IdleEvent::FeedTheDog => self.watchdog.feed(),
                     IdleEvent::SetGain(_) => (), // vario sound on this device not suported
                     IdleEvent::SdCardItem(item) => {
