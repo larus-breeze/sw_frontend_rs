@@ -1,7 +1,7 @@
 use defmt::trace;
 
 use crate::{driver::*, install_and_restart, update_available, DevController};
-use corelib::{persist, CIdleEvents, CoreModel, DeviceEvent, Eeprom, Event, IdleEvent, PinState, SdCardCmd};
+use corelib::{CIdleEvents, CoreModel, DeviceEvent, Eeprom, Event, IdleEvent, PPersistenceItems, PinState, SdCardCmd};
 use fugit::ExtU32;
 use stm32h7xx_hal::{
     gpio::{Output, Pin, PinState::High},
@@ -27,7 +27,8 @@ impl OutputPins {
 pub struct IdleLoop {
     amplifier: Amplifier<I2cManager>,
     eeprom: Eeprom<Storage<I2cManager, I2cError>>,
-    c_idle_events: CIdleEvents,
+    queue_to_idle_task: CIdleEvents,
+    queue_from_idle_task: PPersistenceItems,
     q_events: &'static QEvents,
     watchdog: IndependentWatchdog,
     output_pins: OutputPins,
@@ -38,18 +39,15 @@ impl IdleLoop {
         output_pins: OutputPins,
         i2c: I2c<I2C1>,
         mut watchdog: IndependentWatchdog,
-        c_idle_events: CIdleEvents,
+        queue_to_idle_task: CIdleEvents,
+        queue_from_idle_task: PPersistenceItems,
         q_events: &'static QEvents,
         cm: &mut CoreModel,
         dc: &mut DevController,
     ) -> Self {
         let i2c = I2cManager::new(i2c);
-        let mut eeprom = Storage::new(i2c).unwrap();
+        let eeprom = Storage::new(i2c).unwrap();
         let amplifier = Amplifier::new(I2cManager::clone());
-
-        for item in eeprom.iter_over(corelib::EepromTopic::ConfigValues) {
-            persist::restore_item(dc.core(), cm, item);
-        }
         dc.core().recalc_glider(cm);
 
         if let Some(version) = update_available() {
@@ -70,16 +68,26 @@ impl IdleLoop {
             output_pins,
             amplifier,
             eeprom,
-            c_idle_events,
+            queue_to_idle_task,
+            queue_from_idle_task,
             q_events,
             watchdog,
         }
     }
 
     pub fn idle_loop(&mut self) -> ! {
+        // load all PersistencItems from eeprom and push the to application
+        for item in self.eeprom.iter_over(corelib::EepromTopic::ConfigValues) {
+            while !self.queue_from_idle_task.ready() {
+                // wait for space in Queue
+                rtic::export::wfi()
+            }
+            let _ = self.queue_from_idle_task.enqueue(item);
+        }
+
         loop {
-            while self.c_idle_events.len() > 0 {
-                let idle_event = self.c_idle_events.dequeue().unwrap();
+            while self.queue_to_idle_task.len() > 0 {
+                let idle_event = self.queue_to_idle_task.dequeue().unwrap();
                 match idle_event {
                     IdleEvent::SetEepromItem(item) => {
                         trace!("Save to EEPROM '{:?}'", item.id);

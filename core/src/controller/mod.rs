@@ -38,8 +38,8 @@ use crate::{
     model::{DataSource, DisplayActive, EditMode, VarioModeControl},
     system_of_units::{FloatToSpeed, Speed},
     utils::{KeyEvent, PIdleEvents, Pt1},
-    CoreModel, DeviceEvent, Editable, Event, IdleEvent, InputPinState, PersistenceItem, SdCardCmd,
-    VarioMode,
+    CPersistenceItems, CoreModel, DeviceEvent, Editable, Event, IdleEvent, InputPinState,
+    PersistenceItem, SdCardCmd, VarioMode,
 };
 use helpers::nmea_cyclic_200ms;
 
@@ -88,14 +88,16 @@ pub struct CoreController {
     pub pers_vals: FnvIndexMap<PersistenceId, PersistenceItem, MAX_PERS_IDS>,
     pub nmea_vals: FnvIndexSet<PersistenceId, MAX_PERS_IDS>,
     pub remote_val: Option<(CanConfigId, RemoteConfig)>,
-    p_idle_events: PIdleEvents,
+    queue_to_idle_task: PIdleEvents,
+    queue_from_idle_task: CPersistenceItems,
     p_tx_frames: PTxFrames<MAX_TX_FRAMES>,
 }
 
 impl CoreController {
     pub fn new(
         core_model: &mut CoreModel,
-        p_idle_events: PIdleEvents,
+        queue_to_idle_task: PIdleEvents,
+        queue_from_idle_task: CPersistenceItems,
         p_tx_frames: PTxFrames<MAX_TX_FRAMES>,
     ) -> Self {
         let av2_climb_rate = Pt1::new(
@@ -134,7 +136,8 @@ impl CoreController {
             nmea_vals: FnvIndexSet::new(),
             pers_vals: FnvIndexMap::new(),
             remote_val: None,
-            p_idle_events,
+            queue_to_idle_task,
+            queue_from_idle_task,
             p_tx_frames,
         }
     }
@@ -168,6 +171,10 @@ impl CoreController {
                     }
                 }
             }
+        }
+        // Check queue everey time, tick_1ms is called
+        if let Some(item) = self.queue_from_idle_task.dequeue() {
+            persist::restore_item(self, cm, item);
         }
         recalc
     }
@@ -216,7 +223,7 @@ impl CoreController {
     }
 
     pub fn send_idle_event(&mut self, idle_event: IdleEvent) {
-        let _ = self.p_idle_events.enqueue(idle_event);
+        let _ = self.queue_to_idle_task.enqueue(idle_event);
     }
 
     // Event handler for reactions to inputs

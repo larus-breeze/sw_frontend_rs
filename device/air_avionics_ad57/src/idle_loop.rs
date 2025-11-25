@@ -6,11 +6,12 @@ use crate::{
     driver::{delay_ms, QEvents, Storage},
     install_and_restart, update_available, ResetWatch,
 };
-use corelib::{CIdleEvents, DeviceEvent, Eeprom, Event, IdleEvent, SdCardCmd};
+use corelib::{CIdleEvents, DeviceEvent, Eeprom, Event, IdleEvent, PPersistenceItems, SdCardCmd};
 
 pub struct IdleLoop {
     eeprom: Eeprom<Storage>,
-    c_idle_events: CIdleEvents,
+    queue_to_idle_task: CIdleEvents,
+    queue_from_idle_task: PPersistenceItems,
     q_events: &'static QEvents,
     watchdog: IndependentWatchdog,
 }
@@ -18,7 +19,8 @@ pub struct IdleLoop {
 impl IdleLoop {
     pub fn new(
         eeprom: Eeprom<Storage>,
-        c_idle_events: CIdleEvents,
+        queue_to_idle_task: CIdleEvents,
+        queue_from_idle_task: PPersistenceItems,
         q_events: &'static QEvents,
         mut watchdog: IndependentWatchdog,
     ) -> Self {
@@ -33,21 +35,28 @@ impl IdleLoop {
             trace!("Start watchdog");
         }
 
-        // Todo iter over eeprom items and restore them
-        // Todo recalc_dlider()
-
         IdleLoop {
             eeprom,
-            c_idle_events,
+            queue_to_idle_task,
+            queue_from_idle_task,
             q_events,
             watchdog,
         }
     }
 
     pub fn idle_loop(&mut self) -> ! {
+        // load all PersistencItems from eeprom and push the to application
+        for item in self.eeprom.iter_over(corelib::EepromTopic::ConfigValues) {
+            while !self.queue_from_idle_task.ready() {
+                // wait for space in Queue
+                rtic::export::wfi()
+            }
+            let _ = self.queue_from_idle_task.enqueue(item);
+        }
+
         loop {
-            while self.c_idle_events.len() > 0 {
-                let idle_event = self.c_idle_events.dequeue().unwrap();
+            while self.queue_to_idle_task.len() > 0 {
+                let idle_event = self.queue_to_idle_task.dequeue().unwrap();
                 match idle_event {
                     IdleEvent::SetEepromItem(item) => {
                         trace!("Stored id {:?}", item.id as u32);

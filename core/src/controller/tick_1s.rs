@@ -158,7 +158,7 @@ fn process_hardware_pins(cm: &mut CoreModel, cc: &mut CoreController) {
     let _ = cc.gear_alarm_control.alarm_is_active(cm);
 
     if let Some(state) = cc.flash_control.tick_1s(cm) {
-        let _ = cc.p_idle_events.enqueue(IdleEvent::Output1(state));
+        let _ = cc.queue_to_idle_task.enqueue(IdleEvent::Output1(state));
     }
     let _ = cc.scheduler.chain(sync_config_items);
 }

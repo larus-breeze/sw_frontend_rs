@@ -200,6 +200,8 @@ impl Frontend {
     ) -> impl FnOnce() {
         move || {
             let mut logger = Logger::new();
+            let start_time = millis();
+
             let mut filter_nmea_in = false;
             let mut filter_nmea_out = false;
             let mut filter_idle_events = false;
@@ -208,17 +210,26 @@ impl Frontend {
 
             let display = Display::new();
             let (p_idle_events, mut c_idle_events) = spsc_queue!(QIdleEvents);
+            let (mut p_persistence_items, c_persistence_items) = spsc_queue!(QPersistenceItems);
             let (p_tx_frames, mut c_tx_frames) = spsc_queue!(QTxFrames<10>);
         
             let mut cm = CoreModel::new(&DEVICE_CONST, 0x1234_5678);
-            let mut cc = CoreController::new(&mut cm, p_idle_events, p_tx_frames);
+            let mut cc = CoreController::new(
+                &mut cm, 
+                p_idle_events,
+                c_persistence_items,
+                p_tx_frames
+            );
             let mut view = CoreView::new(display, &cm);
 
             let mut eeprom_init_items = VecDeque::<PersistenceItem>::new();
             let mut eeprom = Storage::new(profile_always_0).unwrap();
             for item in eeprom.iter_over(EepromTopic::ConfigValues) {
-                persist::restore_item(&mut cc, &mut cm, item);
-                let _ = eeprom_init_items.push_back(item);
+                if !p_persistence_items.ready() {
+                    cc.tick_1ms(millis().wrapping_sub(start_time), &mut cm);
+                }
+                p_persistence_items.enqueue(item).unwrap();
+                eeprom_init_items.push_back(item);
             }
         
             let outputs_ = Outputs::new();
@@ -228,7 +239,6 @@ impl Frontend {
             let mut clipboard_ctx = Clipboard::new().unwrap();
 
             let mut nmea_server = TcpServer::new("127.0.0.1:4353");
-            let start_time = millis();
 
             loop {
                 std::thread::sleep(std::time::Duration::from_millis(30));

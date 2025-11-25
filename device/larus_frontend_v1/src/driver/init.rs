@@ -1,7 +1,7 @@
 use crate::{driver::*, DevController, DevView, IdleLoop, DEVICE_CONST};
 use corelib::{
     basic_config::{MAX_RX_FRAMES, MAX_TX_FRAMES, VDA},
-    spsc_queue, CanDispatch, CoreModel, QIdleEvents, QRxFrames, QTxFrames, QTxIrqFrames,
+    spsc_queue, CanDispatch, CoreModel, QIdleEvents, QPersistenceItems, QRxFrames, QTxFrames, QTxIrqFrames,
 };
 use cortex_m::peripheral::Peripherals as CorePeripherals;
 use defmt::*;
@@ -49,6 +49,8 @@ pub fn hw_init(
     let (p_tx_frames, c_tx_frames) = spsc_queue!(QTxFrames<MAX_TX_FRAMES>);
     // This queue routes the StorageItems from the controller to the idle loop.
     let (p_idle_events, c_idle_events) = spsc_queue!(QIdleEvents);
+    // This queue routes the PersistenceItems from the idle_loop to the controller loop.
+    let (p_persistence_items, c_persistence_items) = spsc_queue!(QPersistenceItems);
 
     // This queue routes the events to the controller.
     static Q_EVENTS: QEvents = MpMcQueue::new();
@@ -175,6 +177,7 @@ pub fn hw_init(
             &mut core_model,
             &Q_EVENTS,
             p_idle_events,
+            c_persistence_items,
             p_tx_frames,
             c_rx_frames,
             adc1.enable(),
@@ -211,6 +214,7 @@ pub fn hw_init(
             i2c,
             watchdog,
             c_idle_events,
+            p_persistence_items,
             &Q_EVENTS,
             &mut core_model,
             &mut dev_controller,

@@ -1,7 +1,6 @@
 use crate::{driver::QEvents, timestamp_ms, CoreController};
 use corelib::{
-    basic_config::{MAX_RX_FRAMES, MAX_TX_FRAMES},
-    CRxFrames, CoreModel, PIdleEvents, PTxFrames,
+    CPersistenceItems, CRxFrames, CoreModel, PIdleEvents, PTxFrames, basic_config::{MAX_RX_FRAMES, MAX_TX_FRAMES}
 };
 
 #[cfg(feature = "test-panic")]
@@ -19,11 +18,17 @@ impl DevController {
     pub fn new(
         core_model: &mut CoreModel,
         q_events: &'static QEvents,
-        p_idle_events: PIdleEvents,
+        queue_to_idle_task: PIdleEvents,
+        queue_from_idle_task: CPersistenceItems,
         p_tx_frames: PTxFrames<MAX_TX_FRAMES>,
         c_rx_frames: CRxFrames<MAX_RX_FRAMES>,
     ) -> Self {
-        let core_controller = CoreController::new(core_model, p_idle_events, p_tx_frames);
+        let core_controller = CoreController::new(
+            core_model, 
+            queue_to_idle_task, 
+            queue_from_idle_task,
+            p_tx_frames
+        );
         DevController {
             core_controller,
             q_events,

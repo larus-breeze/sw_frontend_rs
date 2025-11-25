@@ -1,4 +1,5 @@
 use eeprom::ADR_USER_PROFILE;
+use heapless::spsc::{Consumer, Producer, Queue};
 
 use crate::{CoreError, PersistenceId, Variant};
 
@@ -31,6 +32,11 @@ pub enum EepromTopic {
 }
 
 pub const MAX_USER_VALUES: u32 = 256;
+
+const MAX_PERSISTENCE_ITEMS: usize = 20;
+pub type QPersistenceItems = Queue<PersistenceItem, MAX_PERSISTENCE_ITEMS>;
+pub type PPersistenceItems = Producer<'static, PersistenceItem, MAX_PERSISTENCE_ITEMS>;
+pub type CPersistenceItems = Consumer<'static, PersistenceItem, MAX_PERSISTENCE_ITEMS>;
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct PersistenceItem {

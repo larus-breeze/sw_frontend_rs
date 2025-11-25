@@ -5,10 +5,10 @@ use crate::{
     dev_controller::DevController, dev_view::DevView, driver::*, idle_loop::IdleLoop, Statistics,
     DEVICE_CONST,
 };
-use corelib::spsc_queue;
+use corelib::{QPersistenceItems, spsc_queue};
 use corelib::{
     basic_config::{MAX_RX_FRAMES, MAX_TX_FRAMES, VDA},
-    persist, CanDispatch, CoreModel, Event, QIdleEvents, QRxFrames, QTxFrames, QTxIrqFrames,
+    CanDispatch, CoreModel, Event, QIdleEvents, QRxFrames, QTxFrames, QTxIrqFrames,
 };
 /// In the embedded rust ecosystem, hardware resources can only be used in one place. For this
 /// reason, a careful distribution of the required hardware resources to corresponding software
@@ -100,6 +100,8 @@ pub fn hw_init(
     let (p_rx_frames, c_rx_frames) = spsc_queue!(QRxFrames<MAX_RX_FRAMES>);
     // This queue routes the StorageItems from the controller to the idle loop.
     let (p_idle_events, c_idle_events) = spsc_queue!(QIdleEvents);
+    // This queue routes the PersistenceItems from the idle_loop to the controller loop.
+    let (p_persistence_items, c_persistence_items) = spsc_queue!(QPersistenceItems);
     // This queue routes the events to the controller.
     static Q_EVENTS: QEvents = MpMcQueue::new();
 
@@ -132,7 +134,7 @@ pub fn hw_init(
     let scl = gpiob.pb6.internal_pull_up(true);
     let sda = gpiob.pb7.internal_pull_up(true);
     let i2c = device.I2C1.i2c((scl, sda), 400.kHz(), &clocks);
-    let mut eeprom = Storage::new(i2c).unwrap();
+    let eeprom = Storage::new(i2c).unwrap();
 
     // Setup ----------> CoreModel
     let mut core_model = CoreModel::new(&DEVICE_CONST, uuid());
@@ -142,12 +144,10 @@ pub fn hw_init(
         &mut core_model,
         &Q_EVENTS,
         p_idle_events,
+        c_persistence_items,
         p_tx_frames,
         c_rx_frames,
     );
-    for item in eeprom.iter_over(corelib::EepromTopic::ConfigValues) {
-        persist::restore_item(dev_controller.core(), &mut core_model, item);
-    }
 
     let rcc_ = unsafe { &*pac::RCC::ptr() };
     rcc_.ahb1enr.modify(|_, w| w.dma2en().set_bit()); // enable ahb1 clock for dma2
@@ -202,7 +202,13 @@ pub fn hw_init(
         // Init reset watch and create entry in PANIC.LOG if watchdog reset
         ResetWatch::new();
 
-        IdleLoop::new(eeprom, c_idle_events, &Q_EVENTS, watchdog)
+        IdleLoop::new(
+            eeprom, 
+            c_idle_events, 
+            p_persistence_items,
+            &Q_EVENTS, 
+            watchdog
+        )
     };
 
     let (nmea_tx, nmea_rx) = {

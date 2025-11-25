@@ -1,7 +1,6 @@
 use crate::{driver::QEvents, timestamp_ms, CoreController};
 use corelib::{
-    basic_config::{MAX_RX_FRAMES, MAX_TX_FRAMES},
-    CRxFrames, CoreModel, PIdleEvents, PTxFrames,
+    CRxFrames, CoreModel, CPersistenceItems, PIdleEvents, PTxFrames, basic_config::{MAX_RX_FRAMES, MAX_TX_FRAMES}
 };
 use stm32h7xx_hal::{adc, gpio::Pin, pac::ADC1, prelude::*};
 
@@ -28,14 +27,20 @@ impl DevController {
     pub fn new(
         core_model: &mut CoreModel,
         q_events: &'static QEvents,
-        p_idle_events: PIdleEvents,
+        queue_to_idle_task: PIdleEvents,
+        queue_from_idle_task: CPersistenceItems,
         p_tx_frames: PTxFrames<MAX_TX_FRAMES>,
         c_rx_frames: CRxFrames<MAX_RX_FRAMES>,
         mut adc: DevAdc,
         supply_pin: SupplyPin,
         temperature_pin: TemperutrePin,
     ) -> Self {
-        let core_controller = CoreController::new(core_model, p_idle_events, p_tx_frames);
+        let core_controller = CoreController::new(
+            core_model, 
+            queue_to_idle_task,
+            queue_from_idle_task,
+            p_tx_frames
+        );
         let supply_pin = supply_pin.into_analog();
         let temperature_pin = temperature_pin.into_analog();
         adc.set_resolution(adc::Resolution::SixteenBit);
