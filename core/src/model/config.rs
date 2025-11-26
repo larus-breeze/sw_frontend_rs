@@ -297,6 +297,7 @@ pub struct Config {
     pub unit_horizontal_speed: UnitHorizontalSpeed,
     pub unit_vertical_speed: UnitVerticalSpeed,
     pub unit_height: UnitHeight,
+    pub club_mode: bool,
 }
 
 impl Config {
@@ -339,6 +340,7 @@ impl Config {
             unit_horizontal_speed: UnitHorizontalSpeed::Kmph,
             unit_vertical_speed: UnitVerticalSpeed::Mps,
             unit_height: UnitHeight::Meter,
+            club_mode: false,
         }
     }
 

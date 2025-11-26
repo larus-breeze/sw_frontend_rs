@@ -2,7 +2,7 @@ use crate::{
     basic_config::MENU_TIMEOUT,
     controller::{editor, helpers::IntToDuration, EditMode, KeyEvent, Timer},
     model::{
-        menu::{Menu, MenuItemContent, FLIGHT_MENU, MENU_LIST, ROOT, SETTINGS},
+        menu::{menu_list, settings_menu, Menu, MenuItemContent, FLIGHT_MENU, ROOT},
         DisplayActive, OverlayActive,
     },
     CoreController, CoreModel, Editable,
@@ -35,7 +35,7 @@ pub fn key_action(key_event: &mut KeyEvent, cm: &mut CoreModel, cc: &mut CoreCon
     fn menu_action(cm: &mut CoreModel, cc: &mut CoreController, level: usize, pos: usize) {
         // get next menu and level
         let menu_item = cm.control.menu_control.menu.items[pos];
-        let next_menu = &MENU_LIST[menu_item.next_menu_idx];
+        let next_menu = menu_list(cm, menu_item.next_menu_idx);
 
         // set menu pos to 0, if next level is higher than current
         if next_menu.level > level {
@@ -97,7 +97,8 @@ pub fn key_action(key_event: &mut KeyEvent, cm: &mut CoreModel, cc: &mut CoreCon
                 *key_event = KeyEvent::NoEvent;
             }
             KeyEvent::BtnEncS3 => {
-                activate_menu(&SETTINGS, cm, cc);
+                let settings_menu = settings_menu(cm);
+                activate_menu(settings_menu, cm, cc);
                 *key_event = KeyEvent::NoEvent;
             }
             _ => (),

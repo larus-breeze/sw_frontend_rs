@@ -1,47 +1,8 @@
-#![allow(unused)]
+use crate::{
+    model::menu::{Menu, MenuItem, MenuItemContent, FLIGHT_MENU, ROOT, ROOT_IDX},
+    Editable,
+};
 
-use crate::{Editable, TString};
-
-#[derive(Clone, Copy, PartialEq)]
-pub struct Menu {
-    pub name: &'static str,
-    pub level: usize,
-    pub items: &'static [MenuItem],
-}
-
-#[derive(Clone, Copy, PartialEq)]
-pub enum MenuItemContent {
-    EditItem(Editable),
-    MenuItem(),
-}
-
-#[derive(Clone, Copy, PartialEq)]
-pub struct MenuItem {
-    pub content: MenuItemContent,
-    pub next_menu_idx: usize,
-}
-
-impl MenuItem {
-    pub fn name(&self) -> &'static str {
-        match self.content {
-            MenuItemContent::EditItem(editable) => editable.name(),
-            MenuItemContent::MenuItem() => {
-                let menu = MENU_LIST[self.next_menu_idx];
-                menu.name
-            }
-        }
-    }
-
-    pub fn is_menu(&self) -> bool {
-        match self.content {
-            MenuItemContent::EditItem(_) => false,
-            MenuItemContent::MenuItem() => true,
-        }
-    }
-}
-
-pub const ROOT_IDX: usize = 0;
-pub const FLIGHT_MENU_IDX: usize = 1;
 pub const SETTINGS_IDX: usize = 2;
 pub const VIEW_SETINGS_IDX: usize = 3;
 pub const ADVANCED_SETTINGS_IDX: usize = 4;
@@ -71,39 +32,6 @@ pub const MENU_LIST: &[Menu] = &[
     RESET_CONFIG,
     UNITS,
 ];
-
-pub const ROOT: Menu = Menu {
-    name: "Root",
-    level: 0,
-    items: &[],
-};
-
-pub const FLIGHT_MENU: Menu = Menu {
-    name: "Flight Menu",
-    level: 1,
-    items: &[
-        MenuItem {
-            content: MenuItemContent::EditItem(Editable::WaterBallast),
-            next_menu_idx: ROOT_IDX,
-        },
-        MenuItem {
-            content: MenuItemContent::EditItem(Editable::Bugs),
-            next_menu_idx: ROOT_IDX,
-        },
-        MenuItem {
-            content: MenuItemContent::EditItem(Editable::PilotWeight),
-            next_menu_idx: ROOT_IDX,
-        },
-        MenuItem {
-            content: MenuItemContent::EditItem(Editable::Display),
-            next_menu_idx: ROOT_IDX,
-        },
-        MenuItem {
-            content: MenuItemContent::EditItem(Editable::Return),
-            next_menu_idx: ROOT_IDX,
-        },
-    ],
-};
 
 pub const SETTINGS: Menu = Menu {
     name: "Settings",

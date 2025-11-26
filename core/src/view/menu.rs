@@ -163,7 +163,7 @@ impl MenuView {
             } else {
                 cm.palette().list_edit.item
             };
-            (menu_item.name(), color)
+            (menu_item.name(cm), color)
         }
     }
 }
