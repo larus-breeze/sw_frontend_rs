@@ -1,12 +1,14 @@
 use eeprom::ADR_USER_PROFILE;
 use heapless::spsc::{Consumer, Producer, Queue};
 
-use crate::{CoreError, PersistenceId, Variant};
+use crate::{CoreError, PersistenceId, Variant, eeprom::PAGE_SIZE};
 
 #[cfg(feature = "eeprom_size_8192")]
 pub mod eeprom {
     // size of eeprom
     pub const SIZE: u32 = 8192;
+    // size of a page
+    pub const PAGE_SIZE: u32 = 32;
     // address, where magic number is stored
     pub const ADR_IDENTIFICATION_BLOCK: u32 = 0;
     // address, where active user profile is stored
@@ -313,6 +315,46 @@ where
         Ok(())
     }
 
+    pub fn restore_standard(&mut self) -> Result<(), CoreError> {
+        if self.user_profile < 1 || self.user_profile > 3 {
+            return Err(CoreError::OutOfRange);
+        }
+
+        // copy DAT
+        let src = eeprom::ADR_DAT;
+        let dst = eeprom::ADR_DAT + (self.user_profile as u32 * MAX_USER_VALUES) / 8;
+        let len = MAX_USER_VALUES / 8;
+        self.copy(src, dst, len)?;
+
+        // copy Data
+        let src = eeprom::ADR_DATA_STORAGE;
+        let dst = eeprom::ADR_DATA_STORAGE + (self.user_profile as u32 * MAX_USER_VALUES) * 4;
+        let len = MAX_USER_VALUES * 4;
+        self.copy(src, dst, len)?;
+        
+        Ok(())
+    }
+
+    fn copy(&mut self, src: u32, dst: u32, len: u32) -> Result<(), CoreError> {
+        let mut data = [0_u8; PAGE_SIZE as usize];
+
+        let mut chunk_size = PAGE_SIZE - dst % PAGE_SIZE;
+        let mut idx = 0;
+
+        while idx < len {
+            if chunk_size > len - idx {
+                chunk_size = len - idx
+            }
+
+            self.eeprom.read_data(src + idx, &mut data[..chunk_size as usize])?;
+            self.eeprom.write_page(dst + idx, &data[..chunk_size as usize])?;
+
+            idx += chunk_size;
+            chunk_size = PAGE_SIZE;
+        }
+        Ok(())
+    }
+
     fn set_user_profile(&mut self) -> Result<(), CoreError> {
         let user_profile = self.eeprom.read_byte(ADR_USER_PROFILE)?;
         self.user_profile = num::clamp(user_profile, 0, 3);
@@ -329,7 +371,7 @@ where
 
     /// returns the address of an item
     fn item_address(&mut self, id: PersistenceId) -> u32 {
-        eeprom::ADR_DATA_STORAGE + self.profile(id) * MAX_USER_VALUES + id as u32 * 4
+        eeprom::ADR_DATA_STORAGE + (self.profile(id) * MAX_USER_VALUES + id as u32) * 4
     }
 
     /// returns address of the byte of id in DAT

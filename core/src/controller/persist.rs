@@ -413,6 +413,12 @@ pub fn user_profile(cm: &mut CoreModel, cc: &mut CoreController) {
     cc.send_idle_event(IdleEvent::RestoreEepromItems);
 }
 
+pub fn restore_stanard_proflile(cm: &mut CoreModel, cc: &mut CoreController) {
+    cc.send_idle_event(IdleEvent::RestoreToSandardProfile);
+    cm.reset();
+    cc.send_idle_event(IdleEvent::RestoreEepromItems);
+}
+
 // This function is called by Timer::PersistSetting after a short period to avoid
 // flooting EEPROM and NMEA Interface with to much data
 pub fn store_persistence_ids(cm: &mut CoreModel, cc: &mut CoreController) {

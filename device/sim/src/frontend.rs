@@ -352,6 +352,10 @@ impl Frontend {
                                 eeprom_init_items.push_back(item);
                             }
                         }
+                        IdleEvent::RestoreToSandardProfile => {
+                            let _ = eeprom.restore_standard();
+                        }
+
                         IdleEvent::ResetDevice(reason) => {
                             println!("Reset triggered by app, reason ‘{:?}’, please restart", reason);
                             quit_event_loop().unwrap();

@@ -6,6 +6,7 @@ pub enum IdleEvent {
     SetEepromItem(PersistenceItem),
     ClearEepromItems(&'static [PersistenceId]),
     RestoreEepromItems,
+    RestoreToSandardProfile,
     SdCardItem(SdCardCmd),
     FeedTheDog,
     SetGain(u8),

@@ -411,10 +411,11 @@ impl EditableFuncs for SpeedToFlyPinConfig {
 }
 
 pub struct UserProfile;
+const USER_0: &str = "User 0";
 const USER_1: &str = "User 1";
 const USER_2: &str = "User 2";
 const USER_3: &str = "User 3";
-const USER_4: &str = "User 4";
+const RESTORE_STANDARD: &str = "Restore Standard";
 
 impl EditableFuncs for UserProfile {
     fn name() -> &'static str {
@@ -423,32 +424,42 @@ impl EditableFuncs for UserProfile {
 
     fn content(cm: &mut CoreModel, _cc: &mut CoreController) -> Content {
         let s = match cm.config.user_profile {
-            0 => USER_1,
-            1 => USER_2,
-            2 => USER_3,
-            3 => USER_4,
+            0 => USER_0,
+            1 => USER_1,
+            2 => USER_2,
+            3 => USER_3,
             _ => DO_NOT_CHANGE,
         };
         Content::Enum(TString::<16>::from_str(s))
     }
 
-    fn params(_cm: &CoreModel) -> Params {
-        Params::Enum(EnumParams {
-            variants: [USER_1, USER_2, USER_3, USER_4, DO_NOT_CHANGE],
-        })
+    fn params(cm: &CoreModel) -> Params {
+        if cm.config.club_mode {
+            Params::Enum(EnumParams {
+                variants: [USER_1, USER_2, USER_3, RESTORE_STANDARD, DO_NOT_CHANGE],
+            })
+        } else {
+            Params::Enum(EnumParams {
+                variants: [USER_0, USER_1, USER_2, USER_3, DO_NOT_CHANGE],
+            })
+        }
     }
 
     fn set_content(cm: &mut CoreModel, cc: &mut CoreController, content: Content) {
         if let Content::Enum(val) = content {
-            if cm.control.editor.enter_pushed && val.as_str() != DO_NOT_CHANGE {
-                cm.config.user_profile = match val.as_str() {
-                    USER_1 => 0,
-                    USER_2 => 1,
-                    USER_3 => 2,
-                    USER_4 => 3,
-                    _ => 0,
+            if cm.control.editor.enter_pushed {
+                match val.as_str() {
+                    USER_0 => cm.config.user_profile = 0,
+                    USER_1 => cm.config.user_profile = 1,
+                    USER_2 => cm.config.user_profile = 2,
+                    USER_3 => cm.config.user_profile = 3,
+                    _ => (),
                 };
-                persist::user_profile(cm, cc); // store value and reset device
+                match val.as_str() {
+                    DO_NOT_CHANGE => (),
+                    RESTORE_STANDARD => persist::restore_stanard_proflile(cm, cc),
+                    _ => persist::user_profile(cm, cc), // store value and restore items
+                }
             }
         }
     }

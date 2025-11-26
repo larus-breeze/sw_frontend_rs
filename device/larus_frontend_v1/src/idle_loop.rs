@@ -85,6 +85,9 @@ impl IdleLoop {
                         self.eeprom.delete_items_list(items_list).unwrap();
                     }
                     IdleEvent::RestoreEepromItems => restore_eeprom_items = true,
+                    IdleEvent::RestoreToSandardProfile => {
+                        let _ = self.eeprom.restore_standard();
+                    }
                     IdleEvent::FeedTheDog => self.watchdog.feed(),
                     IdleEvent::SetGain(gain) => {
                         self.amplifier.set_gain(gain);

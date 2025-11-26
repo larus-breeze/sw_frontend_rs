@@ -4206,6 +4206,7 @@ dependencies = [
  "corelib",
  "embedded-graphics",
  "heapless",
+ "hex",
  "homedir",
  "image",
  "rfd",

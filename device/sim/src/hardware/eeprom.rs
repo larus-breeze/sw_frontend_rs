@@ -20,7 +20,10 @@ impl Storage {
 
 impl EepromTrait for Storage {
     fn write_byte(&mut self, address: u32, data: u8) -> Result<(), CoreError> {
-        //println!("write_byte({:04x}, {})", address, data);
+        
+        #[cfg(feature = "trace_eeprom")]
+        println!("write_byte() 0x{:04x}: 0x{:02x}", address, data);
+
         if address >= eeprom::SIZE {
             return Err(CoreError::OutOfRange);
         }
@@ -31,7 +34,10 @@ impl EepromTrait for Storage {
     }
 
     fn write_page(&mut self, address: u32, data: &[u8]) -> Result<(), CoreError> {
-        //println!("write_page({:04x}, {:?})", address, data);
+        
+        #[cfg(feature = "trace_eeprom")]
+        println!("write_page() 0x{:04x}: 0x{}", address, hex::encode(data));
+
         let start = address as usize;
         let end = address as usize + data.len();
         if end as u32 > eeprom::SIZE {
@@ -48,7 +54,10 @@ impl EepromTrait for Storage {
             return Err(CoreError::OutOfRange);
         }
         let r = self.data[address as usize];
-        //println!("read_byte({:04x}) -> {})", address, r);
+
+        #[cfg(feature = "trace_eeprom")]
+        println!("read_byte() 0x{:04x}: 0x{:02x}", address, r);
+
         Ok(r)
     }
 
@@ -59,7 +68,10 @@ impl EepromTrait for Storage {
             return Err(CoreError::OutOfRange);
         }
         data.copy_from_slice(&self.data[start..end]);
-        //println!("read_data({:04x}) -> {:?})", address, data);
+        
+        #[cfg(feature = "trace_eeprom")]
+        println!("read_data() 0x{:04x}: 0x{}", address, hex::encode(data));
+        
         Ok(())
     }
 }
