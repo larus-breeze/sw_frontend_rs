@@ -404,31 +404,29 @@ pub fn send_can_config_frame(
 }
 
 pub fn delete_config(cm: &mut CoreModel, cc: &mut CoreController) {
-    cm.reset();
     cc.send_idle_event(IdleEvent::ClearEepromItems(DELETE_CONFIG_LIST));
     cc.send_idle_event(IdleEvent::RestoreEepromItems);
+    cm.reset();
 }
 
 pub fn factory_reset(cm: &mut CoreModel, cc: &mut CoreController) {
-    cm.reset();
-
     let item = PersistenceItem::from_i8(PersistenceId::DeleteAll, 0);
     cc.send_idle_event(IdleEvent::SetEepromItem(item));
     cc.send_idle_event(IdleEvent::RestoreEepromItems);
+    cm.reset();
 }
 
 pub fn user_profile(cm: &mut CoreModel, cc: &mut CoreController) {
-    cm.reset();
-
     let item = PersistenceItem::from_u8(PersistenceId::UserProfile, cm.config.user_profile);
     cc.send_idle_event(IdleEvent::SetEepromItem(item));
     cc.send_idle_event(IdleEvent::RestoreEepromItems);
+    cm.reset();
 }
 
 pub fn restore_stanard_proflile(cm: &mut CoreModel, cc: &mut CoreController) {
-    cm.reset();
     cc.send_idle_event(IdleEvent::RestoreToSandardProfile);
     cc.send_idle_event(IdleEvent::RestoreEepromItems);
+    cm.reset();
 }
 
 pub fn set_date_time(cm: &mut CoreModel, cc: &mut CoreController, date_time: DateTime) {
@@ -445,13 +443,12 @@ pub fn set_date_time(cm: &mut CoreModel, cc: &mut CoreController, date_time: Dat
         cc.send_idle_event(IdleEvent::SetEepromItem(item));
 
         if cm.config.club_mode {
-            cm.reset();
-
             let item = PersistenceItem::from_u8(PersistenceId::UserProfile, 1);
             cc.send_idle_event(IdleEvent::SetEepromItem(item));
 
             cc.send_idle_event(IdleEvent::RestoreToSandardProfile);
             cc.send_idle_event(IdleEvent::RestoreEepromItems);
+            cm.reset();
         }
     }
 }

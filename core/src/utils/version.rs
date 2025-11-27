@@ -97,6 +97,6 @@ impl SwVersion {
     }
 
     pub fn lower_as_u16(&self) -> u16 {
-        self.version[2] as u16 * 100 + self.version[3] as u16
+        self.version[1] as u16 * 1000 + self.version[2] as u16 * 100 + self.version[3] as u16
     }
 }
