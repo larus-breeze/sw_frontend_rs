@@ -28,15 +28,15 @@ use crate::{
         RemoteConfig,
     },
     flight_physics::polar_store,
-    model::{UnitHeight, UnitHorizontalSpeed, UnitVerticalSpeed},
+    model::{GpsState, UnitHeight, UnitHorizontalSpeed, UnitVerticalSpeed},
     system_of_units::Speed,
     utils::Variant,
     view::viewable::{
         centerview::CenterView,
         vario_infoview::{Info3View, LineView},
     },
-    CoreController, CoreModel, FloatToSpeed, IdleEvent, Mass, PersistenceItem, Pressure, Rotation,
-    VarioMode,
+    CoreController, CoreModel, DateTime, FloatToSpeed, IdleEvent, Mass, PersistenceItem, Pressure,
+    Rotation, VarioMode,
 };
 
 /// It is not permitted to change the sequence or assignment, as the number references the memory
@@ -99,7 +99,8 @@ pub enum PersistenceId {
     UnitVerticalSpeed = 52,
     UnitHeight = 53,
     ClubMode = 54,
-    LastItem = 55, // Items smaller than this are stored in eeprom
+    Date = 55,
+    LastItem = 56, // Items smaller than this are stored in eeprom
 
     // Special function Ids
     VarioMode = 65532,
@@ -207,7 +208,6 @@ pub enum Echo {
 /// This method is also called directly from the idle-loop during start-up
 pub fn restore_item(cc: &mut CoreController, cm: &mut CoreModel, item: PersistenceItem) {
     match item.id {
-        PersistenceId::UserProfile => cm.config.user_profile = item.to_u8(),
         PersistenceId::Volume => cm.config.volume = item.to_i8(),
         PersistenceId::McCready => cm.config.mc_cready = Speed::from_m_s(item.to_f32()),
         PersistenceId::WaterBallast => cm.glider_data.water_ballast = Mass::from_kg(item.to_f32()),
@@ -322,6 +322,13 @@ pub fn restore_item(cc: &mut CoreController, cm: &mut CoreModel, item: Persisten
         }
         PersistenceId::UnitHeight => cm.config.unit_height = UnitHeight::from(item.to_u8()),
         PersistenceId::ClubMode => cm.config.club_mode = item.to_bool(),
+        PersistenceId::Date => {
+            let data = item.to_4u8();
+            cm.sensor.gps_date_time.mut_date().from_array_4u8(data);
+        }
+
+        // Special function Ids
+        PersistenceId::UserProfile => cm.config.user_profile = item.to_u8(),
 
         // Not stored in EEPROM
         PersistenceId::VarioMode => cm.control.vario_mode = VarioMode::from(item.to_u8()),
@@ -397,29 +404,56 @@ pub fn send_can_config_frame(
 }
 
 pub fn delete_config(cm: &mut CoreModel, cc: &mut CoreController) {
-    cc.send_idle_event(IdleEvent::ClearEepromItems(DELETE_CONFIG_LIST));
     cm.reset();
+    cc.send_idle_event(IdleEvent::ClearEepromItems(DELETE_CONFIG_LIST));
     cc.send_idle_event(IdleEvent::RestoreEepromItems);
 }
 
 pub fn factory_reset(cm: &mut CoreModel, cc: &mut CoreController) {
+    cm.reset();
+
     let item = PersistenceItem::from_i8(PersistenceId::DeleteAll, 0);
     cc.send_idle_event(IdleEvent::SetEepromItem(item));
-    cm.reset();
     cc.send_idle_event(IdleEvent::RestoreEepromItems);
 }
 
 pub fn user_profile(cm: &mut CoreModel, cc: &mut CoreController) {
+    cm.reset();
+
     let item = PersistenceItem::from_u8(PersistenceId::UserProfile, cm.config.user_profile);
     cc.send_idle_event(IdleEvent::SetEepromItem(item));
-    cm.reset();
     cc.send_idle_event(IdleEvent::RestoreEepromItems);
 }
 
 pub fn restore_stanard_proflile(cm: &mut CoreModel, cc: &mut CoreController) {
-    cc.send_idle_event(IdleEvent::RestoreToSandardProfile);
     cm.reset();
+    cc.send_idle_event(IdleEvent::RestoreToSandardProfile);
     cc.send_idle_event(IdleEvent::RestoreEepromItems);
+}
+
+pub fn set_date_time(cm: &mut CoreModel, cc: &mut CoreController, date_time: DateTime) {
+    if cm.control.alive_ticks < 10 || cm.sensor.gps_state == GpsState::NoGps {
+        return;
+    }
+    let new_date = *date_time.date();
+    let old_date = *cm.sensor.gps_date_time.date();
+    cm.sensor.gps_date_time = date_time;
+
+    if new_date != old_date {
+        let data = new_date.as_array_4u8();
+        let item = PersistenceItem::from_array_4u8(PersistenceId::Date, data);
+        cc.send_idle_event(IdleEvent::SetEepromItem(item));
+
+        if cm.config.club_mode {
+            cm.reset();
+
+            let item = PersistenceItem::from_u8(PersistenceId::UserProfile, 1);
+            cc.send_idle_event(IdleEvent::SetEepromItem(item));
+
+            cc.send_idle_event(IdleEvent::RestoreToSandardProfile);
+            cc.send_idle_event(IdleEvent::RestoreEepromItems);
+        }
+    }
 }
 
 // This function is called by Timer::PersistSetting after a short period to avoid

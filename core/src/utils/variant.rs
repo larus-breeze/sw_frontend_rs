@@ -1,4 +1,4 @@
-use crate::{Mass, Pressure, Speed};
+use crate::{Date, Mass, Pressure, Speed};
 
 pub enum Variant {
     Bool(bool),
@@ -8,6 +8,7 @@ pub enum Variant {
     U8(u8),
     U32(u32),
 
+    Date(Date),
     Mass(Mass),
     Pressure(Pressure),
     Speed(Speed),

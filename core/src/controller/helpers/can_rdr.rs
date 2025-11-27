@@ -9,10 +9,10 @@ use crate::{
     into_range_0_360, into_range_180_180,
     model::{editable::Content, GpsState, VarioModeControl},
     persist::set_vario_mode,
-    AirSpeed, Angle, CanFrame, CoreController, CoreModel, F64ToCoord, FloatToAcceleration,
-    FloatToAngularVelocity, FloatToDensity, FloatToLength, FloatToMass, FloatToPressure,
-    FloatToSpeed, Frame, GenericFrame, GenericId, Latitude, Longitude, PersistenceId,
-    SpecificFrame, SwVersion, Variant, VarioMode, DEGREE_PER_RAD,
+    AirSpeed, Angle, CanFrame, CoreController, CoreModel, DateTime, F64ToCoord,
+    FloatToAcceleration, FloatToAngularVelocity, FloatToDensity, FloatToLength, FloatToMass,
+    FloatToPressure, FloatToSpeed, Frame, GenericFrame, GenericId, Latitude, Longitude,
+    PersistenceId, SpecificFrame, SwVersion, Variant, VarioMode, DEGREE_PER_RAD,
 };
 use embedded_graphics::prelude::AngleUnit;
 
@@ -208,15 +208,15 @@ impl CoreController {
                         .set_static_pressure(cm.sensor.pressure);
                 }
                 sensor_legacy::GPS_DATE_TIME => {
-                    let year = 2000 + rdr.pop_u8() as u16;
-                    let month = rdr.pop_u8();
-                    let day = rdr.pop_u8();
-                    let hour = rdr.pop_u8();
-                    let min = rdr.pop_u8();
-                    let sec = rdr.pop_u8();
-                    cm.sensor
-                        .gps_date_time
-                        .set_date_time(year, month, day, hour, min, sec);
+                    let date_time = DateTime::from_vals(
+                        rdr.pop_u16(),
+                        rdr.pop_u8(),
+                        rdr.pop_u8(),
+                        rdr.pop_u8(),
+                        rdr.pop_u8(),
+                        rdr.pop_u8(),
+                    );
+                    persist::set_date_time(cm, self, date_time);
                 }
                 sensor_legacy::GPS_LAT_LON => {
                     cm.sensor.gps_lat = Latitude(((rdr.pop_i32() as f64) * 1.0e-7).deg());
@@ -384,15 +384,15 @@ impl CoreController {
 
         match frame.specific_id {
             gps::DATE_TIME => {
-                let year = rdr.pop_u16();
-                let month = rdr.pop_u8();
-                let day = rdr.pop_u8();
-                let hour = rdr.pop_u8();
-                let min = rdr.pop_u8();
-                let sec = rdr.pop_u8();
-                cm.sensor
-                    .gps_date_time
-                    .set_date_time(year, month, day, hour, min, sec);
+                let date_time = DateTime::from_vals(
+                    rdr.pop_u16(),
+                    rdr.pop_u8(),
+                    rdr.pop_u8(),
+                    rdr.pop_u8(),
+                    rdr.pop_u8(),
+                    rdr.pop_u8(),
+                );
+                persist::set_date_time(cm, self, date_time);
             }
             gps::LATITUDE => {
                 if let Some(latitude) = rdr.pop_f64() {

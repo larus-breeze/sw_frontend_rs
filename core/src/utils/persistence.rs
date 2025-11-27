@@ -9,7 +9,10 @@ pub mod eeprom {
     pub const SIZE: u32 = 8192;
     // size of a page
     pub const PAGE_SIZE: u32 = 32;
-    // address, where magic number is stored
+
+    // Fixed Address Storage
+
+    // address, where magic number is stored 8 bytes
     pub const ADR_IDENTIFICATION_BLOCK: u32 = 0;
     // address, where active user profile is stored
     pub const ADR_USER_PROFILE: u32 = 8;
@@ -52,6 +55,10 @@ impl PersistenceItem {
             id: PersistenceId::DoNotStore,
             data: [0, 0, 0, 0],
         }
+    }
+
+    pub fn from_array_4u8(id: PersistenceId, data: [u8; 4]) -> Self {
+        PersistenceItem { id, data }
     }
 
     pub fn from_bool(id: PersistenceId, value: bool) -> Self {
@@ -113,10 +120,15 @@ impl PersistenceItem {
             Variant::U8(u8) => Self::from_u8(id, u8),
             Variant::U32(u32) => Self::from_u32(id, u32),
 
+            Variant::Date(date) => Self::from_array_4u8(id, date.as_array_4u8()),
             Variant::Mass(mass) => Self::from_f32(id, mass.to_kg()),
             Variant::Pressure(pressure) => Self::from_f32(id, pressure.to_hpa()),
             Variant::Speed(speed) => Self::from_f32(id, speed.to_m_s()),
         }
+    }
+
+    pub fn to_4u8(&self) -> [u8; 4] {
+        self.data
     }
 
     pub fn to_bool(&self) -> bool {
