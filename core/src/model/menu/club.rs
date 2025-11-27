@@ -1,14 +1,15 @@
 use crate::{
-    model::menu::{Menu, MenuItem, MenuItemContent, FLIGHT_MENU, ROOT, ROOT_IDX},
+    model::menu::{
+        Menu, MenuItem, MenuItemContent, ADVANCED_SETTINGS_IDX, FLIGHT_MENU, ROOT, ROOT_IDX,
+        SETTINGS_IDX, VIEW_SETINGS_IDX,
+    },
     Editable,
 };
 
-pub const SETTINGS_IDX: usize = 2;
-pub const VIEW_SETINGS_IDX: usize = 3;
-pub const ADVANCED_SETTINGS_IDX: usize = 4;
 pub const SPEED_TO_FLY_IDX: usize = 5;
 pub const VARIO_IDX: usize = 6;
 pub const UNITS_IDX: usize = 7;
+pub const USAGE_MODE_IDX: usize = 8;
 
 pub const MENU_LIST: &[Menu] = &[
     ROOT,
@@ -19,6 +20,7 @@ pub const MENU_LIST: &[Menu] = &[
     SPEED_TO_FLY,
     VARIO,
     UNITS,
+    USAGE_MODE,
 ];
 
 pub const SETTINGS: Menu = Menu {
@@ -82,6 +84,10 @@ pub const ADVANCED_SETTINGS: Menu = Menu {
         MenuItem {
             content: MenuItemContent::MenuItem(),
             next_menu_idx: SPEED_TO_FLY_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::MenuItem(),
+            next_menu_idx: USAGE_MODE_IDX,
         },
         MenuItem {
             content: MenuItemContent::EditItem(Editable::UserProfile),
@@ -199,6 +205,25 @@ pub const UNITS: Menu = Menu {
         MenuItem {
             content: MenuItemContent::EditItem(Editable::Return),
             next_menu_idx: VIEW_SETINGS_IDX,
+        },
+    ],
+};
+
+pub const USAGE_MODE: Menu = Menu {
+    name: "Usage Mode",
+    level: 3,
+    items: &[
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::UsageMode),
+            next_menu_idx: USAGE_MODE_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::UsageCode),
+            next_menu_idx: USAGE_MODE_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::Return),
+            next_menu_idx: ADVANCED_SETTINGS_IDX,
         },
     ],
 };

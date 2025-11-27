@@ -1,5 +1,6 @@
 use super::{Content, EditableFuncs, EnumParams, F32Params, ListParams, Params};
 use crate::{
+    menu,
     model::{
         config::{
             UnitHeight, UnitHorizontalSpeed, UnitVerticalSpeed, DEVICE_INFO, HORIZON, UNIT_FEET,
@@ -8,7 +9,8 @@ use crate::{
         control::{DATA_SOURCE_FRONTEND, DATA_SOURCE_SENSORBOX},
         DataSource, DisplayActive, DisplayTheme,
     },
-    persist, polar_store,
+    persist::{self, persist_set},
+    polar_store,
     utils::{TString, Variant},
     view::viewable::{
         centerview::{CenterType, CenterView},
@@ -1073,6 +1075,98 @@ impl EditableFuncs for UnitVerticalSpeed_ {
                 PersistenceId::UnitVerticalSpeed,
                 Echo::None,
             );
+        }
+    }
+}
+
+pub struct UsageCode;
+impl EditableFuncs for UsageCode {
+    fn name() -> &'static str {
+        "Code"
+    }
+
+    fn content(cm: &mut CoreModel, _cc: &mut CoreController) -> Content {
+        Content::F32(Some(cm.config.usage_code as f32))
+    }
+
+    fn params(_cm: &CoreModel) -> Params {
+        Params::F32(F32Params {
+            min: 0.0,
+            max: 9999.0,
+            small_inc: 1.0,
+            big_inc: 100.0,
+            dec_places: 0,
+            unit: "",
+        })
+    }
+
+    fn set_content(cm: &mut CoreModel, _cc: &mut CoreController, content: Content) {
+        if let Content::F32(Some(val)) = content {
+            cm.config.usage_code = val as u16;
+        }
+    }
+}
+
+pub const USAGE_MODE_CLUB: &str = "Club";
+pub const USAGE_MODE_NORMAL: &str = "Normal";
+pub struct UsageMode;
+
+impl EditableFuncs for UsageMode {
+    fn name() -> &'static str {
+        "Usage Mode"
+    }
+
+    fn content(cm: &mut CoreModel, _cc: &mut CoreController) -> Content {
+        if cm.config.club_mode {
+            Content::Enum(TString::<16>::from_str(USAGE_MODE_CLUB))
+        } else {
+            Content::Enum(TString::<16>::from_str(USAGE_MODE_NORMAL))
+        }
+    }
+
+    fn params(cm: &CoreModel) -> Params {
+        let variants = if cm.config.club_mode {
+            if cm.config.usage_code == cm.device_const.misc.sw_version.lower_as_u16() {
+                [USAGE_MODE_NORMAL, USAGE_MODE_CLUB, "", "", ""]
+            } else {
+                [USAGE_MODE_CLUB, "", "", "", ""]
+            }
+        } else {
+            [USAGE_MODE_NORMAL, USAGE_MODE_CLUB, "", "", ""]
+        };
+        Params::Enum(EnumParams { variants })
+    }
+
+    fn set_content(cm: &mut CoreModel, cc: &mut CoreController, content: Content) {
+        if let Content::Enum(val) = content {
+            if cm.control.editor.enter_pushed {
+                let club_mode = val.as_str() == USAGE_MODE_CLUB;
+
+                // Is it necessary to modify the menu system?
+                if club_mode != cm.config.club_mode {
+                    if club_mode {
+                        // Hard intervention necessary because the menu structure is being changed.
+                        cm.control.menu_control.menu = &menu::club::ADVANCED_SETTINGS;
+                        cm.control.menu_control.pos[2] = 0;
+                        if cm.config.user_profile == 0 {
+                            cm.config.user_profile = 1;
+                            persist::user_profile(cm, cc);
+                        }
+                    } else {
+                        // Hard intervention necessary because the menu structure is being changed.
+                        cm.control.menu_control.menu = &menu::full::ADVANCED_SETTINGS;
+                        cm.control.menu_control.pos[2] = 0;
+                    }
+                }
+
+                persist_set(
+                    cc,
+                    cm,
+                    Variant::Bool(club_mode),
+                    PersistenceId::ClubMode,
+                    Echo::None,
+                );
+            }
         }
     }
 }

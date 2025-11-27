@@ -1,7 +1,7 @@
 use eeprom::ADR_USER_PROFILE;
 use heapless::spsc::{Consumer, Producer, Queue};
 
-use crate::{CoreError, PersistenceId, Variant, eeprom::PAGE_SIZE};
+use crate::{eeprom::PAGE_SIZE, CoreError, PersistenceId, Variant};
 
 #[cfg(feature = "eeprom_size_8192")]
 pub mod eeprom {
@@ -331,7 +331,7 @@ where
         let dst = eeprom::ADR_DATA_STORAGE + (self.user_profile as u32 * MAX_USER_VALUES) * 4;
         let len = MAX_USER_VALUES * 4;
         self.copy(src, dst, len)?;
-        
+
         Ok(())
     }
 
@@ -346,8 +346,10 @@ where
                 chunk_size = len - idx
             }
 
-            self.eeprom.read_data(src + idx, &mut data[..chunk_size as usize])?;
-            self.eeprom.write_page(dst + idx, &data[..chunk_size as usize])?;
+            self.eeprom
+                .read_data(src + idx, &mut data[..chunk_size as usize])?;
+            self.eeprom
+                .write_page(dst + idx, &data[..chunk_size as usize])?;
 
             idx += chunk_size;
             chunk_size = PAGE_SIZE;

@@ -298,6 +298,7 @@ pub struct Config {
     pub unit_vertical_speed: UnitVerticalSpeed,
     pub unit_height: UnitHeight,
     pub club_mode: bool,
+    pub usage_code: u16,
 }
 
 impl Config {
@@ -341,6 +342,7 @@ impl Config {
             unit_vertical_speed: UnitVerticalSpeed::Mps,
             unit_height: UnitHeight::Meter,
             club_mode: false,
+            usage_code: 0,
         }
     }
 

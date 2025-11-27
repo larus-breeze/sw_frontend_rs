@@ -98,7 +98,8 @@ pub enum PersistenceId {
     UnitHorizontalSpeed = 51,
     UnitVerticalSpeed = 52,
     UnitHeight = 53,
-    LastItem = 54, // Items smaller than this are stored in eeprom
+    ClubMode = 54,
+    LastItem = 55, // Items smaller than this are stored in eeprom
 
     // Special function Ids
     VarioMode = 65532,
@@ -128,6 +129,7 @@ const PROFILE_0_IDS: &[PersistenceId] = &[
     PersistenceId::GearPinConfig,
     PersistenceId::AirbrakesPinConfig,
     PersistenceId::GearAlarmMode,
+    PersistenceId::ClubMode,
 ];
 
 /// This list defines which data is destroyed when a profile is deleted
@@ -319,9 +321,10 @@ pub fn restore_item(cc: &mut CoreController, cm: &mut CoreModel, item: Persisten
             cm.config.unit_vertical_speed = UnitVerticalSpeed::from(item.to_u8())
         }
         PersistenceId::UnitHeight => cm.config.unit_height = UnitHeight::from(item.to_u8()),
+        PersistenceId::ClubMode => cm.config.club_mode = item.to_bool(),
 
+        // Not stored in EEPROM
         PersistenceId::VarioMode => cm.control.vario_mode = VarioMode::from(item.to_u8()),
-
         PersistenceId::DeleteAll => (),
         PersistenceId::DoNotStore => (),
         PersistenceId::LastItem => (),

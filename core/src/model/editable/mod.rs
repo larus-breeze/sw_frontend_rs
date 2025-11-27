@@ -58,6 +58,8 @@ pub enum Editable {
     UnitHeight,
     UnitHorizontalSpeed,
     UnitVerticalSpeed,
+    UsageCode,
+    UsageMode,
     Volume,
 
     // controller
@@ -253,6 +255,8 @@ impl Editable {
             Editable::UnitHeight => UnitHeigth_::this(),
             Editable::UnitHorizontalSpeed => UnitHorizontalSpeed_::this(),
             Editable::UnitVerticalSpeed => UnitVerticalSpeed_::this(),
+            Editable::UsageCode => UsageCode::this(),
+            Editable::UsageMode => UsageMode::this(),
             Editable::Volume => Volume::this(),
 
             // controller

@@ -95,4 +95,8 @@ impl SwVersion {
     pub fn from_bytes(bytes: [u8; 4]) -> Self {
         SwVersion { version: bytes }
     }
+
+    pub fn lower_as_u16(&self) -> u16 {
+        self.version[2] as u16 * 100 + self.version[3] as u16
+    }
 }

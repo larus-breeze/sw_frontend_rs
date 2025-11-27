@@ -1,6 +1,6 @@
 #![allow(unused)]
-mod club;
-mod full;
+pub mod club;
+pub mod full;
 
 use crate::{CoreModel, Editable, TString};
 
@@ -52,20 +52,24 @@ pub fn menu_list(cm: &CoreModel, idx: usize) -> &'static Menu {
 
 pub fn settings_menu(cm: &CoreModel) -> &'static Menu {
     if cm.config.club_mode {
-        &club::MENU_LIST[club::SETTINGS_IDX]
+        &club::MENU_LIST[SETTINGS_IDX]
     } else {
-        &full::MENU_LIST[full::SETTINGS_IDX]
+        &full::MENU_LIST[SETTINGS_IDX]
     }
 }
 
 pub const ROOT_IDX: usize = 0;
+pub const FLIGHT_MENU_IDX: usize = 1;
+pub const SETTINGS_IDX: usize = 2;
+pub const VIEW_SETINGS_IDX: usize = 3;
+pub const ADVANCED_SETTINGS_IDX: usize = 4;
+
 pub const ROOT: Menu = Menu {
     name: "Root",
     level: 0,
     items: &[],
 };
 
-pub const FLIGHT_MENU_IDX: usize = 1;
 pub const FLIGHT_MENU: Menu = Menu {
     name: "Flight Menu",
     level: 1,
