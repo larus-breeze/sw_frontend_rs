@@ -1,3 +1,7 @@
+Usage Mode Normal or Club
+=
+
+```
 Flight Menu
 ├── Water Ballast (1)
 ├── Bugs (2)
@@ -5,3 +9,4 @@ Flight Menu
 ├── Display (4)
 └── Return
 
+```

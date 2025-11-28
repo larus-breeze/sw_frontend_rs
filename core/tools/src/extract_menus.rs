@@ -8,7 +8,7 @@ use std:: {
 
 use corelib::{
     Editable,
-    menu::{MenuItemContent, Menu, MENU_LIST, SETTINGS_IDX, FLIGHT_MENU_IDX},
+    menu::{MenuItemContent, Menu, SETTINGS_IDX, FLIGHT_MENU_IDX, full, club},
 };
 
 #[derive(Serialize, Deserialize)]
@@ -66,7 +66,9 @@ impl Io {
 
 
 fn store_menu(
+    header: &str,
     menu: &Menu,
+    menu_list: &[Menu],
     json_file: &'static str, 
     dest_file: &'static str,
 ) {
@@ -74,14 +76,22 @@ fn store_menu(
     let mut no_item = 0;
     let mut io = Io::new(json_file, dest_file);
 
-    let line = format!("{}", menu.name);
+    let line = format!("{}\n=\n\n```\n{}", header, menu.name);
     io.write(&line);
-    store_sub_menu(&mut no_item, &mut level, menu, &mut io);
+    store_sub_menu(&mut no_item, &mut level, menu, menu_list, &mut io);
+    let line = format!("```");
+    io.write(&line);
 
     println!("File '{}' created", dest_file);
     io.save_to_json();
 
-    fn store_sub_menu(no_item: &mut u32, level: &mut u32, d_menu: &Menu, io: &mut Io) {
+    fn store_sub_menu(
+        no_item: &mut u32, 
+        level: &mut u32,
+        d_menu: &Menu, 
+        menu_list: &[Menu],
+        io: &mut Io) 
+    {
         let mut line = String::new();
         for _ in 1..*level {
             line += "│   ";
@@ -100,11 +110,11 @@ fn store_menu(
                     }
                 }
                 MenuItemContent::MenuItem() => {
-                    let sub_menu = MENU_LIST[menu_entry.next_menu_idx];
+                    let sub_menu = menu_list[menu_entry.next_menu_idx];
                     let line = format!("{}├── {}", line, sub_menu.name);
                     io.write(&line);
                     *level += 1;
-                    store_sub_menu(no_item, level, &sub_menu, io);
+                    store_sub_menu(no_item, level, &sub_menu, menu_list, io);
                 }
             }
         }
@@ -115,7 +125,28 @@ fn store_menu(
 }
 
 fn main() {
-    store_menu(&MENU_LIST[SETTINGS_IDX], "../doc/settings_menu.json", "../doc/settings_menu.txt");
-    store_menu(&MENU_LIST[FLIGHT_MENU_IDX], "../doc/flight_menu.json", "../doc/flight_menu.txt");
+    store_menu(
+        "Usage Mode Normal or Club",
+        &full::MENU_LIST[FLIGHT_MENU_IDX],
+        full::MENU_LIST,
+        "../doc/menu.json", 
+        "../doc/flight_menu.md"
+    );
+    store_menu(
+        "Usage Mode Normal",
+        &full::MENU_LIST[SETTINGS_IDX],
+        full::MENU_LIST,
+        "../doc/menu.json", 
+        "../doc/full_settings_menu.md"
+    );
+    store_menu(
+        "Usage Mode Club",
+        &club::MENU_LIST[SETTINGS_IDX],
+        club::MENU_LIST,
+        "../doc/menu.json", 
+        "../doc/club_settings_menu.md"
+    );
 }
+
+    
 
