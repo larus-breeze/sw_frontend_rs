@@ -61,7 +61,7 @@ pub fn settings_menu(cm: &CoreModel) -> &'static Menu {
 pub const ROOT_IDX: usize = 0;
 pub const FLIGHT_MENU_IDX: usize = 1;
 pub const SETTINGS_IDX: usize = 2;
-pub const VIEW_SETINGS_IDX: usize = 3;
+pub const VIEW_SETTINGS_IDX: usize = 3;
 pub const ADVANCED_SETTINGS_IDX: usize = 4;
 
 pub const ROOT: Menu = Menu {

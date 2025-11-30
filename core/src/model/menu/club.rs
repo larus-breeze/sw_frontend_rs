@@ -1,7 +1,7 @@
 use crate::{
     model::menu::{
         Menu, MenuItem, MenuItemContent, ADVANCED_SETTINGS_IDX, FLIGHT_MENU, ROOT, ROOT_IDX,
-        SETTINGS_IDX, VIEW_SETINGS_IDX,
+        SETTINGS_IDX, VIEW_SETTINGS_IDX,
     },
     Editable,
 };
@@ -9,7 +9,9 @@ use crate::{
 pub const SPEED_TO_FLY_IDX: usize = 5;
 pub const VARIO_IDX: usize = 6;
 pub const UNITS_IDX: usize = 7;
-pub const USAGE_MODE_IDX: usize = 8;
+pub const USAGE_MODE_AND_PROFILE_IDX: usize = 8;
+pub const VIEW_SPEED_TO_FLY_IDX: usize = 9;
+pub const VIEW_VARIO_IDX: usize = 10;
 
 pub const MENU_LIST: &[Menu] = &[
     ROOT,
@@ -20,7 +22,9 @@ pub const MENU_LIST: &[Menu] = &[
     SPEED_TO_FLY,
     VARIO,
     UNITS,
-    USAGE_MODE,
+    USAGE_MODE_AND_PROFILE,
+    VIEW_SPEED_TO_FLY,
+    VIEW_VARIO,
 ];
 
 pub const SETTINGS: Menu = Menu {
@@ -29,7 +33,7 @@ pub const SETTINGS: Menu = Menu {
     items: &[
         MenuItem {
             content: MenuItemContent::MenuItem(),
-            next_menu_idx: VIEW_SETINGS_IDX,
+            next_menu_idx: VIEW_SETTINGS_IDX,
         },
         MenuItem {
             content: MenuItemContent::MenuItem(),
@@ -48,19 +52,27 @@ pub const VIEW_SETTINGS: Menu = Menu {
     items: &[
         MenuItem {
             content: MenuItemContent::EditItem(Editable::CenterViewCircling),
-            next_menu_idx: VIEW_SETINGS_IDX,
+            next_menu_idx: VIEW_SETTINGS_IDX,
         },
         MenuItem {
             content: MenuItemContent::EditItem(Editable::CenterViewStraight),
-            next_menu_idx: VIEW_SETINGS_IDX,
+            next_menu_idx: VIEW_SETTINGS_IDX,
         },
         MenuItem {
             content: MenuItemContent::EditItem(Editable::EnergyArrowMult),
-            next_menu_idx: VIEW_SETINGS_IDX,
+            next_menu_idx: VIEW_SETTINGS_IDX,
         },
         MenuItem {
             content: MenuItemContent::EditItem(Editable::GliderSymbol),
-            next_menu_idx: VIEW_SETINGS_IDX,
+            next_menu_idx: VIEW_SETTINGS_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::MenuItem(),
+            next_menu_idx: VIEW_VARIO_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::MenuItem(),
+            next_menu_idx: VIEW_SPEED_TO_FLY_IDX,
         },
         MenuItem {
             content: MenuItemContent::MenuItem(),
@@ -79,19 +91,15 @@ pub const ADVANCED_SETTINGS: Menu = Menu {
     items: &[
         MenuItem {
             content: MenuItemContent::MenuItem(),
+            next_menu_idx: USAGE_MODE_AND_PROFILE_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::MenuItem(),
             next_menu_idx: VARIO_IDX,
         },
         MenuItem {
             content: MenuItemContent::MenuItem(),
             next_menu_idx: SPEED_TO_FLY_IDX,
-        },
-        MenuItem {
-            content: MenuItemContent::MenuItem(),
-            next_menu_idx: USAGE_MODE_IDX,
-        },
-        MenuItem {
-            content: MenuItemContent::EditItem(Editable::UserProfile),
-            next_menu_idx: ADVANCED_SETTINGS_IDX,
         },
         MenuItem {
             content: MenuItemContent::EditItem(Editable::CenterFrequency),
@@ -108,18 +116,6 @@ pub const SPEED_TO_FLY: Menu = Menu {
     name: "Speed to Fly",
     level: 3,
     items: &[
-        MenuItem {
-            content: MenuItemContent::EditItem(Editable::Info1Stf),
-            next_menu_idx: SPEED_TO_FLY_IDX,
-        },
-        MenuItem {
-            content: MenuItemContent::EditItem(Editable::Info2Stf),
-            next_menu_idx: SPEED_TO_FLY_IDX,
-        },
-        MenuItem {
-            content: MenuItemContent::EditItem(Editable::Info3Stf),
-            next_menu_idx: SPEED_TO_FLY_IDX,
-        },
         MenuItem {
             content: MenuItemContent::EditItem(Editable::TcCircleHysteresis),
             next_menu_idx: SPEED_TO_FLY_IDX,
@@ -152,18 +148,6 @@ pub const VARIO: Menu = Menu {
     level: 3,
     items: &[
         MenuItem {
-            content: MenuItemContent::EditItem(Editable::Info1Vario),
-            next_menu_idx: VARIO_IDX,
-        },
-        MenuItem {
-            content: MenuItemContent::EditItem(Editable::Info2Vario),
-            next_menu_idx: VARIO_IDX,
-        },
-        MenuItem {
-            content: MenuItemContent::EditItem(Editable::Info3Vario),
-            next_menu_idx: VARIO_IDX,
-        },
-        MenuItem {
             content: MenuItemContent::EditItem(Editable::AvgClimbRateSrc),
             next_menu_idx: VARIO_IDX,
         },
@@ -191,10 +175,6 @@ pub const UNITS: Menu = Menu {
     level: 3,
     items: &[
         MenuItem {
-            content: MenuItemContent::EditItem(Editable::UnitHeight),
-            next_menu_idx: UNITS_IDX,
-        },
-        MenuItem {
             content: MenuItemContent::EditItem(Editable::UnitHorizontalSpeed),
             next_menu_idx: UNITS_IDX,
         },
@@ -203,27 +183,81 @@ pub const UNITS: Menu = Menu {
             next_menu_idx: UNITS_IDX,
         },
         MenuItem {
+            content: MenuItemContent::EditItem(Editable::UnitHeight),
+            next_menu_idx: UNITS_IDX,
+        },
+        MenuItem {
             content: MenuItemContent::EditItem(Editable::Return),
-            next_menu_idx: VIEW_SETINGS_IDX,
+            next_menu_idx: VIEW_SETTINGS_IDX,
         },
     ],
 };
 
-pub const USAGE_MODE: Menu = Menu {
-    name: "Usage Mode",
+pub const USAGE_MODE_AND_PROFILE: Menu = Menu {
+    name: "User Profile",
     level: 3,
     items: &[
         MenuItem {
+            content: MenuItemContent::EditItem(Editable::UserProfile),
+            next_menu_idx: USAGE_MODE_AND_PROFILE_IDX,
+        },
+        MenuItem {
             content: MenuItemContent::EditItem(Editable::UsageMode),
-            next_menu_idx: USAGE_MODE_IDX,
+            next_menu_idx: USAGE_MODE_AND_PROFILE_IDX,
         },
         MenuItem {
             content: MenuItemContent::EditItem(Editable::UsageCode),
-            next_menu_idx: USAGE_MODE_IDX,
+            next_menu_idx: USAGE_MODE_AND_PROFILE_IDX,
         },
         MenuItem {
             content: MenuItemContent::EditItem(Editable::Return),
             next_menu_idx: ADVANCED_SETTINGS_IDX,
+        },
+    ],
+};
+
+pub const VIEW_SPEED_TO_FLY: Menu = Menu {
+    name: "Speed to Fly",
+    level: 3,
+    items: &[
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::Info1Stf),
+            next_menu_idx: VIEW_SPEED_TO_FLY_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::Info2Stf),
+            next_menu_idx: VIEW_SPEED_TO_FLY_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::Info3Stf),
+            next_menu_idx: VIEW_SPEED_TO_FLY_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::Return),
+            next_menu_idx: VIEW_SETTINGS_IDX,
+        },
+    ],
+};
+
+pub const VIEW_VARIO: Menu = Menu {
+    name: "Vario",
+    level: 3,
+    items: &[
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::Info1Vario),
+            next_menu_idx: VIEW_VARIO_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::Info2Vario),
+            next_menu_idx: VIEW_VARIO_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::Info3Vario),
+            next_menu_idx: VIEW_VARIO_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::Return),
+            next_menu_idx: VIEW_SETTINGS_IDX,
         },
     ],
 };

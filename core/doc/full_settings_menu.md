@@ -9,19 +9,36 @@ Settings
 │   ├── Energy Arrow (7)
 │   ├── Display Rotation (8)
 │   ├── Glider Symbol (9)
+│   ├── Vario
+│   │   ├── Info 1 Content (13)
+│   │   ├── Info 2 Content (14)
+│   │   ├── Info 3 Content (15)
+│   │   └── Return
+│   │   
+│   ├── Speed to Fly
+│   │   ├── Info 1 Content (13)
+│   │   ├── Info 2 Content (14)
+│   │   ├── Info 3 Content (15)
+│   │   └── Return
+│   │   
 │   ├── Units
-│   │   ├── Height (10)
 │   │   ├── Horizontal Speed (11)
 │   │   ├── Vertical Speed (12)
+│   │   ├── Height (10)
 │   │   └── Return
 │   │   
 │   └── Return
 │   
 ├── Advanced
+│   ├── User Profile
+│   │   ├── User Profile (35)
+│   │   ├── Usage Mode (36)
+│   │   ├── Code (73)
+│   │   ├── Config Reset (33)
+│   │   ├── Factory Reset (34)
+│   │   └── Return
+│   │   
 │   ├── Vario
-│   │   ├── Info 1 Content (13)
-│   │   ├── Info 2 Content (14)
-│   │   ├── Info 3 Content (15)
 │   │   ├── Avg Climb Source (16)
 │   │   ├── TC Climb Rate (17)
 │   │   ├── Vario Upper Limit (18)
@@ -29,9 +46,6 @@ Settings
 │   │   └── Return
 │   │   
 │   ├── Speed to Fly
-│   │   ├── Info 1 Content (13)
-│   │   ├── Info 2 Content (14)
-│   │   ├── Info 3 Content (15)
 │   │   ├── TC Circle Hyst (20)
 │   │   ├── TC Speed to Fly (21)
 │   │   ├── Vario Control (22)
@@ -53,17 +67,13 @@ Settings
 │   │   ├── Flow Slope (32)
 │   │   └── Return
 │   │   
-│   ├── Config Reset
-│   │   ├── Config Reset (33)
-│   │   ├── Factory Reset (34)
+│   ├── More Settings
+│   │   ├── Battery Good (38)
+│   │   ├── Battery Low (39)
+│   │   ├── Flash Control (40)
 │   │   └── Return
 │   │   
-│   ├── User Profile (35)
-│   ├── Usage Mode (36)
 │   ├── Center Frequency (37)
-│   ├── Battery Good (38)
-│   ├── Battery Low (39)
-│   ├── Flash Control (40)
 │   └── Return
 │   
 ├── Polar Settings
