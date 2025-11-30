@@ -1125,14 +1125,14 @@ impl EditableFuncs for UsageMode {
     }
 
     fn params(cm: &CoreModel) -> Params {
-        let variants = if cm.config.club_mode {
-            if cm.config.usage_code == cm.device_const.misc.sw_version.lower_as_u16() {
-                [USAGE_MODE_NORMAL, USAGE_MODE_CLUB, "", "", ""]
-            } else {
-                [USAGE_MODE_CLUB, "", "", "", ""]
-            }
-        } else {
+        let variants = if cm.config.usage_code == cm.device_const.misc.sw_version.lower_as_u16() {
             [USAGE_MODE_NORMAL, USAGE_MODE_CLUB, "", "", ""]
+        } else {
+            if cm.config.club_mode {
+                [USAGE_MODE_CLUB, "", "", "", ""]
+            } else {
+                [USAGE_MODE_NORMAL, "", "", "", ""]
+            }
         };
         Params::Enum(EnumParams { variants })
     }

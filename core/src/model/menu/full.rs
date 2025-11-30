@@ -518,7 +518,6 @@ pub const USAGE_MODE_AND_PROFILE: Menu = Menu {
             content: MenuItemContent::EditItem(Editable::FactoryReset),
             next_menu_idx: USAGE_MODE_AND_PROFILE_IDX,
         },
-
         MenuItem {
             content: MenuItemContent::EditItem(Editable::Return),
             next_menu_idx: ADVANCED_SETTINGS_IDX,
@@ -548,5 +547,3 @@ pub const MORE_SETTINGS: Menu = Menu {
         },
     ],
 };
-
-
