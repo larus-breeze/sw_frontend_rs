@@ -3,6 +3,7 @@
 /.venv
 **/*.bin
 **/*.elf
+**/*.key
 **/build/*
 **/target/*
 /core/Cargo.lock

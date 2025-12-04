@@ -39,6 +39,17 @@
 
 \usepackage{float} % Allows more precisely positioning floats e.g. \begin{figure}[H]
 
+\usepackage{hyperref}
+\hypersetup{
+    colorlinks=true,
+    linkcolor=blue,
+    filecolor=blue,      
+    urlcolor=blue,
+}
+
+\usepackage{siunitx}
+
+
 %----------------------------------------------------------------------------------------
 %	MARGINS
 %----------------------------------------------------------------------------------------
@@ -77,7 +88,6 @@
 %----------------------------------------------------------------------------------------
 %	HEADERS AND FOOTERS
 %----------------------------------------------------------------------------------------
-
 \usepackage{fancyhdr} % Required for customizing headers and footers
 \pagestyle{fancy} % Enable custom headers and footers
 
@@ -92,7 +102,7 @@
 
 \fancyfoot[L]{} % Left footer
 \fancyfoot[C]{\thepage~/ \pageref{LastPage}} % Center footer
-\fancyfoot[R]{} % Right footer
+\fancyfoot[R]{\version} % Right footer
 
 %----------------------------------------------------------------------------------------
 %	SECTIONS
@@ -222,6 +232,7 @@
 	citestyle=numeric, % In-text citation style
 	bibstyle=numeric, % Bibliography style
 ]{biblatex}
+\usepackage{csquotes}
 
 %----------------------------------------------------------------------------------------
 %	TABLES
@@ -291,3 +302,4 @@
 		\end{tabular}
 	\end{table*}
 }
+\newcommand{\tr}[1]{#1}

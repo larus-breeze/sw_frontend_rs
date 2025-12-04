@@ -1,0 +1,161 @@
+\section{\tr{operation}}
+\subsection{Vario Display}
+
+\tr{The central display distinguishes between circular mode and straight flight mode. If a rotation speed of at least 1°/sec is measured for more than 10 seconds, circular mode is activated. If the rotation speed is below this value for more than 10 seconds, the system switches back to straight flight mode.}
+
+\picnote
+	{pictograph-blue-cloud.pdf}
+	{\tr{The change from variometer mode to speed-to-fly mode is independent of the change in the central display information.}}
+
+\tr{Further information can be found in the chapter "Switching from circles (Vario) to airspeed".}
+
+\subsubsection{\tr{orbit mode}}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=10cm]{vario-with-explanations.png}
+    \caption{\tr{Display in circle mode}}
+    \label{fig:vario-with-explanations}
+\end{figure}
+
+\tr{Content in circle mode:}
+\begin{itemize}
+	\item 	\tr{Info 1: The parameter "show" is defined in "Info 1 Content".}
+	\item 	\tr{Data quality: The colour of the symbol indicates the following:}
+	\begin{itemize}
+		\item 	\tr{Green: Connection to LARUS sensor unit established. Device has GPS fix.}
+		\item	\tr{Yellow: Connection to LARUS sensor unit established, unit has no GPS fix}
+		\item 	\tr{Red: No connection to the LARUS sensor unit}
+	\end{itemize}
+	\item 	\tr{Battery symbol: The colour of the symbol indicates the following:}
+	\begin{itemize}
+		\item 	\tr{Green: The battery voltage is above the value for "battery in good condition".}
+		\item	\tr{Yellow: The battery voltage is below the value for "Battery OK".}
+		\item 	\tr{Red: The battery voltage is below the minimum value.}
+	\end{itemize}
+	\item 	\tr{Average climb in thermals: The average climb rate since the start of the circle.}
+	\item 	\tr{Info 2: The parameter displayed is defined in Info 2 Content.}
+	\item 	\tr{Current ascent rate: The time constant can be changed in the sensor unit settings under "Vario TC".}
+	\item 	\tr{Average climb (TC): The average climb rate within the time period defined in the TC climb rate.}
+	\item 	\tr{Information about circling around the centre point: In "Circling around the centre point" mode, select the "Wind" or "Thermal assistance" view.}
+\end{itemize}
+
+
+\subsubsection{\tr{straight-line mode}}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=10cm]{stf-with-explanations.png}
+    \caption{\tr{Display in straight flight mode}}
+    \label{fig:stf-with-explanations}
+\end{figure}
+
+\tr{Advertisements that differ from circle mode:}
+\begin{itemize}
+	\item 	\tr{Centre straight Info: Select one of two available graphical representations.}
+	\item 	\tr{StF command band: The position of the band indicates whether you are flying too fast or too slow. Positive values mean that you are flying too fast, negative values mean that you are flying too slow. The length of the band indicates by how much. 1 m/s corresponds to 10 km/h.}
+	\item 	\tr{Last average climb (TC): The green indicator for average climb rate shows the value for the last thermal. The value is only updated the next time you switch from speed to flight to vario.}
+\end{itemize}
+
+
+\subsubsection{\tr{Available central displays}}
+\paragraph{\tr{Central displays in circle mode}}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=5cm]{circling-single-arrow.png}
+    \caption{\tr{Wind indicator with an arrow and flag}}
+    \label{fig:circling-single-arrow}
+\end{figure}
+
+\tr{The current wind direction is indicated by a central arrow. The size of the arrow is proportional to the wind speed. Changes in wind direction relative to the medium-term average direction are indicated by a wind vane, while changes in wind speed relative to the medium-term average speed are indicated by the width of the wind vane. The arrow direction refers to north.}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=5cm]{circling-double-arrow.png}
+    \caption{\tr{Wind indicator with two arrows}}
+    \label{fig:circling-double-arrow}
+\end{figure}
+
+\tr{The current wind direction and speed are indicated by the blue arrow, while information about medium-term wind conditions is shown by the grey arrow in the background. The size of the arrow depends on the wind speed. The direction of the arrow refers to north.}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=5cm]{circling-dotted-assistant.png}
+    \caption{\tr{Centring aid with dots}}
+    \label{fig:circling-dotted-assistant}
+\end{figure}
+
+\tr{Meaning of the colours of the circle points:}
+\begin{itemize}
+	\item	\tr{Blue: Climbing speed is below average}
+	\item	\tr{Red: Climbing speed corresponds to the average}
+	\item	\tr{White/Yellow: Climbing speed is above average}
+\end{itemize}
+
+\tr{The diameter of the dots is proportional to the rate of climb.}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=5cm]{circling-spider-assistant.png}
+    \caption{\tr{Centring aid with spider web}}
+    \label{fig:circling-spider-assistant}
+\end{figure}
+
+\tr{Meaning of the colours of the circle points:}
+\begin{itemize}
+	\item	\tr{Blue: Climbing speed is below average}
+	\item	\tr{Red: Climbing speed corresponds to the average}
+	\item	\tr{Yellow: Climbing speed is above average}
+\end{itemize}
+
+\tr{The diameter of the segment is proportional to the climbing speed.}
+
+\paragraph{\tr{Central displays in straight flight mode}}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=5cm]{straight-single-arrow.png}
+    \caption{\tr{Wind indicator for straight flight with an arrow and flag}}
+    \label{fig:straight-single-arrow}
+\end{figure}
+
+\tr{The current wind direction is indicated by a central arrow. The size of the arrow is proportional to the wind speed. Changes in wind direction relative to the medium-term average direction are indicated by a wind vane, while changes in wind speed relative to the medium-term average speed are indicated by the width of the wind vane. The arrow direction refers to the longitudinal axis of the aircraft. The aircraft symbol indicates that the display refers to the flight direction.}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=5cm]{straight-double-arrow.png}
+    \caption{\tr{Wind indicator in straight flight with two arrows}}
+    \label{fig:straight-double-arrow}
+\end{figure}
+
+\tr{The current wind direction and speed are indicated by the blue arrow, while information about medium-term wind conditions is shown by the grey arrow in the background. The size of the arrows depends on the wind speed. The direction of the arrows refers to the longitudinal axis of the aircraft. The aircraft symbol indicates that the display refers to the direction of flight.}
+
+
+\subsubsection{\tr{Switching from circles to speed for flying}}
+
+\tr{Switching the audio information from "Speed" to "Fly" to "Vario" depends on your Vario Control configuration:}
+\begin{itemize}
+	\item	\tr{Car: below 1.1 times the speed of the best glide ratio: Vario mode, above: Speed-To-Fly mode. If you are in Vario mode and continue to circle, Vario mode remains active even if you exceed this speed limit.}
+	\item	\tr{Button or switch: For using an external switch, e.g. on the control stick or flap lever.}
+	\item	\tr{SteFly remote control joystick.}
+\end{itemize}
+
+
+\subsubsection{\tr{Acoustic quiet zone in Speed-to-Fly mode}}
+
+\tr{You can set a speed range in which the acoustic Speed-To-Fly signal is muted. Set the desired values in the advanced settings of LARUS Vario Displays under "StF Upper/Lower Limit". In the delivery state, the audio signal is deactivated in a range of +/- 10 km/h.}
+
+
+\subsection{\tr{controls}}
+
+\tr{The device has a rotary knob with two levels and a push button for operating the device. The following functions are assigned to the button and the two rotary knobs:}
+\begin{itemize}
+	\item	\tr{Turn the small/upper knob: Volume control}
+	\item	\tr{Turn the large/lower knob: Set the MacCready.}
+	\item	\tr{Briefly press the rotary knob: Menu for the flight menu}
+	\item	\tr{Press and hold the rotary knob: Menu for configuration settings of the LARUS Vario display, configuration and calibration of the LARUS sensor unit}
+\end{itemize}
+
+\tr{The appendix contains the menu structure of the LARUS Vario display. The following two chapters show the menu structure of the LARUS Vario. Details on the submenu items are documented in the following chapters:} \nameref{flight_menu}, \nameref{settings_menu_normal} \tr{and}
+\nameref{settings_menu_club}.

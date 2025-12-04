@@ -1,0 +1,188 @@
+\section{\tr{Betrieb}}
+\subsection{Vario Display}
+
+\tr{Die zentrale Anzeige unterscheidet zwischen dem Kreismodus und dem Geradeausflugmodus. Wenn eine Drehgeschwindigkeit von mindestens 1°/Sek. für mehr als 10 Sekunden gemessen wird, wird der Kreismodus aktiviert. Wenn die Drehgeschwindigkeit für mehr als 10 Sekunden unter diesem Wert liegt, wird wieder in den Geradeausflugmodus zurückgeschaltet.}
+
+\picnote
+	{pictograph-blue-cloud.pdf}
+	{\tr{Der Wechsel vom Variometer-Modus zum Speed-To-Fly-Modus ist unabhängig vom Wechsel der zentralen Anzeigeinformationen.}}
+
+\tr{Weitere Informationen finden Sie im Kapitel „Umschalten von Kreisen (Vario) auf Fluggeschwindigkeit“.}
+
+\subsubsection{\tr{Umkreismodus}}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=10cm]{vario-with-explanations.png}
+    \caption{\tr{Anzeige im Kreismodus}}
+    \label{fig:vario-with-explanations}
+\end{figure}
+
+\tr{Inhalt im Kreismodus:}
+\begin{itemize}
+	\item 	\tr{Info 1: Der Parameter „show“ ist in „Info 1 Content“ definiert.}
+	\item 	\tr{Datenqualität: Die Farbe des Symbols gibt Folgendes an:}
+	\begin{itemize}
+		\item 	\tr{Grün: Verbindung zur LARUS-Sensoreinheit hergestellt. Gerät hat GPS-Fix.}
+		\item	\tr{Gelb: Verbindung zur LARUS-Sensoreinheit hergestellt, Einheit hat keinen GPS-Fix}
+		\item 	\tr{Rot: Keine Verbindung zur LARUS-Sensoreinheit}
+	\end{itemize}
+	\item 	\tr{Batteriesymbol: Die Farbe des Symbols gibt Folgendes an:}
+	\begin{itemize}
+		\item 	\tr{Grün: Die Spannung der Batterie liegt über dem Wert für „Batterie in gutem Zustand“.}
+		\item	\tr{Gelb: Die Spannung der Batterie liegt unter dem Wert für „Batterie in Ordnung“.}
+		\item 	\tr{Rot: Die Spannung der Batterie liegt unter dem Mindestwert.}
+	\end{itemize}
+	\item 	\tr{Durchschnittlicher Steigflug in der Thermik: Die durchschnittliche Steiggeschwindigkeit seit Beginn des Kreises.}
+	\item 	\tr{Info 2: Der angezeigte Parameter ist in Info 2 Inhalt definiert.}
+	\item 	\tr{Aktuelle Steiggeschwindigkeit: Die Zeitkonstante kann in den Einstellungen der Sensoreinheit unter „Vario TC“ geändert werden.}
+	\item 	\tr{Durchschnittlicher Steigflug (TC): Die durchschnittliche Steiggeschwindigkeit innerhalb des in der TC-Steiggeschwindigkeit definierten Zeitraums.}
+	\item 	\tr{Informationen zum Kreisen um den Mittelpunkt: Wählen Sie im Modus „Kreisen um den Mittelpunkt“ die Ansicht „Wind“ oder „Thermikunterstützung“ aus.}
+\end{itemize}
+
+
+\subsubsection{\tr{Geradeausflugmodus}}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=10cm]{stf-with-explanations.png}
+    \caption{\tr{Anzeige im Geradeausflugmodus}}
+    \label{fig:stf-with-explanations}
+\end{figure}
+
+\tr{Anzeigen, die sich vom Kreismodus unterscheiden:}
+\begin{itemize}
+	\item 	\tr{Zentrum gerade Info: Wählen Sie eine von zwei verfügbaren grafischen Darstellungen aus.}
+	\item 	\tr{StF-Befehlsband: Die Position des Bandes zeigt an, ob Sie zu schnell oder zu langsam fliegen. Positive Werte bedeuten, dass Sie zu schnell fliegen, negative Werte bedeuten, dass Sie zu langsam fliegen. Die Länge des Bandes gibt an, um wie viel. 1 m/s entspricht 10 km/h.}
+	\item 	\tr{Letzter durchschnittlicher Steigflug (TC): Die grüne Anzeige für die durchschnittliche Steiggeschwindigkeit zeigt den Wert für die letzte Thermik an. Der Wert wird erst beim nächsten Wechsel von Geschwindigkeit zu Flug zu Vario aktualisiert.}
+\end{itemize}
+
+
+\subsubsection{\tr{Verfügbare zentrale Anzeigen}}
+\paragraph{\tr{Zentrale Anzeigen im Kreismodus}}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=5cm]{circling-single-arrow.png}
+    \caption{\tr{Windanzeige mit einem Pfeil und Fahne}}
+    \label{fig:circling-single-arrow}
+\end{figure}
+
+\tr{Die aktuelle Windrichtung wird durch einen zentralen Pfeil dargestellt. Die Größe des Pfeils ist
+proportional zur Windgeschwindigkeit. Änderungen der Windrichtung gegenüber der mittelfristigen
+Durchschnittsrichtung werden durch eine Windfahne angezeigt, Änderungen der Windgeschwindigkeit
+gegenüber der mittelfristigen Durchschnittsgeschwindigkeit werden durch die Breite der Windfahne
+dargestellt. Die Pfeilrichtung bezieht sich auf Norden.}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=5cm]{circling-double-arrow.png}
+    \caption{\tr{Windanzeige mit zwei Pfeilen}}
+    \label{fig:circling-double-arrow}
+\end{figure}
+
+\tr{Die aktuelle Windrichtung und -geschwindigkeit wird durch den blauen Pfeil dargestellt,
+Informationen zum mittelfristigen Wind werden durch den grauen Pfeil im Hintergrund angezeigt. Die
+Pfeilgröße hängt von der Windgeschwindigkeit ab. Die Pfeilrichtung bezieht sich auf Norden.}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=5cm]{circling-dotted-assistant.png}
+    \caption{\tr{Zentrierhilfe mit Punkten}}
+    \label{fig:circling-dotted-assistant}
+\end{figure}
+
+\tr{Bedeutung der Farben der Kreispunkte:}
+\begin{itemize}
+	\item	\tr{Blau: Steiggeschwindigkeit liegt unter dem Durchschnitt}
+	\item	\tr{Rot: Steiggeschwindigkeit entspricht dem Durchschnitt}
+	\item	\tr{Weiß/Gelb: Steiggeschwindigkeit liegt über dem Durchschnitt}
+\end{itemize}
+
+\tr{Der Durchmesser der Punkte ist proportional zur Steigrate.}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=5cm]{circling-spider-assistant.png}
+    \caption{\tr{Zentrierhilfe mit Spinnennetz}}
+    \label{fig:circling-spider-assistant}
+\end{figure}
+
+\tr{Bedeutung der Farben der Kreispunkte:}
+\begin{itemize}
+	\item	\tr{Blau: Steiggeschwindigkeit liegt unter dem Durchschnitt}
+	\item	\tr{Rot: Steiggeschwindigkeit entspricht dem Durchschnitt}
+	\item	\tr{Gelb: Steiggeschwindigkeit liegt über dem Durchschnitt}
+\end{itemize}
+
+\tr{Der Durchmesser des Segments ist proportional zur Steiggeschwindigkeit.}
+
+\paragraph{\tr{Zentrale Anzeigen im Geradeausflugmodus}}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=5cm]{straight-single-arrow.png}
+    \caption{\tr{Windanzeige im Geradeausflug mit einem Pfeil und Fahne}}
+    \label{fig:straight-single-arrow}
+\end{figure}
+
+\tr{Die aktuelle Windrichtung wird durch einen zentralen Pfeil dargestellt. Die Größe des Pfeils ist
+proportional zur Windgeschwindigkeit. Änderungen der Windrichtung gegenüber der mittelfristigen
+Durchschnittsrichtung werden durch eine Windfahne angezeigt, Änderungen der Windgeschwindigkeit
+gegenüber der mittelfristigen Durchschnittsgeschwindigkeit werden durch die Breite der Windfahne
+dargestellt. Die Pfeilrichtung bezieht sich auf die Längsachse des Flugzeugs. Das
+Flugzeugsymbol deuted an, dass sich die Darstellng auf die Flugrichtung bezieht.}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=5cm]{straight-double-arrow.png}
+    \caption{\tr{Windanzeige im Geradeausflug mit zwei Pfeilen}}
+    \label{fig:straight-double-arrow}
+\end{figure}
+
+\tr{Die aktuelle Windrichtung und -geschwindigkeit wird durch den blauen Pfeil dargestellt,
+Informationen zum mittelfristigen Wind werden durch den grauen Pfeil im Hintergrund angezeigt. Die
+Größe der Pfeile hängt von der Windgeschwindigkeit ab. Die Pfeilrichtung bezieht sich auf die
+Längsachse des Flugzeugs. Das Flugzeugsymbol deuted an, dass sich die Darstellng auf die
+Flugrichtung bezieht.}
+
+
+\subsubsection{\tr{Umschalten von Kreisen auf Geschwindigkeit zum Fliegen}}
+
+\tr{Das Umschalten der Toninformationen von „Speed“ zu „Fly“ zu „Vario“ hängt von Ihrer
+Vario-Control-Konfiguration ab:}
+\begin{itemize}
+	\item	\tr{Auto: unterhalb der 1,1-fachen Geschwindigkeit der besten Gleitzahl: Vario-Modus,
+			oberhalb: Speed-To-Fly-Modus. Wenn Sie sich im Vario-Modus befinden und weiterhin
+			kreisen, bleibt der Vario-Modus auch bei Überschreiten dieser Geschwindigkeitsgrenze
+			aktiv.}
+	\item	\tr{Taster oder Schalter: Zur Verwendung eines externen Schalters z.B. am Steuerknüppel,
+			oder Klappenhebel.}
+	\item	\tr{SteFly Fernbedienungs-Joystick.}
+\end{itemize}
+
+
+\subsubsection{\tr{Akustische Ruhezone im Speed-to-Fly-Modus}}
+
+\tr{Sie können einen Geschwindigkeitsbereich festlegen, in dem das akustische Speed-To-Fly-Signal
+stummgeschaltet ist. Stellen Sie die gewünschten Werte in den erweiterten Einstellungen von LARUS
+Vario Displays unter „StF Upper/Lower Limit“ ein. Im Lieferzustand wird das Ausiosignal in einem
+Bereich von +/- 10 km/h deaktiviert.}
+
+
+\subsection{\tr{Bedienelemente}}
+
+\tr{Das Gerät verfügt über einen Drehknopf mit zwei Ebenen und einem Drucktaster, mit dem das Gerät
+bedient wird. Dem Knopf und den beiden Drehknöpfen sind folgende Funktionen zugewiesen:}
+\begin{itemize}
+	\item	\tr{Drehen Sie den kleinen/oberen Drehknopf: Lautstärkeregelung}
+	\item	\tr{Drehen Sie den großen/unteren Drehknopf: Stellen Sie den MacCready ein.}
+	\item	\tr{Kurzer Druck auf den Drehknopf: Menü für das Flug Menu}
+	\item	\tr{Längeres Drücken des Drehknopfs: Menü für Konfigurationseinstellungen des LARUS
+				Vario Displays, Konfiguration und Kalibrierung der LARUS Sensoreinheit}
+\end{itemize}
+
+\tr{Im Anhang finden sich die Menustruktur des LARUS Vario Displays. ImDie folgenden beiden Kapitel
+zeigen die Menüstruktur des LARUS Vario. Details zu den Untermenüpunkten sind in den nachfolgenden
+Kapiteln dokumentiert:} \nameref{flight_menu}, \nameref{settings_menu_normal} \tr{und}
+\nameref{settings_menu_club}.

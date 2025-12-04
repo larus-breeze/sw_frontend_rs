@@ -1,0 +1,355 @@
+\section{\tr{Installation}}
+
+\subsection{\tr{Lieferumfang}}
+\begin{itemize}
+	\item 	\tr{LARUS Vario Display}
+	\item 	\tr{Befestigungsschrauben}
+	\item 	\tr{1:1 Standard-RJ45-Kabel}
+	\item 	\tr{Micro-SD-Karte mit Adapter}
+	\item 	\tr{D-Sub-9-Lötstecker und Gehäuse}
+	\item 	\tr{1,5 mm Sechskantschlüssel zur Montage der Drehknöpfe}
+\end{itemize}
+
+\subsection{\tr{Schnellstartanleitung}}
+
+\tr{In einigen Fällen können die Standard-Einstellungen verwendet werden und das Gerät in einer
+	vereinfachten Art und Weise in Betrieb genommen werden. Dann ist es ausreichend, wenn folgende
+	Punkte beachtet werden:}
+\begin{enumerate}
+	\item 	\tr{Bitte demontieren Sie beide Drehknöpfe mit einem 1,5-mm-Sechskantschlüssel (im
+			Lieferumfang enthalten).}
+	\item 	\tr{Befestigen Sie das LARUS Vario Display mit drei Schrauben in einer 57 mm großen
+			Aussparung der Instrumententafel. Es kann auch um 90°, 180° und 270° verdreht montiert
+			werden.}
+	\item 	\tr{Beide Drehknöpfe montieren}
+	\item 	\tr{Verbinden Sie den CAN-Anschluss des LARUS Vario-Displays und der LARUS-Sensorbox mit
+			dem im Lieferumfang enthaltenen 1:1-Patchkabel.}
+	\item 	\tr{Schalten Sie LARUS ein.}
+	\item 	\tr{Überprüfen Sie, ob das Satellitensymbol auf dem Bildschirm gelb oder grün ist und
+			die aktuelle Kursrichtung angezeigt wird.}
+	\item 	\tr{Wählen Sie eine geeignete Polare für Ihr Segelflugzeug aus oder erstellen Sie eine.}
+	\item 	\tr{Ihr LARUS Vario Display ist nun flugbereit.}	
+\end{enumerate}
+
+\subsection{\tr{Design und Funktion}}
+
+\tr{Das LARUS Vario Display zeigt die von LARUS gemessenen und berechneten Daten an. LARUS ist ein
+fortschrittliches Variometer mit Echtzeit-Windmessfunktion. Es verfügt über modernste Drucksensoren,
+eine fortschrittliche IMU und GNSS-Empfänger, um präzise Flugdaten zu erfassen. Die wichtigsten
+Merkmale des Displays sind:}
+\begin{itemize}
+	\item 	\tr{Rundes Display für 57-mm-Standard-Instrumententafelausschnitte-}
+	\item 	\tr{Heller und farbenfroher Bildschirm-}
+	\item 	\tr{Leichtes, kompaktes Design mit schwarz eloxiertem Aluminiumgehäuse-}
+	\item 	\tr{Drehknopf mit zwei Ebenen und Drucktastenfunktion zum Ändern von Einstellungen und
+			zum Aufrufen der Menüs 1,5-mm-Sechskantschlüssel.}
+\end{itemize}
+
+\tr{Das LARUS Vario Display wird von Prof. Dr. Klaus Schaefer, Maximilian Betz, Winfried Simon,
+Peter Simon und dem SteFly-Team entwickelt und kontinuierlich verbessert. Sie können sich gerne 
+an der Entwicklung beteiligen und Verbesserungsvorschläge oder Probleme einbringen.}
+
+\href{https://github.com/larus-breeze}{github.com/larus-breeze}
+
+
+\subsection{\tr{Systemkonfigurationen}}
+\label{system-configurations}
+
+\subsubsection{\tr{Konfiguration im Einsitzer}}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=16cm]{config-singleseater.jpg}
+    \caption{\tr{Anschlussplan Einsitzer-Konfiguration}}
+    \label{fig:single-seater-configuration}
+\end{figure}
+
+\tr{Im Schaubild oben wird der Navigations Rechner an dien LARUS-Sensorbox angeschlossen. Oftmals
+ist es von der Verdrahtung einfacher, den Navigations Rechner an das LARUS Vario Display
+anzuschließen. Dies ist genauso gut möglich.}
+
+\subsubsection{\tr{Konfiguration im Doppelsitzer}}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=16cm]{config-doubleseater.jpg}
+    \caption{\tr{Anschlussplan Doppelsitzer-Konfiguration}}
+    \label{fig:double-seater-configuration}
+\end{figure}
+
+\tr{Im Doppelsitzer werden die Navigationsrecher typischerweise an die LARUS Vario Displays
+angeschlossen. Es ist aber genauso möglich, die Navigationsrechner an die LARUS-Sensorbox
+anzuschließen. Die Daten werden zwischen den LARUS Komponenten ausgetauscht, so dass keine
+Informationen verloren gehen.}
+
+\subsection{\tr{Steckverbinder und Verkabelung}}
+
+\subsubsection{\tr{Steckverbinder auf der Rückseite des Gerätes}}
+
+\begin{figure}[H]
+    \includegraphics[width=8cm]{connectors-overview.jpg}
+    \caption{\tr{Ansicht von der Rückseite des Gerätes}}
+    \label{fig:connectors-overview}
+\end{figure}
+
+\tr{Auf der Rückseite des LARUS Vario Displays befindesn sich die Anschlüsse für CAN, RS232 und die
+Ein-/Ausgänge. Des weiteren ist dort der Schlitz zum Einführen der SD-Karte vorhanden.}
+
+\subsubsection{\tr{CAN- und RS232-Anschlüsse}}
+
+\begin{figure}[H]
+    \includegraphics[width=8cm]{connectors-rj45.pdf}
+    \caption{\tr{Die Rj45 Anschlüsse im Detail}}
+    \label{fig:connectors-rj45}
+\end{figure}
+
+\begin{table}[H]
+	\begin{tabular}{C{0.1\linewidth} L{0.40\linewidth} L{0.40\linewidth}}
+		\toprule
+		\textbf{Pin} & \textbf{CAN} & \textbf{RS232} \\
+		\midrule
+		1 & GND (internally connected) & GND (internally connected) \\
+		2 & GND (internally connected) & GND (internally connected) \\
+		3 & NC 						   & RS232-1-RX \\
+		4 & CAN Low                    & RS232-1-TX \\
+		5 & CAN High                   & NC \\
+		6 & NC                         & NC \\
+		7 & VCC [9-28V DC]             & VCC [9-28V DC] \\
+		8 & VCC [9-28V DC]             & VCC [9-28V DC] \\
+		\bottomrule
+	\end{tabular}
+	\caption{\tr{Pinbelegung CAN und RS232 RJ45}}
+\end{table}
+
+\subsubsection{GPIO / D-SUB 9}
+\tr{Über den D-Sub-Stecker können mehrere weitere Schalter, Sensoren und Geräte angeschlossen
+werden. Bitte beachten Sie, dass zum Zeitpunkt der Veröffentlichung dieses Handbuchs noch nicht alle
+Funktionen implementiert sind. Die folgende Skizze zeigt die Ansicht in den Stecker des LARUS Vario
+Displays.}
+
+\begin{figure}[H]
+    \includegraphics[width=6cm]{connector-dsub9.png}
+    \caption{\tr{DSUB-9 Anschluss}}
+    \label{fig:connectors-dsub9}
+\end{figure}
+
+\begin{table}[H]
+	\begin{tabular}{C{0.1\linewidth} L{0.40\linewidth} L{0.20\linewidth}}
+		\toprule
+		\textbf{Pin} & \textbf{CAN} & \textbf{RS232} \\
+		\midrule
+		1 & GND  					& (Ground) \\
+		2 & DI3 - Gear 				& Input \\
+		3 & DI1 - Water Ballast		& Input \\
+		4 & DO2						& Output \\
+		5 & GND						& (Ground) \\
+		6 & DI4 - Speed Breakes 	& Input \\
+		7 & DI2 - Spped to fly		& Input \\
+		8 & GND						& (Ground) \\
+		9 & DO1 - Canopy Flasher 	& Output \\
+		\bottomrule
+	\end{tabular}
+	\caption{Pin Asssignment GPIO / D-SUB 9}
+\end{table}
+
+\tr{Zur leichteren Identifizierung der Pins sind diese Nummern auch in die Buchse (im Lieferumfang
+enthalten) eingeprägt. Nach der Verkabelung müssen die Einstellungen im LARUS Vario Display
+vorgenommen werden.}
+
+\subsubsection{\tr{Audio}} \tr{Eine Audiobuchse ist für den Anschluss eines Lautsprechers mit einem
+3,5-mm-Klinkenstecker verfügbar. Der Innenwiderstand des Lautsprechers muss zwischen 4 und 8 Ohm
+liegen (max. output of 3 W bei 8 Ohm).}
+
+\picnote
+	{pictograph-yellow-warning.pdf}
+	{\tr{Ein einzelner Lautsprecher darf nicht an mehr als ein Gerät angeschlossen werden.}}
+
+\subsubsection{\tr{SD-Karte}}
+\tr{Das Gerät verfügt über einen SD-Kartensteckplatz für Firmware-Updates.}
+
+\picnote
+	{pictograph-yellow-warning.pdf} {\tr{Da SD-Kartenerweiterungen das LARUS Vario Display
+	beschädigen können, übernehmen wir keine Haftung für Schäden, die durch deren Verwendung
+	entstehen.}}
+
+\subsubsection{\tr{Verkabelung}}
+
+\tr{Wenn eine serielle Verbindung (RS232) zwischen SteFly NAV und LARUS Vario Display hergestellt
+wird, werden beispielsweise die MC-Werteinstellungen zwischen den Geräten synchronisiert/übertragen.
+Darüber hinaus verarbeitet das LARUS Vario Display Eingaben von einem Speed-to-Fly-/Vario-Schalter,
+der direkt mit dem SteFly-Fernsteuerungshebel verbunden ist. Die folgenden Schritte sind
+erforderlich:}
+\begin{itemize}
+	\item 	\tr{Geräte mit Kabel verbinden:}
+	\begin{itemize}
+		\item 	\tr{Der CAN-Anschluss der LARUS Sensor Box muss über 1:1-Patchkabel mit dem
+				CAN-Anschluss des LARUS VARIO Displays verbunden werden (bei
+				Doppelsitzerkonfigurationen unter Verwendung der Kabelbox).}
+		\item 	\tr{Die Geräte, auf denen XCSoar läuft, können über ein gekreuztes Patchkabel RX/TX
+				zwischen dem RS232-Anschluss des Vario-Displays und dem ttySx-Anschluss des SteFly
+				NAV verbunden werden.}
+	\end{itemize}
+	\item 	\tr{Schließen Sie optional Schalter für die Erkennung des Ablassvorgangs beim
+			Wasserballasts und die Fahrwerkswarnung an den entsprechenden DSUB-9-Pin und einen
+			beliebigen GND-Pin an. Für die Fahrwerkswarnung haben Sie die Möglichkeit, zwei
+			separate, direkt angeschlossene Schalter für das Fahrwerk und die Bremsklappen zu
+			verwenden (empfohlen) oder ein Kabel mit den beiden Schaltern in Reihe zum
+			DSUB-9-Anschluss.}
+	\item 	\tr{Der SteFly-Fernbedienungsstick kann auf zwei verschiedene Arten angeschlossen
+			werden:}
+	\begin{itemize}
+		\item 	\tr{Abhängig von der Ausstattung: mit einem separaten Kabel zum DSUB-9-Pin 7}
+		\item 	\tr{Verwendung des USB-Kabels (immer verfügbar)}
+	\end{itemize}
+	\item	\tr{Bitte passen Sie die Einstellungen in XCSoar (Version 7.44 oder höher) / OpenSoar
+			(7.43 oder höher) an:}
+	\begin{itemize}
+		\item 	\tr{Wenn das Vario-Display direkt an das SteFly NAV angeschlossen ist,
+		wählen Sie bitte den entsprechenden ttyS-Port aus: Konfiguration -> Geräte -> wählen
+		Sie eine freie Leitung aus und geben Sie den Port ein, Baudrate 38400, Treiber
+		Larus, Synchronisation (Option) mit Gerät aktivieren.}
+	\end{itemize}
+	\item 	\tr{Bitte passen Sie die Einstellungen im LARUS Vario Display für die angeschlossenen
+			optionalen Schalter an.}
+	\begin{itemize}
+		\item 	\tr{Warnung bezüglich der Ausrüstung}
+		\item 	\tr{Wasserballast}
+		\item 	\tr{StF-Schalterkonfiguration (falls nicht automatisch geschaltet)}
+		\begin{itemize}
+			\item 	\tr{Eingangs-Pin: Um einen externen Schalter (am Steuerknüppel, Klappenhebel
+					usw.) zu verwenden, stellen Sie die Vario-Steuerung auf „Eingangs-Pin“ und
+					wählen Sie die richtige Einstellung in der StF-Pin-Konfiguration. (active: when
+					open/closed)}
+			\item 	\tr{NMEA für SteFly-Fernsteuerungsstick. Zusätzlich zu den Einstellungen im
+					Vario müssen Sie eine Ereignisdefinitionsdatei in XCSoar/OpenSoar installieren
+					(Konfiguration / System / Ansicht / Sprache, Eingabe / Ereignisse – Expert
+					aktivieren, auf Ereignisse klicken – Herunterladen –
+					GLB-XCI-xcremote-XCNAV.xci). Verlassen Sie die XCSoar-Konfiguration und starten
+					Sie XCSoar neu.}
+		\end{itemize}
+	\end{itemize}
+\end{itemize}
+
+\subsection{\tr{CAN-Terminierung}}
+
+\tr{Das LARUS Vario Display und die LARUS Sensor Box sind über den CAN Bus miteinander verbunden.
+CAN-Bus-Netzwerke erfordern Abschlusswiderstände an jedem Ende des Netzwerks. Daher verfügen alle
+Geräte über einen integrierten Schalter zur Aktivierung des Widerstands:}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=16cm]{can-termination.jpg}
+    \caption{\tr{Schalter an den Geräten zur Terminierung des CAN Bus}}
+    \label{fig:can-termination}
+\end{figure}
+
+\begin{table}[H]
+	\begin{tabular}{L{0.25\linewidth} C{0.156\linewidth} C{0.156\linewidth} C{0.156\linewidth} C{0.156\linewidth}}
+		\toprule
+		\textbf{Description} & \textbf{Display front} & \textbf{Larus Box} & \textbf{CAN Splitter} & \textbf{Display rear} \\
+		\midrule
+		\tr{Einsitzer} 							 & on  & on  & -   & -   \\
+		\tr{Zweisitzer, Larus-Box in der Frontblende} & off & on  & off & on  \\
+		\tr{Zweisitzer, Larus-Box in der Rückwand}  & on  & on  & off & off \\
+		\bottomrule
+	\end{tabular}
+	\caption{\tr{CAN-Terminierung Ein-/Zweisitzer}}
+\end{table}
+
+\tr{Bitte beachten Sie: Alle LARUS-Sensorboxen, die vor März 2025 ausgeliefert wurden, verfügen über
+keinen CAN-Abschlussschalter. Die CAN-Abschlusswiderstände sind standardmäßig immer aktiviert.}
+
+\subsection{\tr{Externe Sicherung}}
+
+\picnote
+	{pictograph-yellow-warning.pdf} 
+	{\tr{In der Regel wird das LARUS Vario Display über ein
+	Patchkabel zwischen den CAN-Anschlüssen von LARUS mit Strom versorgt. LARUS muss durch eine
+	externe Sicherung (500 mA bis max. 3 A) geschützt werden, wie es bei allen elektrischen Geräten
+	in der Luftfahrt üblich ist. Wenn LARUS seine Energie von einem anderen Hauptinstrument bezieht
+	(z. B. SteFly NAV über D-Sub-Stecker), stellen Sie bitte sicher, dass das Hauptinstrument durch
+	eine externe Sicherung entsprechend geschützt ist.}}
+
+\subsection{\tr{Installationsort}}
+
+\tr{Das folgende Bild zeigt eine typische Einbausituation des LARUS Vario Displays im
+Instrumentenbrett eines Segelflugzeugs.}
+
+\begin{figure}[H]
+    \includegraphics[width=8cm]{panel.jpg}
+    \caption{\tr{Einbausituation im Instrumentenpanel}}
+    \label{fig:panel}
+\end{figure}
+
+\tr{Das Display passt in eine Standardaussparung von 57 mm und wird mit 3 M3-Schrauben befestigt.}
+
+\begin{figure}[H]
+    \includegraphics[width=8cm]{knobs-and-screws.jpg}
+    \caption{\tr{Befestigungselemente}}
+    \label{fig:knobs-and-screws}
+\end{figure}
+
+\tr{Für die Installation ist es erforderlich, die beiden Drehknöpfe mit einem
+1,5-mm-Sechskantschlüssel zu entfernen.}
+
+\subsection{\tr{Installationsorientierung}}
+
+\picnote
+	{pictograph-yellow-warning.pdf} {\tr{Wenn Sie beabsichtigen, ein vorhandenes Gerät durch das
+	Lars Vario Display zu ersetzen, überprüfen Sie bitte die gewünschte Einbaulage, bevor Sie das
+	7,3-mm-Loch für den Drehgeber bohren, da das Gehäuse des Displays leicht asymmetrisch ist.}}
+
+\tr{Das Display kann in den Ausrichtungen 0° / 90° / 180° / 270° montiert werden. Nach der Montage
+des Displays muss dessen Ausrichtung im Menü „Display Rotation“ ggfs. angepasst werden.}
+
+\subsection{\tr{Erstinbetriebnahme und Funktionstest}}
+
+\tr{Für die Inbetriebnahme befolgen Sie bitte die folgenden Schritte:}
+\begin{enumerate}
+	\item 	\tr{Bitte überprüfen Sie, ob das LARUS Vario Display gemäß den Zeichnungen in Kapitel }
+			\nameref{system-configurations} \tr{ an die LARUS Sensor Box oder den CAN Splitter
+			angeschlossen ist.}
+	\item 	\tr{LARUS einschalten}
+	\item	\tr{Bitte überprüfen Sie, ob LARUS Vario Displays startet und ein gelbes oder grünes
+			Satellitenpiktogramm angezeigt wird. Die Vario-Zeiger sollten leichte Bewegungen um die
+			Nullposition ausführen.}
+\end{enumerate}
+
+\subsection{\tr{Wartung}} \tr{Das gesamte System enthält keine zu wartenden Teile. Um
+Garantieleistungen in Anspruch zu nehmen, wenden Sie sich bitte direkt an SteFly.}
+
+\picnote
+	{pictograph-yellow-warning.pdf}
+	{\tr{Das Öffnen des Gehäuses des LARUS Vario Displays führt zum Erlöschen der Garantie.}}
+
+\subsection{\tr{Fehlerbehebung}}
+\begin{table}[H]
+	\begin{tabular}{L{0.29\linewidth} L{0.29\linewidth} L{0.29\linewidth}}
+		\toprule
+		\textbf{Problem} & \textbf{Possible Causes} & \textbf{Solution} \\
+		\midrule
+		\tr{Das LARUS Vario Display startet, jedoch ist das Satellitenpiktogramm rot und die Vario-Zeiger sind fixiert.}
+		& \tr{Anschluss an den LARUS-CAN-Port mit einem gekreuzten Rx/Tx-Patchkabel anstelle eines standardmäßigen 1:1-Patchkabels.}
+		& \tr{Bitte ersetzen Sie das Patchkabel und verwenden Sie das im Lieferumfang enthaltene Kabel.} \\
+		\tr{Das LARUS Vario Display startet, jedoch ist das Satellitenpiktogramm rot und die Vario-Zeiger sind fixiert.}
+		& \tr{Anschluss an LARUS über RS232-Port}
+		& \tr{Bitte verbinden Sie die CAN-Anschlüsse.} \\
+		\bottomrule
+	\end{tabular}
+	\caption{\tr{Fehlerbehebung}}
+\end{table}
+
+\subsection{\tr{Firmware-Aktualisierung}}
+
+\tr{Das LARUS-Team verbessert die Software kontinuierlich und veröffentlicht Updates, beispielsweise
+auf der LARUS Vario Display-Webseite. Um die Firmware zu aktualisieren, speichern Sie bitte die neue
+.bin-Datei auf der im Lieferumfang enthaltenen SD-Karte und stecken Sie diese in den
+SD-Kartensteckplatz des LARUS Vario Display. Das Gerät installiert nur kompatible
+Firmware-Versionen, die höher sind als die installierte Version. Nach dem Einschalten startet das
+Gerät in weniger als einer Sekunde. Wenn eine kompatible Firmware auf der SD-Karte erkannt wird,
+bleibt das Display etwa 3-5 Sekunden lang schwarz, bevor die Meldung „Firmware-Upgrade wird
+durchgeführt“ angezeigt wird. Anschließend wird die geladene Firmware-Version angezeigt.
+
+Sollte das Update nach dem Einschalten des Geräts mit einer eingelegten SD-Karte, die eine neue
+Firmware-Version enthält, nicht gestartet werden, verwenden Sie bitte eine andere SD-Karte.
+Anforderungen an die SD-Karte: min. 4 GB SDHC, FAT32-Format (nicht GPT).}
