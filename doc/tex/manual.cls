@@ -39,15 +39,8 @@
 
 \usepackage{float} % Allows more precisely positioning floats e.g. \begin{figure}[H]
 
-\usepackage{hyperref}
-\hypersetup{
-    colorlinks=true,
-    linkcolor=blue,
-    filecolor=blue,      
-    urlcolor=blue,
-}
-
 \usepackage{siunitx}
+\usepackage{setspace} % Für die Steuerung des Zeilenabstands innerhalb von Einträgen
 
 
 %----------------------------------------------------------------------------------------
@@ -219,7 +212,7 @@
 %	COLORS
 %----------------------------------------------------------------------------------------
 
-\usepackage[usenames, svgnames]{xcolor} % Required for defining and using custom colors
+\usepackage[svgnames]{xcolor} % Required for defining and using custom colors
 
 %\definecolor{cyan}{RGB}{0, 255, 255} % Define custom colors in this format
 
@@ -273,14 +266,13 @@
 %	LINKS
 %----------------------------------------------------------------------------------------
 
-\usepackage{hyperref} % Required for links
-
-\hypersetup{
-	colorlinks=true, % Whether to color the text of links
-	urlcolor=black, % Color for \url and \href links
-	linkcolor=black, % Color for \nameref links
-	citecolor=black, % Color of reference citations
-}
+\usepackage[
+    colorlinks=true, % Sets all options to color, not boxes
+    linkcolor=blue,  % Color for internal links
+    citecolor=blue,  % Color for citations
+    urlcolor=blue,   % Color for URLs
+	linktoc=page,    % Only page numbers clickable
+]{hyperref}
 
 %----------------------------------------------------------------------------------------
 %	CUSTOM COMMANDS
@@ -302,4 +294,5 @@
 		\end{tabular}
 	\end{table*}
 }
-\newcommand{\tr}[1]{#1}
+\newcommand{\tr}[1]{#1} % macro for translation for python script
+\newcommand{\hr}[1]{#1} % macro for header translation for python script

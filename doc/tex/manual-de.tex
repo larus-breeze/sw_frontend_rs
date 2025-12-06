@@ -24,14 +24,19 @@
 \tableofcontents
 \newpage
 
-\listoftables
-\listoffigures
+{
+    \addtolength{\baselineskip}{-5pt} % Abstand reduzieren
+    
+    \listoftables % Das Verzeichnis wird mit dem erhöhten Abstand erstellt
+	\listoffigures
+}
 \newpage
 
 \input{de/ch01-general.tex}
 \input{de/ch02-installation.tex}
 \input{de/ch03-operation.tex}
-\input{de/ch04-configuration.tex}
+\input{de/ch04-details.tex}
+\input{de/ch05-configuration.tex}
 \newpage
 
 \section*{Appendices}
