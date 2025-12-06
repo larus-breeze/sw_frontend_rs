@@ -14,8 +14,8 @@ pub const ADV_SPEED_TO_FLY_IDX: usize = 9;
 pub const LANDING_GEAR_ALARM_IDX: usize = 10;
 pub const ADV_VARIO_IDX: usize = 11;
 pub const UNITS_IDX: usize = 12;
-pub const VIEW_SPEED_TO_FLY_IDX: usize = 13;
-pub const VIEW_VARIO_IDX: usize = 14;
+pub const VIEW_STRAIGHT_IDX: usize = 13;
+pub const VIEW_CIRCLING_IDX: usize = 14;
 pub const USAGE_MODE_AND_PROFILE_IDX: usize = 15;
 pub const MORE_SETTINGS_IDX: usize = 16;
 
@@ -33,8 +33,8 @@ pub const MENU_LIST: &[Menu] = &[
     LANDING_GEAR_ALARM,
     ADV_VARIO,
     UNITS,
-    VIEW_SPEED_TO_FLY,
-    VIEW_VARIO,
+    VIEW_STRAIGHT,
+    VIEW_CIRCLING,
     USAGE_MODE_AND_PROFILE,
     MORE_SETTINGS,
 ];
@@ -71,14 +71,6 @@ pub const VIEW_SETTINGS: Menu = Menu {
     level: 2,
     items: &[
         MenuItem {
-            content: MenuItemContent::EditItem(Editable::CenterViewCircling),
-            next_menu_idx: VIEW_SETTINGS_IDX,
-        },
-        MenuItem {
-            content: MenuItemContent::EditItem(Editable::CenterViewStraight),
-            next_menu_idx: VIEW_SETTINGS_IDX,
-        },
-        MenuItem {
             content: MenuItemContent::EditItem(Editable::EnergyArrowMult),
             next_menu_idx: VIEW_SETTINGS_IDX,
         },
@@ -92,11 +84,11 @@ pub const VIEW_SETTINGS: Menu = Menu {
         },
         MenuItem {
             content: MenuItemContent::MenuItem(),
-            next_menu_idx: VIEW_VARIO_IDX,
+            next_menu_idx: VIEW_CIRCLING_IDX,
         },
         MenuItem {
             content: MenuItemContent::MenuItem(),
-            next_menu_idx: VIEW_SPEED_TO_FLY_IDX,
+            next_menu_idx: VIEW_STRAIGHT_IDX,
         },
         MenuItem {
             content: MenuItemContent::MenuItem(),
@@ -448,21 +440,25 @@ pub const UNITS: Menu = Menu {
     ],
 };
 
-pub const VIEW_SPEED_TO_FLY: Menu = Menu {
-    name: "Speed to Fly",
+pub const VIEW_STRAIGHT: Menu = Menu {
+    name: "Straight",
     level: 3,
     items: &[
         MenuItem {
+            content: MenuItemContent::EditItem(Editable::CenterViewStraight),
+            next_menu_idx: VIEW_STRAIGHT_IDX,
+        },
+        MenuItem {
             content: MenuItemContent::EditItem(Editable::Info1Stf),
-            next_menu_idx: VIEW_SPEED_TO_FLY_IDX,
+            next_menu_idx: VIEW_STRAIGHT_IDX,
         },
         MenuItem {
             content: MenuItemContent::EditItem(Editable::Info2Stf),
-            next_menu_idx: VIEW_SPEED_TO_FLY_IDX,
+            next_menu_idx: VIEW_STRAIGHT_IDX,
         },
         MenuItem {
             content: MenuItemContent::EditItem(Editable::Info3Stf),
-            next_menu_idx: VIEW_SPEED_TO_FLY_IDX,
+            next_menu_idx: VIEW_STRAIGHT_IDX,
         },
         MenuItem {
             content: MenuItemContent::EditItem(Editable::Return),
@@ -471,21 +467,25 @@ pub const VIEW_SPEED_TO_FLY: Menu = Menu {
     ],
 };
 
-pub const VIEW_VARIO: Menu = Menu {
-    name: "Vario",
+pub const VIEW_CIRCLING: Menu = Menu {
+    name: "Circling",
     level: 3,
     items: &[
         MenuItem {
+            content: MenuItemContent::EditItem(Editable::CenterViewCircling),
+            next_menu_idx: VIEW_CIRCLING_IDX,
+        },
+        MenuItem {
             content: MenuItemContent::EditItem(Editable::Info1Vario),
-            next_menu_idx: VIEW_VARIO_IDX,
+            next_menu_idx: VIEW_CIRCLING_IDX,
         },
         MenuItem {
             content: MenuItemContent::EditItem(Editable::Info2Vario),
-            next_menu_idx: VIEW_VARIO_IDX,
+            next_menu_idx: VIEW_CIRCLING_IDX,
         },
         MenuItem {
             content: MenuItemContent::EditItem(Editable::Info3Vario),
-            next_menu_idx: VIEW_VARIO_IDX,
+            next_menu_idx: VIEW_CIRCLING_IDX,
         },
         MenuItem {
             content: MenuItemContent::EditItem(Editable::Return),
@@ -495,13 +495,9 @@ pub const VIEW_VARIO: Menu = Menu {
 };
 
 pub const USAGE_MODE_AND_PROFILE: Menu = Menu {
-    name: "User Profile",
+    name: "User Profiles",
     level: 3,
     items: &[
-        MenuItem {
-            content: MenuItemContent::EditItem(Editable::UserProfile),
-            next_menu_idx: USAGE_MODE_AND_PROFILE_IDX,
-        },
         MenuItem {
             content: MenuItemContent::EditItem(Editable::UsageMode),
             next_menu_idx: USAGE_MODE_AND_PROFILE_IDX,

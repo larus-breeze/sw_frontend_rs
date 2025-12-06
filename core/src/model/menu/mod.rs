@@ -91,6 +91,10 @@ pub const FLIGHT_MENU: Menu = Menu {
             next_menu_idx: ROOT_IDX,
         },
         MenuItem {
+            content: MenuItemContent::EditItem(Editable::UserProfile),
+            next_menu_idx: ROOT_IDX,
+        },
+        MenuItem {
             content: MenuItemContent::EditItem(Editable::Return),
             next_menu_idx: ROOT_IDX,
         },
