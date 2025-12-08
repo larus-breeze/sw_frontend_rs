@@ -51,14 +51,6 @@ pub const VIEW_SETTINGS: Menu = Menu {
     level: 2,
     items: &[
         MenuItem {
-            content: MenuItemContent::EditItem(Editable::EnergyArrowMult),
-            next_menu_idx: VIEW_SETTINGS_IDX,
-        },
-        MenuItem {
-            content: MenuItemContent::EditItem(Editable::GliderSymbol),
-            next_menu_idx: VIEW_SETTINGS_IDX,
-        },
-        MenuItem {
             content: MenuItemContent::MenuItem(),
             next_menu_idx: VIEW_CIRCLING_IDX,
         },
@@ -69,6 +61,14 @@ pub const VIEW_SETTINGS: Menu = Menu {
         MenuItem {
             content: MenuItemContent::MenuItem(),
             next_menu_idx: UNITS_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::EnergyArrowMult),
+            next_menu_idx: VIEW_SETTINGS_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::GliderSymbol),
+            next_menu_idx: VIEW_SETTINGS_IDX,
         },
         MenuItem {
             content: MenuItemContent::EditItem(Editable::Return),

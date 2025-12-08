@@ -71,18 +71,6 @@ pub const VIEW_SETTINGS: Menu = Menu {
     level: 2,
     items: &[
         MenuItem {
-            content: MenuItemContent::EditItem(Editable::EnergyArrowMult),
-            next_menu_idx: VIEW_SETTINGS_IDX,
-        },
-        MenuItem {
-            content: MenuItemContent::EditItem(Editable::Rotation),
-            next_menu_idx: VIEW_SETTINGS_IDX,
-        },
-        MenuItem {
-            content: MenuItemContent::EditItem(Editable::GliderSymbol),
-            next_menu_idx: VIEW_SETTINGS_IDX,
-        },
-        MenuItem {
             content: MenuItemContent::MenuItem(),
             next_menu_idx: VIEW_CIRCLING_IDX,
         },
@@ -93,6 +81,18 @@ pub const VIEW_SETTINGS: Menu = Menu {
         MenuItem {
             content: MenuItemContent::MenuItem(),
             next_menu_idx: UNITS_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::EnergyArrowMult),
+            next_menu_idx: VIEW_SETTINGS_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::Rotation),
+            next_menu_idx: VIEW_SETTINGS_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::GliderSymbol),
+            next_menu_idx: VIEW_SETTINGS_IDX,
         },
         MenuItem {
             content: MenuItemContent::EditItem(Editable::Return),
@@ -150,10 +150,6 @@ pub const DRAIN_SETTINGS: Menu = Menu {
         },
         MenuItem {
             content: MenuItemContent::EditItem(Editable::FlowEmpty),
-            next_menu_idx: DRAIN_SETTINGS_IDX,
-        },
-        MenuItem {
-            content: MenuItemContent::EditItem(Editable::FlowSlope),
             next_menu_idx: DRAIN_SETTINGS_IDX,
         },
         MenuItem {

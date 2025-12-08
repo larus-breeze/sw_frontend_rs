@@ -154,7 +154,7 @@ impl EditableFuncs for FlashControl {
 pub struct FlowEmpty;
 impl EditableFuncs for FlowEmpty {
     fn name() -> &'static str {
-        "Lowest Flow"
+        "Flow"
     }
 
     fn content(_cm: &mut CoreModel, cc: &mut CoreController) -> Content {

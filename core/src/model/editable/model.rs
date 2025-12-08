@@ -188,7 +188,7 @@ impl EditableFuncs for CenterFrequency {
 pub struct CenterViewCircling;
 impl EditableFuncs for CenterViewCircling {
     fn name() -> &'static str {
-        "Center Circling"
+        "Center Content"
     }
 
     fn content(cm: &mut CoreModel, _cc: &mut CoreController) -> Content {
@@ -228,7 +228,7 @@ impl EditableFuncs for CenterViewCircling {
 pub struct CenterViewStraight;
 impl EditableFuncs for CenterViewStraight {
     fn name() -> &'static str {
-        "Center Straight"
+        "Center Content"
     }
 
     fn content(cm: &mut CoreModel, _cc: &mut CoreController) -> Content {
