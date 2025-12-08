@@ -1,6 +1,10 @@
 Firmware for Displaying the Larus Sensor Values
 ===============================================
 
+Firmware Binaries
+-----------------
+The latest binaries and documents can be found [here](https://github.com/larus-breeze/sw_frontend_rs/tags).
+
 General information
 -------------------
 
