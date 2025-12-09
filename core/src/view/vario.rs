@@ -126,6 +126,24 @@ impl Vario {
         };
         display.draw_img(cm.device_const.images.sat, sizes.sat_pos, Some(color))?;
 
+        // draw symbol for user profile
+        let img = if cm.config.club_mode {
+            match cm.config.user_profile {
+                1 => cm.device_const.images.club_1,
+                2 => cm.device_const.images.club_2,
+                3 => cm.device_const.images.club_3,
+                _ => cm.device_const.images.club_0,
+            }
+        } else {
+            match cm.config.user_profile {
+                1 => cm.device_const.images.normal_1,
+                2 => cm.device_const.images.normal_2,
+                3 => cm.device_const.images.normal_3,
+                _ => cm.device_const.images.normal_0,
+            }
+        };
+        display.draw_img(img, sizes.profile_pos, Some(cm.palette().vario.unit))?;
+
         // to save computing power: Only draw the central elements when they are visible.
         if cm.config.overlay_active == OverlayActive::None {
             // draw attention if necessary

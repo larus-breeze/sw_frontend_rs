@@ -1144,6 +1144,7 @@ impl EditableFuncs for UsageMode {
 
                 // Is it necessary to modify the menu system?
                 if club_mode != cm.config.club_mode {
+                    cm.config.club_mode = club_mode;
                     if club_mode {
                         // Hard intervention necessary because the menu structure is being changed.
                         cm.control.menu_control.menu = &menu::club::ADVANCED_SETTINGS;

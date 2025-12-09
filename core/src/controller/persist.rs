@@ -419,6 +419,8 @@ pub fn factory_reset(cm: &mut CoreModel, cc: &mut CoreController) {
 pub fn user_profile(cm: &mut CoreModel, cc: &mut CoreController) {
     let item = PersistenceItem::from_u8(PersistenceId::UserProfile, cm.config.user_profile);
     cc.send_idle_event(IdleEvent::SetEepromItem(item));
+    let item = PersistenceItem::from_bool(PersistenceId::ClubMode, cm.config.club_mode);
+    cc.send_idle_event(IdleEvent::SetEepromItem(item));
     cc.send_idle_event(IdleEvent::RestoreEepromItems);
     cm.reset();
 }

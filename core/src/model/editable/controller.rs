@@ -415,7 +415,7 @@ const USER_0: &str = "User 0";
 const USER_1: &str = "User 1";
 const USER_2: &str = "User 2";
 const USER_3: &str = "User 3";
-const RESTORE_STANDARD: &str = "Restore Standard";
+const RESTORE_STANDARD: &str = "Restore Std.";
 
 impl EditableFuncs for UserProfile {
     fn name() -> &'static str {
