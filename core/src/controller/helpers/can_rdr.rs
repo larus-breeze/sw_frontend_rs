@@ -298,8 +298,7 @@ impl CoreController {
                 let ias = rdr.pop_f32();
                 if let Some(tas) = tas {
                     if let Some(ias) = ias {
-                        cm.sensor.airspeed =
-                            AirSpeed::from_speeds(ias.m_s(), tas.m_s());
+                        cm.sensor.airspeed = AirSpeed::from_speeds(ias.m_s(), tas.m_s());
                     }
                 }
             }

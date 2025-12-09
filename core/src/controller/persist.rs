@@ -131,6 +131,7 @@ const PROFILE_0_IDS: &[PersistenceId] = &[
     PersistenceId::AirbrakesPinConfig,
     PersistenceId::GearAlarmMode,
     PersistenceId::ClubMode,
+    PersistenceId::Date,
 ];
 
 /// This list defines which data is destroyed when a profile is deleted
