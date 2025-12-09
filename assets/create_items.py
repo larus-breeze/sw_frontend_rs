@@ -1,6 +1,15 @@
 import os
 
 PICS = [
+    "normal-0.png",
+    "normal-1.png",
+    "normal-2.png",
+    "normal-3.png",
+    "club-0.png",
+    "club-1.png",
+    "club-2.png",
+    "club-3.png",
+
     "spiral.png",
     "straight.png",
 
