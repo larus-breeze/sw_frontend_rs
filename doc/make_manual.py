@@ -8,7 +8,7 @@ import re
 import os
 import sys
 
-log = ""
+log_file = open("make_manual.log", "w")
 
 git_branch = subprocess.check_output("git rev-parse --abbrev-ref HEAD", shell=True).decode('utf-8')[:-1]
 if not (len(sys.argv) > 1 and sys.argv[1]=='-i'): 
@@ -54,58 +54,59 @@ with open("tex/version.tex", "w") as f:
 
 # 2. extract menus
 print("create menus...")
-log += subprocess.run(
+subprocess.run(
     ["cargo", "run"], 
     cwd="../core/tools",
-    capture_output=True, 
     text=True,
     check=True,
-).stdout
+    stdout=log_file,
+    stderr=subprocess.STDOUT,
+)
 
 # 3. make manuals
 print("make manual-de...")
-log += subprocess.run(
+subprocess.run(
     ["lualatex", "--output-directory=build", "--halt-on-error", "manual-de.tex"], 
     cwd="tex", 
-    capture_output=True, 
     text=True,
     check=True,
-).stdout
-log += subprocess.run(
+    stdout=log_file,
+    stderr=subprocess.STDOUT,
+)
+subprocess.run(
     ["lualatex", "--output-directory=build", "--halt-on-error", "manual-de.tex"], 
     cwd="tex", 
-    capture_output=True, 
     text=True,
     check=True,
-).stdout
+    stdout=log_file,
+    stderr=subprocess.STDOUT,
+)
 
 print("make manual-en...")
-log += subprocess.run(
+subprocess.run(
     ["lualatex", "--output-directory=build", "--halt-on-error", "manual-en.tex"], 
     cwd="tex", 
-    capture_output=True, 
     text=True,
     check=True,
-).stdout
-log += subprocess.run(
+    stdout=log_file,
+    stderr=subprocess.STDOUT,
+)
+subprocess.run(
     ["lualatex", "--output-directory=build", "--halt-on-error", "manual-en.tex"], 
     cwd="tex", 
-    capture_output=True, 
     text=True,
     check=True,
-).stdout
+    stdout=log_file,
+    stderr=subprocess.STDOUT,
+)
 
 # 4. copy manuals to doc folder
-os.makedirs("../output", exist_ok=True)
-
 version_str = f"v{first}-{second}-{third}-{build}"
 print("copying manual-de...")
 os.popen(f"cp tex/build/manual-de.pdf manual_de_{version_str}.pdf")
 print("copying manual-en...")
 os.popen(f"cp tex/build/manual-en.pdf manual_en_{version_str}.pdf")
 
-
-with open("make_manual.log", "w") as f:
-    f.write(log)
-
+# finished
+log_file.close()
 print("finished!")
