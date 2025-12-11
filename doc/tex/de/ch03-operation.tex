@@ -25,30 +25,27 @@ Display angewählt wird. Die eingestellte Anzeige beibt dauerhaft erhalten. In d
 Abschnitten werden die verschiedenen Anzeigemodi beschrieben. }
 
 \subsection{Vario Display}
-
+\label{vario-display}
 \tr{Die zentrale Anzeige unterscheidet zwischen dem Kreisflugmodus und dem Geradeausflugmodus. Wenn eine
 Drehgeschwindigkeit von mindestens 1°/Sek. für mehr als 10 Sekunden gemessen wird, wird der
 Kreisflugmodus aktiviert. Wenn die Drehgeschwindigkeit für mehr als 10 Sekunden unter diesem Wert liegt,
 wird wieder in den Geradeausflugmodus zurückgeschaltet.}
 
-
 \picnote
 	{pictograph-blue-cloud.pdf}
 	{\tr{Der Wechsel vom Variometer Modus zum Sollfahrt Modus ist unabhängig vom Wechsel der zentralen Anzeigeinformationen.}}
-
-\tr{Weitere Informationen finden Sie im Kapitel „Umschalten von Kreisen (Vario) auf Sollfahrt“.}
 
 \subsubsection{\hr{Kreisflugmodus}}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=15cm]{circling-explained.pdf}
-    \caption{\tr{Anzeige im Kreisflugmodus}}
+    \caption{\hr{Anzeige im Kreisflugmodus}}
     \label{fig:circling-explained}
 \end{figure}
 
 \tr{Die Anzeigen Info 1, Info 2, Info3 und die zentrale Anzeige sind davon abhängig, ob geradeaus
-oder im Kreis geflogen wird. Der Inhalt dieser Anzeigen ist für beide Modus einstellbar.}
+oder im Kreis geflogen wird. Der Inhalt dieser Anzeigen ist für beide Modi einstellbar.}
 
 \tr{Inhalt im Kreisflugmodus:}
 \begin{itemize}
@@ -59,18 +56,19 @@ oder im Kreis geflogen wird. Der Inhalt dieser Anzeigen ist für beide Modus ein
 	\item 	\tr{Info 1 Anzeige, hier Uhrzeit}
 	\item 	\tr{Info 2 Anzeige, hier Windrichtung und Windstärke}
 	\item 	\tr{Info 3 Anzeige, hier durchschnittliche Steigen seit Beginn des Kreisens}
-	\item 	\tr{Die Farbe des Sat Symbols steht für die Datenqualität:}
+	\item 	\tr{Symbol Bereich: Die Farbe des Sat Symbols steht für die Datenqualität:}
 	\begin{itemize}
 		\item 	\tr{Grün: Verbindung zur LARUS-Sensoreinheit hergestellt. Gerät hat GPS-Fix.}
 		\item	\tr{Gelb: Verbindung zur LARUS-Sensoreinheit hergestellt, Einheit hat keinen GPS-Fix}
 		\item 	\tr{Rot: Keine Verbindung zur LARUS-Sensoreinheit}
 	\end{itemize}
-	\item 	\tr{Die Farbe des Batteriesymbols entspricht der Betriebsspannung:}
+	\item 	\tr{Symbol Bereich: Die Farbe des Batteriesymbols entspricht der Betriebsspannung:}
 	\begin{itemize}
 		\item 	\tr{Grün: Die Spannung der Batterie ist ausreichend.}
 		\item	\tr{Gelb: Die Spannung der Batterie ist im kritischen Bereich.}
 		\item 	\tr{Rot: Die Spannung der Batterie liegt unter dem Mindestwert.}
 	\end{itemize}
+	\item 	\tr{Symbol Bereich: Kreis: Usage Mode Club , User Profile 1 (Usage Mode Normal als Quadrat)}
 \end{itemize}
 
 
@@ -79,7 +77,7 @@ oder im Kreis geflogen wird. Der Inhalt dieser Anzeigen ist für beide Modus ein
 \begin{figure}[H]
     \centering
     \includegraphics[width=15cm]{straight-explained.pdf}
-    \caption{\tr{Anzeige im Geradeausflugmodus}}
+    \caption{\hr{Anzeige im Geradeausflugmodus}}
     \label{fig:straight-explained}
 \end{figure}
 
@@ -92,7 +90,7 @@ oder im Kreis geflogen wird. Der Inhalt dieser Anzeigen ist für beide Modus ein
 			fliegen. Positive Werte bedeuten, dass Sie zu schnell fliegen, negative Werte bedeuten,
 			dass Sie zu langsam fliegen. Die Länge des Bandes gibt an, um wie viel. 1 m/s entspricht
 			10 km/h.}
-	\item 	\tr{Batterie Symbol ok, Sat Symbol ok}
+	\item 	\tr{Symbol Bereich: Batterie Symbol ok, Sat Symbol ok, Usage Mode Club, User Profil 1}
 	\item 	\tr{Info 1 Anzeige, hier Winkel Windversatz}
 	\item 	\tr{Info 2 Anzeige, hier Windrichtung und Windstärke}
 	\item 	\tr{Info 3 Anzeige, hier Sollfahrt}
@@ -104,20 +102,20 @@ oder im Kreis geflogen wird. Der Inhalt dieser Anzeigen ist für beide Modus ein
 \begin{figure}[H]
     \centering
     \includegraphics[width=5cm]{circling-single-arrow.png}
-    \caption{\tr{Windanzeige mit einem Pfeil und Fahne}}
+    \caption{\hr{Windanzeige mit einem Pfeil und Fahne}}
     \label{fig:circling-single-arrow}
 \end{figure}
 
 \tr{Die aktuelle Windrichtung wird durch einen zentralen Pfeil dargestellt. Die Größe des Pfeils ist
-proportional zur Windgeschwindigkeit. Änderungen der Windrichtung gegenüber der mittleren
-Richtung werden durch eine Windfahne angezeigt, Änderungen der Windgeschwindigkeit
-gegenüber der mittelfristigen Durchschnittsgeschwindigkeit werden durch die Breite der Windfahne
-dargestellt. Die Pfeilrichtung bezieht sich auf Norden.}
+proportional zur Windgeschwindigkeit. Änderungen der Windrichtung gegenüber der mittleren Richtung
+werden durch eine Windfahne angezeigt, Änderungen der Windgeschwindigkeit gegenüber der
+mittelfristigen Durchschnittsgeschwindigkeit werden durch die Breite der Windfahne dargestellt. Die
+Pfeilrichtung bezieht sich auf Norden, symbolisiert durch das N in der Skala oben.}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=5cm]{circling-double-arrow.png}
-    \caption{\tr{Windanzeige mit zwei Pfeilen}}
+    \caption{\hr{Windanzeige mit zwei Pfeilen}}
     \label{fig:circling-double-arrow}
 \end{figure}
 
@@ -128,41 +126,47 @@ Pfeilgröße hängt von der Windgeschwindigkeit ab. Die Pfeilrichtung bezieht si
 \begin{figure}[H]
     \centering
     \includegraphics[width=5cm]{circling-dotted-assistant.png}
-    \caption{\tr{Zentrierhilfe mit Punkten}}
+    \caption{\hr{Zentrierhilfe mit Punkten}}
     \label{fig:circling-dotted-assistant}
 \end{figure}
 
+\tr{Der Termik Assistent kann den Piloten beim Zentrieren der Thermik unterstützen. Er zeigt
+anschaulich, wo gutes und weniger gutes Steigen zu finden ist. Diese Information ist besonders
+nützlich, wei das LARUS System das Steigen verzögerungsfrei anzeigt. }
+
 \tr{Bedeutung der Farben der Kreispunkte:}
 \begin{itemize}
-	\item	\tr{Blau: Das Steigen liegt unter dem Durchschnitt}
-	\item	\tr{Rot: Das Steigen liegt über dem Durchschnitt}
 	\item	\tr{Gelb: Maximum des Steigens}
+	\item	\tr{Rot: Das Steigen liegt über dem Durchschnitt}
+	\item	\tr{Blau: Das Steigen liegt unter dem Durchschnitt}
 \end{itemize}
 
-\tr{Der Durchmesser der Punkte ist proportional zur Steigrate.}
+\tr{Der Durchmesser der Punkte ist proportional zur Steigrate. Ein konstanter Aufwind ist dann 
+optimal zentriert, wenn blaue und rote Punkte etwa gleich häufig vorkommen.}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=5cm]{circling-spider-assistant.png}
-    \caption{\tr{Zentrierhilfe mit Spinnennetz}}
+    \caption{\hr{Zentrierhilfe mit Spinnennetz}}
     \label{fig:circling-spider-assistant}
 \end{figure}
 
 \tr{Bedeutung der Farben der Kreispunkte:}
 \begin{itemize}
-	\item	\tr{Blau: Das Steigen liegt unter dem Durchschnitt}
-	\item	\tr{Rot: Das Steigen liegt über dem Durchschnitt}
 	\item	\tr{Gelb: Maximum des Steigens}
+	\item	\tr{Rot: Das Steigen liegt über dem Durchschnitt}
+	\item	\tr{Blau: Das Steigen liegt unter dem Durchschnitt}
 \end{itemize}
 
-\tr{Der Durchmesser des Segments ist proportional zur Steiggeschwindigkeit.}
+\tr{Der Durchmesser des Segments ist proportional zur Steiggeschwindigkeit. Ein konstanter Aufwind
+ist dann optimal zentriert, wenn blaue und rote Flächen gleich häufig erscheinen.}
 
 \paragraph{\hr{Zentrale Anzeigen im Geradeausflugmodus}}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=5cm]{straight-single-arrow.png}
-    \caption{\tr{Windanzeige im Geradeausflug mit einem Pfeil und Fahne}}
+    \caption{\hr{Windanzeige im Geradeausflug mit einem Pfeil und Fahne}}
     \label{fig:straight-single-arrow}
 \end{figure}
 
@@ -170,51 +174,52 @@ Pfeilgröße hängt von der Windgeschwindigkeit ab. Die Pfeilrichtung bezieht si
 proportional zur Windgeschwindigkeit. Änderungen der Windrichtung gegenüber der mittleren Richtung
 werden durch eine Windfahne angezeigt, Änderungen der Windgeschwindigkeit gegenüber der
 mittelfristigen Durchschnittsgeschwindigkeit werden durch die Breite der Windfahne dargestellt. Das
-Flugzeugsymbol deuted an, dass sich die Darstellng auf die Flugrichtung bezieht.}
+Flugzeugsymbol deuted an, dass sich die Darstellung auf die Flugrichtung bezieht.}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=5cm]{straight-double-arrow.png}
-    \caption{\tr{Windanzeige im Geradeausflug mit zwei Pfeilen}}
+    \caption{\hr{Windanzeige im Geradeausflug mit zwei Pfeilen}}
     \label{fig:straight-double-arrow}
 \end{figure}
 
 \tr{Die aktuelle Windrichtung und -geschwindigkeit wird durch den blauen Pfeil dargestellt,
 Informationen zum mittleren Wind werden durch den grauen Pfeil im Hintergrund angezeigt. Die
 Größe der Pfeile hängt von der Windgeschwindigkeit ab. Die Pfeilrichtung bezieht sich auf die
-Längsachse des Flugzeugs. Das Flugzeugsymbol deuted an, dass sich die Darstellng auf die
+Längsachse des Segelflugzeugs. Das Segelflugzeugsymbol deuted an, dass sich die Darstellung auf die
 Flugrichtung bezieht.}
 
 \subsection{\hr{Künstlicher Horizont}}
 
 \picnote
 	{pictograph-yellow-warning.pdf} {\tr{Dies ist kein amtlich zugelasssener künstlicher Horizont.
-	Dashalb darf diese Anzeige nicht dazu benutz werden in Wolken oder anderweitig außerhalb von VFR
-	Bedingeungen zu fliegen.}}
+	Dashalb darf diese Anzeige nicht dazu benutzt werden in Wolken oder anderweitig außerhalb von
+	VFR Bedingeungen zu fliegen.}}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=5cm]{horizon.png}
-    \caption{\tr{Künstlicher Horizont}}
+    \caption{\hr{Künstlicher Horizont}}
     \label{fig:horizont}
 \end{figure}
 
 \tr{Die Anzeige des künstlichen Horizonts beinhaltet folgende Informationen:}
 \begin{itemize}
 	\item \tr{Die blaue Fläche stellt den Himmel dar.}
-	\item \tr{Die Grenze zur brauenen Fläche entspricht dem Horizont.}
+	\item \tr{Die Grenze zur braunen Fläche entspricht dem Horizont.}
 	\item \tr{Die kreisförmige Skala oben zeigt in 15° Schritten die aktuelle
-			Querneigung des Flugzeugs (hier etwa 30°, rote Pfeilspitze).}
+			Querneigung des Segelflugzeugs (hier etwa 30°, rote Pfeilspitze).}
 	\item \tr{Die Skala parallel zum Horizont steht für den Steig- / Sinkwinkel in 10° Schritten
 			(hier 0°).}
 	\item \tr{Im unteren Bereich ist eine Libelle zu sehen, die ein eventuelles Schieben sichtbar
 			macht.}
 \end{itemize}
 
-\tr{Das Flugzeug befindet sich derzeit in einer sauberen Rechtskurve mit einer Querneigung von 30°.}
+\tr{Das Segelflugzeug befindet sich derzeit in einer sauberen Rechtskurve mit einer Querneigung von
+30°.}
 
 \picnote
-	{pictograph-yellow-warning.pdf} {\tr{In manchen Wettbewerben ist die Anzeige des künstlichen
+	{pictograph-blue-cloud.pdf} {\tr{In manchen Wettbewerben ist die Anzeige des künstlichen
 	Horizontes verboten. Deshalb kann in der LARUS Sensoreinheit die Ausgabe der
 	Horizontinformationen blockiert werden. In diesem Fall wird statt des Horizontes eine Warnung
 	ausgegeben.}}
@@ -230,7 +235,7 @@ erkennbar.}
 \begin{figure}[H]
     \centering
     \includegraphics[width=5cm]{device-info.png}
-    \caption{\tr{Geräteinformationen}}
+    \caption{\hr{Geräteinformationen}}
     \label{fig:device-info}
 \end{figure}
 
@@ -238,13 +243,12 @@ erkennbar.}
 \label{flight_menu}
 
 \tr{Das }Flight Menu\tr{ stellt Einstellmöglichkeiten bereit, die vor dem Flug oder während des
-Fluges benötigt werden. Das Menu erreicht man durch kurzes Drücken des Bedienknopfes.} 
+Fluges benötigt werden. Das Menu erreicht man durch kurzes Drücken des Bedienknopfes. Die Überschriften indiesem Abschnitt sind so wie im Gerät benannt.} 
 
 \subsubsection{Water Ballast}
-\tr{Hier wird die Menge des getankten Wasserballastes vorgegeben. Die Polare wird entsprechend angepasst
-und bei der Berechnung der Sollfahrt berücksichtigt. Beim Ablassen des Wassers während des Fluges
-kann dieser Wert manuell korrigiert oder durch einen Schalter am Ventil und entsprechender
-Konfiguration automatisch reduziert werden.
+\tr{Hier wird die Menge des getankten Wasserballastes vorgegeben. Beim Ablassen des Wassers während
+des Fluges kann dieser Wert manuell korrigiert oder durch einen Schalter am Ventil und
+entsprechender Konfiguration automatisch reduziert werden.
 
 Der eingestellte Wert wird zu einem angeschlossenen Navigationsrechner synchronisiert.}
 
@@ -258,7 +262,7 @@ Der Algorithmus arbeit exakt identisch zu XCSoar / OpenSoar. Der eingestellte We
 angeschlossenen Navigationsrechner synchronisiert.}
 
 \subsubsection{Pilot Weight}
-\tr{Das Gewicht des Piloten wird bei der Berechnung der Flugzeug Polare berücksichtigt. Bei Doppelsitzern
+\tr{Das Gewicht des Piloten wird bei der Berechnung der Segelflugzeug Polare berücksichtigt. Bei Doppelsitzern
 ist hier das Gewicht der Summe beider Piloten vorzugeben
 
 Der eingestellte Wert wird zu einem angeschlossenen Navigationsrechner synchronisiert.}
@@ -267,3 +271,14 @@ Der eingestellte Wert wird zu einem angeschlossenen Navigationsrechner synchroni
 \tr{Der Menupunkt Display ermöglicht die Auswahl der ständigen Anzeige des Gerätes. Hier kann zwischen
 Vario, Horizont und Geräteinformationen gewechselt werden.}
 
+\subsubsection{User Profile}
+\tr{Das LARUS Vario Display bietet viele Einstellmöglichkeiten, um die Anzeigen an die Bedürfnisse
+des Piloten anzupassen. Wenn mehrere Piloten auf einem Segelflugzeug fliegen, ermöglichen die }User
+Profiles\tr{ ein komfortables Umschalten zwischen den verschiedenen Einstellungen. Es können bis zu
+4 unterschiedliche Profile genutzt werden.
+
+Wie im Abschnitt Usage-Mode beschrieben, hängt es vom aktivierten Mode ab, ob 3 oder
+4 Nutzungsprofile zur Verfügung stehen. Einige Einstellungen sind in allen vier Nutzungsprofilen
+gleichgeschaltet, da sie vom Segelflugzeug und der Einbausituation abhängen. Dies betrifft z.B. die
+Polare des Segelflugzeuges sowie Hardware Pin Konfigurationen. Damit wird sichergestellt, dass diese
+Einstellungen in allen Profilen zur Verfügung stehen: }\nameref{usage-modes}.

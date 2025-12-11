@@ -155,7 +155,7 @@
 	{} % Section label (e.g. number) and its formatting
 	{0pt} % Horizontal space between the section label and title
 	{} % Code before the section title
-	[~~~~] % Code after the section title
+	[] % Code after the section title
 
 \titlespacing*{\paragraph}{0pt}{0pt}{0pt} % Spacing around section titles, the order is: left, before and after
 

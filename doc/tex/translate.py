@@ -70,7 +70,7 @@ class Translate():
                             tr = self._translate(lang, found)
 
                         # after translaten remove xml tags
-                        tr = tr.replace('<x>', '').replace('</x>', '')
+                        tr = tr.replace('<x>', '').replace('</x>', ' ')
                         
                         # If header, then respect case sensitivity
                         if hr:
@@ -85,22 +85,16 @@ class Translate():
         if lang.headers_keep_small is None:
             return found
 
-        words = []
-        for word in found.split(" "):
-            if word not in lang.headers_keep_small:
-                if len(word) > 0:
-                    word = word[0].upper() + word[1:]
+        for split_char in [" ", "/", "-"]:
+            words = []
+            for word in found.split(split_char):
+                if word not in lang.headers_keep_small:
+                    if len(word) > 0:
+                        word = word[0].upper() + word[1:]
+                words.append(word)
+            found = split_char.join(words)
 
-                sub_words = []
-                for sub_word in word.split('-'):
-                    if sub_word not in lang.headers_keep_small:
-                        if len(sub_word) > 0:
-                            sub_word = sub_word[0].upper() + sub_word[1:]
-                    sub_words.append(sub_word)
-                word = '-'.join(sub_words)
-
-            words.append(word)
-        return " ".join(words)
+        return found
 
     def _find_tr(self, right):
         hr = False

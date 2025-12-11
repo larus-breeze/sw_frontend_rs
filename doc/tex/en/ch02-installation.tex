@@ -7,7 +7,7 @@
 	\item 	\tr{1:1 standard RJ45 cable}
 	\item 	\tr{Micro SD card with adapter}
 	\item 	\tr{D-Sub 9 solder plug and housing}
-	\item 	\tr{1.5 mm hex key for fitting the knobs}
+	\item 	\tr{1.5 mm hex key for fitting the rotary knobs}
 \end{itemize}
 
 \subsection{\hr{Quick Start Guide}}
@@ -26,7 +26,7 @@ the 1:1 patch cable included in the scope of delivery.}
 	\item 	\tr{Switch on LARUS.}
 	\item 	\tr{Check whether the satellite icon on the screen is yellow or green and
             the current course direction is displayed.}
-	\item 	\tr{Select a suitable polar for your glider or create one.}
+	\item 	\tr{Select a suitable polar  for your glider or create one.}
 	\item 	\tr{Your LARUS Vario display is now ready for flight.}	
 \end{enumerate}
 
@@ -58,47 +58,48 @@ participate in the development and contribute suggestions for improvement or pro
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=16cm]{config-singleseater.jpg}
-    \caption{\tr{Connection diagram for single-seater configuration}}
+    \includegraphics[width=10cm]{config-singleseater.jpg}
+    \caption{\hr{Connection Diagram for Single-Seater Configuration}}
     \label{fig:single-seater-configuration}
 \end{figure}
 
-\tr{In the diagram above, the navigation computer is connected to the LARUS sensor unit. Often,
-it is easier in terms of wiring to connect the navigation computer to the LARUS Vario display.
-This is also possible.}
+\tr{The navigation computer is connected to the LARUS Vario display (Option 1). This is often
+the simplest option. Alternatively, the navigation computer can also be connected to the LARUS
+sensor unit (Option 2).}
 
 \subsubsection{\hr{Configuration in the Two-Seater}}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=16cm]{config-doubleseater.jpg}
-    \caption{\tr{Connection diagram for two-seater configuration}}
+    \caption{\hr{Connection Diagram for Two-Seater Configuration}}
     \label{fig:double-seater-configuration}
 \end{figure}
 
 \tr{In two-seaters, the navigation computers are typically connected to the LARUS Vario displays.
 However, it is also possible to connect the navigation computers to the LARUS sensor unit.
-The data is exchanged between the LARUS components so that no information is lost.
-The LARUS sensor unit is a compact device that measures the speed and altitude of the aircraft.}
+The data is exchanged between the LARUS components and distributed to the navigation computers so that no information is lost.
+The LARUS sensor unit is connected to the LARUS Vario displays and the LARUS navigation computers.}
 
 \subsection{\hr{Connectors and Cabling}}
 
 \subsubsection{\hr{Connector on the Rear of the Device}}
 
 \begin{figure}[H]
-    \includegraphics[width=8cm]{connectors-overview.jpg}
-    \caption{\tr{View from the rear of the device}}
+    \includegraphics[width=6cm]{connectors-overview.jpg}
+    \caption{\hr{View from the Rear of the Device}}
     \label{fig:connectors-overview}
 \end{figure}
 
 \tr{The connections for CAN, RS232 and the inputs/outputs are located on the rear of the LARUS Vario display.
-There is also a slot for inserting the SD card.}
+The slot for inserting the SD card and the 3.5 mm audio output jack are also located there.
+The LARUS Vario display is equipped with a 4.3-inch colour touchscreen.}
 
 \subsubsection{\hr{CAN and RS232 Connections}}
 
 \begin{figure}[H]
-    \includegraphics[width=8cm]{connectors-rj45.pdf}
-    \caption{\tr{The RJ45 connectors in detail}}
+    \includegraphics[width=6cm]{connectors-rj45.pdf}
+    \caption{\hr{The RJ45 Connectors in Detail}}
     \label{fig:connectors-rj45}
 \end{figure}
 
@@ -117,18 +118,16 @@ There is also a slot for inserting the SD card.}
 		8 & VCC [9-28V DC]             & VCC [9-28V DC] \\
 		\bottomrule
 	\end{tabular}
-	\caption{\tr{CAN and RS232 RJ45 pin assignment}}
+	\caption{\hr{CAN and RS232 RJ45 Pin Assignment}}
 \end{table}
 
 \subsubsection{GPIO / D-SUB 9}
 \tr{Several additional switches, sensors and devices can be connected via the D-Sub connector.
-Please note that not all functions have been implemented at the time of publication of this manual.
-The following diagram shows the view into the connector of the LARUS Vario display.
 The following diagram shows the view into the connector of the LARUS Vario display.}
 
 \begin{figure}[H]
     \includegraphics[width=6cm]{connector-dsub9.png}
-    \caption{\tr{DSUB-9 connector}}
+    \caption{\hr{DSUB-9 Connector}}
     \label{fig:connectors-dsub9}
 \end{figure}
 
@@ -148,7 +147,7 @@ The following diagram shows the view into the connector of the LARUS Vario displ
 		9 & DO1 - Canopy Flasher 	& Output \\
 		\bottomrule
 	\end{tabular}
-	\caption{Pin Asssignment GPIO / D-SUB 9}
+	\caption{\hr{Pin Assignment GPIO / D-SUB 9}}
 \end{table}
 
 \tr{To make it easier to identify the pins, these numbers are also stamped into the socket (included in the scope of delivery).
@@ -181,17 +180,17 @@ required:}
 \begin{itemize}
 	\item 	\tr{Connect devices with cables:}
 	\begin{itemize}
-		\item 	\tr{The CAN connection of the LARUS Sensor Box must be connected to the CAN connection of the LARUS VARIO display via a 1:1 patch cable (for two-seater configurations using the cable box).
-The CAN connection of the LARUS Sensor Box must be connected to the CAN connection of the LARUS VARIO display via a 1:1 patch cable (for two-seater configurations using the cable box).
-The CAN connection of the LARUS Sensor Box must be connected to the CAN connection of the LARUS VARIO display via a 1:1 patch cable (for two-seater configurations using the cable box).}
+		\item 	\tr{The CAN port of the LARUS sensor unit must be connected to the CAN port of the LARUS VARIO display using a 1:1 patch cable (for two-seater configurations, use the cable box).
+The CAN port of the LARUS sensor unit must be connected to the CAN port of the LARUS VARIO display using a 1:1 patch cable (for two-seater configurations, use the cable box).
+The CAN port of the LARUS sensor unit must be connected to the CAN port of the LARUS VARIO display using a 1:1 patch cable (for two-seater configurations, use the cable box).}
 		\item 	\tr{The devices on which XCSoar runs can be connected via a crossed patch cable RX/TX
                 between the RS232 port of the vario display and the ttySx port of the SteFly
                 NAV.}
 	\end{itemize}
-	\item 	\tr{Optionally connect switches for detecting the discharge process for the
-water ballast and the landing gearwarning to the corresponding DSUB-9 pin and any
-GND pin. For the warning signal ( landing gear), you have the option of using two
-            separate, directly connected switches for the warning signal ( landing gear ) and the warning signal ( airbrakes )
+	\item 	\tr{Optionally, connect switches for detecting the discharge process of the
+water ballast and the landing gear warning to the corresponding DSUB-9 pin and any
+GND pin. For the warning signal ( landing gear ), you have the option of using two
+            separate, directly connected switches for the warning signal ( landing gear  ) and the warning signal ( airbrakes  )
             (recommended) or a cable with the two switches connected in series to the
             DSUB-9 connection.}
 	\item 	\tr{The SteFly remote control stick can be connected in two different ways:
@@ -204,15 +203,15 @@ GND pin. For the warning signal ( landing gear), you have the option of using tw
 (7.43 or higher):}
 	\begin{itemize}
 		\item 	\tr{If the Vario display is connected directly to the SteFly NAV,
-        please select the appropriate ttyS port, baud rate 38400, Larus driver, synchronisation (option) with device activated.
-        If the Vario display is connected to the SteFly NAV via a USB cable,}
+        please select the appropriate ttyS port, baud rate 38400, Larus driver,
+        and enable synchronisation (option) with the device.}
 	\end{itemize}
 	\item 	\tr{Please adjust the settings in the LARUS Vario display for the connected
             optional switches.}
 	\begin{itemize}
-		\item 	\tr{Warning regarding equipment}
+		\item 	\tr{Warning regarding landing gear }
 		\item 	\tr{water ballast}
-		\item 	\tr{StF switch configuration (if not switched automatically)}
+		\item 	\tr{speed to fly  configuration Switchover (if not switched automatically)}
 		\begin{itemize}
 			\item 	\tr{Input pin: To use an external switch (on the control stick, flap lever, etc.), set the Vario control to "Input pin" and select the correct setting in the StF pin configuration. (active: when open/closed)}
 			\item 	\tr{NMEA for SteFly remote control stick. In addition to the settings in
@@ -227,14 +226,14 @@ GND pin. For the warning signal ( landing gear), you have the option of using tw
 
 \subsection{\hr{CAN Termination}}
 
-\tr{The LARUS Vario Display and the LARUS Sensor Box are connected to each other via the CAN bus.
+\tr{The LARUS Vario display and the LARUS sensor unit are connected to each other via the CAN bus.
 CAN bus networks require terminating resistors at each end of the network. Therefore, all
-devices have an integrated switch to activate the resistor:}
+devices have an integrated switch for activating the resistor:}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=16cm]{can-termination.jpg}
-    \caption{\tr{Switches on the devices for terminating the CAN bus}}
+    \caption{\hr{Switches on the Devices for Terminating the CAN Bus}}
     \label{fig:can-termination}
 \end{figure}
 
@@ -248,11 +247,11 @@ devices have an integrated switch to activate the resistor:}
 		\tr{Two-seater, Larus box in the rear wall}  & on  & on  & off & off \\
 		\bottomrule
 	\end{tabular}
-	\caption{\tr{CAN termination single/two-seater}}
+	\caption{\hr{CAN Termination Single/Two-Seater}}
 \end{table}
 
-\tr{Please note: All LARUS sensor units delivered before March 2025 do not have a CAN termination switch. The CAN termination resistors are always activated as standard.
-Please note: All LARUS sensor units delivered after March 2025 have a CAN termination switch. The CAN termination resistors are always deactivated as standard.}
+\tr{Please note: All LARUS sensor units delivered before March 2025 do not have a CAN termination switch. The CAN termination resistors are always activated by default.
+Please note: All LARUS sensor units delivered before March 2025 do not have a CAN termination switch. The CAN termination resistors are always activated by default.}
 
 \subsection{\hr{External Backup}}
 
@@ -267,20 +266,22 @@ Please note: All LARUS sensor units delivered after March 2025 have a CAN termin
 
 \subsection{\hr{Installation Site}}
 
+\nopagebreak
 \tr{The following image shows a typical installation of the LARUS Vario display in the
 instrument panel of a glider.}
 
+\nopagebreak
 \begin{figure}[H]
-    \includegraphics[width=8cm]{panel.jpg}
-    \caption{\tr{Installation situation in the instrument panel}}
-    \label{fig:panel}
+	\includegraphics[width=8cm]{panel.jpg}
+	\caption{\hr{Installation Situation in the Instrument Panel}}
+	\label{fig:panel}
 \end{figure}
 
 \tr{The display fits into a standard 57 mm recess and is secured with three M3 screws.}
 
 \begin{figure}[H]
     \includegraphics[width=8cm]{knobs-and-screws.jpg}
-    \caption{\tr{fasteners}}
+    \caption{\hr{Fasteners}}
     \label{fig:knobs-and-screws}
 \end{figure}
 
@@ -290,8 +291,8 @@ instrument panel of a glider.}
 \subsection{\hr{Installation Orientation}}
 
 \picnote
-	{pictograph-yellow-warning.pdf} {\tr{If you intend to replace an existing device with the
-    Lars Vario Display, please check the desired installation position before drilling the
+	{pictograph-blue-cloud.pdf} {\tr{If you intend to replace an existing device with the LARUS
+    Vario Display, please check the desired installation position before drilling the
     7.3 mm hole for the rotary encoder, as the display housing is slightly asymmetrical.}}
 
 \tr{The display can be mounted in the following orientations: 0° / 90° / 180° / 270°. After mounting
@@ -301,50 +302,43 @@ the display, its orientation may need to be adjusted in the "Display Rotation" m
 
 \tr{To start up the device, please follow these steps:}
 \begin{enumerate}
-	\item 	\tr{Please check that the LARUS Vario display complies with the drawings in chapter }
-			\nameref{system-configurations} \tr{ connected to the LARUS Sensor Box or the CAN Splitter.
-            connected to the LARUS Sensor Box or the CAN Splitter.}
+	\item 	\tr{Please check that the LARUS Vario display is connected as shown in the drawings,
+ chapter }\nameref{system-configurations}.
 	\item 	\tr{Switch on LARUS}
 	\item	\tr{Please check whether LARUS Vario Displays starts up and a yellow or green
 satellite icon is displayed. The Vario pointers should move slightly around the
 zero position.}
+	\item   \tr{Now you should configure the device. All setting options are
+documented in detail in chapter }\nameref{settings}.
 \end{enumerate}
 
-\subsection{\hr{Maintenance}} \tr{The entire system contains no parts that require maintenance. To
+\subsection{\hr{Maintenance}} \tr{The entire system contains no parts requiring maintenance. To
 claim warranty services, please contact SteFly directly.}
 
 \picnote
 	{pictograph-yellow-warning.pdf}
 	{\tr{Opening the housing of the LARUS Vario display will void the warranty.}}
 
-\subsection{\hr{Troubleshooting}}
-\begin{table}[H]
-	\begin{tabular}{L{0.29\linewidth} L{0.29\linewidth} L{0.29\linewidth}}
-		\toprule
-		\textbf{Problem} & \textbf{Possible Causes} & \textbf{Solution} \\
-		\midrule
-		\tr{The LARUS Vario Display starts up, but the satellite icon is red and the vario pointers are fixed.}
-		& \tr{Connection to the LARUS CAN port using a crossed Rx/Tx patch cable instead of a standard 1:1 patch cable.}
-		& \tr{Please replace the patch cable and use the cable included in the delivery.} \\
-		\tr{The LARUS Vario Display starts up, but the satellite icon is red and the vario pointers are fixed.}
-		& \tr{Connection to LARUS via RS232 port}
-		& \tr{Please connect the CAN ports.} \\
-		\bottomrule
-	\end{tabular}
-	\caption{\tr{troubleshooting}}
-\end{table}
-
 \subsection{\hr{Firmware Update}}
 
-\tr{The LARUS team continuously improves the software and publishes updates, for example
-on the LARUS Vario Display website. To update the firmware, please save the new
-.bin file to the SD card included in the scope of delivery and insert it into the
-SD card slot of the LARUS Vario Display. The device only installs compatible
-firmware versions that are higher than the installed version. After switching on, the
-device starts up in less than a second. If compatible firmware is detected on the SD card,
-the display remains black for about 3-5 seconds before the message "Firmware upgrade is
-being performed" is displayed. The loaded firmware version is then displayed.
+\tr{The LARUS team continuously improves the software and releases firmware updates. To
+update the firmware, proceed as follows:}
 
-If the update does not start after switching on the device with an SD card inserted that contains a new
-firmware version, please use another SD card.
-SD card requirements: min. 4 GB SDHC, FAT32 format (not GPT).}
+\begin{enumerate}
+	\item \tr{Switch off the device.}
+	\item \tr{Save the new *.bin file to the SD card included in the scope of delivery and
+          insert it into the SD card slot on the back of the LARUS Vario display.}
+	\item \tr{Switch on the device.}
+	\item \tr{If firmware is detected on the SD card, the display will remain black for approximately 3-5 seconds
+          before the following message is displayed: }Installing... Do NOT power off device.
+	\item \tr{The device will restart automatically. During the first 10 seconds, the firmware version will be displayed in the Info1 area.
+          The device will then display the default screen.}
+\end{enumerate}
+
+\tr{The LARUS Vario Display only installs compatible firmware versions. If several firmware 
+versions are stored on the card, the latest one will be installed.}
+
+\tr{If the installation fails, please repeat the process. If the
+installation fails again, please use a different SD card. The SD card must
+be at least 4 GB in size (type SDHC) and formatted with FAT32. The format must be compatible with
+DOS/Windows 95 (not GPT).} 

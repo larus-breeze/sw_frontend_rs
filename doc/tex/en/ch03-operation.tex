@@ -1,208 +1,232 @@
 \section{\hr{Operation}}
 
-\tr{The following sections describe the various display modes. The device provides
-three basic displays: Vario, Horizon and Device Information. You can switch between the displays
-by briefly pressing the button and selecting the Display item in the menu.
-The selected display remains permanently (even after restarting).}
+
+\subsection{\hr{Operation}}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=6cm]{vario-display.jpg}
+    \caption{LARUS Vario Display}
+    \label{fig:vario-display}
+\end{figure}
+
+\tr{The device has a rotary knob with two levels and a push button. The following functions are assigned to the button and the
+two rotary knobs:}
+\begin{itemize}
+	\item	\tr{Turn the small/upper knob: Volume control}
+	\item	\tr{Turn the large/lower knob: MacCready value}
+	\item	\tr{Briefly press the rotary knob:  } \nameref{flight_menu}
+	\item	\tr{Press and hold the rotary knob: } \nameref{settings}
+\end{itemize}
+
+\tr{The device provides three basic displays: Vario, Horizon and Device Information.
+You can switch between the displays by briefly pressing the button and selecting the
+Display item in the menu. The selected display remains permanently. The following
+sections describe the different display modes. }
 
 \subsection{Vario Display}
-
-\tr{The central display distinguishes between the circling mode and the straight flight mode. If a
-rotational speed of at least 1°/sec is measured for more than 10 seconds, thecircling mode is activated. If the rotational speed falls below this value for more than 10 seconds,
-the display switches back to the straight flight mode.}
-
+\label{vario-display}
+\tr{The central display distinguishes between the circling mode  and the straight flight mode . If a
+rotational speed of at least 1°/sec is measured for more than 10 seconds, thecircling mode  is activated. If the rotational speed falls below this value for more than 10 seconds,
+the display reverts to the straight flight mode .}
 
 \picnote
 	{pictograph-blue-cloud.pdf}
-	{\tr{The change from variometer mode to speed to fly mode is independent of the change in the central display information.}}
+	{\tr{The change from variometer mode to speed to fly  mode is independent of the change in the central display information.}}
 
-\tr{For further information, please refer to the chapter "Switching from circuits (Vario) to speed to fly".}
-
-\subsubsection{\hr{Circling Mode}}
+\subsubsection{\hr{Circling Mode }}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=15cm]{circling-explained.pdf}
-    \caption{\tr{Advertisement in circling mode}}
+    \caption{\hr{Advertisement in Circling Mode }}
     \label{fig:circling-explained}
 \end{figure}
 
 \tr{The displays Info 1, Info 2, Info 3 and the central display depend on whether you are flying straight ahead
 or in a circle. The content of these displays can be set for both modes.}
 
-\tr{Contents of the circling mode:}
+\tr{Contents of the circling mode :}
 \begin{itemize}
-	\item 	\tr{News climb rate}
-	\item 	\tr{Average climb rate}
+	\item 	\tr{News climb rate }
+	\item 	\tr{Average climb rate }
 	\item 	\tr{MacCready value}
 	\item 	\tr{Central display, here thermal assistant}
 	\item 	\tr{Info 1 display, here time}
 	\item 	\tr{Info 2 display, here wind direction and wind strength}
-	\item 	\tr{Info 3 Display, here average climb rate since the start of circling}
-	\item 	\tr{The colour of the Sat symbol indicates the data quality:}
+	\item 	\tr{Info 3 Display, here average climb rate  since the start of circling}
+	\item 	\tr{Symbol area: The colour of the Sat symbol indicates the data quality:}
 	\begin{itemize}
 		\item 	\tr{Green: Connection to LARUS sensor unit established. Device has GPS fix.}
 		\item	\tr{Yellow: Connection to LARUS sensor unit established, unit has no GPS fix}
 		\item 	\tr{Red: No connection to the LARUS sensor unit}
 	\end{itemize}
-	\item 	\tr{The colour of the battery symbol corresponds to the operating voltage:}
+	\item 	\tr{Symbol area: The colour of the battery symbol corresponds to the operating voltage:}
 	\begin{itemize}
 		\item 	\tr{Green: The battery voltage is sufficient.}
 		\item	\tr{Yellow: The battery voltage is in the critical range.}
 		\item 	\tr{Red: The battery voltage is below the minimum value.}
 	\end{itemize}
+	\item 	\tr{Symbol area: Circle: Usage Mode Club, User Profile 1 (Usage Mode Normal as square)}
 \end{itemize}
 
 
-\subsubsection{\hr{Straight Flight Mode}}
+\subsubsection{\hr{Straight Flight Mode }}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=15cm]{straight-explained.pdf}
-    \caption{\tr{Advertisement in straight flight mode}}
+    \caption{\hr{Advertisement in Straight Flight Mode }}
     \label{fig:straight-explained}
 \end{figure}
 
-\tr{Contents of the straight flight mode:}
+\tr{Contents of the straight flight mode :}
 \begin{itemize}
 	\item 	\tr{Central display, here wind direction relative to the aircraft's longitudinal axis}
-	\item 	\tr{Average climb rate}
+	\item 	\tr{Average climb rate }
 	\item 	\tr{MacCready value}
-	\item 	\tr{speed to flySensor: The position of the band indicates whether you are flying too fast or too slow.
+	\item 	\tr{speed to fly Sensor: The position of the band indicates whether you are flying too fast or too slow.
 Positive values mean that you are flying too fast, negative values mean
 that you are flying too slow. The length of the band indicates by how much. 1 m/s corresponds to
 10 km/h.}
-	\item 	\tr{Battery symbol OK, satellite symbol OK}
+	\item 	\tr{Symbol area: Battery symbol OK, Sat symbol OK, Usage Mode Club, User Profile 1}
 	\item 	\tr{Info 1 display, here angle wind offset}
 	\item 	\tr{Info 2 display, here wind direction and wind strength}
-	\item 	\tr{Info 3 Display, here speed to fly}
+	\item 	\tr{Info 3 Display, here speed to fly }
 \end{itemize}
 
 \subsubsection{\hr{Available Central Displays}}
-\paragraph{\hr{Central Displays in the Circling Mode}}
+\paragraph{\hr{Central Displays in the Circling Mode }}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=5cm]{circling-single-arrow.png}
-    \caption{\tr{Wind indicator with an arrow and flag}}
+    \caption{\hr{Wind Indicator with an Arrow and Flag}}
     \label{fig:circling-single-arrow}
 \end{figure}
 
 \tr{The current wind direction is indicated by a central arrow. The size of the arrow is
-proportional to the wind speed. Changes in wind direction relative to the average
-direction are indicated by a wind vane, while changes in wind speed
-relative to the medium-term average speed are indicated by the width of the wind vane.
- The arrow direction refers to north.}
+proportional to the wind speed. Changes in wind direction relative to the average direction
+are indicated by a wind vane, while changes in wind speed relative to the
+medium-term average speed are indicated by the width of the wind vane. The
+arrow direction refers to north, symbolised by the N on the scale above.}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=5cm]{circling-double-arrow.png}
-    \caption{\tr{Wind indicator with two arrows}}
+    \caption{\hr{Wind Indicator with Two Arrows}}
     \label{fig:circling-double-arrow}
 \end{figure}
 
 \tr{The current wind direction and speed are indicated by the blue arrow,
-while information about the average wind is shown by the grey arrow in the background. The
+information about the average wind is shown by the grey arrow in the background. The
 size of the arrow depends on the wind speed. The direction of the arrow refers to north.}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=5cm]{circling-dotted-assistant.png}
-    \caption{\tr{Centring aid with dots}}
+    \caption{\hr{Centring Aid with Dots}}
     \label{fig:circling-dotted-assistant}
 \end{figure}
 
+\tr{climb rate  climb rate  The Thermic Assistant can help pilots centre the thermals. It clearly shows
+where good and less good thermals can be found. This information is particularly
+useful as the LARUS system displays the thermals without delay. }
+
 \tr{Meaning of the colours of the circle points:}
 \begin{itemize}
-	\item	\tr{Blue: The climb rate is below average.}
-	\item	\tr{Red: The climb rate is above average}
-	\item	\tr{Yellow: Maximum of the climb rate}
+	\item	\tr{Yellow: Maximum of the climb rate }
+	\item	\tr{Red: The climb rate  is above average}
+	\item	\tr{Blue: The climb rate  is below average.}
 \end{itemize}
 
-\tr{The diameter of the dots is proportional to the rate of climb.}
+\tr{The diameter of the dots is proportional to the rate of climb. A constant updraft is 
+optimally centred when blue and red dots occur with approximately equal frequency.}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=5cm]{circling-spider-assistant.png}
-    \caption{\tr{Centring aid with spider web}}
+    \caption{\hr{Centring Aid with Spider Web}}
     \label{fig:circling-spider-assistant}
 \end{figure}
 
 \tr{Meaning of the colours of the circle points:}
 \begin{itemize}
-	\item	\tr{Blue: The climb rate is below average.}
-	\item	\tr{Red: The climb rate is above average}
-	\item	\tr{Yellow: Maximum of the climb rate}
+	\item	\tr{Yellow: Maximum of the climb rate }
+	\item	\tr{Red: The climb rate  is above average}
+	\item	\tr{Blue: The climb rate  is below average.}
 \end{itemize}
 
-\tr{The diameter of the segment is proportional to the climbing speed.}
+\tr{The diameter of the segment is proportional to the rate of climb. A constant updraft
+is optimally centred when blue and red areas appear with equal frequency.}
 
-\paragraph{\hr{Central Displays in the Straight Flight Mode}}
+\paragraph{\hr{Central Displays in the Straight Flight Mode }}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=5cm]{straight-single-arrow.png}
-    \caption{\tr{Wind indicator for straight flight with an arrow and flag}}
+    \caption{\hr{Wind Indicator for Straight Flight with an Arrow and Flag}}
     \label{fig:straight-single-arrow}
 \end{figure}
 
-\tr{The current wind direction is represented by a central arrow. The size of the arrow is
+\tr{The current wind direction is indicated by a central arrow. The size of the arrow is
 proportional to the wind speed. Changes in wind direction relative to the average direction
 are indicated by a wind vane, while changes in wind speed relative to the
-medium-term average speed are represented by the width of the wind vane. The
+medium-term average speed are indicated by the width of the wind vane. The
 aircraft symbol indicates that the display refers to the flight direction.}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=5cm]{straight-double-arrow.png}
-    \caption{\tr{Wind indicator in straight flight with two arrows}}
+    \caption{\hr{Wind Indicator in Straight Flight with Two Arrows}}
     \label{fig:straight-double-arrow}
 \end{figure}
 
 \tr{The current wind direction and speed are indicated by the blue arrow,
 while information about the average wind is shown by the grey arrow in the background. The
 size of the arrows depends on the wind speed. The direction of the arrows refers to the
-longitudinal axis of the aircraft. The aircraft symbol indicates that the display refers to the
+longitudinal axis of the glider. The glider symbol indicates that the display refers to the
 direction of flight.}
 
 \subsection{\hr{Artificial Horizon}}
 
 \picnote
 	{pictograph-yellow-warning.pdf} {\tr{This is not an officially approved artificial horizon.
-    Therefore, this display must not be used for flying in clouds or otherwise outside VFR
-    conditions.}}
+    Therefore, this display must not be used for flying in clouds or otherwise outside of
+    VFR conditions.}}
 
 \begin{figure}[H]
     \centering
     \includegraphics[width=5cm]{horizon.png}
-    \caption{\tr{Artificial horizon}}
+    \caption{\hr{Artificial Horizon}}
     \label{fig:horizont}
 \end{figure}
 
 \tr{The artificial horizon display contains the following information:}
 \begin{itemize}
 	\item \tr{The blue area represents the sky.}
-	\item \tr{The border of the brown area corresponds to the horizon.}
-	\item \tr{The circular scale at the top shows the current bank angle of the aircraft in 15° increments (here approximately 30°, red arrowhead).
-The horizontal axis shows the current pitch angle of the aircraft in 15° increments (here approximately 10°, red arrowhead).}
-	\item \tr{The scale parallel to the horizon represents the angle of ascent/descent in 10° increments
+	\item \tr{The boundary to the brown area corresponds to the horizon.}
+	\item \tr{The circular scale at the top shows the current bank angle of the glider in 15° increments (here approximately 30°, red arrowhead).
+The horizontal axis shows the airspeed in metres per second, and the vertical axis shows the altitude in metres.}
+	\item \tr{The scale parallel to the horizon represents the climb/descent angle in 10° increments
 (here 0°).}
-	\item \tr{inclinometer s can be seen in the lower section, which reveal any shifting.
+	\item \tr{inclinometer  s can be seen in the lower section, which reveal any shifting.
             .}
 \end{itemize}
 
-\tr{The aeroplane is currently in a clean right turn with a bank angle of 30°.}
+\tr{The glider is currently in a clean right turn with a bank angle of
+30°.}
 
 \picnote
-	{pictograph-yellow-warning.pdf} {\tr{In some competitions, the display of the artificial
+	{pictograph-blue-cloud.pdf} {\tr{In some competitions, the display of the artificial
     horizon is prohibited. Therefore, the output of horizon information can be blocked in the LARUS sensor unit
     . In this case, a warning is issued instead of the horizon
     .}}
 
 \subsection{\hr{Device Information}}
 
-\tr{In the device information display mode, file information about the LARUS Vario display and
-the LARUS sensor unit is displayed. This display can be helpful for performing error analyses
+\tr{The device information display mode shows file information about the LARUS Vario display and
+the LARUS sensor unit. This display can be helpful for performing error analyses
 or retrieving specific information. For example, all statuses
 of the inputs and outputs can be viewed here. Error statuses of the LARUS sensor unit
 can also be identified.}
@@ -210,46 +234,50 @@ can also be identified.}
 \begin{figure}[H]
     \centering
     \includegraphics[width=5cm]{device-info.png}
-    \caption{\tr{device information}}
+    \caption{\hr{Device Information}}
     \label{fig:device-info}
 \end{figure}
 
-\subsubsection{\hr{Switching from Vario to Speed to Fly}}
+\subsection{Flight Menu}
+\label{flight_menu}
 
-\tr{Switching the sound information from Vario speed to fly depends on your
-Vario Control configuration:}
-\begin{itemize}
-	\item	\tr{Car: below 1.1 times the speed for best gliding:
-Vario mode, above: speed to fly mode. If you are in Vario mode and
-continue to circle, Vario mode remains active even if you exceed this
-speed limit.}
-	\item	\tr{Button or switch: For using an external switch, e.g. on the control stick or flap lever.
-            or flap lever.}
-	\item	\tr{Remote control joystick.}
-\end{itemize}
+\tr{The }Flight Menu\tr{ provides adjustment options that are required before or during flight.
+The menu can be accessed by briefly pressing the control button. The headings in this section are named as they appear in the device.} 
 
+\subsubsection{Water Ballast}
+\tr{This is where the amount of water ballast to be taken on board is specified. When draining the water during
+flight, this value can be corrected manually or reduced automatically by means of a switch on the valve and
+the corresponding configuration.
 
-\subsubsection{\hr{Acoustic Quiet Zone in Speed to Fly E Mode}}
+The set value is synchronised with a connected navigation computer.}
 
-\tr{You can set a speed range in which the acoustic speed to fly signal
-is muted. In the factory setting, the audio signal is deactivated in a range of +/- 10 km/h
-.}
+\subsubsection{Bugs}
+\tr{Insects on the wings and fuselage reduce the gliding performance of the glider. These
+changes in the performance of a glider can be approximated with this setting.
+ Values from 0 to 50 percent are possible. At a setting of
+50 percent, the sink rate doubles at a given speed. 
 
+The algorithm works exactly the same as XCSoar / OpenSoar. The set value is synchronised to a
+connected navigation computer.}
 
-\subsection{\hr{Controls}}
+\subsubsection{Pilot Weight}
+\tr{The pilot's weight is taken into account when calculating the glider's polar . For two-seaters,
+ the combined weight of both pilots must be entered here
 
-\tr{The device has a rotary knob with two levels and a push button. The following functions are assigned to the button and the
-two rotary knobs:}
-\begin{itemize}
-	\item	\tr{Turn the small/upper knob: Volume control}
-	\item	\tr{Turn the large/lower knob: MacCready value}
-	\item	\tr{Briefly press the rotary knob:  } Flight Menu
-	\item	\tr{Press and hold the rotary knob: } Settings Menu
-\end{itemize}
+The set value is synchronised with a connected navigation computer.}
 
-\tr{The appendix contains the menu structures of the LARUS Vario display. }(\nameref{flight_menu},
-\nameref{settings_menu_normal} \tr{and} \nameref{settings_menu_club})\tr{Details on the
-submenu items are documented in the following chapters.}
+\subsubsection{Display}
+\tr{The Display menu item allows you to select the permanent display of the device. Here you can switch between
+Vario, Horizon and Device Information.}
 
+\subsubsection{User Profile}
+\tr{The LARUS Vario Display offers many settings to adapt the displays to the pilot's needs.
+If several pilots fly a glider, the }User
+Profiles\tr{ Convenient switching between the different settings. Up to
+four different profiles can be used.
 
-
+As described in the Usage Mode section, whether three or four usage profiles are available depends on the activated mode.
+Some settings are synchronised across all four usage profiles Some settings are synchronised in all four usage profiles,
+ as they depend on the glider and the installation situation. This applies, for example, to the
+glider'spolar  and hardware pin configurations. This ensures that these
+settings are available in all profiles: }\nameref{usage-modes}.
