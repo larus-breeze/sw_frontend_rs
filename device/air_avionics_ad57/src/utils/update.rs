@@ -88,7 +88,7 @@ fn update_available_private(fs: &mut FileSys) -> Option<SwVersion> {
 
         // Check crc
         let meta_data = meta_data();
-        let upper_flash_u32 = unsafe { core::mem::transmute::<usize, &[u32; 0x2_0000]>(STORAGE) };
+        let upper_flash_u32 = unsafe { &*core::ptr::with_exposed_provenance::<[u32; 0x2_0000]>(STORAGE) };
         let new_app_start_idx = meta_data.new_app as usize - STORAGE;
         let new_app_end_idx = new_app_start_idx + meta_data.new_app_len as usize;
 
@@ -124,5 +124,5 @@ const STORAGE: usize = 0x0808_0000;
 const BEGIN_FLASH: usize = 0x0800_0000;
 
 fn meta_data() -> &'static MetaDataV1 {
-    unsafe { core::mem::transmute::<usize, &'static MetaDataV1>(STORAGE) }
+    unsafe { &*core::ptr::with_exposed_provenance::<MetaDataV1>(STORAGE) }
 }
