@@ -1,0 +1,111 @@
+#!../.venv/bin/python
+
+import os
+
+# 1. get version
+import subprocess
+import re
+import os
+import sys
+
+log = ""
+
+git_branch = subprocess.check_output("git rev-parse --abbrev-ref HEAD", shell=True).decode('utf-8')[:-1]
+if not (len(sys.argv) > 1 and sys.argv[1]=='-i'): 
+    if git_branch != 'master': 
+        print(f"Branch is '{git_branch}' - not master, change branch first or use -i option!")
+        sys.exit(1)
+
+version_string = subprocess.check_output("git describe --always --dirty --tags", shell=True).decode('utf-8')
+if not (len(sys.argv) > 1 and sys.argv[1]=='-i'): 
+    if "dirty" in version_string:
+        print("Project is not in a consistent state, please comit first or use -i option!")
+        sys.exit(1)
+
+first = 0xff
+second = 0xff
+third = 0xff
+build = 0xff
+
+try:
+    # Try to match tag and build number
+    match = re.match('v(?P<first>[0-9]*).(?P<second>[0-9]*).(?P<third>[0-9]*)-(?P<build>[0-9]*)-.*', version_string)
+    first = int(match.group('first'))
+    second = int(match.group('second'))
+    third = int(match.group('third'))
+    build = int(match.group('build'))
+
+except Exception as e:
+    # Try to match tag only from e newly created version.
+    try:
+        match = re.match('v(?P<first>[0-9]*).(?P<second>[0-9]*).(?P<third>[0-9]*).*', version_string)
+        first = int(match.group('first'))
+        second = int(match.group('second'))
+        third = int(match.group('third'))
+        build = 0
+
+    except Exception as e:
+        print("Something went wrong getting the TAG version information!: ", e)
+        sys.exit(1)
+
+print("get version...")
+with open("tex/version.tex", "w") as f:
+    f.write(f"\\def\\version{{Version v{first}.{second}.{third}.{build}}}")
+
+# 2. extract menus
+print("create menus...")
+log += subprocess.run(
+    ["cargo", "run"], 
+    cwd="../core/tools",
+    capture_output=True, 
+    text=True,
+    check=True,
+).stdout
+
+# 3. make manuals
+print("make manual-de...")
+log += subprocess.run(
+    ["lualatex", "--output-directory=build", "--halt-on-error", "manual-de.tex"], 
+    cwd="tex", 
+    capture_output=True, 
+    text=True,
+    check=True,
+).stdout
+log += subprocess.run(
+    ["lualatex", "--output-directory=build", "--halt-on-error", "manual-de.tex"], 
+    cwd="tex", 
+    capture_output=True, 
+    text=True,
+    check=True,
+).stdout
+
+print("make manual-en...")
+log += subprocess.run(
+    ["lualatex", "--output-directory=build", "--halt-on-error", "manual-en.tex"], 
+    cwd="tex", 
+    capture_output=True, 
+    text=True,
+    check=True,
+).stdout
+log += subprocess.run(
+    ["lualatex", "--output-directory=build", "--halt-on-error", "manual-en.tex"], 
+    cwd="tex", 
+    capture_output=True, 
+    text=True,
+    check=True,
+).stdout
+
+# 4. copy manuals to doc folder
+os.makedirs("../output", exist_ok=True)
+
+version_str = f"v{first}-{second}-{third}-{build}"
+print("copying manual-de...")
+os.popen(f"cp tex/build/manual-de.pdf manual_de_{version_str}.pdf")
+print("copying manual-en...")
+os.popen(f"cp tex/build/manual-en.pdf manual_en_{version_str}.pdf")
+
+
+with open("make_manual.log", "w") as f:
+    f.write(log)
+
+print("finished!")

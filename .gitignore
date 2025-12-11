@@ -1,6 +1,9 @@
 *.f110
 *.pyc
 /.venv
+/doc/*.pdf
+/doc/*.log
+/output/*
 **/*.bin
 **/*.elf
 **/*.key
