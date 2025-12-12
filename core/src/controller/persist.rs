@@ -448,7 +448,6 @@ pub fn set_date_time(cm: &mut CoreModel, cc: &mut CoreController, date_time: Dat
         if cm.config.club_mode {
             let item = PersistenceItem::from_u8(PersistenceId::UserProfile, 1);
             cc.send_idle_event(IdleEvent::SetEepromItem(item));
-
             cc.send_idle_event(IdleEvent::RestoreToSandardProfile);
             cc.send_idle_event(IdleEvent::RestoreEepromItems);
             cm.reset();

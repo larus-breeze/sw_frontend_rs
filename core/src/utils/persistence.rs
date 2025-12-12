@@ -1,5 +1,6 @@
 use eeprom::ADR_USER_PROFILE;
 use heapless::spsc::{Consumer, Producer, Queue};
+use num::clamp;
 
 use crate::{eeprom::PAGE_SIZE, CoreError, PersistenceId, Variant};
 
@@ -280,9 +281,10 @@ where
         match item.id {
             PersistenceId::DoNotStore => Ok(()),
             PersistenceId::DeleteAll => self.eeprom.clear_all_data(),
-            PersistenceId::UserProfile => self
-                .eeprom
-                .write_byte(eeprom::ADR_USER_PROFILE, item.data[0]),
+            PersistenceId::UserProfile => {
+                self.user_profile = clamp(item.data[0], 0, 3);
+                self.eeprom.write_byte(eeprom::ADR_USER_PROFILE, self.user_profile)
+            }
             _ => {
                 let address = self.item_address(item.id);
                 self.set_id(item.id)?;

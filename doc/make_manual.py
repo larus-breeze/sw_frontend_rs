@@ -101,12 +101,15 @@ subprocess.run(
 )
 
 # 4. copy manuals to doc folder
+os.popen(f"rm -f *.pdf")
+
 version_str = f"v{first}-{second}-{third}-{build}"
 print("copying manual-de...")
+
 os.popen(f"cp tex/build/manual-de.pdf manual_de_{version_str}.pdf")
+
 print("copying manual-en...")
 os.popen(f"cp tex/build/manual-en.pdf manual_en_{version_str}.pdf")
 
 # finished
 log_file.close()
-print("finished!")
