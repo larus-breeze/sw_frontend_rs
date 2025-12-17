@@ -12,12 +12,12 @@ use corelib::{
 use phf::phf_map;
 
 static REPLMNTS: phf::Map<&'static str, &'static str> = phf_map! {
-    "Flight Menu" => "\\nameref{flight_menu}",
-    "Settings" => "\\nameref{settings}",
-    "Views" => "\\nameref{views}",
-    "Advanced" => "\\nameref{advanced}",
-    "Polar Settings" => "\\nameref{polar-settings}",
-    "Sensorbox" => "\\nameref{sensor-box}",
+    "Flight Menu" => "Flight Menu (@flight_menu)",
+    "Settings" => "Settings (@settings)",
+    "Views" => "Views (@views)",
+    "Advanced" => "Advanced (@advanced)",
+    "Polar Settings" => "Polar Settings (@polar-settings)",
+    "Sensorbox" => "Sensor Box (@sensor-box)",
 };
 
 
@@ -27,7 +27,7 @@ struct Menus {
 
 impl Menus {
     fn new() -> Self {
-        let template = fs::read_to_string("menus_template.tex").unwrap();
+        let template = fs::read_to_string("menus_template.typ").unwrap();
         Self { template }
     }
 
@@ -40,7 +40,7 @@ impl Menus {
         } else {
             menu.name
         };
-        r_str.push_str(&format!("{} \\\\\n", m_name));
+        r_str.push_str(&format!("{} \\\n", m_name));
         self.add_sub(&mut level, menu, menu_list, &mut r_str);
         self.template = self.template.replace(replace, &r_str);
     }
@@ -59,17 +59,17 @@ impl Menus {
     ) {
         let mut line = String::new();
         for _ in 1..*level {
-            line += "│\\hspace{2em}";
+            line += "│#h(8mm)";
         }
 
         for menu_entry in d_menu.items {
             match menu_entry.content {
                 MenuItemContent::EditItem(item) => {
                     if item == Editable::Return {
-                        let line = format!("{}└── {} \\\\\n", line, item.name());
+                        let line = format!("{}└── {} \\\n", line, item.name());
                         r_str.push_str(&line);
                     } else {
-                        let line = format!("{}├── {} \\\\\n", line, item.name());
+                        let line = format!("{}├── {} \\\n", line, item.name());
                         r_str.push_str(&line);
                     }
                 }
@@ -81,7 +81,7 @@ impl Menus {
                         sub_menu.name
                     };
 
-                    let line = format!("{}├── {} \\\\\n", line, m_name);
+                    let line = format!("{}├── {} \\\n", line, m_name);
                     r_str.push_str(&line);
                     *level += 1;
                     self.add_sub(level, &sub_menu, menu_list, r_str);
@@ -89,7 +89,7 @@ impl Menus {
             }
         }
         if &line != "" {
-            let line = format!("{} \\\\\n", line);
+            let line = format!("{} \\\n", line);
             r_str.push_str(&line);
         }
         *level -= 1;
@@ -109,7 +109,7 @@ fn main() {
         &full::MENU_LIST[SETTINGS_IDX],
         full::MENU_LIST,
     );
-    menus.save("../../doc/tex/menus.tex").expect("Could not write file");
+    menus.save("../../doc/typst/menus.typ").expect("Could not write file");
 }
     
 
