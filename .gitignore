@@ -3,6 +3,7 @@
 /.venv
 /doc/*.pdf
 /doc/*.log
+/doc/typst/*.pdf
 /output/*
 **/*.bin
 **/*.elf

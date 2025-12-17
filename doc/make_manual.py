@@ -49,8 +49,8 @@ except Exception as e:
         sys.exit(1)
 
 print("get version...")
-with open("tex/version.tex", "w") as f:
-    f.write(f"\\def\\version{{Version v{first}.{second}.{third}.{build}}}")
+with open("typst/version.typ", "w") as f:
+    f.write(f'#let version = "Version v{first}.{second}.{third}.{build}"\n')
 
 # 2. extract menus
 print("create menus...")
@@ -66,16 +66,8 @@ subprocess.run(
 # 3. make manuals
 print("make manual-de...")
 subprocess.run(
-    ["lualatex", "--output-directory=build", "--halt-on-error", "manual-de.tex"], 
-    cwd="tex", 
-    text=True,
-    check=True,
-    stdout=log_file,
-    stderr=subprocess.STDOUT,
-)
-subprocess.run(
-    ["lualatex", "--output-directory=build", "--halt-on-error", "manual-de.tex"], 
-    cwd="tex", 
+    ["typst", "compile", "manual-de.typ"], 
+    cwd="typst", 
     text=True,
     check=True,
     stdout=log_file,
@@ -84,32 +76,24 @@ subprocess.run(
 
 print("make manual-en...")
 subprocess.run(
-    ["lualatex", "--output-directory=build", "--halt-on-error", "manual-en.tex"], 
-    cwd="tex", 
-    text=True,
-    check=True,
-    stdout=log_file,
-    stderr=subprocess.STDOUT,
-)
-subprocess.run(
-    ["lualatex", "--output-directory=build", "--halt-on-error", "manual-en.tex"], 
-    cwd="tex", 
+    ["typst", "compile", "manual-en.typ"], 
+    cwd="typst", 
     text=True,
     check=True,
     stdout=log_file,
     stderr=subprocess.STDOUT,
 )
 
-# 4. copy manuals to doc folder
+# 4. copy manuals and rename them
 os.popen(f"rm -f *.pdf")
 
 version_str = f"v{first}-{second}-{third}-{build}"
 print("copying manual-de...")
 
-os.popen(f"cp tex/build/manual-de.pdf manual_de_{version_str}.pdf")
+os.popen(f"cp typst/manual-de.pdf manual_de_{version_str}.pdf")
 
 print("copying manual-en...")
-os.popen(f"cp tex/build/manual-en.pdf manual_en_{version_str}.pdf")
+os.popen(f"cp typst/manual-en.pdf manual_en_{version_str}.pdf")
 
 # finished
 log_file.close()
