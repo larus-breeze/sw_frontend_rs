@@ -16,6 +16,7 @@
   #show: appendix_format([Appendix])[
     #include "en/ch5-ap1-troubleshooting.typ"
     #include "en/ch5-ap2-technical-data.typ"
-    #include "menus.typ"
+    #include "en/ch5-ap3-menus.typ"
+    #include "en/ch5-ap4-literature.typ"
   ]
 ]

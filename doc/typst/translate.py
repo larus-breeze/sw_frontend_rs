@@ -15,6 +15,8 @@ TO_TRANSLATE = (
             "ch4-configuration.typ",
             "ch5-ap1-troubleshooting.typ",
             "ch5-ap2-technical-data.typ",
+            "ch5-ap3-menus.typ",
+            "ch5-ap4-literature.typ",
         ),
         "headers_keep_small": (
             "a", "an", "and", "of", "in", "is", "the", "on", "from", "to", "for", "with",

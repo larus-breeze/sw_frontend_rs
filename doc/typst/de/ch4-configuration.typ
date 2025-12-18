@@ -33,9 +33,27 @@ werche Maßeinheiten zur Anwendung kommen:
 
 === Energy Arrow
 
-#tr[Der Energiepfeil soll darstellen, in welcher Richtung vermutlich zunehmendes Steigen zu erwarten
-ist. Angezeigt wird die vektorielle Differenz zwischen dem aktuellen und dem mittleren
-gemessenen Wind.]
+#tr[Der Energiepfeil zeigt an, in welcher Richtung vermutlich ein Steigen zu erwarten ist. Angezeigt wird die vektorielle Differenz zwischen dem aktuellen und dem mittleren gemessenen Wind.
+
+Grundlage dieser Funktion ist die Annahme, dass sich in der Umgebung eines thermischen Aufwindes ein Strömungsfeld befindet. Dieses beeinflusst den horizontalen Wind in der Nähe des Aufwindes.]
+
+#figure(
+    image("/img/energy-arrow.svg", width: 16cm),
+    caption: [#hr[Strömungsfeld eines thermischen Aufwindes nach Martin Dinges @dinges und die Auswirkung auf die Windanzeige nach Joe Wurts @wurts]],
+)<img-energy-arrow>
+
+#tr[Bitte beachten Sie, dass die angezeigte Richtung von der Höhe, in der sich das Segelflugzeug befindet, abhängig ist. In niedriger Höhe zeigt die Anzeige in Richtung des Aufwindes, in großer Höhe hingegen in die entgegengesetzte Richtung.
+
+Die Anzeige kann aber auch in anderen Situationen, wie z. B. beim Hangfliegen, von Bedeutung sein.]
+
+#figure(
+    image("/img/energy-arrow.png", width: 5cm),
+    caption: [#hr[Anzeige des Energy Arrow im Flug]],
+)
+
+#tr[Das im gezeigten Beispiel dargestellte Ereignis wurde knapp über einem Grat aufgenommen, als das Segelflugzeug an einem Aufwind vorbeiflog, den es später nutzen konnte. Die Anzeige kann mit einem Faktor von 0,0 bis 10,0 angepasst werden. Dabei bedeutet 0,0 keine Darstellung des #keep[*Energy Arrow*] und 10,0 eine sehr große Darstellung. Starten Sie mit einer Einstellung von 3,5.
+
+Nur moderne Variometer-Systeme, die Windstärke und -richtung instantan bestimmen, ermöglichen eine sinnvolle Darstellung des Energy Arrow. Mit konventionellen Varios ist dies nicht möglich.]
 
 === Display Rotation
 
@@ -90,7 +108,7 @@ alle Einstellungen für alle Profile.]
 ==== Avg Climb Source, TC Climb Source
 
 #tr[Es werden zwei verschiedene Quellen zur Ermittlung des Mittleren Steigens unterstützt. Die Unterschiede
-stellen sich wie folgt dar }\textbf{Avg Climb Source: 
+stellen sich wie folgt dar *Avg Climb Source:* 
 
 - *Frontend:* Die Mittelwertbildung erfolgt während des Kreisens. Beim Übergang
   von Sollfahrt nach Vario wird der aktuelle Variowert als Startwert genutzt. Beim Übergang
@@ -111,7 +129,7 @@ stellen sich wie folgt dar }\textbf{Avg Climb Source:
 #tr[Die Hysteres, also die Wartezeit bei der Umschaltung zwischen Vario und Sollfahrt wird hier
 gesetzt.]
 
-==== TC Speet to Fly}
+==== TC Speet to Fly
 
 #tr[Die Darstellung der Sollfahrt wird gedämpft, um den Piloten nicht mit einer nervösen Anzeige zu
 irritieren. Hier kann vorgegeben werden, mit welcher Zeitkonstante diese Dämpfung erfolgen soll.]
@@ -127,7 +145,7 @@ Sollfahrt-Anzeige hin- und herzuschalten. Folgende Möglichkeiten stehen zur Ver
           berücksichtigt. Während des Kreisens wird nicht auf Vario zurückgeschalte.
 - *Input Pin:* Die Umschaltung wird durch einen Schalter bzw. Taster (wählbar)
           ausgelöst. Die Hardware Konfiguration muss zusätzlich konfiguriert werden (Schalter/Taster
-          und Polarität) \textbf{StF Pin Config.
+          und Polarität) *StF Pin Config*.
 - *NMEA:* Die Umschaltung wird durch XCSoar/OpenSoar ausgelöst. Diese Einstellung
           kann auch verwendet werden, wenn eine Knüppelfernbedienung für XCSoar/OpenSoar mit
           Sollfahrt Taste zum Einsatz kommt.
@@ -230,6 +248,13 @@ Polare wird wie üblich durch eine quadratische Gleichung abgebildet. Wichtig is
 Geschwindigkeitsbereich in dem zwischen den Aufwinden geflogen wird, damit die Sollfahrt korrekt
 berechnet werden kann.]
 
+#figure(
+    image("/img/replicated-polar.svg", width: 12cm),
+    caption: [#hr[ASG 32 Flugzeugpolare laute Datenblatt und Näherung]],
+)<replicated-polar>
+
+#tr[Die Polaren klassischer Flugzeuge wie der ASW 20 oder der LS 3 lassen sich mit einer quadratischen Näherung perfekt nachbilden. Bei modernen Flugzeugen ist es hingegen wichtig, den relevanten Geschwindigkeitsbereich zu treffen. Darüber hinaus ist die Nachbildung der Polare ungenau. Im Beispiel ist die Polare der ASG 32  von Alexander Schleicher Flugzeugbau @asg32 zu sehen, die im Bereich von 100 km/h bis 180 km/h sehr gut abgebildet wird, darüber hinaus jedoch nicht. Die Abweichung im unteren Bereich kann vernachlässigt werden, im oberen Bereich sollte man sie jedoch berücksichtigen. Der Sollfahrtgeber wird bei sehr gutem Wetter zu hohe Geschwindigkeiten vorgeben.]
+
 == Sensor Box
 <sensor-box>
 
@@ -239,7 +264,7 @@ berechnet werden kann.]
 #tr[Bevor Sie Ihren ersten Flug beginnen, müssen die Lagesensoren des LARUS-Sensoreinheit präzise
 eingestellt werden. Die Kalibrierungsschritte durch einen einfachen Ablauf durchgeführt, der
 nachfolgend beschrieben ist und über Funktionen im LARUS Vario Display angestoßen wird. Die
-Kalibrierung erfolgt in zwei Abschnitten.]
+Kalibrierung erfolgt in zwei Schritten.]
 
 === #hr[Erste Kalibrierung am Boden:]
 

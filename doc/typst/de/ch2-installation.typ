@@ -124,7 +124,7 @@ des Audio-Ausgangs vorhanden.]
 werden. Die folgende Skizze zeigt die Ansicht in den Stecker des LARUS Vario Displays.]
 
 #figure(
-    image("/img/connector-dsub9.png", width: 6cm),
+    image("/img/connector-dsub9.png", width: 5cm),
     caption: [#hr[DSUB-9 Anschluss]],
 )<connectors-dsub9>
 

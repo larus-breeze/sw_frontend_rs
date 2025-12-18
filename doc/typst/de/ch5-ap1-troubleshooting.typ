@@ -32,7 +32,7 @@
 
 						[#tr[Vario- und/oder Windwerte sind nicht plausibel.]],
 						[#tr[Die Einbaulage der LARUS Sensoreinheit wurde nicht kalibriert.]],
-						[#tr[Führen Sie die Kalibrierung durch} (\nameref{sensorunit-calibration}).]],
+						[#tr[Führen Sie die Kalibrierung durch (@sensorunit-calibration).]],
 
             table.hline(),
         ),

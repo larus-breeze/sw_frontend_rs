@@ -175,13 +175,13 @@ Flugrichtung bezieht.]
 
 #tr[Die Anzeige des künstlichen Horizonts beinhaltet folgende Informationen:
 
-- {Die blaue Fläche stellt den Himmel dar.
-- {Die Grenze zur braunen Fläche entspricht dem Horizont.
-- {Die kreisförmige Skala oben zeigt in 15° Schritten die aktuelle
+- Die blaue Fläche stellt den Himmel dar.
+- Die Grenze zur braunen Fläche entspricht dem Horizont.
+- Die kreisförmige Skala oben zeigt in 15° Schritten die aktuelle
       Querneigung des Segelflugzeugs (hier etwa 30°, rote Pfeilspitze).
-- {Die Skala parallel zum Horizont steht für den Steig- / Sinkwinkel in 10° Schritten
+- Die Skala parallel zum Horizont steht für den Steig- / Sinkwinkel in 10° Schritten
       (hier 0°).
-- {Im unteren Bereich ist eine Libelle zu sehen, die ein eventuelles Schieben sichtbar
+- Im unteren Bereich ist eine Libelle zu sehen, die ein eventuelles Schieben sichtbar
       macht.
 
 Das Segelflugzeug befindet sich derzeit in einer sauberen Rechtskurve mit einer Querneigung von

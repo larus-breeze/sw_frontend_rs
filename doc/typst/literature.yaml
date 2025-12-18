@@ -1,0 +1,18 @@
+dinges:
+    type: Article
+    title: The Total Energy Variometer in the Flowfield of Thermals
+    author: Martin Dinges
+    date: 2003-08-06
+    url: https://www.lsc-schliersee.de/Ausbildung/Streckenfliegen/Dateien/TE-Vario_in_the_Flowfield_of_Thermals.pdf
+
+wurts:
+    type: Web
+    title: The Third-Vector Diagram 
+    author: Joe Wurts
+    url: http://www.tailwindgliders.com/Tips.html
+
+asg32:
+    type: Web
+    title: Alexander Schleicher Flugzeugbau - Die ASG 32
+    author: Alexander Schleicher GmbH
+    url: https://www.alexander-schleicher.de/flugzeuge/asg-32-mi/
