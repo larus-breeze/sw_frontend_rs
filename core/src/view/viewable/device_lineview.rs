@@ -21,37 +21,38 @@ struct LineInfo {
 pub enum DeviceLineView {
     // headings
     Empty = 0,
-    SensorBox = 1,
-    VarioDisplay = 2,
+    SensorBox,
+    VarioDisplay,
 
     // lines of information (Vario Display)
     DisplayVersion = 20,
-    SupplyVoltage = 21,
-    IluminationVoltage = 22,
-    TempPcb = 23,
-    InPinBreaks = 24,
-    InPinDrain = 25,
-    InPinGear = 26,
-    InPinSpeedToFly = 27,
-    OutPinFlash = 28,
+    SupplyVoltage,
+    IluminationVoltage,
+    TempPcb,
+    InPinBreaks,
+    InPinDrain,
+    InPinGear,
+    InPinSpeedToFly,
+    OutPinFlash,
 
     // lines of information (Sensor Box)
     SensorboxVersion = 50,
-    Ias = 51,
-    Tas = 52,
-    Density = 53,
-    Gforce = 54,
-    GpsAltitude = 55,
-    GpsGroundSpeed = 56,
-    GpsTrack = 57,
-    GpsSats = 58,
-    GpsState = 59,
-    NickAngle = 60,
-    Pressure = 61,
-    SlipAngle = 62,
-    TurnRate = 63,
-    HorizonAvailable = 64,
-    GnssAndCompassOk = 65,
+    GnssAccuracityOk,
+    MagneticDisturbanceOk,
+    Ias,
+    Tas,
+    Density,
+    Gforce,
+    GpsAltitude,
+    GpsGroundSpeed,
+    GpsTrack,
+    GpsSats,
+    GpsState,
+    NickAngle,
+    Pressure,
+    SlipAngle,
+    TurnRate,
+    HorizonAvailable,
 }
 
 impl DeviceLineView {
@@ -101,8 +102,20 @@ impl DeviceLineView {
         }
     }
 
+    fn ok(ok: bool) -> &'static str {
+        if ok {
+            "Ok"
+        } else {
+            "Not ok"
+        }
+    }
+
     fn line_info(&self, cm: &CoreModel) -> LineInfo {
         let mut lv = match self {
+
+
+            // Vario Display values
+
             DeviceLineView::DisplayVersion => LineInfo {
                 name: "FW Version: ",
                 value: tformat!(
@@ -144,9 +157,20 @@ impl DeviceLineView {
                 name: "Pin Flash: ",
                 value: tformat!(30, "out {}", cm.control.hw_pins.out_flash.as_str()).unwrap(),
             },
+
+            // Sensorbox values
+
             DeviceLineView::SensorboxVersion => LineInfo {
                 name: "FW Version: ",
                 value: tformat!(30, "{}", cm.sensor.sw_version.as_string().as_str()).unwrap(),
+            },
+            DeviceLineView::GnssAccuracityOk => LineInfo {
+                name: "GNSS Data: ",
+                value: tformat!(30, "{}", Self::ok(!cm.sensor.gnss_velocity_accuracy_bad())).unwrap(),
+            },
+            DeviceLineView::MagneticDisturbanceOk => LineInfo {
+                name: "Magn Data: ",
+                value: tformat!(30, "{}", Self::ok(!cm.sensor.magnetic_disturbance_bad())).unwrap(),
             },
             DeviceLineView::Ias => LineInfo {
                 name: "IAS: ",
@@ -202,15 +226,14 @@ impl DeviceLineView {
             },
             DeviceLineView::HorizonAvailable => LineInfo {
                 name: "Hor Avail: ",
-                value: tformat!(30, "{}", cm.sensor.horizon_available).unwrap(),
+                value: tformat!(30, "{}", !cm.sensor.horizon_blocked()).unwrap(),
             },
-            DeviceLineView::GnssAndCompassOk => LineInfo {
-                name: "GNSS CC ok: ",
-                value: tformat!(30, "{}", cm.sensor.gnss_and_compass_ok).unwrap(),
-            },
-            _ => LineInfo {
-                name: "Error! ",
-                value: tformat!(30, "").unwrap(),
+
+            // These are empty or header lines, so this never can be addressed
+
+            DeviceLineView::Empty | DeviceLineView::SensorBox | DeviceLineView::VarioDisplay => LineInfo {
+                name: "Error",
+                value: tformat!(30, "Error").unwrap(),
             },
         };
         if cm.control.system_state == SystemState::NoCom && (*self as u8) >= 50 {

@@ -1,6 +1,7 @@
 #import "../manual.typ": *
 
 = #hr[Fehlerbehebung]
+<trouble-shooting>
 
 #h(5mm)
 #align(left, block[

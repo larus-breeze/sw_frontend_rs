@@ -146,10 +146,9 @@ impl Vario {
 
         // to save computing power: Only draw the central elements when they are visible.
         if cm.config.overlay_active == OverlayActive::None {
-            // draw attention if necessary
-            //if !cm.sensor.gnss_and_compass_ok {
-            //    display.draw_img(cm.device_const.images.attention, sizes.attention_pos, None)?;
-            //}
+            if cm.sensor.gnss_velocity_accuracy_bad() || cm.sensor.magnetic_disturbance_bad() {
+                display.draw_img(cm.device_const.images.attention, sizes.attention_pos, None)?;
+            }
 
             // draw center view
             self.thermal_data.update(cm);

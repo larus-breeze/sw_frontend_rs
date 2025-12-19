@@ -82,6 +82,23 @@ Inhalt im Kreisflugmodus:
 - Info 2 Anzeige, hier Windrichtung und Windstärke
 - Info 3 Anzeige, hier Sollfahrt ]
 
+=== #hr[Warnungen]
+
+#figure(
+    image("/img/warning.svg", height: 38mm),
+    caption: [#hr[Anzeige einer Warnung und Ermittlung der Ursache]],
+)<straight-explained>
+
+#tr[Das LARUS Vario Display warnt den Nutzer, wenn es Probleme bei der Datenauswertung hat. Dann ist ein rotes Warndreieck mit einem Ausrufezeichen zu sehen. Das Vario arbeitet zwar nach wie vor korrekt, aber die Anzeigequalität könnte schlechter sein.
+
+Mögliche Ursachen:
+
+- Der GNSS-Empfang könnte (zeitweise) eingeschränkt sein.
+- Es könnte sein, dass der Magnetsensor gestört ist.
+
+Die Ursache der Störung kann auf der Seite „Device Info" (@device-info) ermittelt werden. Im gezeigten Beispiel liegt ein eingeschränkter GNSS-Empfang vor. Wenn diese Warnung im LARUS Vario Display oft oder dauerhaft angezeigt wird, liegt ein Installationsproblem vor (siehe @trouble-shooting).
+]
+
 === #hr[Verfügbare zentrale Anzeigen]
 ==== #hr[Zentrale Anzeigen im Kreisflugmodus]
 
@@ -187,6 +204,11 @@ Flugrichtung bezieht.]
 Das Segelflugzeug befindet sich derzeit in einer sauberen Rechtskurve mit einer Querneigung von
 30°.]
 
+#figure(
+    image("/img/horizon-blocked.png", width: 3cm),
+    caption: [#hr[Künstlicher Horizont blockiert]],
+)<horizon-blocked>
+
 #picnote("/img/pictograph-yellow-warning.svg")[
   #tr[In manchen Wettbewerben ist die Anzeige des künstlichen
   Horizontes verboten. Deshalb kann in der LARUS Sensoreinheit die Ausgabe der
@@ -194,7 +216,7 @@ Das Segelflugzeug befindet sich derzeit in einer sauberen Rechtskurve mit einer 
   ausgegeben.]
 ]
   
-== #hr[Geräteinformationen]
+== #hr[Geräteinformationen]<device-info>
 
 #tr[In dem Anzeigemodus Geräteinformationen werden Dateilinformationen zum LARUS Vario Display und
 zur LARUS Sensoreinheit angezeigt. Diese Anzeige kann hilfreich sein, um Fehleranalysen
@@ -205,7 +227,7 @@ erkennbar.]
 #figure(
     image("/img/device-info.png", width: 5cm),
     caption: [#hr[Geräteinformationen]],
-)<device-info>
+)
 
 == Flight Menu
 <flight_menu>

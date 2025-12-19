@@ -57,8 +57,7 @@ pub struct Sensor {
     pub turn_rate: AngularVelocity,
     pub vertical_g_force: Acceleration,
     pub wind_vector: WindVector,
-    pub horizon_available: bool,
-    pub gnss_and_compass_ok: bool,
+    pub larus_box_system_state: u32,
 }
 
 impl Default for Sensor {
@@ -91,8 +90,21 @@ impl Default for Sensor {
             vertical_g_force: 9.81.m_s2(),
             average_wind: WindVector::new(0.0.km_h(), 0.0_f32.deg()),
             wind_vector: WindVector::new(0.0.km_h(), 0.0_f32.deg()),
-            horizon_available: true,
-            gnss_and_compass_ok: false,
+            larus_box_system_state: 0,
         }
+    }
+}
+
+impl Sensor {
+    pub fn horizon_blocked(&self) -> bool {
+        (self.larus_box_system_state & 0x0001_0000) != 0
+    }
+
+    pub fn gnss_velocity_accuracy_bad(&self) -> bool {
+        (self.larus_box_system_state & 0x0000_0004) != 0
+    }
+    
+    pub fn magnetic_disturbance_bad(&self) -> bool {
+        (self.larus_box_system_state & 0x0000_0008) != 0
     }
 }

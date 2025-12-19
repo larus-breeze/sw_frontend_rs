@@ -42,7 +42,7 @@ Grundlage dieser Funktion ist die Annahme, dass sich in der Umgebung eines therm
     caption: [#hr[Strömungsfeld eines thermischen Aufwindes nach Martin Dinges @dinges und die Auswirkung auf die Windanzeige nach Joe Wurts @wurts]],
 )<img-energy-arrow>
 
-#tr[Bitte beachten Sie, dass die angezeigte Richtung von der Höhe, in der sich das Segelflugzeug befindet, abhängig ist. In niedriger Höhe zeigt die Anzeige in Richtung des Aufwindes, in großer Höhe hingegen in die entgegengesetzte Richtung.
+#tr[Bitte beachten Sie, dass die Richtung von der Höhe, in der sich das Segelflugzeug befindet, abhängig ist. In niedriger Höhe zeigt die Anzeige in Richtung des Aufwindes, in großer Höhe hingegen in die entgegengesetzte Richtung. In niedriger Höhe fließt die Luft in Richtung Aufwind, in großer Höhe dagegen vom Aufwind weg.
 
 Die Anzeige kann aber auch in anderen Situationen, wie z. B. beim Hangfliegen, von Bedeutung sein.]
 
@@ -113,7 +113,7 @@ stellen sich wie folgt dar *Avg Climb Source:*
 - *Frontend:* Die Mittelwertbildung erfolgt während des Kreisens. Beim Übergang
   von Sollfahrt nach Vario wird der aktuelle Variowert als Startwert genutzt. Beim Übergang
   von Vario nach Sollfahrt wird die Mittelung angehalten und die Anzeige bleibt konstant.
-  Die Zeitkonstante der Mittelwertbildung kann angepasst werden.
+  Die Zeitkonstante der Mittelwertbildung kann mit #keep[*TC Climb Source*] angepasst werden.
 - *Sensorbox:* Die Mittelwertbildung erfolgt laufend. Während des Geradeausfluges
   wird mit fester Zeitkonstante gemittelt, welche im Sensorbox Menu eingestellt werden kann.
   Während des Kreisens erfolgt die Mittelung synchron zum Kreisen.
@@ -194,8 +194,9 @@ Es wird von einem konstanten Durchfluss ausgegangen, der hier vorgegeben werden 
 - *Battery Low:* Unterhalb der hier vorgegebenen Spannung wird das
               Batteriesymbol rot dargestellt. Wenn die Spannung zwischen den beiden Werten liegt,
               erfolgt die Darstellung des Batteriesymbols in Orange.
-- *Flash Control:* Das LARUS Vario Display ist in der Lage, einen Haubenblitzer
-              anzusteuern, der hier konfiguriert werden kann.
+- *Flash Control:* Das LARUS Vario Display ist in der Lage, einen Haubenblitzer anzusteuern, der
+              bei einer Geschwindigkeit von über 40 km/h gegenüber Luft aktiviert wird. Hier muss festgelegt werden, ob der Blitzer eingeschaltet wird, wenn der Schalter offen oder geschlossen ist. Hinweis: Die Verkabelung kann bei stehendem Flugzeug getestet werden, indem die Logik invertiert wird. Beispiel: Wenn der Haubenblitzer bei „Close” 
+              (über 40 km/h) blitzen soll, muss er bei stehendem Flugzeug bei der Einstellung „Open” an sein.
 ]
 
 === Center Frequency
