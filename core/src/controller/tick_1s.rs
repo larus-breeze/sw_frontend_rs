@@ -2,8 +2,10 @@ use crate::{
     controller::persist::{persist_set, set_vario_mode},
     model::{GpsState, SystemState, TcrMode, VarioModeControl},
     utils::Variant,
-    CoreController, CoreModel, Echo, FloatToSpeed, FlyMode, IdleEvent, PersistenceId, VarioMode,
+    CoreController, CoreModel, Echo, FloatToLength, FloatToSpeed, FlyMode, IdleEvent,
+    PersistenceId, VarioMode,
 };
+use embedded_graphics::geometry::AngleUnit;
 use num::clamp;
 
 pub fn recalc_polar(cm: &mut CoreModel, cc: &mut CoreController) {
@@ -102,6 +104,29 @@ fn speed_to_fly(cm: &mut CoreModel, cc: &mut CoreController) {
         cm.control.fly_mode = FlyMode::StraightFlight;
     }
     cm.calculated.circle_hysteresis = hyst;
+
+    let is_circling = cm.control.fly_mode == FlyMode::Circling;
+
+    // Circle diameter: D = 2 * v / omega (only meaningful in circling)
+    let omega = cm.sensor.turn_rate.to_rad_s().abs();
+    let tas_mps = cm.sensor.airspeed.tas().to_m_s();
+    if is_circling && omega > 0.02 && tas_mps > 5.0 {
+        let d = (2.0 * tas_mps / omega).clamp(5.0, 2000.0);
+        cm.calculated.circle_diameter = d.m();
+        cm.calculated.circle_diameter_valid = true;
+    } else {
+        cm.calculated.circle_diameter_valid = false;
+    }
+
+    // Circle max-min over 24 heading bins. Show "--" until first full circle is complete.
+    let climb_delta = (cm.sensor.climb_rate - cm.calculated.av2_climb_rate).to_m_s();
+    let yaw = cm.sensor.euler_yaw.to_radians();
+    if let Some(delta) = cc.circle_stats.update(yaw, climb_delta, is_circling) {
+        cm.calculated.circle_max_min_last = delta.m_s();
+        cm.calculated.circle_max_min_valid = true;
+    } else {
+        cm.calculated.circle_max_min_valid = false;
+    }
 
     let _ = cc.scheduler.chain(can_heartbeat);
 }

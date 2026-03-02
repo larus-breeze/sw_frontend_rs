@@ -2,7 +2,7 @@ mod helpers;
 pub use helpers::{
     can_frame::*,
     can_ids::{audio_legacy, frontend_legacy, sensor_legacy, GenericId, SpecialId},
-    CanActive, CanConfigId, IntToDuration, NmeaBuffer, RemoteConfig, Scheduler, Tim,
+    CanActive, CanConfigId, CircleStats, IntToDuration, NmeaBuffer, RemoteConfig, Scheduler, Tim,
 };
 pub(crate) use helpers::{
     DrainControl, FlashControl, GearAlarmControl, GearPins, InPinFunction, InTogglePinFunction,
@@ -83,6 +83,7 @@ pub struct CoreController {
     last_vario_mode: VarioMode,
     av2_climb_rate: Pt1<Speed>,
     av_speed_to_fly: Pt1<Speed>,
+    circle_stats: CircleStats,
     pub nmea_buffer: NmeaBuffer,
     pub scheduler: Scheduler<5>,
     pub pers_vals: FnvIndexMap<PersistenceId, PersistenceItem, MAX_PERS_IDS>,
@@ -131,6 +132,7 @@ impl CoreController {
             sw_update: SwUpdateController::new(),
             av2_climb_rate,
             av_speed_to_fly,
+            circle_stats: CircleStats::default(),
             nmea_buffer: NmeaBuffer::new(),
             scheduler,
             nmea_vals: FnvIndexSet::new(),

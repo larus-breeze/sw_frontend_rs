@@ -29,6 +29,11 @@ pub enum LineView {
     WindAndAvgWind,
     SpeedToFly,
     TrueAirSpeed,
+    BatteryVoltage,
+    GnssHeadingAcc,
+    GLoad,
+    CircleDiameter,
+    CircleMaxMin,
     LastElemntNotInUse,
 }
 
@@ -41,6 +46,11 @@ const TOP_LINE_VIEW: &[LineView] = &[
     LineView::TrueAirSpeed,
     LineView::TrueCourse,
     LineView::UtcTime,
+    LineView::BatteryVoltage,
+    LineView::GnssHeadingAcc,
+    LineView::GLoad,
+    LineView::CircleDiameter,
+    LineView::CircleMaxMin,
 ];
 
 const BOTTOM_LINE_VIEW: &[LineView] = &[
@@ -54,6 +64,10 @@ const BOTTOM_LINE_VIEW: &[LineView] = &[
     LineView::UtcTime,
     LineView::WindAndAvgWind,
     LineView::WindAndDelta,
+    LineView::GnssHeadingAcc,
+    LineView::GLoad,
+    LineView::CircleDiameter,
+    LineView::CircleMaxMin,
 ];
 
 #[derive(Clone, Copy)]
@@ -119,6 +133,10 @@ impl LineView {
             LineView::UtcTime => "UTC Time",
             LineView::WindAndAvgWind => "Wind, avg Wind",
             LineView::WindAndDelta => "Wind and Delta",
+            LineView::GnssHeadingAcc => "GNSS Head Acc",
+            LineView::GLoad => "G-Load",
+            LineView::CircleDiameter => "Circle Diameter",
+            LineView::CircleMaxMin => "Circle Max-Min",
             LineView::None => "None",
             LineView::LastElemntNotInUse => "",
         }
@@ -140,6 +158,10 @@ impl LineView {
             LineView::UtcTime => draw_utc_time(display, cm, pos),
             LineView::WindAndAvgWind => draw_wind_and_avg_wind(display, cm, pos),
             LineView::WindAndDelta => draw_wind_and_delta(display, cm, pos),
+            LineView::GnssHeadingAcc => draw_gnss_heading_acc(display, cm, pos),
+            LineView::GLoad => draw_g_load(display, cm, pos),
+            LineView::CircleDiameter => draw_circle_diameter(display, cm, pos),
+            LineView::CircleMaxMin => draw_circle_max_min(display, cm, pos),
             LineView::LastElemntNotInUse => Ok(()),
         }
     }
@@ -556,4 +578,125 @@ where
         display,
     )?;
     Ok(())
+}
+
+fn draw_gnss_heading_acc<D>(display: &mut D, cm: &CoreModel, pos: Point) -> Result<(), CoreError>
+where
+    D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
+{
+    let acc_deg = cm.sensor.dgps_acc_heading.to_degrees();
+    let s = if acc_deg > 0.001 {
+        tformat!(12, "\xb1{:.1}\xb0", acc_deg).unwrap() // ±X.X°
+    } else {
+        tformat!(12, "--").unwrap()
+    };
+    let img1 = None;
+    let img2 = None;
+    draw_centered_line(
+        display,
+        pos,
+        img1,
+        s.as_str(),
+        img2,
+        &cm.device_const.big_font,
+        cm.palette(),
+    )
+}
+
+fn draw_g_load<D>(display: &mut D, cm: &CoreModel, pos: Point) -> Result<(), CoreError>
+where
+    D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
+{
+    let g = cm.sensor.g_force.to_m_s2() / 9.81;
+    let s = tformat!(10, "{:.2}g", g).unwrap();
+    draw_centered_line(
+        display,
+        pos,
+        None,
+        s.as_str(),
+        None,
+        &cm.device_const.big_font,
+        cm.palette(),
+    )
+}
+
+fn draw_circle_diameter<D>(display: &mut D, cm: &CoreModel, pos: Point) -> Result<(), CoreError>
+where
+    D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
+{
+    let s = if cm.calculated.circle_diameter_valid {
+        tformat!(8, "{}", cm.config.unit_height.value_str(cm.calculated.circle_diameter).as_str())
+            .unwrap()
+    } else {
+        tformat!(8, "--").unwrap()
+    };
+    draw_centered_line(
+        display,
+        pos,
+        None,
+        s.as_str(),
+        None,
+        &cm.device_const.big_font,
+        cm.palette(),
+    )
+}
+
+fn draw_circle_max_min<D>(display: &mut D, cm: &CoreModel, pos: Point) -> Result<(), CoreError>
+where
+    D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
+{
+    let s = if cm.calculated.circle_max_min_valid {
+        tformat!(10, "{}", cm.config
+            .unit_vertical_speed
+            .value_str(cm.calculated.circle_max_min_last)
+            .as_str())
+        .unwrap()
+    } else {
+        tformat!(10, "--").unwrap()
+    };
+    draw_centered_line(
+        display,
+        pos,
+        None,
+        s.as_str(),
+        None,
+        &cm.device_const.big_font,
+        cm.palette(),
+    )
+}
+
+fn draw_battery_voltage<D>(display: &mut D, cm: &CoreModel, pos: Point) -> Result<(), CoreError>
+where
+    D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
+{
+    let voltage = cm.device.supply_voltage;
+    let s = if voltage > 0.1 {
+        tformat!(6, "{:.1}V", voltage).unwrap()
+    } else {
+        heapless::String::<6>::try_from("---V").unwrap()
+    };
+
+    let img1 = if voltage > cm.config.battery_good {
+        Some(Image::new(cm.device_const.images.bat_full))
+    } else if voltage > cm.config.battery_low {
+        Some(Image::new(cm.device_const.images.bat_half))
+    } else if voltage > 0.1 {
+        Some(Image::new(cm.device_const.images.bat_empty))
+    } else {
+        None
+    };
+    let img2 = None;
+
+    let mut palette = *cm.palette();
+    palette.vario.icon = palette.vario.value;
+
+    draw_centered_line(
+        display,
+        pos,
+        img1,
+        s.as_str(),
+        img2,
+        &cm.device_const.big_font,
+        &palette,
+    )
 }
