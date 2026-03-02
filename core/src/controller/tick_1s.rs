@@ -5,7 +5,6 @@ use crate::{
     CoreController, CoreModel, Echo, FloatToLength, FloatToSpeed, FlyMode, IdleEvent,
     PersistenceId, VarioMode,
 };
-use embedded_graphics::geometry::AngleUnit;
 use num::clamp;
 
 pub fn recalc_polar(cm: &mut CoreModel, cc: &mut CoreController) {

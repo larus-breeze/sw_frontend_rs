@@ -1,4 +1,5 @@
 use core::f32::consts::PI;
+use micromath::F32Ext;
 
 const BINS: usize = 24;
 const TWO_PI: f32 = 2.0 * PI;

@@ -586,7 +586,7 @@ where
 {
     let acc_deg = cm.sensor.dgps_acc_heading.to_degrees();
     let s = if acc_deg > 0.001 {
-        tformat!(12, "\xb1{:.1}\xb0", acc_deg).unwrap() // ±X.X°
+        tformat!(12, "{:.1}deg", acc_deg).unwrap()
     } else {
         tformat!(12, "--").unwrap()
     };
@@ -687,9 +687,6 @@ where
     };
     let img2 = None;
 
-    let mut palette = *cm.palette();
-    palette.vario.icon = palette.vario.value;
-
     draw_centered_line(
         display,
         pos,
@@ -697,6 +694,6 @@ where
         s.as_str(),
         img2,
         &cm.device_const.big_font,
-        &palette,
+        cm.palette(),
     )
 }
