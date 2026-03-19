@@ -210,6 +210,15 @@ impl CanFrame {
         LE::read_f32(&self.data[idx..idx + 4])
     }
 
+    pub fn read_opt_f32(&self, idx: usize) -> Option<f32> {
+        let value = LE::read_f32(&self.data[idx..idx + 4]);
+        if value.is_normal() {
+            Some(value)
+        } else {
+            None
+        }
+    }
+
     pub fn push_u32(mut self, val: u32) -> Self {
         let idx = self.len as usize;
         self.len += 4;

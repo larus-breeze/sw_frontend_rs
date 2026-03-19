@@ -73,84 +73,96 @@ impl CoreController {
                 );
             }
             CanConfigId::MacCready => {
-                let val = frame.read_f32(4).m_s();
-                persist::persist_set(
-                    self,
-                    cm,
-                    Variant::Speed(val),
-                    PersistenceId::McCready,
-                    Echo::Nmea,
-                );
+                if let Some(val) = frame.read_opt_f32(4) {
+                    let val = val.m_s();
+                    persist::persist_set(
+                        self,
+                        cm,
+                        Variant::Speed(val),
+                        PersistenceId::McCready,
+                        Echo::Nmea,
+                    );
+                }
             }
             CanConfigId::WaterBallast => {
-                let val = frame.read_f32(4).kg();
-                persist::persist_set(
-                    self,
-                    cm,
-                    Variant::Mass(val),
-                    PersistenceId::WaterBallast,
-                    Echo::Nmea,
-                );
+                if let Some(val) = frame.read_opt_f32(4) {
+                    let val = val.kg();
+                    persist::persist_set(
+                        self,
+                        cm,
+                        Variant::Mass(val),
+                        PersistenceId::WaterBallast,
+                        Echo::Nmea,
+                    );
+                }
             }
             CanConfigId::Bugs => {
-                let val = frame.read_f32(4);
-                persist::persist_set(self, cm, Variant::F32(val), PersistenceId::Bugs, Echo::Nmea);
+                if let Some(val) = frame.read_opt_f32(4) {
+                    persist::persist_set(self, cm, Variant::F32(val), PersistenceId::Bugs, Echo::Nmea);
+                }
             }
             CanConfigId::Qnh => {
-                let val = frame.read_f32(4).hpa();
-                persist::persist_set(
-                    self,
-                    cm,
-                    Variant::Pressure(val),
-                    PersistenceId::Qnh,
-                    Echo::Nmea,
-                );
+                if let Some(val) = frame.read_opt_f32(4) {
+                    let val = val.hpa();
+                    persist::persist_set(
+                        self,
+                        cm,
+                        Variant::Pressure(val),
+                        PersistenceId::Qnh,
+                        Echo::Nmea,
+                    );
+                }
             }
             CanConfigId::PilotWeight => {
-                let val = frame.read_f32(4).kg();
-                persist::persist_set(
-                    self,
-                    cm,
-                    Variant::Mass(val),
-                    PersistenceId::PilotWeight,
-                    Echo::Nmea,
-                )
+                if let Some(val) = frame.read_opt_f32(4) {
+                    let val = val.kg();
+                    persist::persist_set(
+                        self,
+                        cm,
+                        Variant::Mass(val),
+                        PersistenceId::PilotWeight,
+                        Echo::Nmea,
+                    )
+                }
             }
             CanConfigId::VarioModeControl => (), // do nothing
             CanConfigId::TcClimbRate => {
-                let val = frame.read_f32(4);
-                persist::persist_set(
-                    self,
-                    cm,
-                    Variant::F32(val),
-                    PersistenceId::TcClimbRate,
-                    Echo::None,
-                )
+                if let Some(val) = frame.read_opt_f32(4) {
+                    persist::persist_set(
+                        self,
+                        cm,
+                        Variant::F32(val),
+                        PersistenceId::TcClimbRate,
+                        Echo::None,
+                    )
+                }
             }
             CanConfigId::TcSpeedToFly => {
-                let val = frame.read_f32(4);
-                persist::persist_set(
-                    self,
-                    cm,
-                    Variant::F32(val),
-                    PersistenceId::TcSpeedToFly,
-                    Echo::None,
-                )
+                if let Some(val) = frame.read_opt_f32(4) {
+                    persist::persist_set(
+                        self,
+                        cm,
+                        Variant::F32(val),
+                        PersistenceId::TcSpeedToFly,
+                        Echo::None,
+                    )
+                }
             }
             CanConfigId::VarioMode => {
                 let vario_mode = VarioMode::from(frame.read_u8(2));
                 set_vario_mode(cm, self, vario_mode, VarioModeControl::Can);
             }
             CanConfigId::WaterBallastFraction => {
-                let fraction = frame.read_f32(4);
-                cm.glider_data.set_ballast_fraction(fraction);
-                persist::persist_set(
-                    self,
-                    cm,
-                    Variant::Mass(cm.glider_data.water_ballast),
-                    PersistenceId::WaterBallast,
-                    Echo::Nmea,
-                )
+                if let Some(fraction) = frame.read_opt_f32(4) {
+                    cm.glider_data.set_ballast_fraction(fraction);
+                    persist::persist_set(
+                        self,
+                        cm,
+                        Variant::Mass(cm.glider_data.water_ballast),
+                        PersistenceId::WaterBallast,
+                        Echo::Nmea,
+                    )
+                }
             }
             _ => (),
         }
