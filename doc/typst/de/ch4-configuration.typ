@@ -195,7 +195,9 @@ Es wird von einem konstanten Durchfluss ausgegangen, der hier vorgegeben werden 
               Batteriesymbol rot dargestellt. Wenn die Spannung zwischen den beiden Werten liegt,
               erfolgt die Darstellung des Batteriesymbols in Orange.
 - *Flash Control:* Das LARUS Vario Display ist in der Lage, einen Haubenblitzer anzusteuern, der
-              bei einer Geschwindigkeit von über 40 km/h gegenüber Luft aktiviert wird. Hier muss festgelegt werden, ob der Blitzer eingeschaltet wird, wenn der Schalter offen oder geschlossen ist. Hinweis: Die Verkabelung kann bei stehendem Flugzeug getestet werden, indem die Logik invertiert wird. Beispiel: Wenn der Haubenblitzer bei „Close” 
+              bei einer Geschwindigkeit von über 40 km/h gegenüber Luft aktiviert wird. Hier muss festgelegt werden, ob der Blitzer 
+              aktiv wird, wenn der Schalter offen oder geschlossen ist. Hinweis: Die Verkabelung kann bei stehendem Flugzeug 
+              getestet werden, indem die Logik invertiert wird. Beispiel: Wenn der Haubenblitzer bei „Close” 
               (über 40 km/h) blitzen soll, muss er bei stehendem Flugzeug bei der Einstellung „Open” an sein.
 ]
 

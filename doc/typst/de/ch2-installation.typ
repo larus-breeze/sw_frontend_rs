@@ -29,7 +29,7 @@ Punkte beachtet werden:
 + Überprüfen Sie, ob das Satellitensymbol auf dem Bildschirm gelb oder grün ist und die aktuelle 
   Kursrichtung angezeigt wird.
 + Wählen Sie eine geeignete Polare für Ihr Segelflugzeug aus oder erstellen Sie eine.
-+ Ihr LARUS Vario Display ist nun flugbereit.]	
++ Ihr LARUS Vario Display ist nun flugbereit.]    
 
 == #hr[Design und Funktion]
 
@@ -104,14 +104,14 @@ des Audio-Ausgangs vorhanden.]
                 [*Pin*], [*CAN*], [*RS232*],
             ),
             table.hline(),
-            [1], [GND (internally connected)],	[GND (internally connected)],
-            [2], [GND (internally connected)],	[GND (internally connected)],
-            [3], [NC], 						  	[RS232-1-RX],
-            [4], [CAN Low], 					[RS232-1-TX],
-            [5], [CAN High], 					[NC],
-            [6], [NC], 							[NC],
-            [7], [VCC [9-28V DC] ], 			[VCC [9-28V DC] ],
-            [8], [VCC [9-28V DC] ], 			[VCC [9-28V DC] ],
+            [1], [GND (internally connected)],    [GND (internally connected)],
+            [2], [GND (internally connected)],    [GND (internally connected)],
+            [3], [NC],                            [RS232-1-RX],
+            [4], [CAN Low],                       [RS232-1-TX],
+            [5], [CAN High],                      [NC],
+            [6], [NC],                            [NC],
+            [7], [VCC [9-28V DC] ],               [VCC [9-28V DC] ],
+            [8], [VCC [9-28V DC] ],               [VCC [9-28V DC] ],
             table.hline(),
         ),
         caption: [#hr[Pinbelegung CAN und RS232 RJ45]],
@@ -139,15 +139,15 @@ werden. Die folgende Skizze zeigt die Ansicht in den Stecker des LARUS Vario Dis
                 [*Pin*], [*Name*], [*I/O, Ground*],
             ),
             table.hline(),
-            [1], [GND],						[Ground],
-            [2], [DI3 - Gear],				[Input],
-            [3], [DI1 - Water Ballast], 	[Input],
-            [4], [DO2], 					[Output],
-            [5], [GND], 					[Ground],
-            [6], [DI4 - Speed Breakes], 	[Input],
-            [7], [DI2 - Speed to Fly], 		[Input],
-            [8], [GND], 					[Ground],
-            [9], [D01 - Canopy Flasher ], 	[Output],
+            [1], [GND],                   [Ground],
+            [2], [DI3 - Gear],            [Input],
+            [3], [DI1 - Water Ballast],   [Input],
+            [4], [DO2],                   [Output],
+            [5], [GND],                   [Ground],
+            [6], [DI4 - Speed Breakes],   [Input],
+            [7], [DI2 - Speed to Fly],    [Input],
+            [8], [GND],                   [Ground],
+            [9], [D01 - Canopy Flasher ], [Output],
             table.hline(),
         ),
         caption: [#hr[Pinbelegung GPIO / D-SUB 9]],
@@ -156,7 +156,14 @@ werden. Die folgende Skizze zeigt die Ansicht in den Stecker des LARUS Vario Dis
 
 #tr[Zur leichteren Identifizierung der Pins sind diese Nummern auch in die Buchse (im Lieferumfang
 enthalten) eingeprägt. Nach der Verkabelung müssen die Einstellungen im LARUS Vario Display
-vorgenommen werden.]
+vorgenommen werden.
+
+Bedeutung der Pin Bezeichnungen:
+  - Ground: Mit Minus verbunden
+  - Input: Eingang für einen Schalter (offen oder geschlossen)
+  - Output: Ausgang wird vom Display geöffnet/geschlossen
+
+Die Pin Funktionen Input und Output müssen entsprechend konfiguriert sein, siehe @settings.]
 
 === #hr[Audio] 
 
