@@ -18,6 +18,10 @@ use num::clamp;
 
 #[allow(unused_imports)]
 use micromath::F32Ext;
+
+fn compress_spider_delta(delta_climb: f32) -> f32 {
+    delta_climb.signum() * delta_climb.abs().sqrt()
+}
 use num_enum::FromPrimitive;
 
 #[derive(Clone, Copy, PartialEq, FromPrimitive)]
@@ -213,7 +217,8 @@ where
     let mut delta_climb;
     for _cnt in 0..THERMAL_DATA_CNT {
         (fill_color, delta_climb) = thermal_data.get_spider_item(pcoord.alpha, cm);
-        let scale = clamp((delta_climb + 3.0) * 0.15 + 0.4, 0.4, 1.3);
+        let compressed_delta = compress_spider_delta(delta_climb);
+        let scale = clamp((compressed_delta + 3.0) * 0.15 + 0.4, 0.4, 1.3);
         let p2 = pcoord.to_xy(scale, rotation) + center;
         if let Some(p1) = p1 {
             Triangle::new(center, p1, p2)

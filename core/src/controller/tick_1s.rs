@@ -109,18 +109,23 @@ fn speed_to_fly(cm: &mut CoreModel, cc: &mut CoreController) {
     // Circle diameter: D = 2 * v / omega (only meaningful in circling)
     let omega = cm.sensor.turn_rate.to_rad_s().abs();
     let tas_mps = cm.sensor.airspeed.tas().to_m_s();
-    if is_circling && omega > 0.02 && tas_mps > 5.0 {
-        let d = (2.0 * tas_mps / omega).clamp(5.0, 2000.0);
-        cm.calculated.circle_diameter = d.m();
+    let raw_circle_diameter = if is_circling && omega > 0.02 && tas_mps > 5.0 {
+        Some((2.0 * tas_mps / omega).clamp(5.0, 2000.0))
+    } else {
+        None
+    };
+
+    if let Some(avg_d) = cc.circle_stats.update_diameter(raw_circle_diameter, is_circling) {
+        cm.calculated.circle_diameter = avg_d.m();
         cm.calculated.circle_diameter_valid = true;
     } else {
         cm.calculated.circle_diameter_valid = false;
     }
 
-    // Circle max-min over 24 heading bins. Show "--" until first full circle is complete.
+    // Circle max-min over rolling, averaged 24 heading bins.
     let climb_delta = (cm.sensor.climb_rate - cm.calculated.av2_climb_rate).to_m_s();
     let yaw = cm.sensor.euler_yaw.to_radians();
-    if let Some(delta) = cc.circle_stats.update(yaw, climb_delta, is_circling) {
+    if let Some(delta) = cc.circle_stats.update_max_min(yaw, climb_delta, is_circling) {
         cm.calculated.circle_max_min_last = delta.m_s();
         cm.calculated.circle_max_min_valid = true;
     } else {

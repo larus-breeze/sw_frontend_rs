@@ -6,51 +6,38 @@ const TWO_PI: f32 = 2.0 * PI;
 
 #[derive(Clone, Copy)]
 pub struct CircleStats {
-    bins: [f32; BINS],
+    max_min_bins: [f32; BINS],
+    max_min_counts: [u8; BINS],
     visited: [bool; BINS],
-    last_heading: Option<f32>,
-    accumulated_turn_abs: f32,
-    active: bool,
-    last_full_circle_max_min: Option<f32>,
+    diameter_window: [f32; BINS],
+    diameter_sum: f32,
+    diameter_idx: usize,
+    diameter_count: usize,
 }
 
 impl Default for CircleStats {
     fn default() -> Self {
         Self {
-            bins: [0.0; BINS],
+            max_min_bins: [0.0; BINS],
+            max_min_counts: [0; BINS],
             visited: [false; BINS],
-            last_heading: None,
-            accumulated_turn_abs: 0.0,
-            active: false,
-            last_full_circle_max_min: None,
+            diameter_window: [0.0; BINS],
+            diameter_sum: 0.0,
+            diameter_idx: 0,
+            diameter_count: 0,
         }
     }
 }
 
 impl CircleStats {
     pub fn reset_full(&mut self) {
-        self.bins = [0.0; BINS];
+        self.max_min_bins = [0.0; BINS];
+        self.max_min_counts = [0; BINS];
         self.visited = [false; BINS];
-        self.last_heading = None;
-        self.accumulated_turn_abs = 0.0;
-        self.active = false;
-        self.last_full_circle_max_min = None;
-    }
-
-    fn reset_window(&mut self) {
-        self.bins = [0.0; BINS];
-        self.visited = [false; BINS];
-        self.accumulated_turn_abs = 0.0;
-    }
-
-    fn wrap_pi(mut x: f32) -> f32 {
-        while x > PI {
-            x -= TWO_PI;
-        }
-        while x < -PI {
-            x += TWO_PI;
-        }
-        x
+        self.diameter_window = [0.0; BINS];
+        self.diameter_sum = 0.0;
+        self.diameter_idx = 0;
+        self.diameter_count = 0;
     }
 
     fn idx(alpha: f32) -> usize {
@@ -58,72 +45,97 @@ impl CircleStats {
         ((a / TWO_PI) * BINS as f32) as usize
     }
 
-    fn update_bin(&mut self, yaw_rad: f32, climb_delta: f32) {
+    fn update_bin_avg(&mut self, yaw_rad: f32, climb_delta: f32) {
         let i = Self::idx(yaw_rad).min(BINS - 1);
-        self.bins[i] = climb_delta;
         self.visited[i] = true;
+
+        let cnt = self.max_min_counts[i];
+        if cnt == 0 {
+            self.max_min_bins[i] = climb_delta;
+            self.max_min_counts[i] = 1;
+            return;
+        }
+
+        let n = cnt as f32;
+        // Cap effective history to 24 to keep this responsive as a rolling average.
+        let eff_n = n.min(BINS as f32);
+        self.max_min_bins[i] += (climb_delta - self.max_min_bins[i]) / eff_n;
+        if self.max_min_counts[i] < BINS as u8 {
+            self.max_min_counts[i] += 1;
+        }
     }
 
-    fn calc_delta(&self) -> Option<f32> {
-        let mut first = true;
-        let mut min_v = 0.0f32;
-        let mut max_v = 0.0f32;
-        let mut count = 0usize;
+    fn calc_delta_live(&self) -> Option<f32> {
+        let mut found = false;
+        let mut min_v = 0.0;
+        let mut max_v = 0.0;
 
         for i in 0..BINS {
-            if self.visited[i] {
-                let v = self.bins[i];
-                if first {
+            if !self.visited[i] {
+                continue;
+            }
+
+            let v = self.max_min_bins[i];
+            if !found {
+                min_v = v;
+                max_v = v;
+                found = true;
+            } else {
+                if v < min_v {
                     min_v = v;
-                    max_v = v;
-                    first = false;
-                } else {
-                    if v < min_v {
-                        min_v = v;
-                    }
-                    if v > max_v {
-                        max_v = v;
-                    }
                 }
-                count += 1;
+                if v > max_v {
+                    max_v = v;
+                }
             }
         }
 
-        if count >= (BINS / 2) {
+        if found {
             Some(max_v - min_v)
         } else {
             None
         }
     }
 
-    pub fn update(&mut self, yaw_rad: f32, climb_delta: f32, is_circling: bool) -> Option<f32> {
+    pub fn update_max_min(&mut self, yaw_rad: f32, climb_delta: f32, is_circling: bool) -> Option<f32> {
         if !is_circling {
-            self.reset_full();
-            return self.last_full_circle_max_min;
+            self.max_min_bins = [0.0; BINS];
+            self.max_min_counts = [0; BINS];
+            self.visited = [false; BINS];
+            return None;
         }
 
-        if !self.active {
-            self.active = true;
-            self.reset_window();
-            self.last_full_circle_max_min = None; // show "--" until first full circle is done
-            self.last_heading = Some(yaw_rad);
-            self.update_bin(yaw_rad, climb_delta);
-            return self.last_full_circle_max_min;
+        self.update_bin_avg(yaw_rad, climb_delta);
+        self.calc_delta_live()
+    }
+
+    pub fn update_diameter(&mut self, diameter_m: Option<f32>, is_circling: bool) -> Option<f32> {
+        if !is_circling {
+            self.diameter_window = [0.0; BINS];
+            self.diameter_sum = 0.0;
+            self.diameter_idx = 0;
+            self.diameter_count = 0;
+            return None;
         }
 
-        if let Some(last) = self.last_heading {
-            let dyaw = Self::wrap_pi(yaw_rad - last);
-            self.accumulated_turn_abs += dyaw.abs();
-        }
-        self.last_heading = Some(yaw_rad);
-        self.update_bin(yaw_rad, climb_delta);
+        let value = diameter_m?;
 
-        if self.accumulated_turn_abs >= TWO_PI {
-            self.last_full_circle_max_min = self.calc_delta();
-            self.reset_window();
-            self.last_heading = Some(yaw_rad);
+        if self.diameter_count < BINS {
+            self.diameter_window[self.diameter_idx] = value;
+            self.diameter_sum += value;
+            self.diameter_count += 1;
+        } else {
+            self.diameter_sum -= self.diameter_window[self.diameter_idx];
+            self.diameter_window[self.diameter_idx] = value;
+            self.diameter_sum += value;
         }
 
-        self.last_full_circle_max_min
+        self.diameter_idx = (self.diameter_idx + 1) % BINS;
+
+        if self.diameter_count < BINS {
+            None
+        } else {
+            Some(self.diameter_sum / BINS as f32)
+        }
     }
 }
