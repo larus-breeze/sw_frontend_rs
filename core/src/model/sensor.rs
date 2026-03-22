@@ -49,10 +49,6 @@ pub struct Sensor {
     pub gps_ground_speed: Speed,
     pub gps_sats: u8,
     pub gps_state: GpsState,
-    pub dgps_acc_n: Length,
-    pub dgps_acc_e: Length,
-    pub dgps_acc_d: Length,
-    pub dgps_acc_len: Length,
     pub nick_angle: Angle,
     pub pressure: Pressure,
     pub pressure_altitude: PressureAltitude,
@@ -85,10 +81,6 @@ impl Default for Sensor {
             gps_ground_speed: 0.0.m_s(),
             gps_sats: 0,
             gps_state: GpsState::NoGps,
-            dgps_acc_n: 0.0.m(),
-            dgps_acc_e: 0.0.m(),
-            dgps_acc_d: 0.0.m(),
-            dgps_acc_len: 0.0.m(),
             nick_angle: 0.0_f32.deg(),
             pressure: Pressure::AT_NN(),
             pressure_altitude: PressureAltitude::default(),
@@ -111,7 +103,7 @@ impl Sensor {
     pub fn gnss_velocity_accuracy_bad(&self) -> bool {
         (self.larus_box_system_state & 0x0000_0004) != 0
     }
-    
+
     pub fn magnetic_disturbance_bad(&self) -> bool {
         (self.larus_box_system_state & 0x0000_0008) != 0
     }
