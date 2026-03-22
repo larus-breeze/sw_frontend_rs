@@ -217,8 +217,7 @@ where
     let mut delta_climb;
     for _cnt in 0..THERMAL_DATA_CNT {
         (fill_color, delta_climb) = thermal_data.get_spider_item(pcoord.alpha, cm);
-        let compressed_delta = compress_spider_delta(delta_climb);
-        let scale = clamp((compressed_delta + 3.0) * 0.15 + 0.4, 0.4, 1.3);
+        let scale = clamp((delta_climb + 3.0) * 0.15 + 0.4, 0.4, 1.3);
         let p2 = pcoord.to_xy(scale, rotation) + center;
         if let Some(p1) = p1 {
             Triangle::new(center, p1, p2)
