@@ -18,10 +18,6 @@ use num::clamp;
 
 #[allow(unused_imports)]
 use micromath::F32Ext;
-
-fn compress_spider_delta(delta_climb: f32) -> f32 {
-    delta_climb.signum() * delta_climb.abs().sqrt()
-}
 use num_enum::FromPrimitive;
 
 #[derive(Clone, Copy, PartialEq, FromPrimitive)]
