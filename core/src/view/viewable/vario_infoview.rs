@@ -30,7 +30,6 @@ pub enum LineView {
     SpeedToFly,
     TrueAirSpeed,
     BatteryVoltage,
-    GnssHeadingAcc,
     GLoad,
     CircleDiameter,
     CircleMaxMin,
@@ -47,7 +46,6 @@ const TOP_LINE_VIEW: &[LineView] = &[
     LineView::TrueCourse,
     LineView::UtcTime,
     LineView::BatteryVoltage,
-    LineView::GnssHeadingAcc,
     LineView::GLoad,
     LineView::CircleDiameter,
     LineView::CircleMaxMin,
@@ -64,7 +62,6 @@ const BOTTOM_LINE_VIEW: &[LineView] = &[
     LineView::UtcTime,
     LineView::WindAndAvgWind,
     LineView::WindAndDelta,
-    LineView::GnssHeadingAcc,
     LineView::GLoad,
     LineView::CircleDiameter,
     LineView::CircleMaxMin,
@@ -134,7 +131,6 @@ impl LineView {
             LineView::BatteryVoltage => "Battery Voltage",
             LineView::WindAndAvgWind => "Wind, avg Wind",
             LineView::WindAndDelta => "Wind and Delta",
-            LineView::GnssHeadingAcc => "GNSS Head Acc",
             LineView::GLoad => "G-Load",
             LineView::CircleDiameter => "Circle Diameter",
             LineView::CircleMaxMin => "Circle Max-Min",
@@ -160,7 +156,6 @@ impl LineView {
             LineView::BatteryVoltage => draw_battery_voltage(display, cm, pos),
             LineView::WindAndAvgWind => draw_wind_and_avg_wind(display, cm, pos),
             LineView::WindAndDelta => draw_wind_and_delta(display, cm, pos),
-            LineView::GnssHeadingAcc => draw_gnss_heading_acc(display, cm, pos),
             LineView::GLoad => draw_g_load(display, cm, pos),
             LineView::CircleDiameter => draw_circle_diameter(display, cm, pos),
             LineView::CircleMaxMin => draw_circle_max_min(display, cm, pos),
@@ -580,29 +575,6 @@ where
         display,
     )?;
     Ok(())
-}
-
-fn draw_gnss_heading_acc<D>(display: &mut D, cm: &CoreModel, pos: Point) -> Result<(), CoreError>
-where
-    D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
-{
-    let acc_deg = cm.sensor.dgps_acc_heading.to_degrees();
-    let s = if acc_deg > 0.001 {
-        tformat!(12, "{:.1}deg", acc_deg).unwrap()
-    } else {
-        tformat!(12, "--").unwrap()
-    };
-    let img1 = None;
-    let img2 = None;
-    draw_centered_line(
-        display,
-        pos,
-        img1,
-        s.as_str(),
-        img2,
-        &cm.device_const.big_font,
-        cm.palette(),
-    )
 }
 
 fn draw_g_load<D>(display: &mut D, cm: &CoreModel, pos: Point) -> Result<(), CoreError>
