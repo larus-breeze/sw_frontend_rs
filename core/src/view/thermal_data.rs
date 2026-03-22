@@ -15,7 +15,6 @@ pub struct ThermalData {
     last_tick: u32,
 
     best_pos: usize,
-    worst_pos: usize,
 }
 
 impl ThermalData {
@@ -47,17 +46,11 @@ impl ThermalData {
 
     pub fn prepare(&mut self) {
         self.best_pos = 0;
-        self.worst_pos = 0;
-        let mut best_value = self.climb_data[0];
-        let mut worst_value = self.climb_data[0];
+        let mut value = self.climb_data[0];
         for idx in 1..THERMAL_DATA_CNT {
-            if self.climb_data[idx] > best_value {
-                best_value = self.climb_data[idx];
+            if self.climb_data[idx] > value {
+                value = self.climb_data[idx];
                 self.best_pos = idx;
-            }
-            if self.climb_data[idx] < worst_value {
-                worst_value = self.climb_data[idx];
-                self.worst_pos = idx;
             }
         }
     }
@@ -66,8 +59,6 @@ impl ThermalData {
         let idx = Self::get_idx(alpha);
         let color = if idx == self.best_pos {
             cm.palette().vario.therm_ass_best
-        } else if idx == self.worst_pos {
-            Colors::Black
         } else if self.climb_data[idx] > 0.0 {
             cm.palette().vario.therm_ass_good
         } else {
@@ -81,8 +72,6 @@ impl ThermalData {
         let idx = Self::get_idx(alpha);
         let color = if idx == self.best_pos {
             cm.palette().vario.therm2_ass_best
-        } else if idx == self.worst_pos {
-            Colors::Black
         } else if self.climb_data[idx] > 0.0 {
             cm.palette().vario.therm2_ass_good
         } else {
@@ -100,7 +89,6 @@ impl Default for ThermalData {
             last_vario_mode: VarioMode::SpeedToFly,
             last_tick: 0,
             best_pos: 0,
-            worst_pos: 0,
         }
     }
 }
