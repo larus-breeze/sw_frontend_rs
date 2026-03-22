@@ -131,6 +131,7 @@ impl LineView {
             LineView::TrueAirSpeed => "True Air Speed",
             LineView::TrueCourse => "True Course",
             LineView::UtcTime => "UTC Time",
+            LineView::BatteryVoltage => "Battery Voltage",
             LineView::WindAndAvgWind => "Wind, avg Wind",
             LineView::WindAndDelta => "Wind and Delta",
             LineView::GnssHeadingAcc => "GNSS Head Acc",
@@ -156,6 +157,7 @@ impl LineView {
             LineView::TrueAirSpeed => draw_true_air_speed(display, cm, pos),
             LineView::TrueCourse => draw_true_course(display, cm, pos),
             LineView::UtcTime => draw_utc_time(display, cm, pos),
+            LineView::BatteryVoltage => draw_battery_voltage(display, cm, pos),
             LineView::WindAndAvgWind => draw_wind_and_avg_wind(display, cm, pos),
             LineView::WindAndDelta => draw_wind_and_delta(display, cm, pos),
             LineView::GnssHeadingAcc => draw_gnss_heading_acc(display, cm, pos),
@@ -625,10 +627,10 @@ where
     D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
 {
     let s = if cm.calculated.circle_diameter_valid {
-        tformat!(8, "{}", cm.config.unit_height.value_str(cm.calculated.circle_diameter).as_str())
+        tformat!(10, "⌀{}", cm.config.unit_height.value_str(cm.calculated.circle_diameter).as_str())
             .unwrap()
     } else {
-        tformat!(8, "--").unwrap()
+        tformat!(10, "⌀--").unwrap()
     };
     draw_centered_line(
         display,
@@ -646,13 +648,13 @@ where
     D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
 {
     let s = if cm.calculated.circle_max_min_valid {
-        tformat!(10, "{}", cm.config
+        tformat!(12, "Δ{}", cm.config
             .unit_vertical_speed
             .value_str(cm.calculated.circle_max_min_last)
             .as_str())
         .unwrap()
     } else {
-        tformat!(10, "--").unwrap()
+        tformat!(12, "Δ--").unwrap()
     };
     draw_centered_line(
         display,
