@@ -213,9 +213,11 @@ pub struct VarioPalette {
     pub therm_ass_best: Colors,
     pub therm_ass_good: Colors,
     pub therm_ass_bad: Colors,
+    pub therm_ass_worst: Colors,
     pub therm2_ass_best: Colors,
     pub therm2_ass_good: Colors,
     pub therm2_ass_bad: Colors,
+    pub therm2_ass_worst: Colors,
 }
 
 impl VarioPalette {
@@ -242,9 +244,11 @@ impl VarioPalette {
             therm_ass_best: Colors::Yellow,
             therm_ass_good: Colors::Red,
             therm_ass_bad: Colors::DeepSkyBlue,
+            therm_ass_worst: Colors::Black,
             therm2_ass_best: Colors::Yellow,
             therm2_ass_good: Colors::Red,
             therm2_ass_bad: Colors::Blue,
+            therm2_ass_worst: Colors::Black,
         }
     }
 }
