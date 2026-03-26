@@ -24,8 +24,8 @@ use fw_update::SwUpdateController;
 
 mod sound;
 pub use sound::{
-    SoundControl, SoundParams, Waveform, WAVEFORM_RECTANGULAR, WAVEFORM_SAWTOOTH,
-    WAVEFORM_SINE_WAVE, WAVEFORM_TRIANGULAR,
+    get_snd_spreading_factor, set_snd_spreading_factor, SoundControl, SoundParams, Waveform,
+    SND_EXP_MUL, WAVEFORM_RECTANGULAR, WAVEFORM_SAWTOOTH, WAVEFORM_SINE_WAVE, WAVEFORM_TRIANGULAR,
 };
 
 mod tick_1s;

@@ -3,7 +3,7 @@ use crate::{
     controller::{
         Waveform, WAVEFORM_RECTANGULAR, WAVEFORM_SAWTOOTH, WAVEFORM_SINE_WAVE, WAVEFORM_TRIANGULAR,
     },
-    menu,
+    get_snd_spreading_factor, menu,
     model::{
         config::{
             UnitHeight, UnitHorizontalSpeed, UnitVerticalSpeed, DEVICE_INFO, HORIZON, UNIT_FEET,
@@ -630,15 +630,38 @@ impl EditableFuncs for McCready {
             }),
         }
     }
+}
+
+pub struct SoundSpreading;
+impl EditableFuncs for SoundSpreading {
+    fn name() -> &'static str {
+        "Spreading Factor"
+    }
+
+    fn content(cm: &mut CoreModel, _cc: &mut CoreController) -> Content {
+        let value = get_snd_spreading_factor(cm);
+        Content::F32(Some(value))
+    }
+
+    fn params(_cm: &CoreModel) -> Params {
+        Params::F32(F32Params {
+            min: 0.5,
+            max: 2.0,
+            small_inc: 0.1,
+            big_inc: 0.2,
+            dec_places: 1,
+            unit: "",
+        })
+    }
 
     fn set_content(cm: &mut CoreModel, cc: &mut CoreController, content: Content) {
         if let Content::F32(Some(value)) = content {
             persist::persist_set(
                 cc,
                 cm,
-                Variant::Speed(cm.config.unit_vertical_speed.as_speed(value)),
-                PersistenceId::McCready,
-                Echo::NmeaAndCan,
+                Variant::F32(value),
+                PersistenceId::SoundSpreading,
+                Echo::None,
             );
         }
     }

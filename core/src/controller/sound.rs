@@ -5,6 +5,8 @@ use num_enum::FromPrimitive;
 #[allow(unused_imports)]
 use micromath::F32Ext;
 
+pub const SND_EXP_MUL: f32 = 0.138629; // -5 .. 5 two octaves
+
 #[derive(Clone, Copy, PartialEq, Debug, FromPrimitive)]
 #[repr(u8)]
 pub enum Waveform {
@@ -49,6 +51,14 @@ impl Default for SoundParams {
             waveform: Waveform::Triangular,
         }
     }
+}
+
+pub fn get_snd_spreading_factor(cm: &CoreModel) -> f32 {
+    cm.config.snd_exp_mul / SND_EXP_MUL
+}
+
+pub fn set_snd_spreading_factor(cm: &mut CoreModel, spreading_factor: f32) {
+    cm.config.snd_exp_mul = SND_EXP_MUL * spreading_factor;
 }
 
 #[allow(unused)]

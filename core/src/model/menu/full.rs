@@ -555,6 +555,10 @@ pub const SOUND: Menu = Menu {
             next_menu_idx: SOUND_IDX,
         },
         MenuItem {
+            content: MenuItemContent::EditItem(Editable::SoundSpreading),
+            next_menu_idx: SOUND_IDX,
+        },
+        MenuItem {
             content: MenuItemContent::EditItem(Editable::Return),
             next_menu_idx: ADVANCED_SETTINGS_IDX,
         },

@@ -29,6 +29,7 @@ use crate::{
     },
     flight_physics::polar_store,
     model::{GpsState, UnitHeight, UnitHorizontalSpeed, UnitVerticalSpeed},
+    set_snd_spreading_factor,
     system_of_units::Speed,
     utils::Variant,
     view::viewable::{
@@ -101,7 +102,8 @@ pub enum PersistenceId {
     ClubMode = 54,
     Date = 55,
     Waveform = 56,
-    LastItem = 57, // Items smaller than this are stored in eeprom
+    SoundSpreading = 57,
+    LastItem = 58, // Items smaller than this are stored in eeprom
 
     // Special function Ids
     VarioMode = 65532,
@@ -171,6 +173,7 @@ const DELETE_CONFIG_LIST: &[PersistenceId] = &[
     PersistenceId::Info3Vario,
     PersistenceId::Info3Stf,
     PersistenceId::Waveform,
+    PersistenceId::SoundSpreading,
 ];
 
 /// The following data is deleted when a new glider is selected
@@ -332,6 +335,7 @@ pub fn restore_item(cc: &mut CoreController, cm: &mut CoreModel, item: Persisten
         PersistenceId::Waveform => {
             cm.calculated.sound_params.waveform = Waveform::from(item.to_u8())
         }
+        PersistenceId::SoundSpreading => set_snd_spreading_factor(cm, item.to_f32()),
 
         // Special function Ids
         PersistenceId::UserProfile => cm.config.user_profile = item.to_u8(),

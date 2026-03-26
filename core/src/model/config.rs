@@ -1,4 +1,5 @@
 use crate::{
+    controller::SND_EXP_MUL,
     system_of_units::{FloatToSpeed, Speed},
     tformat,
     view::viewable::{
@@ -313,10 +314,10 @@ impl Config {
             glider_idx: 104,
             volume: 2,
             mc_cready: 0.7.m_s(),
-            snd_min_freq: 233.0,    // -7,5
+            snd_min_freq: 200.0,
             snd_center_freq: 659.0, // e2
-            snd_max_freq: 1864.0,   // +7,5
-            snd_exp_mul: 0.138629,  // -5 .. 5 two octaves
+            snd_max_freq: 3000.0,
+            snd_exp_mul: SND_EXP_MUL,
             snd_duty_cycle: 200,
             av2_climb_rate_tc: 30.0,
             av_speed_to_fly_tc: 5.0,
