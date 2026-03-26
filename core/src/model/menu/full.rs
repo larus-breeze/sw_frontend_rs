@@ -18,6 +18,7 @@ pub const VIEW_STRAIGHT_IDX: usize = 13;
 pub const VIEW_CIRCLING_IDX: usize = 14;
 pub const USAGE_MODE_AND_PROFILE_IDX: usize = 15;
 pub const MORE_SETTINGS_IDX: usize = 16;
+pub const SOUND_IDX: usize = 17;
 
 pub const MENU_LIST: &[Menu] = &[
     ROOT,
@@ -37,6 +38,7 @@ pub const MENU_LIST: &[Menu] = &[
     VIEW_CIRCLING,
     USAGE_MODE_AND_PROFILE,
     MORE_SETTINGS,
+    SOUND,
 ];
 
 pub const SETTINGS: Menu = Menu {
@@ -127,11 +129,11 @@ pub const ADVANCED_SETTINGS: Menu = Menu {
         },
         MenuItem {
             content: MenuItemContent::MenuItem(),
-            next_menu_idx: MORE_SETTINGS_IDX,
+            next_menu_idx: SOUND_IDX,
         },
         MenuItem {
-            content: MenuItemContent::EditItem(Editable::CenterFrequency),
-            next_menu_idx: ADVANCED_SETTINGS_IDX,
+            content: MenuItemContent::MenuItem(),
+            next_menu_idx: MORE_SETTINGS_IDX,
         },
         MenuItem {
             content: MenuItemContent::EditItem(Editable::Return),
@@ -532,6 +534,25 @@ pub const MORE_SETTINGS: Menu = Menu {
         MenuItem {
             content: MenuItemContent::EditItem(Editable::FlashControl),
             next_menu_idx: MORE_SETTINGS_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::Return),
+            next_menu_idx: ADVANCED_SETTINGS_IDX,
+        },
+    ],
+};
+
+pub const SOUND: Menu = Menu {
+    name: "Sound",
+    level: 3,
+    items: &[
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::CenterFrequency),
+            next_menu_idx: SOUND_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::Waveform),
+            next_menu_idx: SOUND_IDX,
         },
         MenuItem {
             content: MenuItemContent::EditItem(Editable::Return),

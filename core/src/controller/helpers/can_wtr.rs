@@ -26,7 +26,11 @@ impl CoreModel {
                 .push_u16(self.calculated.sound_params.frequency)
                 .push_u16(self.config.snd_duty_cycle)
                 .push_u8(self.calculated.sound_params.gain as u8)
-                .push_u8(if self.calculated.sound_params.continuous { 1 } else { 0 }),
+                .push_u8(if self.calculated.sound_params.continuous {
+                    1
+                } else {
+                    0
+                }),
             SpecialId::Sound as u16,
             OBJECT_ID,
         )

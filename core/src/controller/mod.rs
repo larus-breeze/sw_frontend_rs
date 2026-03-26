@@ -23,7 +23,10 @@ mod fw_update;
 use fw_update::SwUpdateController;
 
 mod sound;
-pub use sound::{SoundParams, SoundControl, Waveform};
+pub use sound::{
+    SoundControl, SoundParams, Waveform, WAVEFORM_RECTANGULAR, WAVEFORM_SAWTOOTH,
+    WAVEFORM_SINE_WAVE, WAVEFORM_TRIANGULAR,
+};
 
 mod tick_1s;
 use tick_1s::*;

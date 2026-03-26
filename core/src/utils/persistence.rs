@@ -283,7 +283,8 @@ where
             PersistenceId::DeleteAll => self.eeprom.clear_all_data(),
             PersistenceId::UserProfile => {
                 self.user_profile = clamp(item.data[0], 0, 3);
-                self.eeprom.write_byte(eeprom::ADR_USER_PROFILE, self.user_profile)
+                self.eeprom
+                    .write_byte(eeprom::ADR_USER_PROFILE, self.user_profile)
             }
             _ => {
                 let address = self.item_address(item.id);

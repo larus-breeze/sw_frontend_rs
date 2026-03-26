@@ -1,5 +1,8 @@
 use super::{Content, EditableFuncs, EnumParams, F32Params, ListParams, Params};
 use crate::{
+    controller::{
+        Waveform, WAVEFORM_RECTANGULAR, WAVEFORM_SAWTOOTH, WAVEFORM_SINE_WAVE, WAVEFORM_TRIANGULAR,
+    },
     menu,
     model::{
         config::{
@@ -1194,6 +1197,48 @@ impl EditableFuncs for Volume {
                 Variant::I8(val as i8),
                 PersistenceId::Volume,
                 Echo::NmeaAndCan,
+            );
+        }
+    }
+}
+
+pub struct Waveform_;
+
+impl EditableFuncs for Waveform_ {
+    fn name() -> &'static str {
+        "Waveform"
+    }
+
+    fn content(cm: &mut CoreModel, _cc: &mut CoreController) -> Content {
+        match cm.calculated.sound_params.waveform {
+            Waveform::Rectangular => Content::Enum(TString::<16>::from_str(WAVEFORM_RECTANGULAR)),
+            Waveform::Sawtooth => Content::Enum(TString::<16>::from_str(WAVEFORM_SAWTOOTH)),
+            Waveform::SineWave => Content::Enum(TString::<16>::from_str(WAVEFORM_SINE_WAVE)),
+            Waveform::Triangular => Content::Enum(TString::<16>::from_str(WAVEFORM_TRIANGULAR)),
+        }
+    }
+
+    fn params(_cm: &CoreModel) -> Params {
+        Params::Enum(EnumParams {
+            variants: [
+                WAVEFORM_RECTANGULAR,
+                WAVEFORM_SAWTOOTH,
+                WAVEFORM_SINE_WAVE,
+                WAVEFORM_TRIANGULAR,
+                "",
+            ],
+        })
+    }
+
+    fn set_content(cm: &mut CoreModel, cc: &mut CoreController, content: Content) {
+        if let Content::Enum(val) = content {
+            let waveform = Waveform::from(val.as_str());
+            persist::persist_set(
+                cc,
+                cm,
+                Variant::U8(waveform as u8),
+                PersistenceId::Waveform,
+                Echo::None,
             );
         }
     }

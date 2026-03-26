@@ -98,7 +98,13 @@ impl CoreController {
             }
             CanConfigId::Bugs => {
                 if let Some(val) = frame.read_opt_f32(4) {
-                    persist::persist_set(self, cm, Variant::F32(val), PersistenceId::Bugs, Echo::Nmea);
+                    persist::persist_set(
+                        self,
+                        cm,
+                        Variant::F32(val),
+                        PersistenceId::Bugs,
+                        Echo::Nmea,
+                    );
                 }
             }
             CanConfigId::Qnh => {

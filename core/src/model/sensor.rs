@@ -103,7 +103,7 @@ impl Sensor {
     pub fn gnss_velocity_accuracy_bad(&self) -> bool {
         (self.larus_box_system_state & 0x0000_0004) != 0
     }
-    
+
     pub fn magnetic_disturbance_bad(&self) -> bool {
         (self.larus_box_system_state & 0x0000_0008) != 0
     }

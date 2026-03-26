@@ -1,7 +1,7 @@
 use crate::{
+    controller::SoundParams,
     system_of_units::{FloatToSpeed, Speed},
     AirSpeed, CoreModel,
-    controller::SoundParams,
 };
 
 /// Metastructure for calculated or set values

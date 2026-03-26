@@ -36,7 +36,7 @@ use crate::{
         vario_infoview::{Info3View, LineView},
     },
     CoreController, CoreModel, DateTime, FloatToSpeed, IdleEvent, Mass, PersistenceItem, Pressure,
-    Rotation, VarioMode,
+    Rotation, VarioMode, Waveform,
 };
 
 /// It is not permitted to change the sequence or assignment, as the number references the memory
@@ -100,7 +100,8 @@ pub enum PersistenceId {
     UnitHeight = 53,
     ClubMode = 54,
     Date = 55,
-    LastItem = 56, // Items smaller than this are stored in eeprom
+    Waveform = 56,
+    LastItem = 57, // Items smaller than this are stored in eeprom
 
     // Special function Ids
     VarioMode = 65532,
@@ -169,6 +170,7 @@ const DELETE_CONFIG_LIST: &[PersistenceId] = &[
     PersistenceId::Info2Stf,
     PersistenceId::Info3Vario,
     PersistenceId::Info3Stf,
+    PersistenceId::Waveform,
 ];
 
 /// The following data is deleted when a new glider is selected
@@ -326,6 +328,9 @@ pub fn restore_item(cc: &mut CoreController, cm: &mut CoreModel, item: Persisten
         PersistenceId::Date => {
             let data = item.to_4u8();
             cm.sensor.gps_date_time.mut_date().from_array_4u8(data);
+        }
+        PersistenceId::Waveform => {
+            cm.calculated.sound_params.waveform = Waveform::from(item.to_u8())
         }
 
         // Special function Ids

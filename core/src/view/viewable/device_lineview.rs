@@ -112,10 +112,7 @@ impl DeviceLineView {
 
     fn line_info(&self, cm: &CoreModel) -> LineInfo {
         let mut lv = match self {
-
-
             // Vario Display values
-
             DeviceLineView::DisplayVersion => LineInfo {
                 name: "FW Version: ",
                 value: tformat!(
@@ -159,14 +156,14 @@ impl DeviceLineView {
             },
 
             // Sensorbox values
-
             DeviceLineView::SensorboxVersion => LineInfo {
                 name: "FW Version: ",
                 value: tformat!(30, "{}", cm.sensor.sw_version.as_string().as_str()).unwrap(),
             },
             DeviceLineView::GnssAccuracityOk => LineInfo {
                 name: "GNSS Data: ",
-                value: tformat!(30, "{}", Self::ok(!cm.sensor.gnss_velocity_accuracy_bad())).unwrap(),
+                value: tformat!(30, "{}", Self::ok(!cm.sensor.gnss_velocity_accuracy_bad()))
+                    .unwrap(),
             },
             DeviceLineView::MagneticDisturbanceOk => LineInfo {
                 name: "Magn Data: ",
@@ -230,11 +227,12 @@ impl DeviceLineView {
             },
 
             // These are empty or header lines, so this never can be addressed
-
-            DeviceLineView::Empty | DeviceLineView::SensorBox | DeviceLineView::VarioDisplay => LineInfo {
-                name: "Error",
-                value: tformat!(30, "Error").unwrap(),
-            },
+            DeviceLineView::Empty | DeviceLineView::SensorBox | DeviceLineView::VarioDisplay => {
+                LineInfo {
+                    name: "Error",
+                    value: tformat!(30, "Error").unwrap(),
+                }
+            }
         };
         if cm.control.system_state == SystemState::NoCom && (*self as u8) >= 50 {
             lv.value = tformat!(30, "-").unwrap();

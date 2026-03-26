@@ -1,15 +1,35 @@
 use crate::{CoreModel, IdleEvent, VarioMode};
 use num::clamp;
+use num_enum::FromPrimitive;
 
 #[allow(unused_imports)]
 use micromath::F32Ext;
 
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq, Debug, FromPrimitive)]
+#[repr(u8)]
 pub enum Waveform {
+    #[default]
     Triangular,
     Sawtooth,
     Rectangular,
     SineWave,
+}
+
+#[allow(unused)]
+pub const WAVEFORM_TRIANGULAR: &str = "Triangular";
+pub const WAVEFORM_SAWTOOTH: &str = "Sawtooth";
+pub const WAVEFORM_RECTANGULAR: &str = "Rectangular";
+pub const WAVEFORM_SINE_WAVE: &str = "Sine wave";
+
+impl From<&str> for Waveform {
+    fn from(value: &str) -> Self {
+        match value {
+            WAVEFORM_SAWTOOTH => Waveform::Sawtooth,
+            WAVEFORM_RECTANGULAR => Waveform::Rectangular,
+            WAVEFORM_SINE_WAVE => Waveform::SineWave,
+            _ => Waveform::Triangular,
+        }
+    }
 }
 
 #[derive(Clone, Copy)]
@@ -22,11 +42,11 @@ pub struct SoundParams {
 
 impl Default for SoundParams {
     fn default() -> Self {
-        SoundParams { 
-            frequency: 500, 
-            continuous: false, 
-            gain: 2, 
-            waveform: Waveform::Triangular, 
+        SoundParams {
+            frequency: 500,
+            continuous: false,
+            gain: 2,
+            waveform: Waveform::Triangular,
         }
     }
 }

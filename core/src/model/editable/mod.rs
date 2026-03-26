@@ -2,13 +2,13 @@ mod controller;
 mod glider_data;
 /// Elements that can be changed by the user
 ///
-/// Editables are always saved in the model or controllerand can be changed by the user. These
+/// Editables are always saved in the model or controller and can be changed by the user. These
 /// can be parameters, display selection, time constants or other data. With the help of this
 /// module, the implemented editor is able to display and change such data, save it and, if
 /// necessary, output it at the NMEA and CAN interfaces.
 ///
 /// New elements are added with the following steps:
-///   - First, the persistence layer is extended (src/controller/persistence.rs)
+///   - First, the persistence layer is extended (src/controller/persist.rs)
 ///     - Extend PersistenceId
 ///     - Extend restore_item()
 ///   - Then the enum Editable is extended by the new element (see below)
@@ -61,6 +61,7 @@ pub enum Editable {
     UsageCode,
     UsageMode,
     Volume,
+    Waveform,
 
     // controller
     DrainPinConfig,
@@ -258,6 +259,7 @@ impl Editable {
             Editable::UsageCode => UsageCode::this(),
             Editable::UsageMode => UsageMode::this(),
             Editable::Volume => Volume::this(),
+            Editable::Waveform => Waveform_::this(),
 
             // controller
             Editable::DrainPinConfig => DrainPinConfig::this(),
