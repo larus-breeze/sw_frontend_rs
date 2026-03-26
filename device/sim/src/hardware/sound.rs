@@ -46,7 +46,10 @@ impl Sound {
         // the sound data. The communication to the closure is done via a mpsc channel. Frequencies
         // between two sound commands from frontend are interpolated.
         //
-        //  This driver is unable to switch at zero amplitude, resulting in occasional crackling noises.
+        // Driver limitations: 
+        // - Cannot switch over at zero amplitude, which occasionally causes clicking noises.
+        // - Only sine waves are supported; other waveforms such as sawtooth, triangle or square 
+        //   waves do not work.
         fn data_callback(audio_rx: Receiver<AudioData>) -> impl FnMut(&mut [f32]) + Send + 'static {
             let mut clock = 0f32;
             let mut audio_data = AudioData::new();

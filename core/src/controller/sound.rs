@@ -4,6 +4,33 @@ use num::clamp;
 #[allow(unused_imports)]
 use micromath::F32Ext;
 
+#[derive(Clone, Copy)]
+pub enum Waveform {
+    Triangular,
+    Sawtooth,
+    Rectangular,
+    SineWave,
+}
+
+#[derive(Clone, Copy)]
+pub struct SoundParams {
+    pub frequency: u16,
+    pub continuous: bool,
+    pub gain: i8,
+    pub waveform: Waveform,
+}
+
+impl Default for SoundParams {
+    fn default() -> Self {
+        SoundParams { 
+            frequency: 500, 
+            continuous: false, 
+            gain: 2, 
+            waveform: Waveform::Triangular, 
+        }
+    }
+}
+
 #[allow(unused)]
 pub enum SoundScenario {
     Standard = 0b0000_0000,
@@ -58,15 +85,15 @@ impl SoundControl {
             self.vario_sound(cm)
         };
 
-        cm.calculated.frequency = clamp(
+        cm.calculated.sound_params.frequency = clamp(
             frequency,
             cm.config.snd_min_freq as u16,
             cm.config.snd_max_freq as u16,
         );
-        cm.calculated.continuous = continuous;
+        cm.calculated.sound_params.continuous = continuous;
 
-        if gain != cm.calculated.gain {
-            cm.calculated.gain = gain;
+        if gain != cm.calculated.sound_params.gain {
+            cm.calculated.sound_params.gain = gain;
             let event = IdleEvent::SetGain(gain as u8);
 
             // send event to the idle loop, which handles the amplifier via i2c
@@ -123,21 +150,21 @@ impl SoundControl {
             0..=4 => (START_FREQ, false, 0), // silence
             5 => (START_FREQ, true, cm.control.alarm_volume),
             6..=10 => (
-                cm.calculated.frequency + INC_FREQ,
+                cm.calculated.sound_params.frequency + INC_FREQ,
                 true,
                 cm.control.alarm_volume,
             ),
             11 => (START_FREQ, false, 0), // silence
             12 => (START_FREQ, true, cm.control.alarm_volume),
             13..=17 => (
-                cm.calculated.frequency + INC_FREQ,
+                cm.calculated.sound_params.frequency + INC_FREQ,
                 true,
                 cm.control.alarm_volume,
             ),
             18 => (START_FREQ, false, 0), // silence
             19 => (START_FREQ, true, cm.control.alarm_volume),
             20..=24 => (
-                cm.calculated.frequency + INC_FREQ,
+                cm.calculated.sound_params.frequency + INC_FREQ,
                 true,
                 cm.control.alarm_volume,
             ),

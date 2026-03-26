@@ -207,32 +207,22 @@ mod app {
             .statistics
             .lock(|statistics| statistics.all_alive());
 
-        let recalc = cx.shared.controller.lock(|controller| {
+        cx.shared.controller.lock(|controller| {
             if all_alive {
                 // feed the watchdog, if all tasks are alive
                 controller.core().send_idle_event(IdleEvent::FeedTheDog);
             }
+            // do controller calculations
             cx.shared.core_model.lock(|core_model| {
-                // do controller calculations
                 if controller.tick_1ms(core_model) {
                     rtic::pend(interrupt::DMA1_STR1); // check if there is something to send
-                    Some((
-                        core_model.calculated.frequency,
-                        core_model.calculated.continuous,
-                        core_model.calculated.gain,
-                    ))
-                } else {
-                    None
+                    // set sound params
+                    cx.shared.sound.lock(|sound| {
+                        sound.set_params(&core_model.calculated.sound_params);
+                    });
                 }
-            })
-        });
-
-        // set sound params
-        if let Some((frequecy, continuous, gain)) = recalc {
-            cx.shared.sound.lock(|sound| {
-                sound.set_params(frequecy, continuous, gain);
             });
-        }
+        });
 
         task_controller::spawn_after(DevDuration::millis(1)).unwrap();
         task_end!(cx, Task::Controller);

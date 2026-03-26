@@ -1,6 +1,7 @@
 use crate::{
     system_of_units::{FloatToSpeed, Speed},
     AirSpeed, CoreModel,
+    controller::SoundParams,
 };
 
 /// Metastructure for calculated or set values
@@ -13,10 +14,8 @@ pub struct Calculated {
     pub speed_to_fly_1s: Speed, // ref. IAS
     pub thermal_climb_rate: Speed,
     pub av2_climb_rate: Speed, // calculated by frontend
-    pub frequency: u16,
-    pub continuous: bool,
-    pub gain: i8,
     pub interpolated_climb_rate: InterpolatedClimbRate,
+    pub sound_params: SoundParams,
 }
 
 impl Default for Calculated {
@@ -30,9 +29,7 @@ impl Default for Calculated {
             speed_to_fly_1s: 0.0.km_h(),
             thermal_climb_rate: 0.0.m_s(),
             av2_climb_rate: 0.0.m_s(),
-            frequency: 500,
-            continuous: false,
-            gain: 2,
+            sound_params: SoundParams::default(),
             interpolated_climb_rate: InterpolatedClimbRate::default(),
         }
     }

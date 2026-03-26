@@ -23,7 +23,7 @@ mod fw_update;
 use fw_update::SwUpdateController;
 
 mod sound;
-pub(crate) use sound::SoundControl;
+pub use sound::{SoundParams, SoundControl, Waveform};
 
 mod tick_1s;
 use tick_1s::*;

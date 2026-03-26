@@ -1,5 +1,5 @@
 use super::H7_HCLK;
-use crate::utils::samples::*;
+use crate::{utils::samples::*, SoundParams, Waveform};
 /// Sound Modul
 ///
 /// The sound module provides the necessary components to realize the sound output of the Vario.
@@ -21,41 +21,12 @@ use crate::utils::samples::*;
 ///
 /// In this module, unsafe is used several times to access the controller peripherals. This is
 /// unavoidable, necessary and tests did not reveal any problems.
-use defmt::*;
 use stm32h7xx_hal::{
     dac::{Disabled, C1},
     dma::dma::Stream0,
     pac,
     pac::{DAC, DMA1},
 };
-
-#[derive(Clone, Copy, Format)]
-pub enum Waveform {
-    Triangular,
-    Sawtooth,
-    Rectangular,
-    SineWave,
-}
-
-impl Waveform {
-    pub fn next(&self) -> Self {
-        match self {
-            Waveform::Triangular => Waveform::Sawtooth,
-            Waveform::Sawtooth => Waveform::Rectangular,
-            Waveform::Rectangular => Waveform::SineWave,
-            Waveform::SineWave => Waveform::Triangular,
-        }
-    }
-
-    pub fn previous(&self) -> Self {
-        match self {
-            Waveform::Triangular => Waveform::SineWave,
-            Waveform::Sawtooth => Waveform::Triangular,
-            Waveform::Rectangular => Waveform::Sawtooth,
-            Waveform::SineWave => Waveform::Rectangular,
-        }
-    }
-}
 
 #[link_section = ".axisram.AXISRAM"]
 static mut SAMPLES: [u16; SAMPLES_COUNT] = [2047; SAMPLES_COUNT];
@@ -73,9 +44,7 @@ pub struct Sound {
     curr_f: f32,
     delta_f: f32,
     on: bool,
-    continous: bool,
-    gain: i8,
-    waveform: Waveform,
+    params: SoundParams,
     old_gain: i8,
     buffer: [u16; SAMPLES_COUNT],
 }
@@ -129,9 +98,7 @@ impl Sound {
             curr_f: 1000.0,
             delta_f: 0.0,
             on: true,
-            continous: false,
-            gain: 0,
-            waveform: Waveform::Triangular,
+            params: SoundParams::default(),
             buffer: [2047; SAMPLES_COUNT],
             old_gain: 0,
         }
@@ -141,20 +108,19 @@ impl Sound {
         self.duty_cycle = duty_cycle;
     }
 
-    pub fn set_params(&mut self, fq: u16, continous: bool, gain: i8) {
+    pub fn set_params(&mut self, params: &SoundParams) {
+        self.params = *params;
         let devider = self.tim.arr.read().bits();
         self.wave_ctr = 0;
         self.curr_f = H7_HCLK as f32 / SAMPLES_COUNT as f32 / devider as f32;
         // Calculate delta frequency asume 10 Hz tick rate
-        self.next_f = fq as f32;
+        self.next_f = self.params.frequency as f32;
         self.delta_f = (self.next_f - self.curr_f) / self.curr_f * 10.0;
         // let devider = (100_000_000 / SAMPLES_COUNT as u32 / fq as u32) as u16;
         // self.tim.arr.write(|w| w.arr().bits(devider)); // preload register
-        self.continous = continous;
-        self.gain = gain;
 
         // get source pointer of sound samples
-        let wave = match self.waveform {
+        let wave = match self.params.waveform {
             Waveform::Triangular => TRIANGULAR_WAVE,
             Waveform::Sawtooth => SAWTOOTH_WAVE,
             Waveform::Rectangular => RECTANGULAR_WAVE,
@@ -162,8 +128,8 @@ impl Sound {
         };
 
         // get volume_factor
-        let volume_factor = if self.gain > 30 && self.gain <= 50 {
-            VOLUME_FACTORS[self.gain as usize - 31] // 31..
+        let volume_factor = if self.params.gain > 30 && self.params.gain <= 50 {
+            VOLUME_FACTORS[self.params.gain as usize - 31] // 31..
         } else {
             0.5
         };
@@ -175,12 +141,12 @@ impl Sound {
     }
 
     pub fn set_waveform(&mut self, waveform: Waveform) {
-        self.waveform = waveform;
+        self.params.waveform = waveform;
         self.set_wave(self.on);
     }
 
     pub fn waveform(&self) -> Waveform {
-        self.waveform
+        self.params.waveform
     }
 
     pub fn on_interrupt(&mut self) {
@@ -198,7 +164,7 @@ impl Sound {
 
         self.cycle_counter += 1;
 
-        if self.gain == 0 {
+        if self.params.gain == 0 {
             if self.cycle_counter >= self.duty_cycle {
                 self.cycle_counter = 0;
             }
@@ -207,7 +173,7 @@ impl Sound {
             }
         } else if self.cycle_counter >= self.duty_cycle {
             self.cycle_counter = 0;
-            match self.continous {
+            match self.params.continuous {
                 true => {
                     if !self.on {
                         self.set_wave(true);
@@ -218,14 +184,14 @@ impl Sound {
                     false => self.set_wave(true),
                 },
             }
-        } else if self.old_gain != self.gain {
+        } else if self.old_gain != self.params.gain {
             self.set_wave(self.on);
         }
     }
 
     fn set_wave(&mut self, sound_on: bool) {
         self.on = sound_on;
-        self.old_gain = self.gain;
+        self.old_gain = self.params.gain;
 
         // unsafe ist ok her becaus the access ist synchronized to dma access
         if sound_on {
