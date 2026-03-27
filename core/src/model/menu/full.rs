@@ -280,23 +280,7 @@ pub const SENSOR_BOX_SETTINGS: Menu = Menu {
             next_menu_idx: SENSOR_BOX_SETTINGS_IDX,
         },
         MenuItem {
-            content: MenuItemContent::EditItem(Editable::MagAutoCalib),
-            next_menu_idx: SENSOR_BOX_SETTINGS_IDX,
-        },
-        MenuItem {
             content: MenuItemContent::EditItem(Editable::VarioTc),
-            next_menu_idx: SENSOR_BOX_SETTINGS_IDX,
-        },
-        MenuItem {
-            content: MenuItemContent::EditItem(Editable::VarioIntTc),
-            next_menu_idx: SENSOR_BOX_SETTINGS_IDX,
-        },
-        MenuItem {
-            content: MenuItemContent::EditItem(Editable::WindTc),
-            next_menu_idx: SENSOR_BOX_SETTINGS_IDX,
-        },
-        MenuItem {
-            content: MenuItemContent::EditItem(Editable::MeanWindTc),
             next_menu_idx: SENSOR_BOX_SETTINGS_IDX,
         },
         MenuItem {
@@ -313,10 +297,6 @@ pub const SENSOR_BOX_SETTINGS: Menu = Menu {
         },
         MenuItem {
             content: MenuItemContent::EditItem(Editable::AntSlaveRight),
-            next_menu_idx: SENSOR_BOX_SETTINGS_IDX,
-        },
-        MenuItem {
-            content: MenuItemContent::EditItem(Editable::VarioPressTc),
             next_menu_idx: SENSOR_BOX_SETTINGS_IDX,
         },
         MenuItem {

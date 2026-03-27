@@ -150,33 +150,6 @@ impl EditableFuncs for QnhDelta {
     }
 }
 
-pub struct MagAutoCalib;
-impl EditableFuncs for MagAutoCalib {
-    fn name() -> &'static str {
-        "Mag Auto Calib"
-    }
-
-    fn content(cm: &mut CoreModel, cc: &mut CoreController) -> Content {
-        send_can_config_frame(cm, cc, CanConfigId::MagAutoCalib, RemoteConfig::Get);
-        Content::F32(None)
-    }
-
-    fn params(_cm: &CoreModel) -> Params {
-        Params::F32(F32Params {
-            min: 0.0,
-            max: 2.0,
-            small_inc: 1.0,
-            big_inc: 1.0,
-            dec_places: 0,
-            unit: "",
-        })
-    }
-
-    fn set_content(cm: &mut CoreModel, cc: &mut CoreController, _content: Content) {
-        send_can_config_frame(cm, cc, crate::CanConfigId::MagAutoCalib, RemoteConfig::Set);
-    }
-}
-
 pub struct VarioTc;
 const TC_PARAMS: Params = Params::F32(F32Params {
     min: 1.0,
@@ -203,66 +176,6 @@ impl EditableFuncs for VarioTc {
 
     fn set_content(cm: &mut CoreModel, cc: &mut CoreController, _content: Content) {
         send_can_config_frame(cm, cc, crate::CanConfigId::VarioTc, RemoteConfig::Set);
-    }
-}
-
-pub struct VarioIntTc;
-impl EditableFuncs for VarioIntTc {
-    fn name() -> &'static str {
-        "Vario Avg TC"
-    }
-
-    fn content(cm: &mut CoreModel, cc: &mut CoreController) -> Content {
-        send_can_config_frame(cm, cc, CanConfigId::VarioIntTc, RemoteConfig::Get);
-        Content::F32(None)
-    }
-
-    fn params(_cm: &CoreModel) -> Params {
-        TC_PARAMS
-    }
-
-    fn set_content(cm: &mut CoreModel, cc: &mut CoreController, _content: Content) {
-        send_can_config_frame(cm, cc, crate::CanConfigId::VarioIntTc, RemoteConfig::Set);
-    }
-}
-
-pub struct WindTc;
-impl EditableFuncs for WindTc {
-    fn name() -> &'static str {
-        "Wind TC"
-    }
-
-    fn content(cm: &mut CoreModel, cc: &mut CoreController) -> Content {
-        send_can_config_frame(cm, cc, CanConfigId::WindTc, RemoteConfig::Get);
-        Content::F32(None)
-    }
-
-    fn params(_cm: &CoreModel) -> Params {
-        TC_PARAMS
-    }
-
-    fn set_content(cm: &mut CoreModel, cc: &mut CoreController, _content: Content) {
-        send_can_config_frame(cm, cc, crate::CanConfigId::WindTc, RemoteConfig::Set);
-    }
-}
-
-pub struct MeanWindTc;
-impl EditableFuncs for MeanWindTc {
-    fn name() -> &'static str {
-        "Wind Avg TC"
-    }
-
-    fn content(cm: &mut CoreModel, cc: &mut CoreController) -> Content {
-        send_can_config_frame(cm, cc, CanConfigId::MeanWindTc, RemoteConfig::Get);
-        Content::F32(None)
-    }
-
-    fn params(_cm: &CoreModel) -> Params {
-        TC_PARAMS
-    }
-
-    fn set_content(cm: &mut CoreModel, cc: &mut CoreController, _content: Content) {
-        send_can_config_frame(cm, cc, crate::CanConfigId::MeanWindTc, RemoteConfig::Set);
     }
 }
 
@@ -359,26 +272,6 @@ impl EditableFuncs for AntSlaveRight {
 
     fn set_content(cm: &mut CoreModel, cc: &mut CoreController, _content: Content) {
         send_can_config_frame(cm, cc, crate::CanConfigId::AntSlaveRight, RemoteConfig::Set);
-    }
-}
-
-pub struct VarioPressTc;
-impl EditableFuncs for VarioPressTc {
-    fn name() -> &'static str {
-        "Vario Press TC"
-    }
-
-    fn content(cm: &mut CoreModel, cc: &mut CoreController) -> Content {
-        send_can_config_frame(cm, cc, CanConfigId::VarioPressTc, RemoteConfig::Get);
-        Content::F32(None)
-    }
-
-    fn params(_cm: &CoreModel) -> Params {
-        TC_PARAMS
-    }
-
-    fn set_content(cm: &mut CoreModel, cc: &mut CoreController, _content: Content) {
-        send_can_config_frame(cm, cc, crate::CanConfigId::VarioPressTc, RemoteConfig::Set);
     }
 }
 
