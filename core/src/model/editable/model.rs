@@ -630,6 +630,18 @@ impl EditableFuncs for McCready {
             }),
         }
     }
+
+    fn set_content(cm: &mut CoreModel, cc: &mut CoreController, content: Content) {
+        if let Content::F32(Some(value)) = content {
+            persist::persist_set(
+                cc,
+                cm,
+                Variant::Speed(cm.config.unit_vertical_speed.as_speed(value)),
+                PersistenceId::McCready,
+                Echo::NmeaAndCan,
+            );
+        }
+    }
 }
 
 pub struct SoundSpreading;
