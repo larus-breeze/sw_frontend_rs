@@ -274,6 +274,7 @@ impl Default for SpeedToFlyControl {
 
 impl SpeedToFlyControl {
     pub fn set_state(&mut self, cm: &mut CoreModel, pin_state: PinState) {
+        cm.control.hw_pins.in_speed_to_fly = pin_state;
         self.vario_mode = match pin_state {
             PinState::High => match self.pin_function {
                 InTogglePinFunction::None => return,
@@ -288,7 +289,6 @@ impl SpeedToFlyControl {
                 InTogglePinFunction::OnToggled => !self.vario_mode,
             },
         };
-        cm.control.hw_pins.in_speed_to_fly = pin_state;
     }
 
     pub fn pin_function(&self) -> InTogglePinFunction {
