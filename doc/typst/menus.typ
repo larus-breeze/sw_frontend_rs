@@ -77,13 +77,18 @@ Settings (@settings) \
 │#h(8mm)│#h(8mm)├── Flow \
 │#h(8mm)│#h(8mm)└── Return \
 │#h(8mm)│#h(8mm) \
+│#h(8mm)├── Sound \
+│#h(8mm)│#h(8mm)├── Center Frequency \
+│#h(8mm)│#h(8mm)├── Waveform \
+│#h(8mm)│#h(8mm)├── Spreading Factor \
+│#h(8mm)│#h(8mm)└── Return \
+│#h(8mm)│#h(8mm) \
 │#h(8mm)├── More Settings \
 │#h(8mm)│#h(8mm)├── Battery Good \
 │#h(8mm)│#h(8mm)├── Battery Low \
 │#h(8mm)│#h(8mm)├── Flash Control \
 │#h(8mm)│#h(8mm)└── Return \
 │#h(8mm)│#h(8mm) \
-│#h(8mm)├── Center Frequency \
 │#h(8mm)└── Return \
 │#h(8mm) \
 ├── Polar Settings (@polar-settings) \
@@ -113,16 +118,11 @@ Settings (@settings) \
 │#h(8mm)│#h(8mm)├── Pitot Offset \
 │#h(8mm)│#h(8mm)├── Pitot Span \
 │#h(8mm)│#h(8mm)├── QNH Delta \
-│#h(8mm)│#h(8mm)├── Mag Auto Calib \
 │#h(8mm)│#h(8mm)├── Vario TC \
-│#h(8mm)│#h(8mm)├── Vario Avg TC \
-│#h(8mm)│#h(8mm)├── Wind TC \
-│#h(8mm)│#h(8mm)├── Wind Avg TC \
 │#h(8mm)│#h(8mm)├── GNSS Config \
 │#h(8mm)│#h(8mm)├── Ant Base Len \
 │#h(8mm)│#h(8mm)├── Ant Slave Down \
 │#h(8mm)│#h(8mm)├── Ant Slave Right \
-│#h(8mm)│#h(8mm)├── Vario Press TC \
 │#h(8mm)│#h(8mm)└── Return \
 │#h(8mm)│#h(8mm) \
 │#h(8mm)└── Return \

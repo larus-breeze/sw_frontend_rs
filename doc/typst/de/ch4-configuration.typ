@@ -185,6 +185,13 @@ eingerichtet.
 
 Es wird von einem konstanten Durchfluss ausgegangen, der hier vorgegeben werden muss:] *Flow*. 
 
+=== Sound
+#tr[Die Audioausgabe kann durch verschiedene Einstellungen an den persönlichen Geschmack angepasst werden.
+
+- *Center Frequency:* Gibt die Tonfrequenz bei 0 m/s Steigen an.
+- *Waveform:* Auswahl der Wellenform der Audioausgabe. Dies beeinflusst die Tonfarbe mit mehr oder weniger Oberwellen.
+- *Spreading Factor:* Gibt an, um wie viel sich die Frequenz ändert, wenn das Segelflugzeug steigt oder sinkt. Ein Wert von 1,0 bedeutet, dass der Bereich von -5 m/s bis +5 m/s auf zwei Oktaven aufgeteilt wird.]
+
 === More Settings
 
 #tr[In diesem Abschnitt sind folgende Einstellungen zusammengefasst:
@@ -200,9 +207,6 @@ Es wird von einem konstanten Durchfluss ausgegangen, der hier vorgegeben werden 
               getestet werden, indem die Logik invertiert wird. Beispiel: Wenn der Haubenblitzer bei „Close” 
               (über 40 km/h) blitzen soll, muss er bei stehendem Flugzeug bei der Einstellung „Open” an sein.
 ]
-
-=== Center Frequency
-#tr[Hier kann die Mittenfrequenz des Variometers vorgegeben werden.]
 
 == Polar Settings
 <polar-settings>
