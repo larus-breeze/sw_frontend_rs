@@ -99,6 +99,8 @@ const fn images() -> Images {
         club_1: include_bytes_aligned!(4, "../assets/club-1.lif"),
         club_2: include_bytes_aligned!(4, "../assets/club-2.lif"),
         club_3: include_bytes_aligned!(4, "../assets/club-3.lif"),
+        circle_delta: include_bytes_aligned!(4, "../assets/circle_delta.lif"),
+        circle_diameter: include_bytes_aligned!(4, "../assets/circle_diameter.lif"),
         drift_angle: include_bytes_aligned!(4, "../assets/drift_angle.lif"),
         flight_level: include_bytes_aligned!(4, "../assets/flight_level.lif"),
         fpm: include_bytes_aligned!(4, "../assets/fpm.lif"),

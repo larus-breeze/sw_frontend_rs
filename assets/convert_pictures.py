@@ -198,6 +198,8 @@ PICTURES = (
     (4, 'club-1.png', {0: DARK_GRAY, 255: BACKGROUND}),
     (4, 'club-2.png', {0: DARK_GRAY, 255: BACKGROUND}),
     (4, 'club-3.png', {0: DARK_GRAY, 255: BACKGROUND}),
+    (4, 'circle_delta.png', {0: DARK_GRAY, 255: BACKGROUND}),
+    (4, 'circle_diameter.png', {0: DARK_GRAY, 255: BACKGROUND}),
     (4, 'drift_angle.png', {0: DARK_GRAY, 255: BACKGROUND}),
     (4, 'flight_level.png', {0: DARK_GRAY, 255: BACKGROUND}),
     (4, 'fpm.png', {0: DARK_GRAY, 255: BACKGROUND}),

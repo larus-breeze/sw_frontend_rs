@@ -80,6 +80,8 @@ pub struct Images {
     pub club_1: &'static [u8],
     pub club_2: &'static [u8],
     pub club_3: &'static [u8],
+    pub circle_delta: &'static [u8],
+    pub circle_diameter: &'static [u8],
     pub drift_angle: &'static [u8],
     pub flight_level: &'static [u8],
     pub fpm: &'static [u8],
