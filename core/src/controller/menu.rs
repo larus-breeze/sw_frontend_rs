@@ -88,6 +88,7 @@ pub fn key_action(key_event: &mut KeyEvent, cm: &mut CoreModel, cc: &mut CoreCon
                 let pos = cm.control.menu_control.menu.items.len() - 1;
                 menu_action(cm, cc, level, pos);
             }
+            KeyEvent::BtnEncS3 => close_menu_display(cm, cc),
             _ => (),
         };
     } else {

@@ -1,6 +1,6 @@
 use crate::{
     basic_config::SECTION_EDITOR_TIMEOUT,
-    controller::{helpers::IntToDuration, KeyEvent, Timer},
+    controller::{helpers::IntToDuration, KeyEvent, Timer, close_menu_display},
     model::{editable::*, DisplayActive, EditMode, OverlayActive},
     utils::TString,
     CoreController, CoreModel, Editable,
@@ -109,7 +109,11 @@ pub fn key_action(key_event: &mut KeyEvent, cm: &mut CoreModel, cc: &mut CoreCon
                 cm.control.editor.enter_pushed = true;
                 let _ = cc.scheduler.stop(Timer::CloseEditFrame, true); // finish edit session
             }
-            KeyEvent::BtnEncS3 => *key_event = KeyEvent::NoEvent,
+            KeyEvent::BtnEncS3 => {
+                let _ = cc.scheduler.stop(Timer::CloseEditFrame, true); // finish edit session
+                close_menu_display(cm, cc); // close also menu and return to standard display
+                *key_event = KeyEvent::NoEvent;
+            }
             _ => cc
                 .scheduler
                 .after(crate::Timer::CloseEditFrame, SECTION_EDITOR_TIMEOUT.secs()),
