@@ -20,6 +20,15 @@ impl CoreModel {
         )
     }
 
+    pub fn can_frame_hw_fw_version(&self) -> Frame {
+        Frame::generic(
+            CanFrame::empty_from_id(0x00)
+                .push_slice(&self.device_const.misc.hw_version.version)
+                .push_slice(&self.device_const.misc.sw_version.version),
+            GenericId::HwFwVersion as u16,
+        )
+    }
+
     pub fn can_frame_sound(&self) -> Frame {
         Frame::specific(
             CanFrame::empty_from_id(0x00)

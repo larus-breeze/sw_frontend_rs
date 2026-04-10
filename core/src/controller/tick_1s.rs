@@ -110,6 +110,8 @@ fn can_heartbeat(cm: &mut CoreModel, cc: &mut CoreController) {
     // create CAN heartbeat frame and add to queue
     let can_frame = cm.can_frame_heartbeat();
     let _ = cc.p_tx_frames.enqueue(can_frame);
+    let can_frame = cm.can_frame_hw_fw_version();
+    let _ = cc.p_tx_frames.enqueue(can_frame);
 
     // check, if other can devices are visible
     cm.control.system_state = if cm.control.can_devices != 0 {
