@@ -609,7 +609,7 @@ where
         pos,
         Some(Image::new(cm.device_const.images.circle_diameter)),
         s.as_str(),
-        None,
+        Some(Image::new(cm.device_const.images.m)),
         &cm.device_const.big_font,
         cm.palette(),
     )
@@ -631,7 +631,7 @@ where
         pos,
         Some(Image::new(cm.device_const.images.circle_delta)),
         s.as_str(),
-        None,
+        Some(Image::new(cm.device_const.images.m_s)),
         &cm.device_const.big_font,
         cm.palette(),
     )
@@ -643,21 +643,17 @@ where
 {
     let voltage = cm.device.supply_voltage;
     let s = if voltage > 0.1 {
-        tformat!(6, "{:.1}V", voltage).unwrap()
+        tformat!(6, "{:.1}", voltage).unwrap()
     } else {
-        heapless::String::<6>::try_from("---V").unwrap()
+        heapless::String::<6>::try_from("---").unwrap()
     };
 
-    let img1 = if voltage > cm.config.battery_good {
-        Some(Image::new(cm.device_const.images.bat_full))
-    } else if voltage > cm.config.battery_low {
-        Some(Image::new(cm.device_const.images.bat_half))
-    } else if voltage > 0.1 {
-        Some(Image::new(cm.device_const.images.bat_empty))
+    let img1 = if voltage > 0.1 {
+        Some(Image::new(cm.device_const.images.battery))
     } else {
         None
     };
-    let img2 = None;
+    let img2 = Some(Image::new(cm.device_const.images.v));
 
     draw_centered_line(
         display,
