@@ -134,6 +134,7 @@ nützlich, wei das LARUS System das Steigen verzögerungsfrei anzeigt.
 Bedeutung der Farben der Kreispunkte:
 
 - Gelb: Maximum des Steigens
+- Schwarz: Minimum des Steigens
 - Rot: Das Steigen liegt über dem Durchschnitt
 - Blau: Das Steigen liegt unter dem Durchschnitt 
 
@@ -148,6 +149,7 @@ optimal zentriert, wenn blaue und rote Punkte etwa gleich häufig vorkommen.]
 #tr[Bedeutung der Farben der Kreissegmente:
 
 - Gelb: Maximum des Steigens
+- Schwarz: Minimum des Steigens
 - Rot: Das Steigen liegt über dem Durchschnitt
 - Blau: Das Steigen liegt unter dem Durchschnitt
 
