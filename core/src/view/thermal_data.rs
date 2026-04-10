@@ -62,8 +62,7 @@ impl ThermalData {
         }
     }
 
-    pub fn get_dotted_item(&mut self, alpha: f32, cm: &CoreModel) -> (Colors, f32) {
-        let idx = Self::get_idx(alpha);
+    pub fn get_dotted_item(&mut self, idx: usize, cm: &CoreModel) -> (Colors, f32) {
         let color = if idx == self.best_pos {
             cm.palette().vario.therm_ass_best
         } else if idx == self.worst_pos {
@@ -77,8 +76,7 @@ impl ThermalData {
         (color, value)
     }
 
-    pub fn get_spider_item(&mut self, alpha: f32, cm: &CoreModel) -> (Colors, f32) {
-        let idx = Self::get_idx(alpha);
+    pub fn get_spider_item(&mut self, idx: usize, cm: &CoreModel) -> (Colors, f32) {
         let color = if idx == self.best_pos {
             cm.palette().vario.therm2_ass_best
         } else if idx == self.worst_pos {

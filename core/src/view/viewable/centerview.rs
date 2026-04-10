@@ -158,8 +158,8 @@ where
         -cm.sensor.euler_yaw.to_radians() + pos::THREE_O_CLOCK
     };
     thermal_data.prepare();
-    for _cnt in 0..THERMAL_DATA_CNT {
-        let (fill_color, delta_climb) = thermal_data.get_dotted_item(pcoord.alpha, cm);
+    for idx in 0..THERMAL_DATA_CNT {
+        let (fill_color, delta_climb) = thermal_data.get_dotted_item(idx, cm);
         let center = pcoord.to_xy(1.0, rotation) + sizes.display.center;
         let diameter = clamp(
             (delta_climb.abs() * 10.0) as u32,
@@ -209,10 +209,11 @@ where
 
     let mut p1: Option<Point> = None;
     let mut p_first: Option<Point> = None;
-    let mut fill_color = Colors::Black;
+    let mut fill_color;
+    let mut fc_first = Colors::Black;
     let mut delta_climb;
-    for _cnt in 0..THERMAL_DATA_CNT {
-        (fill_color, delta_climb) = thermal_data.get_spider_item(pcoord.alpha, cm);
+    for idx in 0..THERMAL_DATA_CNT {
+        (fill_color, delta_climb) = thermal_data.get_spider_item(idx, cm);
         let scale = clamp((delta_climb + 3.0) * 0.15 + 0.4, 0.4, 1.3);
         let p2 = pcoord.to_xy(scale, rotation) + center;
         if let Some(p1) = p1 {
@@ -224,13 +225,14 @@ where
                 .draw(display)?;
         } else {
             p_first = Some(p2);
+            fc_first = fill_color;
         }
         p1 = Some(p2);
         pcoord.rotate(delta);
     }
 
     Triangle::new(center, p1.unwrap(), p_first.unwrap())
-        .into_styled(PrimitiveStyle::with_fill(fill_color))
+        .into_styled(PrimitiveStyle::with_fill(fc_first))
         .draw(display)?;
     Line::new(p1.unwrap(), p_first.unwrap())
         .into_styled(PrimitiveStyle::with_stroke(cm.palette().vario.scale, 1))
