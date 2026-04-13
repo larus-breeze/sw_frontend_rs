@@ -19,6 +19,50 @@ Folgende Ansichten können jeweils festgelegt werden:
 - #keep[*Info 1 Content:*] Obere Zeile
 - #keep[*Info 2 Content:*] Untere Zeile
 - #keep[*Info 3 Content:*] Rechter Rand
+
+In den Ansichten können verschiedene Informationen dargestellt werden. Nachfolgend
+ist aufgelistet welche Informationen an welcher Stelle möglich sind:
+
+#keep[*Center Content*]:
+- #keep[*Single Arrow*] Einfacher Pfeil mit Windfahne
+- #keep[*Double Arrow*] Zwei Pfeile (Wind und mittlerer Wind)
+- #keep[*Dotted Assistant*] Thermik Assistent mit Punkten
+- #keep[*Spider Assistant*] Thermik Assisten in Form eines Spinnennetzes
+
+#keep[*Info 1 Content*]:
+- #keep[*None*] Nichts
+- #keep[*Avg Climb Rate*] Mittleres Steigen
+- #keep[*Battery Voltage*] Batteriespannung
+- #keep[*Circle Diameter*] Durchmesser beim Kreisen
+- #keep[*Circle Max-Min*] Differenz maximales/minimales Steigen
+- #keep[*Drift Angle*] Driftwinkel
+- #keep[*Flight Level*] Flugfläche
+- #keep[*G-Load*] Beschleunigung
+- #keep[*Speed to Fly*] Sollfahrt
+- #keep[*True Air Speed*] Wahre Geschwindigkeit gegenüber Luft
+- #keep[*True Course*] Wahrer Kurs
+- #keep[*UTC Time*] UTC Zeit
+
+#keep[*Info 2 Content*]:
+- #keep[*None*] Nichts
+- #keep[*Avg Climb Rate*] Mittleres Steigen
+- #keep[*Battery Voltage*] Batteriespannung
+- #keep[*Circle Diameter*] Durchmesser beim Kreisen
+- #keep[*Circle Max-Min*] Differenz maximales/minimales Steigen
+- #keep[*Drift Angle*] Driftwinkel
+- #keep[*Flight Level*] Flugfläche
+- #keep[*G-Load*] Beschleunigung
+- #keep[*Speed to Fly*] Sollfahrt
+- #keep[*True Air Speed*] Wahre Geschwindigkeit gegenüber Luft
+- #keep[*True Course*] Wahrer Kurs
+- #keep[*UTC Time*] UTC Zeit
+- #keep[*Wind, Avg Wind*] Wind, mittlerer Wind
+- #keep[*Wind and Delta*] Wind und Differenz zum mittleren Wind
+
+#keep[*Info 3 Content*]:
+- #keep[*None*] Nichts
+- #keep[*CLimbing*] Steigen, gemittelt über den kompletten Aufwind
+- #keep[*Speed to Fly*] Sollfahrt
 ]
 
 === Units
