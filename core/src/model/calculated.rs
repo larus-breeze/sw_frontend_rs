@@ -1,6 +1,6 @@
 use crate::{
     controller::SoundParams,
-    system_of_units::{FloatToSpeed, Speed},
+    system_of_units::{FloatToLength, FloatToSpeed, Length, Speed},
     AirSpeed, CoreModel,
 };
 
@@ -14,6 +14,13 @@ pub struct Calculated {
     pub speed_to_fly_1s: Speed, // ref. IAS
     pub thermal_climb_rate: Speed,
     pub av2_climb_rate: Speed, // calculated by frontend
+    pub circle_diameter: Length,
+    pub circle_diameter_valid: bool,
+    pub circle_max_min_last: Speed,
+    pub circle_max_min_valid: bool,
+    pub frequency: u16,
+    pub continuous: bool,
+    pub gain: i8,
     pub interpolated_climb_rate: InterpolatedClimbRate,
     pub sound_params: SoundParams,
 }
@@ -29,8 +36,15 @@ impl Default for Calculated {
             speed_to_fly_1s: 0.0.km_h(),
             thermal_climb_rate: 0.0.m_s(),
             av2_climb_rate: 0.0.m_s(),
-            sound_params: SoundParams::default(),
+            circle_diameter: 0.0.m(),
+            circle_diameter_valid: false,
+            circle_max_min_last: 0.0.m_s(),
+            circle_max_min_valid: false,
+            frequency: 500,
+            continuous: false,
+            gain: 2,
             interpolated_climb_rate: InterpolatedClimbRate::default(),
+            sound_params: SoundParams::default(),
         }
     }
 }

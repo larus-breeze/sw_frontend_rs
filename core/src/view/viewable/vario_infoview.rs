@@ -29,14 +29,22 @@ pub enum LineView {
     WindAndAvgWind,
     SpeedToFly,
     TrueAirSpeed,
+    BatteryVoltage,
+    GLoad,
+    CircleDiameter,
+    CircleMaxMin,
     LastElemntNotInUse,
 }
 
 const TOP_LINE_VIEW: &[LineView] = &[
     LineView::None,
     LineView::AverageClimbRate,
+    LineView::BatteryVoltage,
+    LineView::CircleDiameter,
+    LineView::CircleMaxMin,
     LineView::DriftAngle,
     LineView::FlightLevel,
+    LineView::GLoad,
     LineView::SpeedToFly,
     LineView::TrueAirSpeed,
     LineView::TrueCourse,
@@ -46,8 +54,12 @@ const TOP_LINE_VIEW: &[LineView] = &[
 const BOTTOM_LINE_VIEW: &[LineView] = &[
     LineView::None,
     LineView::AverageClimbRate,
+    LineView::BatteryVoltage,
+    LineView::CircleDiameter,
+    LineView::CircleMaxMin,
     LineView::DriftAngle,
     LineView::FlightLevel,
+    LineView::GLoad,
     LineView::SpeedToFly,
     LineView::TrueAirSpeed,
     LineView::TrueCourse,
@@ -117,8 +129,12 @@ impl LineView {
             LineView::TrueAirSpeed => "True Air Speed",
             LineView::TrueCourse => "True Course",
             LineView::UtcTime => "UTC Time",
+            LineView::BatteryVoltage => "Battery Voltage",
             LineView::WindAndAvgWind => "Wind, avg Wind",
             LineView::WindAndDelta => "Wind and Delta",
+            LineView::GLoad => "G-Load",
+            LineView::CircleDiameter => "Circle Diameter",
+            LineView::CircleMaxMin => "Circle Max-Min",
             LineView::None => "None",
             LineView::LastElemntNotInUse => "",
         }
@@ -138,8 +154,12 @@ impl LineView {
             LineView::TrueAirSpeed => draw_true_air_speed(display, cm, pos),
             LineView::TrueCourse => draw_true_course(display, cm, pos),
             LineView::UtcTime => draw_utc_time(display, cm, pos),
+            LineView::BatteryVoltage => draw_battery_voltage(display, cm, pos),
             LineView::WindAndAvgWind => draw_wind_and_avg_wind(display, cm, pos),
             LineView::WindAndDelta => draw_wind_and_delta(display, cm, pos),
+            LineView::GLoad => draw_g_load(display, cm, pos),
+            LineView::CircleDiameter => draw_circle_diameter(display, cm, pos),
+            LineView::CircleMaxMin => draw_circle_max_min(display, cm, pos),
             LineView::LastElemntNotInUse => Ok(()),
         }
     }
@@ -556,4 +576,92 @@ where
         display,
     )?;
     Ok(())
+}
+
+fn draw_g_load<D>(display: &mut D, cm: &CoreModel, pos: Point) -> Result<(), CoreError>
+where
+    D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
+{
+    let g = cm.sensor.g_force.to_m_s2() / 9.81;
+    let s = tformat!(10, "{:.2}g", g).unwrap();
+    draw_centered_line(
+        display,
+        pos,
+        None,
+        s.as_str(),
+        None,
+        &cm.device_const.big_font,
+        cm.palette(),
+    )
+}
+
+fn draw_circle_diameter<D>(display: &mut D, cm: &CoreModel, pos: Point) -> Result<(), CoreError>
+where
+    D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
+{
+    let s = if cm.calculated.circle_diameter_valid {
+        cm.config.unit_height.value_str(cm.calculated.circle_diameter)
+    } else {
+        heapless::String::<5>::try_from("--").unwrap()
+    };
+    draw_centered_line(
+        display,
+        pos,
+        Some(Image::new(cm.device_const.images.circle_diameter)),
+        s.as_str(),
+        Some(Image::new(cm.device_const.images.m)),
+        &cm.device_const.big_font,
+        cm.palette(),
+    )
+}
+
+fn draw_circle_max_min<D>(display: &mut D, cm: &CoreModel, pos: Point) -> Result<(), CoreError>
+where
+    D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
+{
+    let s = if cm.calculated.circle_max_min_valid {
+        cm.config
+            .unit_vertical_speed
+            .value_str(cm.calculated.circle_max_min_last)
+    } else {
+        heapless::String::<5>::try_from("--").unwrap()
+    };
+    draw_centered_line(
+        display,
+        pos,
+        Some(Image::new(cm.device_const.images.circle_delta)),
+        s.as_str(),
+        Some(Image::new(cm.device_const.images.m_s)),
+        &cm.device_const.big_font,
+        cm.palette(),
+    )
+}
+
+fn draw_battery_voltage<D>(display: &mut D, cm: &CoreModel, pos: Point) -> Result<(), CoreError>
+where
+    D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
+{
+    let voltage = cm.device.supply_voltage;
+    let s = if voltage > 0.1 {
+        tformat!(6, "{:.1}", voltage).unwrap()
+    } else {
+        heapless::String::<6>::try_from("---").unwrap()
+    };
+
+    let img1 = if voltage > 0.1 {
+        Some(Image::new(cm.device_const.images.battery))
+    } else {
+        None
+    };
+    let img2 = Some(Image::new(cm.device_const.images.v));
+
+    draw_centered_line(
+        display,
+        pos,
+        img1,
+        s.as_str(),
+        img2,
+        &cm.device_const.big_font,
+        cm.palette(),
+    )
 }

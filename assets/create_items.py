@@ -19,6 +19,8 @@ PICS = [
     "drift_angle.png",
     "avg_climb_rate.png",
     "true_course.png",
+    "circle_delta.png",
+    "circle_diameter.png",
 
     "km_h.png",
     "mph.png",
@@ -28,6 +30,8 @@ PICS = [
     "fpm-100.png",
     "m.png",
     "ft.png",
+    "V.png",
+    "battery.png",
 
     "normal-0.png",
     "normal-1.png",
