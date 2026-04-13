@@ -115,7 +115,10 @@ fn speed_to_fly(cm: &mut CoreModel, cc: &mut CoreController) {
         None
     };
 
-    if let Some(avg_d) = cc.circle_stats.update_diameter(raw_circle_diameter, is_circling) {
+    if let Some(avg_d) = cc
+        .circle_stats
+        .update_diameter(raw_circle_diameter, is_circling)
+    {
         cm.calculated.circle_diameter = avg_d.m();
         cm.calculated.circle_diameter_valid = true;
     } else {
@@ -125,7 +128,10 @@ fn speed_to_fly(cm: &mut CoreModel, cc: &mut CoreController) {
     // Circle max-min over rolling, averaged 24 heading bins.
     let climb_delta = (cm.sensor.climb_rate - cm.calculated.av2_climb_rate).to_m_s();
     let yaw = cm.sensor.euler_yaw.to_radians();
-    if let Some(delta) = cc.circle_stats.update_max_min(yaw, climb_delta, is_circling) {
+    if let Some(delta) = cc
+        .circle_stats
+        .update_max_min(yaw, climb_delta, is_circling)
+    {
         cm.calculated.circle_max_min_last = delta.m_s();
         cm.calculated.circle_max_min_valid = true;
     } else {

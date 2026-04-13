@@ -1,6 +1,6 @@
 use crate::{
     basic_config::SECTION_EDITOR_TIMEOUT,
-    controller::{helpers::IntToDuration, KeyEvent, Timer, close_menu_display},
+    controller::{close_menu_display, helpers::IntToDuration, KeyEvent, Timer},
     model::{editable::*, DisplayActive, EditMode, OverlayActive},
     utils::TString,
     CoreController, CoreModel, Editable,

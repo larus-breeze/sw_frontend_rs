@@ -1,4 +1,6 @@
 use core::f32::consts::PI;
+
+#[allow(unused_imports)]
 use micromath::F32Ext;
 
 const BINS: usize = 24;
@@ -97,7 +99,12 @@ impl CircleStats {
         }
     }
 
-    pub fn update_max_min(&mut self, yaw_rad: f32, climb_delta: f32, is_circling: bool) -> Option<f32> {
+    pub fn update_max_min(
+        &mut self,
+        yaw_rad: f32,
+        climb_delta: f32,
+        is_circling: bool,
+    ) -> Option<f32> {
         if !is_circling {
             self.max_min_bins = [0.0; BINS];
             self.max_min_counts = [0; BINS];

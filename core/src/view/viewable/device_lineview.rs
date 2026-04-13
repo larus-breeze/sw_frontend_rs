@@ -165,18 +165,15 @@ impl DeviceLineView {
             },
             DeviceLineView::AhrsPitch => LineInfo {
                 name: "AHRS Pitch: ",
-                value: tformat!(30, "{:.0}°", cm.sensor.euler_pitch.to_degrees())
-                    .unwrap(),
+                value: tformat!(30, "{:.0}°", cm.sensor.euler_pitch.to_degrees()).unwrap(),
             },
             DeviceLineView::AhrsRoll => LineInfo {
                 name: "AHRS Roll: ",
-                value: tformat!(30, "{:.0}°", cm.sensor.euler_roll.to_degrees())
-                    .unwrap(),
+                value: tformat!(30, "{:.0}°", cm.sensor.euler_roll.to_degrees()).unwrap(),
             },
             DeviceLineView::AhrsYaw => LineInfo {
                 name: "AHRS Yaw: ",
-                value: tformat!(30, "{:.0}°", cm.sensor.euler_yaw.to_degrees())
-                    .unwrap(),
+                value: tformat!(30, "{:.0}°", cm.sensor.euler_yaw.to_degrees()).unwrap(),
             },
             DeviceLineView::GnssAccuracityOk => LineInfo {
                 name: "GNSS Data: ",

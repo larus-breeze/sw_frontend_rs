@@ -27,7 +27,7 @@ ist aufgelistet welche Informationen an welcher Stelle möglich sind:
 - #keep[*Single Arrow*] Einfacher Pfeil mit Windfahne
 - #keep[*Double Arrow*] Zwei Pfeile (Wind und mittlerer Wind)
 - #keep[*Dotted Assistant*] Thermik Assistent mit Punkten
-- #keep[*Spider Assistant*] Thermik Assisten in Form eines Spinnennetzes
+- #keep[*Spider Assistant*] Thermik Assistent in Form eines Spinnennetzes
 
 #keep[*Info 1 Content*]:
 - #keep[*None*] Nichts

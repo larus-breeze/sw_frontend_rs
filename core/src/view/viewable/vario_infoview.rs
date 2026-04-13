@@ -600,7 +600,9 @@ where
     D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
 {
     let s = if cm.calculated.circle_diameter_valid {
-        cm.config.unit_height.value_str(cm.calculated.circle_diameter)
+        cm.config
+            .unit_height
+            .value_str(cm.calculated.circle_diameter)
     } else {
         heapless::String::<5>::try_from("--").unwrap()
     };
