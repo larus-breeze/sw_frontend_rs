@@ -609,7 +609,7 @@ where
         pos,
         Some(Image::new(cm.device_const.images.circle_diameter)),
         s.as_str(),
-        Some(Image::new(cm.device_const.images.m)),
+        Some(cm.config.unit_height.image(cm)),
         &cm.device_const.big_font,
         cm.palette(),
     )
@@ -631,7 +631,7 @@ where
         pos,
         Some(Image::new(cm.device_const.images.circle_delta)),
         s.as_str(),
-        Some(Image::new(cm.device_const.images.m_s)),
+        Some(cm.config.unit_vertical_speed.image(cm)),
         &cm.device_const.big_font,
         cm.palette(),
     )
