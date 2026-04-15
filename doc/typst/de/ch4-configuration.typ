@@ -229,6 +229,17 @@ eingerichtet.
 
 Es wird von einem konstanten Durchfluss ausgegangen, der hier vorgegeben werden muss:] *Flow*. 
 
+=== Flash Control
+#tr[Die Funktionen zum Haubenblitzer sind wie folgt organisiert:
+
+- *Flash Control:* Das LARUS Vario Display ist in der Lage, einen Haubenblitzer anzusteuern, der
+              bei einer Geschwindigkeit von über 40 km/h gegenüber Luft aktiviert wird. Hier muss 
+              festgelegt werden, ob der Blitzer aktiv wird, wenn der Schalter offen oder 
+              geschlossen ist.
+- *Flash Test:* Der Haubenblitzer wird für 10 Sekunden aktiviert. Somit kann überprüft werden,
+              ob dieser korrekt funktioniert.
+]
+
 === Sound
 #tr[Die Audioausgabe kann durch verschiedene Einstellungen an den persönlichen Geschmack angepasst werden.
 
@@ -245,11 +256,6 @@ Es wird von einem konstanten Durchfluss ausgegangen, der hier vorgegeben werden 
 - *Battery Low:* Unterhalb der hier vorgegebenen Spannung wird das
               Batteriesymbol rot dargestellt. Wenn die Spannung zwischen den beiden Werten liegt,
               erfolgt die Darstellung des Batteriesymbols in Orange.
-- *Flash Control:* Das LARUS Vario Display ist in der Lage, einen Haubenblitzer anzusteuern, der
-              bei einer Geschwindigkeit von über 40 km/h gegenüber Luft aktiviert wird. Hier muss festgelegt werden, ob der Blitzer 
-              aktiv wird, wenn der Schalter offen oder geschlossen ist. Hinweis: Die Verkabelung kann bei stehendem Flugzeug 
-              getestet werden, indem die Logik invertiert wird. Beispiel: Wenn der Haubenblitzer bei „Close” 
-              (über 40 km/h) blitzen soll, muss er bei stehendem Flugzeug bei der Einstellung „Open” an sein.
 ]
 
 == Polar Settings

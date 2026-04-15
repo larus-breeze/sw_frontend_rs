@@ -77,6 +77,11 @@ Settings (@settings) \
 │#h(8mm)│#h(8mm)├── Flow \
 │#h(8mm)│#h(8mm)└── Return \
 │#h(8mm)│#h(8mm) \
+│#h(8mm)├── Flash Control \
+│#h(8mm)│#h(8mm)├── Flash Control \
+│#h(8mm)│#h(8mm)├── Flash Test \
+│#h(8mm)│#h(8mm)└── Return \
+│#h(8mm)│#h(8mm) \
 │#h(8mm)├── Sound \
 │#h(8mm)│#h(8mm)├── Center Frequency \
 │#h(8mm)│#h(8mm)├── Waveform \
@@ -86,7 +91,6 @@ Settings (@settings) \
 │#h(8mm)├── More Settings \
 │#h(8mm)│#h(8mm)├── Battery Good \
 │#h(8mm)│#h(8mm)├── Battery Low \
-│#h(8mm)│#h(8mm)├── Flash Control \
 │#h(8mm)│#h(8mm)└── Return \
 │#h(8mm)│#h(8mm) \
 │#h(8mm)└── Return \

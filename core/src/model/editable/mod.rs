@@ -69,6 +69,7 @@ pub enum Editable {
     EnergyArrowMult,
     FactoryReset,
     FlashControl,
+    FlashTest,
     FlowEmpty,
     FlowSlope,
     GearPinConfig,
@@ -206,6 +207,8 @@ trait EditableFuncs {
     }
 }
 
+pub const COMMAND_SENT: &str = "Command sent";
+
 struct None_;
 impl EditableFuncs for None_ {
     fn name() -> &'static str {
@@ -263,6 +266,7 @@ impl Editable {
             Editable::EnergyArrowMult => EnergyArrowMult::this(),
             Editable::FactoryReset => FactoryReset::this(),
             Editable::FlashControl => FlashControl::this(),
+            Editable::FlashTest => FlashTest::this(),
             Editable::FlowEmpty => FlowEmpty::this(),
             Editable::FlowSlope => FlowSlope::this(),
             Editable::GearPinConfig => GearPinConfig::this(),

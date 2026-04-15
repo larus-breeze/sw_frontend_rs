@@ -1,4 +1,4 @@
-use super::{Content, EditableFuncs, EnumParams, F32Params, Params};
+use super::{CmdParams, Content, EditableFuncs, EnumParams, F32Params, Params};
 use crate::{
     controller::{GearPins, InPinFunction, InTogglePinFunction, OutPinFunction},
     controller::{
@@ -148,6 +148,28 @@ impl EditableFuncs for FlashControl {
                 Echo::None,
             )
         }
+    }
+}
+
+const ACTIVATED: &str = "Activated";
+pub struct FlashTest;
+impl EditableFuncs for FlashTest {
+    fn name() -> &'static str {
+        "Flash Test"
+    }
+
+    fn content(_cm: &mut CoreModel, _cc: &mut CoreController) -> Content {
+        Content::Command(TString::<16>::from_str(ACTIVATED))
+    }
+
+    fn params(_cm: &CoreModel) -> Params {
+        Params::Cmd(CmdParams {
+            content: TString::<16>::from_str(ACTIVATED),
+        })
+    }
+
+    fn set_content(_cm: &mut CoreModel, cc: &mut CoreController, _content: Content) {
+        cc.flash_control.activate_test();
     }
 }
 

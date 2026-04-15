@@ -1,4 +1,4 @@
-use super::{CmdParams, Content, EditableFuncs, F32Params, Params};
+use super::{CmdParams, Content, EditableFuncs, F32Params, Params, COMMAND_SENT};
 use crate::{
     controller::{persist::send_can_config_frame, CanConfigId, RemoteConfig},
     utils::TString,
@@ -276,7 +276,6 @@ impl EditableFuncs for AntSlaveRight {
 }
 
 pub struct CmdMeas1;
-const COMMAND_SENT: &str = "Command sent";
 
 impl EditableFuncs for CmdMeas1 {
     fn name() -> &'static str {
