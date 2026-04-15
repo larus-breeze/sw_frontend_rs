@@ -2,8 +2,10 @@ use crate::{
     basic_config::SECTION_EDITOR_TIMEOUT,
     controller::{close_menu_display, helpers::IntToDuration, KeyEvent, Timer},
     model::{editable::*, DisplayActive, EditMode, OverlayActive},
+    persist,
     utils::TString,
-    CoreController, CoreModel, Editable,
+    utils::Variant,
+    CoreController, CoreModel, Echo, Editable, PersistenceId,
 };
 use num::clamp;
 
@@ -159,6 +161,34 @@ pub fn key_action(key_event: &mut KeyEvent, cm: &mut CoreModel, cc: &mut CoreCon
                     activate_editable(Editable::Volume, cm, cc);
                     *key_event = KeyEvent::NoEvent;
                 }
+            }
+            KeyEvent::BtnEncPlusRotary2Left => {
+                let display_active = match cm.config.display_active {
+                    DisplayActive::Horizon => DisplayActive::Vario,
+                    DisplayActive::DeviceInfo => DisplayActive::Horizon,
+                    _ => DisplayActive::DeviceInfo,
+                };
+                persist::persist_set(
+                    cc,
+                    cm,
+                    Variant::U32(display_active as u32),
+                    PersistenceId::Display,
+                    Echo::None,
+                );
+            }
+            KeyEvent::BtnEncPlusRotary2Right => {
+                let display_active = match cm.config.display_active {
+                    DisplayActive::Horizon => DisplayActive::DeviceInfo,
+                    DisplayActive::DeviceInfo => DisplayActive::Vario,
+                    _ => DisplayActive::Horizon,
+                };
+                persist::persist_set(
+                    cc,
+                    cm,
+                    Variant::U32(display_active as u32),
+                    PersistenceId::Display,
+                    Echo::None,
+                );
             }
             KeyEvent::Btn1 => activate_editable(Editable::McCready, cm, cc),
             KeyEvent::Btn2 => activate_editable(Editable::WaterBallast, cm, cc),

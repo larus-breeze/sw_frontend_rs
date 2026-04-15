@@ -10,10 +10,7 @@ use stm32h7xx_hal::{
 };
 use defmt::trace;
 
-const BTN_1: u8 = 0b0000_0001;
-const BTN_2: u8 = 0b0000_0010;
 const BTN_ENC: u8 = 0b0001_0000;
-const BTN_1_2: u8 = 0b0000_0011;
 
 const ENC_1_START_VALUE: u32 = 0x8000;
 const ENC_2_START_VALUE: u16 = 0x8000;
@@ -255,27 +252,15 @@ impl Keyboard {
                 self.tick_cnt = 0;
             }
         } else if btn_state < self.last_btn_state {
-            // Triggers when first key is released
-            let _ = match self.last_btn_state {
-                BTN_1 => self.q_events.enqueue(Event::KeyItem(KeyEvent::Btn1)),
-                BTN_2 => self.q_events.enqueue(Event::KeyItem(KeyEvent::Btn2)),
-                BTN_ENC => self.q_events.enqueue(Event::KeyItem(KeyEvent::BtnEnc)),
-                BTN_1_2 => self.q_events.enqueue(Event::KeyItem(KeyEvent::Btn12)),
-                _ => Ok(()),
-            };
+            // Triggers when key is released
+            let _ = self.q_events.enqueue(Event::KeyItem(KeyEvent::BtnEnc));
             self.first_go_to_0 = true;
             self.tick_cnt = 0;
         } else if btn_state > 0 {
             self.tick_cnt = self.tick_cnt.saturating_add(1);
             // Triggers when keys are pressed for more then 3 seconds
             if self.tick_cnt > 60 {
-                let _ = match btn_state {
-                    BTN_1 => self.q_events.enqueue(Event::KeyItem(KeyEvent::Btn1S3)),
-                    BTN_2 => self.q_events.enqueue(Event::KeyItem(KeyEvent::Btn2S3)),
-                    BTN_ENC => self.q_events.enqueue(Event::KeyItem(KeyEvent::BtnEncS3)),
-                    BTN_1_2 => self.q_events.enqueue(Event::KeyItem(KeyEvent::Btn12S3)),
-                    _ => Ok(()),
-                };
+                let _ = self.q_events.enqueue(Event::KeyItem(KeyEvent::BtnEncS3));
                 self.first_go_to_0 = true;
             }
         }
@@ -287,13 +272,31 @@ impl Keyboard {
         if count != self.enc_1_cnt {
             let mut delta = count.wrapping_sub(self.enc_1_cnt) as i16;
             while delta > 0 {
+                let item = if btn_state == BTN_ENC {
+                    // knob is pressed and rotated
+                    self.first_go_to_0 = true;
+                    Event::KeyItem(KeyEvent::BtnEncPlusRotary2Right)
+                } else {
+                    // knob is just rotated
+                    Event::KeyItem(KeyEvent::Rotary2Right)
+                };
                 let _ = self
                     .q_events
-                    .enqueue(Event::KeyItem(KeyEvent::Rotary2Right));
+                    .enqueue(item);
                 delta -= 1;
             }
             while delta < 0 {
-                let _ = self.q_events.enqueue(Event::KeyItem(KeyEvent::Rotary2Left));
+                let item = if btn_state == BTN_ENC {
+                    // knob is pressed and rotated
+                    self.first_go_to_0 = true;
+                    Event::KeyItem(KeyEvent::BtnEncPlusRotary2Left)
+                } else {
+                    // knob is just rotated
+                    Event::KeyItem(KeyEvent::Rotary2Left)
+                };
+                let _ = self
+                    .q_events
+                    .enqueue(item);
                 delta += 1;
             }
             self.enc_1_cnt = count;
@@ -304,13 +307,17 @@ impl Keyboard {
         if count != self.enc_2_cnt {
             let mut delta = count.wrapping_sub(self.enc_2_cnt) as i16;
             while delta > 0 {
+                let item = Event::KeyItem(KeyEvent::Rotary1Right);
                 let _ = self
                     .q_events
-                    .enqueue(Event::KeyItem(KeyEvent::Rotary1Right));
+                    .enqueue(item);
                 delta -= 1;
             }
             while delta < 0 {
-                let _ = self.q_events.enqueue(Event::KeyItem(KeyEvent::Rotary1Left));
+                let item = Event::KeyItem(KeyEvent::Rotary1Left);
+                let _ = self
+                    .q_events
+                    .enqueue(item);
                 delta += 1;
             }
             self.enc_2_cnt = count;

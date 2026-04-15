@@ -38,8 +38,8 @@ Source Lizenz verfügbar und kann auf verschiedenen Geräten genutzt werden.]
 
 = #hr[Software-Lizenzvertrag]
 
-#tr[Diese Software wird gemäß der GNU General Public License Version 3 veröffentlicht. Den vollstän-
-digen Text der Vereinbarung und den Haftungsausschluss auf dieser Seite zu finden: 
+#tr[Diese Software wird gemäß der GNU General Public License Version 3 veröffentlicht. Den 
+vollständigen Text der Vereinbarung und den Haftungsausschluss auf dieser Seite zu finden: 
 #link("https://www.gnu.org/licenses/gpl-3.0")[gnu.org/licenses/gpl-3.0].]
 
 = #hr[Disclaimer (Software Vario Display)]

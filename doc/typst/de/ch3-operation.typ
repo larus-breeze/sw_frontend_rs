@@ -25,10 +25,11 @@ das aufrufende Menü zurück.
 Egal, ob Sie sich in einem Menü, einem Submenü oder im Editor befinden: Sie können immer mittels langem 
 Tastendruck direkt in die Basiszeige zurückkehren.
 
-Das Gerät stellt drei Basisanzeigen zur Verfügung: Vario, Horizont und Geräteinformationen.
-Zwischen den Anzeigen kann gewechselt werden, indem nach einem kurzen Tastendruck, im Flight Menu der Punkt
-Display angewählt wird. Die eingestellte Anzeige beibt dauerhaft erhalten. In den folgenden
-Abschnitten werden die verschiedenen Anzeigemodi beschrieben. ]
+Das Gerät stellt drei Basisanzeigen zur Verfügung: Vario, Horizont und Geräteinformationen. 
+Zwischen den Anzeigen kann gewechselt werden, indem nach einem kurzen Tastendruck, im Flight 
+Menu der Punkt Display genutzt wird. Alternativ dazu kann bei gedrückten Drehknopf die gewünschte 
+Basisanzeige durch Drehen ausgewählt werden. Die eingestellte Anzeige beibt dauerhaft erhalten. 
+In den folgenden Abschnitten werden die verschiedenen Anzeigemodi beschrieben. ]
 
 == Vario Display
 <vario-display>

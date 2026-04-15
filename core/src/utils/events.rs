@@ -8,7 +8,7 @@ pub enum Event {
 }
 
 #[repr(u8)]
-#[derive(PartialEq, Clone, Copy)]
+#[derive(PartialEq, Clone, Copy, Debug)]
 pub enum KeyEvent {
     NoEvent,
     Btn1,
@@ -35,6 +35,8 @@ pub enum KeyEvent {
     Rotary1Right,
     Rotary2Left,
     Rotary2Right,
+    BtnEncPlusRotary2Left,
+    BtnEncPlusRotary2Right,
 }
 
 #[derive(Clone, Copy, PartialEq)]
