@@ -58,6 +58,7 @@ pub struct Sensor {
     pub vertical_g_force: Acceleration,
     pub wind_vector: WindVector,
     pub larus_box_system_state: u32,
+    pub test_no: u8,
 }
 
 impl Default for Sensor {
@@ -91,6 +92,7 @@ impl Default for Sensor {
             average_wind: WindVector::new(0.0.km_h(), 0.0_f32.deg()),
             wind_vector: WindVector::new(0.0.km_h(), 0.0_f32.deg()),
             larus_box_system_state: 0,
+            test_no: 0,
         }
     }
 }

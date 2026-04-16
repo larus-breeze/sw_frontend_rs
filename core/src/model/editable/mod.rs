@@ -113,6 +113,8 @@ pub enum Editable {
     CmdCalcOrientation,
     CmdFineTuneOrientation,
     CmdResetSensorbox,
+    CmdTestFunction,
+    CmdTestFunctionNumber,
 
     // general
     None,
@@ -310,6 +312,8 @@ impl Editable {
             Editable::CmdCalcOrientation => CmdCalcOrientation::this(),
             Editable::CmdFineTuneOrientation => CmdFineTuneOrientation::this(),
             Editable::CmdResetSensorbox => CmdResetSensorbox::this(),
+            Editable::CmdTestFunction => CmdTestFunction::this(),
+            Editable::CmdTestFunctionNumber => CmdTestFunctionNumber::this(),
 
             // general
             Editable::None => None_::this(),

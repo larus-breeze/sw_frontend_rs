@@ -1,6 +1,7 @@
 use super::{CmdParams, Content, EditableFuncs, F32Params, Params, COMMAND_SENT};
 use crate::{
     controller::{persist::send_can_config_frame, CanConfigId, RemoteConfig},
+    persist::send_can_test_func,
     utils::TString,
     CoreController, CoreModel,
 };
@@ -409,5 +410,56 @@ impl EditableFuncs for CmdResetSensorbox {
 
     fn set_content(cm: &mut CoreModel, cc: &mut CoreController, _content: Content) {
         send_can_config_frame(cm, cc, crate::CanConfigId::CmdReset, RemoteConfig::Get);
+    }
+}
+
+pub struct CmdTestFunction;
+
+impl EditableFuncs for CmdTestFunction {
+    fn name() -> &'static str {
+        "Test Function"
+    }
+
+    fn content(_cm: &mut CoreModel, _cc: &mut CoreController) -> Content {
+        Content::Command(TString::<16>::from_str(COMMAND_SENT))
+    }
+
+    fn params(_cm: &CoreModel) -> Params {
+        Params::Cmd(CmdParams {
+            content: TString::<16>::from_str(COMMAND_SENT),
+        })
+    }
+
+    fn set_content(cm: &mut CoreModel, cc: &mut CoreController, _content: Content) {
+        send_can_test_func(cc, cm.sensor.test_no);
+    }
+}
+
+pub struct CmdTestFunctionNumber;
+
+impl EditableFuncs for CmdTestFunctionNumber {
+    fn name() -> &'static str {
+        "Test Parameter"
+    }
+
+    fn content(cm: &mut CoreModel, _cc: &mut CoreController) -> Content {
+        Content::F32(Some(cm.sensor.test_no as f32))
+    }
+
+    fn params(_cm: &CoreModel) -> Params {
+        Params::F32(F32Params {
+            min: 0.0,
+            max: 9.0,
+            small_inc: 1.0,
+            big_inc: 1.0,
+            dec_places: 0,
+            unit: "",
+        })
+    }
+
+    fn set_content(cm: &mut CoreModel, _cc: &mut CoreController, content: Content) {
+        if let Content::F32(Some(val)) = content {
+            cm.sensor.test_no = val as u8;
+        }
     }
 }

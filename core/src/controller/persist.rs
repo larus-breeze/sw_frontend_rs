@@ -36,8 +36,8 @@ use crate::{
         centerview::CenterView,
         vario_infoview::{Info3View, LineView},
     },
-    CoreController, CoreModel, DateTime, FloatToSpeed, IdleEvent, Mass, PersistenceItem, Pressure,
-    Rotation, VarioMode, Waveform,
+    CanFrame, CoreController, CoreModel, DateTime, FloatToSpeed, Frame, GenericId, IdleEvent, Mass,
+    PersistenceItem, Pressure, Rotation, VarioMode, Waveform,
 };
 
 /// It is not permitted to change the sequence or assignment, as the number references the memory
@@ -411,6 +411,19 @@ pub fn send_can_config_frame(
                 .after(crate::Timer::PersistSetting, PERSISTENCE_TIMEOUT.millis());
         }
     }
+}
+
+pub fn send_can_test_func(cc: &mut CoreController, no: u8) {
+    // send test function with parameter no to sensorbox
+    let data = [0u8; 5];
+    let frame = Frame::generic(
+        CanFrame::empty_from_id(0)
+            .push_u16(CanConfigId::CmdTestFunction as u16)
+            .push_u8(no)
+            .push_slice(&data),
+        GenericId::SetSysSetting as u16,
+    );
+    let _ = cc.p_tx_frames.enqueue(frame);
 }
 
 pub fn delete_config(cm: &mut CoreModel, cc: &mut CoreController) {

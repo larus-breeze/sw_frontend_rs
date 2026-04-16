@@ -355,3 +355,8 @@ Achse Ihres Segelflugzeugs während der folgenden Vorgänge zu fixieren.
  
  #tr[Diese Einstellmöglichkeiten für die LARUS Sensoreinheit ist Experten vorbehalten und wird hier
  nicht näher beschreiben.]
+
+ === Test Function
+
+ #tr[Diese hier zur Verfügung gestellte Testfunktion ist den Entwicklern der Larus Sensor Plattform
+ vorbehalten.]

@@ -76,6 +76,7 @@ pub enum CanConfigId {
     CmdCalcSensorOrientation = 0x3003,
     CmdFineTuneCalibration = 0x3004,
     CmdReset = 0x3005,
+    CmdTestFunction = 0x3006,
 }
 
 impl From<PersistenceId> for CanConfigId {

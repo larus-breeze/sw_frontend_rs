@@ -20,6 +20,7 @@ pub const USAGE_MODE_AND_PROFILE_IDX: usize = 15;
 pub const MORE_SETTINGS_IDX: usize = 16;
 pub const SOUND_IDX: usize = 17;
 pub const FLASH_CONTROL_IDX: usize = 18;
+pub const TEST_FUNCTION_IDX: usize = 19;
 
 pub const MENU_LIST: &[Menu] = &[
     ROOT,
@@ -41,6 +42,7 @@ pub const MENU_LIST: &[Menu] = &[
     MORE_SETTINGS,
     SOUND,
     FLASH_CONTROL,
+    TEST_FUNCTION,
 ];
 
 pub const SETTINGS: Menu = Menu {
@@ -249,6 +251,10 @@ pub const SENSOR_BOX_COMMANDS: Menu = Menu {
         MenuItem {
             content: MenuItemContent::MenuItem(),
             next_menu_idx: SENSOR_BOX_SETTINGS_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::MenuItem(),
+            next_menu_idx: TEST_FUNCTION_IDX,
         },
         MenuItem {
             content: MenuItemContent::EditItem(Editable::Return),
@@ -562,6 +568,25 @@ pub const FLASH_CONTROL: Menu = Menu {
         MenuItem {
             content: MenuItemContent::EditItem(Editable::Return),
             next_menu_idx: ADVANCED_SETTINGS_IDX,
+        },
+    ],
+};
+
+pub const TEST_FUNCTION: Menu = Menu {
+    name: "Test Function",
+    level: 3,
+    items: &[
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::CmdTestFunctionNumber),
+            next_menu_idx: TEST_FUNCTION_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::CmdTestFunction),
+            next_menu_idx: TEST_FUNCTION_IDX,
+        },
+        MenuItem {
+            content: MenuItemContent::EditItem(Editable::Return),
+            next_menu_idx: SENSOR_BOX_COMMANDS_IDX,
         },
     ],
 };
