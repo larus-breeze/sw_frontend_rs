@@ -41,7 +41,7 @@ class Function(NoFunction):
 
                 pos2 = self._content.find(']', pos) + 1
                 value = self._content[pos:pos2]
-                key = f"@@{counter}"
+                key = f"@@{counter:03d}"
                 self._gaps[key] = value
                 self._content = self._content[:pos] + key + self._content[pos2:]
                 counter += 1
