@@ -1,1 +1,1 @@
-#let version = "Version v0.3.9.32"
+#let version = "Version v0.4.0.0"
