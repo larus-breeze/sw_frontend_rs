@@ -21,7 +21,7 @@
             [#tr[Gehäusematerial]],[#tr[Schwarz eloxiertes Aluminium]],
             table.hline(),
         ),
-        caption: [#hr[Pinbelegung CAN und RS232 RJ45]],
+        caption: [#hr[Technische Daten]],
     )
 ])
 #pagebreak()
