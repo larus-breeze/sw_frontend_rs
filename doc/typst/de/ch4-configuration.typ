@@ -244,7 +244,7 @@ Es wird von einem konstanten Durchfluss ausgegangen, der hier vorgegeben werden 
 #tr[Die Audioausgabe kann durch verschiedene Einstellungen an den persönlichen Geschmack angepasst werden.
 
 - *Center Frequency:* Gibt die Tonfrequenz bei 0 m/s Steigen an.
-- *Waveform:* Auswahl der Wellenform der Audioausgabe. Dies beeinflusst die Tonfarbe mit mehr oder weniger Oberwellen.
+- *Waveform:* Auswahl der Wellenform für die Audioausgabe: Sie können zwischen Rechteck, Sägezahn, Sinus und Dreieck wählen. Die Wellenform beeinflusst die Klangfarbe durch die Anzahl der enthaltenen Oberwellen. Je nach persönlichem Geschmack und dem verwendeten Lautsprecher können unterschiedliche Wellenformen als mehr oder weniger angenehm empfunden werden. Auf der Internetseite von Ilan Flint @waveforms können Sie sich einen Eindruck davon verschaffen.
 - *Spreading Factor:* Gibt an, um wie viel sich die Frequenz ändert, wenn das Segelflugzeug steigt oder sinkt. Ein Wert von 1,0 bedeutet, dass der Bereich von -5 m/s bis +5 m/s auf zwei Oktaven aufgeteilt wird.]
 
 === More Settings

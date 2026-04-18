@@ -16,3 +16,9 @@ asg32:
     title: Alexander Schleicher Flugzeugbau - Die ASG 32
     author: Alexander Schleicher GmbH
     url: https://www.alexander-schleicher.de/flugzeuge/asg-32-mi/
+
+waveforms:
+    type: Web
+    title: Online Tongenerator
+    author: Ilan Flint
+    url: https://www.onlinemictest.com/de/tone-generator/
