@@ -33,6 +33,14 @@ PICS = [
     "V.png",
     "battery.png",
 
+    "g-load.png",
+    "pitch.png",
+    "roll.png",
+    "yaw.png",
+    "g.png",
+    "Ve.png",
+    "ias.png",
+
     "normal-0.png",
     "normal-1.png",
     "normal-2.png",
