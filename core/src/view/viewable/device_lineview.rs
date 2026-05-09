@@ -1,5 +1,5 @@
 use crate::{
-    model::{CoreModel, SystemState},
+    model::{CoreModel, GpsState, SystemState},
     tformat,
     utils::Colors,
     CoreError, DrawImage,
@@ -49,8 +49,16 @@ pub enum DeviceLineView {
     GpsAltitude,
     GpsGroundSpeed,
     GpsTrack,
+    GpsHeading,
     GpsSats,
     GpsState,
+    GpsAccLen,
+    GpsAccHeading,
+    GnssBaseline,
+    GnssBaseLen,
+    GnssDown,
+    AntSlaveRight,
+    GnssRelNE,
     NickAngle,
     Pressure,
     SlipAngle,
@@ -101,6 +109,7 @@ impl DeviceLineView {
             DeviceLineView::Empty => Some(""),
             DeviceLineView::SensorBox => Some("Sensor Box"),
             DeviceLineView::VarioDisplay => Some("Vario Display"),
+            DeviceLineView::GnssBaseline => Some("GNSS Baseline"),
             _ => None,
         }
     }
@@ -113,7 +122,83 @@ impl DeviceLineView {
         }
     }
 
+    fn dgnss_available(cm: &CoreModel) -> bool {
+        cm.sensor.gps_state == GpsState::HeadingAvail
+    }
+
+    fn length_comparison(
+        measured: Option<crate::Length>,
+        configured: Option<crate::Length>,
+        available: bool,
+    ) -> heapless::String<30> {
+        if !available {
+            return tformat!(30, "-").unwrap();
+        }
+
+        match (measured, configured) {
+            (Some(measured), Some(configured)) => {
+                let measured = measured.to_m();
+                let configured = configured.to_m();
+                let error = measured - configured;
+                let error_sign = if error < 0.0 { "-" } else { "+" };
+                let error_abs = if error < 0.0 { -error } else { error };
+                tformat!(
+                    30,
+                    "{:.2}/{:.2} {}{:.2} m",
+                    measured,
+                    configured,
+                    error_sign,
+                    error_abs
+                )
+                .unwrap()
+            }
+            (Some(measured), None) => tformat!(30, "{:.2}/- m", measured.to_m()).unwrap(),
+            (None, Some(configured)) => tformat!(30, "-/{:.2} m", configured.to_m()).unwrap(),
+            (None, None) => tformat!(30, "-").unwrap(),
+        }
+    }
+
+    fn length_value(value: Option<crate::Length>, available: bool) -> heapless::String<30> {
+        if !available {
+            return tformat!(30, "-").unwrap();
+        }
+
+        if let Some(value) = value {
+            tformat!(30, "{:.2} m", value.to_m()).unwrap()
+        } else {
+            tformat!(30, "-").unwrap()
+        }
+    }
+
+    fn rel_ne_value(cm: &CoreModel) -> heapless::String<30> {
+        if !Self::dgnss_available(cm) {
+            return tformat!(30, "-").unwrap();
+        }
+
+        match (cm.sensor.dgps_rel_pos_n, cm.sensor.dgps_rel_pos_e) {
+            (Some(north), Some(east)) => {
+                let north = north.to_m();
+                let east = east.to_m();
+                let north_sign = if north < 0.0 { "-" } else { "+" };
+                let east_sign = if east < 0.0 { "-" } else { "+" };
+                let north_abs = if north < 0.0 { -north } else { north };
+                let east_abs = if east < 0.0 { -east } else { east };
+                tformat!(
+                    30,
+                    "{}{:.2}/{}{:.2} m",
+                    north_sign,
+                    north_abs,
+                    east_sign,
+                    east_abs
+                )
+                .unwrap()
+            }
+            _ => tformat!(30, "-").unwrap(),
+        }
+    }
+
     fn line_info(&self, cm: &CoreModel) -> LineInfo {
+        let dgnss_available = Self::dgnss_available(cm);
         let mut lv = match self {
             // Vario Display values
             DeviceLineView::DisplayVersion => LineInfo {
@@ -212,6 +297,14 @@ impl DeviceLineView {
                 name: "GNSS Track: ",
                 value: tformat!(30, "{:.0}°", cm.sensor.gps_track.to_degrees()).unwrap(),
             },
+            DeviceLineView::GpsHeading => LineInfo {
+                name: "GNSS Heading: ",
+                value: if dgnss_available {
+                    tformat!(30, "{:.0}°", cm.sensor.gps_heading.to_degrees()).unwrap()
+                } else {
+                    tformat!(30, "-").unwrap()
+                },
+            },
             DeviceLineView::GpsSats => LineInfo {
                 name: "GNSS Sats: ",
                 value: tformat!(30, "{}", cm.sensor.gps_sats).unwrap(),
@@ -219,6 +312,46 @@ impl DeviceLineView {
             DeviceLineView::GpsState => LineInfo {
                 name: "GNSS State: ",
                 value: tformat!(30, "{}", cm.sensor.gps_state.as_str()).unwrap(),
+            },
+            DeviceLineView::GpsAccLen => LineInfo {
+                name: "GNSS Acc: ",
+                value: if dgnss_available {
+                    tformat!(30, "{:.0} cm", cm.sensor.dgps_acc_len.to_m() * 100.0).unwrap()
+                } else {
+                    tformat!(30, "-").unwrap()
+                },
+            },
+            DeviceLineView::GpsAccHeading => LineInfo {
+                name: "GNSS HdgAcc: ",
+                value: if dgnss_available {
+                    tformat!(30, "{:.1} °", cm.sensor.dgps_acc_heading.to_degrees()).unwrap()
+                } else {
+                    tformat!(30, "-").unwrap()
+                },
+            },
+            DeviceLineView::GnssBaseLen => LineInfo {
+                name: "Base Len: ",
+                value: Self::length_comparison(
+                    cm.sensor.dgps_rel_pos_length,
+                    cm.sensor.antenna_baselen,
+                    dgnss_available,
+                ),
+            },
+            DeviceLineView::GnssDown => LineInfo {
+                name: "Down: ",
+                value: Self::length_comparison(
+                    cm.sensor.dgps_rel_pos_d,
+                    cm.sensor.antenna_slave_down,
+                    dgnss_available,
+                ),
+            },
+            DeviceLineView::AntSlaveRight => LineInfo {
+                name: "Right cfg: ",
+                value: Self::length_value(cm.sensor.antenna_slave_right, dgnss_available),
+            },
+            DeviceLineView::GnssRelNE => LineInfo {
+                name: "Rel N/E: ",
+                value: Self::rel_ne_value(cm),
             },
             DeviceLineView::NickAngle => LineInfo {
                 name: "Nick Angle: ",
@@ -242,12 +375,13 @@ impl DeviceLineView {
             },
 
             // These are empty or header lines, so this never can be addressed
-            DeviceLineView::Empty | DeviceLineView::SensorBox | DeviceLineView::VarioDisplay => {
-                LineInfo {
-                    name: "Error",
-                    value: tformat!(30, "Error").unwrap(),
-                }
-            }
+            DeviceLineView::Empty
+            | DeviceLineView::SensorBox
+            | DeviceLineView::VarioDisplay
+            | DeviceLineView::GnssBaseline => LineInfo {
+                name: "Error",
+                value: tformat!(30, "Error").unwrap(),
+            },
         };
         if cm.control.system_state == SystemState::NoCom && (*self as u8) >= 50 {
             lv.value = tformat!(30, "-").unwrap();

@@ -380,6 +380,27 @@ impl CoreController {
             sensor::CONFIG_VALUE => {
                 let config_id = rdr.pop_u32();
                 match config_id {
+                    id if id == CanConfigId::AntBaselen as u32 => {
+                        let val = rdr.pop_f32();
+                        cm.control.editor.content = Content::F32(val);
+                        if let Some(val) = val {
+                            cm.sensor.antenna_baselen = Some(val.m());
+                        }
+                    }
+                    id if id == CanConfigId::AntSlaveDown as u32 => {
+                        let val = rdr.pop_f32();
+                        cm.control.editor.content = Content::F32(val);
+                        if let Some(val) = val {
+                            cm.sensor.antenna_slave_down = Some(val.m());
+                        }
+                    }
+                    id if id == CanConfigId::AntSlaveRight as u32 => {
+                        let val = rdr.pop_f32();
+                        cm.control.editor.content = Content::F32(val);
+                        if let Some(val) = val {
+                            cm.sensor.antenna_slave_right = Some(val.m());
+                        }
+                    }
                     // CanConfigId::SensTiltRoll | CanConfigId::SensTiltPitch | CanConfigId::SensTiltYaw
                     0x2000..=0x2002 => {
                         if let Some(rad) = rdr.pop_f32() {
@@ -441,6 +462,35 @@ impl CoreController {
                     1 => cm.sensor.gps_state = GpsState::PosAvail,
                     3 => cm.sensor.gps_state = GpsState::HeadingAvail,
                     _ => cm.sensor.gps_state = GpsState::NoGps,
+                }
+            }
+            gps::ACCURACY => {
+                if let Some(acc_len) = rdr.pop_f32() {
+                    cm.sensor.dgps_acc_len = acc_len.m();
+                }
+                if let Some(acc_heading) = rdr.pop_f32() {
+                    cm.sensor.dgps_acc_heading = acc_heading.rad();
+                }
+            }
+            gps::HEADING => {
+                if let Some(heading) = rdr.pop_f32() {
+                    cm.sensor.gps_heading = heading.rad();
+                }
+            }
+            gps::REL_POS_NE => {
+                if let Some(rel_pos_n) = rdr.pop_f32() {
+                    cm.sensor.dgps_rel_pos_n = Some(rel_pos_n.m());
+                }
+                if let Some(rel_pos_e) = rdr.pop_f32() {
+                    cm.sensor.dgps_rel_pos_e = Some(rel_pos_e.m());
+                }
+            }
+            gps::REL_POS_D_LENGTH => {
+                if let Some(rel_pos_d) = rdr.pop_f32() {
+                    cm.sensor.dgps_rel_pos_d = Some(rel_pos_d.m());
+                }
+                if let Some(rel_pos_length) = rdr.pop_f32() {
+                    cm.sensor.dgps_rel_pos_length = Some(rel_pos_length.m());
                 }
             }
             _ => (),
