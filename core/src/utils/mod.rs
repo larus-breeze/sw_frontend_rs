@@ -1,6 +1,7 @@
 mod colors16;
 mod colors8;
 mod crc;
+mod date;
 mod date_time;
 mod draw_image;
 mod error;
@@ -23,6 +24,7 @@ pub use colors16::Colors;
 pub use colors8::Colors;
 pub use colors8::Colors as Colors8;
 pub use crc::*;
+pub use date::*;
 pub use date_time::*;
 pub use draw_image::*;
 pub use error::CoreError;

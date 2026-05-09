@@ -1,31 +1,9 @@
-use core::mem::transmute;
 
 use heapless::String;
 use tfmt::{uDisplayFormatted, uWrite, Convert, Formatter, Padding};
+use super::Date;
 
 use crate::tformat;
-
-#[repr(C, packed)]
-#[derive(Clone, Copy, Debug, PartialEq)]
-pub struct Date {
-    year: u16,
-    month: u8,
-    day: u8,
-}
-
-impl Date {
-    pub fn from_array_4u8(&mut self, data: [u8; 4]) {
-        // unsafe is ok, because this is infallible
-        let date = unsafe { transmute::<[u8; 4], Self>(data) };
-        *self = date;
-    }
-
-    pub fn as_array_4u8(&self) -> [u8; 4] {
-        // unsafe is ok, because this is infallible
-        let r = unsafe { transmute::<&Self, &[u8; 4]>(self) };
-        *r
-    }
-}
 
 #[derive(Clone, Copy, Debug)]
 pub struct Time {
