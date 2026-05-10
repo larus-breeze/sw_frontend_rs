@@ -23,7 +23,7 @@ use glider_data::*;
 use model::*;
 use sensorbox::*;
 
-use crate::{utils::TString, CoreController, CoreModel};
+use crate::{utils::TString, CoreController, CoreModel, Date};
 use tfmt::Convert;
 
 #[repr(u8)]
@@ -123,11 +123,12 @@ pub enum Editable {
 
 #[derive(Clone, Copy)]
 pub enum Content {
-    F32(Option<f32>),
-    Enum(TString<16>),
-    String(TString<12>),
-    List(i32),
     Command(TString<16>),
+    Date(Option<Date>),
+    Enum(TString<16>),
+    F32(Option<f32>),
+    List(i32),
+    String(TString<12>),
 }
 
 #[derive(Clone, Copy)]
@@ -138,6 +139,17 @@ pub struct F32Params {
     pub big_inc: f32,
     pub dec_places: u8,
     pub unit: &'static str,
+}
+
+#[derive(Clone, Copy)]
+pub struct DateParams {
+    pub min: Date,
+    pub max: Date,
+    pub small_inc_plus: i16,
+    pub small_inc_minus: i16,
+    pub big_inc_plus: i16,
+    pub big_inc_minus: i16,
+    pub is_active: bool,
 }
 
 pub const MAX_ENUM_VARIANTS: usize = 5;
@@ -164,11 +176,12 @@ pub struct CmdParams {
 
 #[derive(Clone, Copy)]
 pub enum Params {
-    F32(F32Params),
-    Enum(EnumParams),
-    String(StringParams),
-    List(ListParams),
     Cmd(CmdParams),
+    Date(DateParams),
+    Enum(EnumParams),
+    F32(F32Params),
+    List(ListParams),
+    String(StringParams),
 }
 
 struct EditableFptrs {
@@ -326,6 +339,27 @@ impl Editable {
         let params = self.params(cm);
 
         match params {
+            Params::Cmd(_params) => {
+                if let Content::Command(msg) = content {
+                    conv.write_str(msg.as_str()).unwrap();
+                }
+            }
+            Params::Date(params) => {
+                if params.is_active {
+                    if let Content::Date(date_opt) = content {
+                        if let Some(date) = date_opt {
+                            let date_string = date.as_string();
+                            conv.write_str(&date_string.as_str()).unwrap();
+                        } else {
+                            conv.write_str("-").unwrap();
+                        }
+                    } else {
+                            conv.write_str("-").unwrap();
+                    }
+                } else {
+                        conv.write_str("-").unwrap();
+                }
+            }
             Params::Enum(_params) => {
                 if let Content::Enum(val) = content {
                     conv.write_str(val.as_str()).unwrap();
@@ -348,11 +382,6 @@ impl Editable {
             Params::String(_params) => {
                 if let Content::String(val) = content {
                     conv.write_str(val.as_str()).unwrap();
-                }
-            }
-            Params::Cmd(_params) => {
-                if let Content::Command(msg) = content {
-                    conv.write_str(msg.as_str()).unwrap();
                 }
             }
         }

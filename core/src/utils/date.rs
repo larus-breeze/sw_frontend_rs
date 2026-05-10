@@ -1,4 +1,6 @@
 use core::{cmp::Ordering, mem::transmute};
+use heapless::String;
+use crate::tformat;
 
 #[repr(C, packed)]
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
@@ -20,10 +22,27 @@ impl Date {
         *self = date;
     }
 
+    pub fn from_u32(val: u32) -> Self {
+        let day = (val & 0x000f) as u8;
+        let month = ((val & 0x00f0) >> 8) as u8;
+        let year = ((val & 0xff00) >> 16) as u16;
+        Date { year, month, day }
+    }
+
     pub fn as_array_4u8(&self) -> [u8; 4] {
         // unsafe is ok, because this is infallible
         let r = unsafe { transmute::<&Self, &[u8; 4]>(self) };
         *r
+    }
+
+    pub fn as_string(&self) -> String<10> {
+        let year = self.year;
+        let month = self.month;
+        let day = self.day;
+        match tformat!(10, "{:04}-{:02}-{:02}", year, month, day) {
+            Ok(s) => s,
+            Err(_) => tformat!(10, "Date Error").unwrap()
+        }
     }
 
     pub fn as_u32(&self) -> u32 {

@@ -9,6 +9,49 @@ use crate::{
 };
 use num::clamp;
 
+fn edit_cmd_content(
+    _cm: &mut CoreModel,
+    _cc: &mut CoreController,
+    key_event: &mut KeyEvent,
+    _target: Editable,
+    _params: &CmdParams,
+) {
+    // There is nothing to do here, Cmd is sent when activating
+    *key_event = KeyEvent::NoEvent
+}
+
+fn edit_date_content(
+    cm: &mut CoreModel,
+    cc: &mut CoreController,
+    key_event: &mut KeyEvent,
+    target: Editable,
+    params: &DateParams,
+) {
+    if params.is_active {
+        if let Content::Date(opt_val) = cm.control.editor.content {
+            if let Some(mut date) = opt_val {
+                if date >= params.min && date <= params.max {
+                    match key_event {
+                        KeyEvent::Rotary2Left => date.add_days(params.small_inc_minus as i32),
+                        KeyEvent::Rotary2Right => date.add_days(params.small_inc_plus as i32),
+                        KeyEvent::Rotary1Left => date.add_days(params.big_inc_minus as i32),
+                        KeyEvent::Rotary1Right => date.add_days(params.big_inc_plus as i32),
+                        KeyEvent::BtnEnc => (),
+                        _ => return,
+                    }
+                } else {
+                    date = params.min;
+                }
+                let date = clamp(date, params.min, params.max);
+                let content = Content::Date(Some(date));
+                cm.control.editor.content = content;
+                target.set_content(cm, cc, content);
+            }
+        }
+    } 
+    *key_event = KeyEvent::NoEvent;
+}
+
 fn edit_enum_content(
     cm: &mut CoreModel,
     cc: &mut CoreController,
@@ -93,16 +136,6 @@ fn edit_list_content(
     }
 }
 
-fn edit_cmd_content(
-    _cm: &mut CoreModel,
-    _cc: &mut CoreController,
-    key_event: &mut KeyEvent,
-    _target: Editable,
-    _params: &CmdParams,
-) {
-    // There is nothing to do here, Cmd is sent when activating
-    *key_event = KeyEvent::NoEvent
-}
 
 pub fn key_action(key_event: &mut KeyEvent, cm: &mut CoreModel, cc: &mut CoreController) {
     if cm.control.editor.mode != EditMode::Off {
@@ -141,6 +174,7 @@ pub fn key_action(key_event: &mut KeyEvent, cm: &mut CoreModel, cc: &mut CoreCon
         }
 
         match cm.control.editor.params {
+            Params::Date(params) => edit_date_content(cm, cc, key_event, target, &params),
             Params::Enum(params) => edit_enum_content(cm, cc, key_event, target, &params),
             Params::String(_) => (),
             Params::List(params) => edit_list_content(cm, cc, key_event, target, &params),
