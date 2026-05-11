@@ -36,6 +36,7 @@ Settings (@settings) \
 │#h(8mm)│#h(8mm)├── Height \
 │#h(8mm)│#h(8mm)└── Return \
 │#h(8mm)│#h(8mm) \
+│#h(8mm)├── Block Horizon \
 │#h(8mm)├── Energy Arrow \
 │#h(8mm)├── Display Rotation \
 │#h(8mm)├── Glider Symbol \

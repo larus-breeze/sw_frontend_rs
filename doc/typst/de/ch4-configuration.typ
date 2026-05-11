@@ -75,6 +75,13 @@ werche Maßeinheiten zur Anwendung kommen:
 - #keep[*Height*] Maßeinheit der Höhenanzeige
 ]
 
+=== Block Horizon
+#tr[In bestimmten Wettbewerben ist die Nutzung des künstlichen Horizonts untersagt. Um die Konformität mit dem Reglement zu gewährleisten, kann die Funktion bis zu einem frei wählbaren Datum deaktiviert werden. Die Konfiguration ist nur bei aktivem Sensor und vorhandenem GPS-Empfang möglich.
+
+Nach Aufruf des Menüpunkts wird das aktuell im Sensor hinterlegte Datum angezeigt. Liegt dieses in der Vergangenheit, ist der künstliche Horizont aktiv. Erfolgt keine Eingabe (Timeout) oder wird die Auswahl bestätigt, bleibt die bestehende Einstellung unverändert.
+
+Durch Drehen des Einstellknopfes kann eine Sperre von bis zu 21 Tagen in der Zukunft definiert werden. Bitte beachten Sie, dass das Sperrdatum aus Sicherheitsgründen nur in die Zukunft verschoben und nicht aber zurückgesetzt werden kann.]
+
 === Energy Arrow
 
 #tr[Der Energiepfeil zeigt an, in welcher Richtung vermutlich ein Steigen zu erwarten ist. Angezeigt wird die vektorielle Differenz zwischen dem aktuellen und dem mittleren gemessenen Wind.
