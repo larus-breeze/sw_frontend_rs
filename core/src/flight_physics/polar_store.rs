@@ -1918,4 +1918,15 @@ pub const POLARS: &[BasicGliderData] = &[
         handicap: 116,
         polar_values: [[86.4, -0.583], [115.2, -0.642], [180.0, -1.473]],
     },
+    BasicGliderData {
+        // No 169,  self added
+        name: "Ventus 3 18m",
+        wing_area: 10.84,
+        max_speed: 250.0,
+        empty_mass: 395.0,
+        max_ballast: 140.0,
+        reference_weight: 385.0,
+        handicap: 122,
+        polar_values: [[101.6, -0.520], [150.8, -1.080], [200.0, -2.250]],
+    },
 ];

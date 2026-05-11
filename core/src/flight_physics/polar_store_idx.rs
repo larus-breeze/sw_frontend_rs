@@ -164,13 +164,14 @@ pub const TO_SORTED: &'static[u8] = &[
     161, // Ventus 2cT 18m
     162, // Ventus 2cx 18m
     163, // Ventus 2cxT 18m
-    164, // Ventus a/b 16.6m
-    165, // Ventus b (15m)
-    166, // Ventus cM (17.6)
-    167, // WA 26 P Squale
-    168, // Zuni II
+    165, // Ventus a/b 16.6m
+    166, // Ventus b (15m)
+    167, // Ventus cM (17.6)
+    168, // WA 26 P Squale
+    169, // Zuni II
     7, // AS-33 18m
     6, // AS-33 15m
+    164, // Ventus 3 18m
 ];
 
 pub const TO_RAW: &'static[u8] = &[
@@ -338,6 +339,7 @@ pub const TO_RAW: &'static[u8] = &[
     159, //Ventus 2cT 18m
     160, //Ventus 2cx 18m
     161, //Ventus 2cxT 18m
+    169, //Ventus 3 18m
     162, //Ventus a/b 16.6m
     163, //Ventus b (15m)
     164, //Ventus cM (17.6)
