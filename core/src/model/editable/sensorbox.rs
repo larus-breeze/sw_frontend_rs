@@ -1,9 +1,10 @@
 use super::{CmdParams, Content, EditableFuncs, F32Params, Params, COMMAND_SENT};
 use crate::{
     controller::{persist::send_can_config_frame, CanConfigId, RemoteConfig},
+    model::SystemState,
     persist::send_can_test_func,
     utils::TString,
-    CoreController, CoreModel,
+    CoreController, CoreModel, Date,
 };
 
 pub struct SensTiltRoll;
@@ -273,6 +274,49 @@ impl EditableFuncs for AntSlaveRight {
 
     fn set_content(cm: &mut CoreModel, cc: &mut CoreController, _content: Content) {
         send_can_config_frame(cm, cc, crate::CanConfigId::AntSlaveRight, RemoteConfig::Set);
+    }
+}
+
+pub struct BlockHorizon;
+impl EditableFuncs for BlockHorizon {
+    fn name() -> &'static str {
+        "Block Horizon"
+    }
+
+    fn content(cm: &mut CoreModel, cc: &mut CoreController) -> Content {
+        send_can_config_frame(cm, cc, CanConfigId::BlockHorizon, RemoteConfig::Get);
+        Content::Date(None)
+    }
+
+    fn params(cm: &CoreModel) -> Params {
+        if cm.control.system_state == SystemState::CanAndGpsOk {
+            let min = *cm.sensor.gps_date_time.date();
+            let mut max = min;
+            max.add_days(21);
+            Params::Date(super::DateParams {
+                min,
+                max,
+                small_inc_plus: 1,
+                small_inc_minus: 0,
+                big_inc_plus: 10,
+                big_inc_minus: 0,
+                is_active: true,
+            })
+        } else {
+            Params::Date(super::DateParams {
+                min: Date::new(2000, 1, 1),
+                max: Date::new(2000, 1, 1),
+                small_inc_plus: 0,
+                small_inc_minus: 0,
+                big_inc_plus: 0,
+                big_inc_minus: 0,
+                is_active: false,
+            })
+        }
+    }
+
+    fn set_content(cm: &mut CoreModel, cc: &mut CoreController, _content: Content) {
+        send_can_config_frame(cm, cc, crate::CanConfigId::BlockHorizon, RemoteConfig::Set);
     }
 }
 

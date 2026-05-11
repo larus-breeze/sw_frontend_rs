@@ -37,7 +37,7 @@ pub enum RemoteConfig {
 #[allow(dead_code)]
 #[derive(FromPrimitive)]
 #[repr(u16)]
-#[derive(Clone, Copy)]
+#[derive(Clone, Copy, PartialEq)]
 pub enum CanConfigId {
     Volume = 0,
     MacCready = 1,
@@ -69,6 +69,7 @@ pub enum CanConfigId {
     AntSlaveDown = 0x200d,
     AntSlaveRight = 0x200e,
     VarioPressTc = 0x200f,
+    BlockHorizon = 0x2010,
 
     CmdMeasure1 = 0x3000,
     CmdMeasure2 = 0x3001,

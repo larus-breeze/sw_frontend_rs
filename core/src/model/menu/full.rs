@@ -89,6 +89,10 @@ pub const VIEW_SETTINGS: Menu = Menu {
             next_menu_idx: UNITS_IDX,
         },
         MenuItem {
+            content: MenuItemContent::EditItem(Editable::BlockHorizon),
+            next_menu_idx: VIEW_SETTINGS_IDX,
+        },
+        MenuItem {
             content: MenuItemContent::EditItem(Editable::EnergyArrowMult),
             next_menu_idx: VIEW_SETTINGS_IDX,
         },

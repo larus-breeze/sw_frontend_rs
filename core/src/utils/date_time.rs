@@ -1,7 +1,6 @@
-
+use super::Date;
 use heapless::String;
 use tfmt::{uDisplayFormatted, uWrite, Convert, Formatter, Padding};
-use super::Date;
 
 use crate::tformat;
 

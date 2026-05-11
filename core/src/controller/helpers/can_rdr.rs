@@ -9,7 +9,7 @@ use crate::{
     into_range_0_360, into_range_180_180,
     model::{editable::Content, GpsState, VarioModeControl},
     persist::set_vario_mode,
-    AirSpeed, Angle, CanFrame, CoreController, CoreModel, DateTime, F64ToCoord,
+    AirSpeed, Angle, CanFrame, CoreController, CoreModel, Date, DateTime, F64ToCoord,
     FloatToAcceleration, FloatToAngularVelocity, FloatToDensity, FloatToLength, FloatToMass,
     FloatToPressure, FloatToSpeed, Frame, GenericFrame, GenericId, Latitude, Longitude,
     PersistenceId, SpecificFrame, SwVersion, Variant, VarioMode, DEGREE_PER_RAD,
@@ -378,14 +378,19 @@ impl CoreController {
                 cm.sensor.larus_box_system_state = rdr.pop_u32();
             }
             sensor::CONFIG_VALUE => {
-                let config_id = rdr.pop_u32();
+                let config_id = CanConfigId::from(rdr.pop_u32() as u16);
                 match config_id {
-                    // CanConfigId::SensTiltRoll | CanConfigId::SensTiltPitch | CanConfigId::SensTiltYaw
-                    0x2000..=0x2002 => {
+                    CanConfigId::SensTiltRoll
+                    | CanConfigId::SensTiltPitch
+                    | CanConfigId::SensTiltYaw => {
                         if let Some(rad) = rdr.pop_f32() {
                             let deg = rad * DEGREE_PER_RAD;
                             cm.control.editor.content = Content::F32(Some(deg));
                         }
+                    }
+                    CanConfigId::BlockHorizon => {
+                        let date = Date::from_u32(rdr.pop_u32());
+                        cm.control.editor.content = Content::Date(Some(date));
                     }
                     _ => cm.control.editor.content = Content::F32(rdr.pop_f32()),
                 }

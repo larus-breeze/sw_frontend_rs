@@ -107,6 +107,7 @@ pub enum Editable {
     AntBaselen,
     AntSlaveDown,
     AntSlaveRight,
+    BlockHorizon,
     CmdMeas1,
     CmdMeas2,
     CmdMeas3,
@@ -319,6 +320,7 @@ impl Editable {
             Editable::AntBaselen => AntBaselen::this(),
             Editable::AntSlaveDown => AntSlaveDown::this(),
             Editable::AntSlaveRight => AntSlaveRight::this(),
+            Editable::BlockHorizon => BlockHorizon::this(),
             Editable::CmdMeas1 => CmdMeas1::this(),
             Editable::CmdMeas2 => CmdMeas2::this(),
             Editable::CmdMeas3 => CmdMeas3::this(),
@@ -346,18 +348,14 @@ impl Editable {
             }
             Params::Date(params) => {
                 if params.is_active {
-                    if let Content::Date(date_opt) = content {
-                        if let Some(date) = date_opt {
-                            let date_string = date.as_string();
-                            conv.write_str(&date_string.as_str()).unwrap();
-                        } else {
-                            conv.write_str("-").unwrap();
-                        }
+                    if let Content::Date(Some(date)) = content {
+                        let date_string = date.as_string();
+                        conv.write_str(date_string.as_str()).unwrap();
                     } else {
-                            conv.write_str("-").unwrap();
+                        conv.write_str("-").unwrap();
                     }
                 } else {
-                        conv.write_str("-").unwrap();
+                    conv.write_str("-").unwrap();
                 }
             }
             Params::Enum(_params) => {

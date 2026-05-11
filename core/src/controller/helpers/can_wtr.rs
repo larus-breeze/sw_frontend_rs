@@ -117,7 +117,7 @@ impl CoreModel {
         config_id: CanConfigId,
         get_set: RemoteConfig,
     ) -> Option<Frame> {
-        fn set_f32(data: &mut [u8; 6], content: Content, config_id: CanConfigId) -> bool {
+        fn set_content(data: &mut [u8; 6], content: Content, config_id: CanConfigId) -> bool {
             let mut r = false;
             if let Content::F32(Some(val)) = content {
                 use defmt::trace;
@@ -131,6 +131,12 @@ impl CoreModel {
                 LE::write_f32(&mut data[2..6], val);
                 r = true;
             }
+            if let Content::Date(Some(date)) = content {
+                if config_id == CanConfigId::BlockHorizon {
+                    LE::write_u32(&mut data[2..6], date.as_u32());
+                    r = true;
+                }
+            }
             r
         }
 
@@ -138,7 +144,7 @@ impl CoreModel {
         let available = match get_set {
             RemoteConfig::Set => {
                 data[0] = 1;
-                set_f32(&mut data, self.control.editor.content, config_id)
+                set_content(&mut data, self.control.editor.content, config_id)
             }
             RemoteConfig::Get => true,
         };
