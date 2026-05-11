@@ -22,7 +22,6 @@ pub enum LineView {
     None,
     AverageClimbRate,
     FlightLevel,
-    Heading,
     TrueCourse,
     UtcTime,
     WindAndDelta,
@@ -34,6 +33,7 @@ pub enum LineView {
     GLoad,
     CircleDiameter,
     CircleMaxMin,
+    Heading,
     BankAngle,
     SlipAngle,
     IndicatedAirSpeed,
@@ -647,7 +647,11 @@ where
     )
 }
 
-fn draw_equivalent_air_speed<D>(display: &mut D, cm: &CoreModel, pos: Point) -> Result<(), CoreError>
+fn draw_equivalent_air_speed<D>(
+    display: &mut D,
+    cm: &CoreModel,
+    pos: Point,
+) -> Result<(), CoreError>
 where
     D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
 {
@@ -675,16 +679,32 @@ fn draw_bank_angle<D>(display: &mut D, cm: &CoreModel, pos: Point) -> Result<(),
 where
     D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
 {
-    let s = tformat!(8, "{:.0}°", cm.sensor.euler_roll.to_degrees()).unwrap();
-    draw_centered_line(
-        display,
-        pos,
-        Some(Image::new(cm.device_const.images.roll)),
+    let roll_deg = cm.sensor.euler_roll.to_degrees();
+    let s = tformat!(8, "{:.0}°", roll_deg.abs()).unwrap();
+    let img_bytes = if roll_deg < 0.0 {
+        cm.device_const.images.roll_left
+    } else {
+        cm.device_const.images.roll_right
+    };
+    let img = Image::new(img_bytes);
+    let txt_x = pos.x + img.width() as i32 / 2;
+
+    let result = cm.device_const.big_font.render_aligned(
         s.as_str(),
-        None,
-        &cm.device_const.big_font,
-        cm.palette(),
-    )
+        Point::new(txt_x, pos.y),
+        VerticalPosition::Center,
+        HorizontalAlignment::Center,
+        FontColor::Transparent(cm.palette().vario.value),
+        display,
+    )?;
+    if let Some(rectangle) = result {
+        let pic_x = txt_x - (rectangle.size.width / 2 + img.width()) as i32;
+        let pic_y = pos.y - img.height() as i32 / 2;
+        let pic_pos = Point::new(pic_x, pic_y);
+        img.draw(display, pic_pos, Some(cm.palette().vario.icon))?;
+    }
+
+    Ok(())
 }
 
 fn draw_slip_angle<D>(display: &mut D, cm: &CoreModel, pos: Point) -> Result<(), CoreError>
@@ -695,7 +715,7 @@ where
     draw_centered_line(
         display,
         pos,
-        None,
+        Some(Image::new(cm.device_const.images.slip)),
         s.as_str(),
         None,
         &cm.device_const.big_font,

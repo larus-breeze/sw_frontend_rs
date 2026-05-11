@@ -35,7 +35,9 @@ PICS = [
 
     "g-load.png",
     "pitch.png",
-    "roll.png",
+    "roll_left.png",
+    "roll_right.png",
+    "slip.png",
     "yaw.png",
     "g.png",
     "Ve.png",
