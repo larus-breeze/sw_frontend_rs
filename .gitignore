@@ -1,6 +1,6 @@
 *.f110
 *.pyc
-/.venv
+**/.venv
 /doc/*.pdf
 /doc/*.log
 /doc/typst/*.pdf

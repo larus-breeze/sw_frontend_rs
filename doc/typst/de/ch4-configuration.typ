@@ -32,12 +32,22 @@ ist aufgelistet welche Informationen an welcher Stelle möglich sind:
 #keep[*Info 1 Content*]:
 - #keep[*None*] Nichts
 - #keep[*Avg Climb Rate*] Mittleres Steigen
+- #keep[*Bank Angle*] Querneigung. Das Symbol zeigt die Richtung der Querneigung, der Zahlenwert den Betrag
 - #keep[*Battery Voltage*] Batteriespannung
 - #keep[*Circle Diameter*] Durchmesser beim Kreisen
 - #keep[*Circle Max-Min*] Differenz maximales/minimales Steigen
 - #keep[*Drift Angle*] Driftwinkel
+- #keep[*Equivalent Air Speed*] Äquivalente Fluggeschwindigkeit. Hilfreich in Kurven und beim
+  Hochziehen, wenn der Lastfaktor die angezeigte Fluggeschwindigkeit erhöht. #keep[*Ve*] liefert
+  dann eine für den Strömungsabriss relevante Anzeige unabhängig von der Querneigung. Bei
+  Segelflugzeugen mit Wölbklappen ist #keep[*Ve*] außerdem die passende Referenz für die
+  Klappenstellung unter Last
 - #keep[*Flight Level*] Flugfläche
 - #keep[*G-Load*] Beschleunigung
+- #keep[*Heading*] Steuerkurs
+- #keep[*Indicated Air Speed*] Angezeigte Fluggeschwindigkeit
+- #keep[*Pitch Angle*] Längsneigung
+- #keep[*Slip Angle*] Schiebewinkel
 - #keep[*Speed to Fly*] Sollfahrt
 - #keep[*True Air Speed*] Wahre Geschwindigkeit gegenüber Luft
 - #keep[*True Course*] Wahrer Kurs
@@ -46,12 +56,22 @@ ist aufgelistet welche Informationen an welcher Stelle möglich sind:
 #keep[*Info 2 Content*]:
 - #keep[*None*] Nichts
 - #keep[*Avg Climb Rate*] Mittleres Steigen
+- #keep[*Bank Angle*] Querneigung. Das Symbol zeigt die Richtung der Querneigung, der Zahlenwert den Betrag
 - #keep[*Battery Voltage*] Batteriespannung
 - #keep[*Circle Diameter*] Durchmesser beim Kreisen
 - #keep[*Circle Max-Min*] Differenz maximales/minimales Steigen
 - #keep[*Drift Angle*] Driftwinkel
+- #keep[*Equivalent Air Speed*] Äquivalente Fluggeschwindigkeit. Hilfreich in Kurven und beim
+  Hochziehen, wenn der Lastfaktor die angezeigte Fluggeschwindigkeit erhöht. #keep[*Ve*] liefert
+  dann eine für den Strömungsabriss relevante Anzeige unabhängig von der Querneigung. Bei
+  Segelflugzeugen mit Wölbklappen ist #keep[*Ve*] außerdem die passende Referenz für die
+  Klappenstellung unter Last
 - #keep[*Flight Level*] Flugfläche
 - #keep[*G-Load*] Beschleunigung
+- #keep[*Heading*] Steuerkurs
+- #keep[*Indicated Air Speed*] Angezeigte Fluggeschwindigkeit
+- #keep[*Pitch Angle*] Längsneigung
+- #keep[*Slip Angle*] Schiebewinkel
 - #keep[*Speed to Fly*] Sollfahrt
 - #keep[*True Air Speed*] Wahre Geschwindigkeit gegenüber Luft
 - #keep[*True Course*] Wahrer Kurs
