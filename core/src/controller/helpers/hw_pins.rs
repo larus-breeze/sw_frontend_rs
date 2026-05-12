@@ -258,7 +258,8 @@ impl FlashControl {
             OutPinFunction::Opened => PinState::High,
         };
         cm.control.hw_pins.out_flash = state;
-        Some(state)
+        // Please note: the hardware inverts the state
+        Some(!state)
     }
 
     fn switch_off(&mut self, cm: &mut CoreModel) -> Option<PinState> {
@@ -268,7 +269,8 @@ impl FlashControl {
             OutPinFunction::Opened => PinState::Low,
         };
         cm.control.hw_pins.out_flash = state;
-        Some(state)
+        // Please note: the hardware inverts the state
+        Some(!state)
     }
 }
 
