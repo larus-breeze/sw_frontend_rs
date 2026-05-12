@@ -13,8 +13,8 @@ carefully and familiarise yourself with them.]
 document, the following symbols are used:]
 
 #picnote("/img/pictograph-yellow-warning.svg")[
-	#tr[Please pay attention to the important
-    notes marked with a yellow warning symbol, as failure to follow them may result
+	#tr[Please take note of the important
+    instructions marked with a yellow warning symbol, as failure to follow them may result
     in damage or other critical situations.]
 ]
 
@@ -32,10 +32,10 @@ document, the following symbols are used:]
     of this operating manual.]
 ]
 
-=== #hr[Proper Use] 
+=== #hr[Intended Use] 
 
 #tr[The LARUS Vario Display visualises data that
-is measured and calculated by the LARUS sensor unit. LARUS has been developed to calculate the direction
+is measured and calculated by the LARUS sensor unit. LARUS was developed to calculate the direction
 and strength of thermals and wind quickly and reliably. To do this, the
 sensor unit combines data from high-precision sensors and GNSS receivers using sophisticated algorithms. The
 LARUS Vario Display is installed in the instrument panel. The LARUS sensor unit provides

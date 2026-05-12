@@ -19,13 +19,13 @@ two rotary knobs:
 In the menus, the desired item can be selected using the rotary knobs. Selection is confirmed by 
 a short press of the button. The menus contain either submenus or configuration parameters to choose from. 
 Submenus are navigated in the same way. Once a configuration parameter has been selected, 
-it can be changed. The changes take effect immediately. A short press of the button returns you to 
-the calling menu.
+it can be modified. Changes take effect immediately. A short press of the button returns you to 
+the menu from which you entered.
 
-Whether you are in a menu, a submenu or the editor: you can always return directly to the basic display by 
+Whether you are in a menu, a submenu or the editor: you can always return directly to the main display by 
 pressing and holding the button.
 
-The device provides three basic displays: Vario, Horizon and Device Information. 
+The device provides three main displays: Vario, Horizon and Device Information. 
 You can switch between the displays by selecting the ‘Display’ option in the Flight 
 Menu after a short press of the button. Alternatively, whilst holding down the rotary knob, you can select the desired 
 basic display by turning it. The selected display remains active permanently. 
@@ -40,7 +40,7 @@ at least 1°/sec is measured for more than 10 seconds, circling mode is activate
 the rotation speed falls below this value for more than 10 seconds, the system switches back to straight flight mode.]
 
 #picnote("/img/pictograph-blue-cloud.svg")[
-  #tr[Switching from variometer mode to mode to fly does not affect the information displayed on the main screen.]
+  #tr[Switching from variometer mode to mode for speed to fly does not affect the information displayed on the main screen.]
 ]
 
 === #hr[Circling Mode]
@@ -50,7 +50,7 @@ the rotation speed falls below this value for more than 10 seconds, the system s
     caption: [#hr[Display in Circling Mode]],
 )<circling-explained>
 
-#tr[The Info 1, Info 2, Info 3 displays and the central display depend on whether you are flying straight ahead
+#tr[The Info 1, Info 2 and Info 3 displays, as well as the central display, depend on whether you are flying straight ahead
 or in circling mode. The content of these displays can be customised for both modes.
 
 Content in circling mode:
@@ -62,12 +62,12 @@ Content in circling mode:
 - Info 1 display, here: time
 - Info 2 display, here: wind direction and wind speed
 - Info 3 display, here: average climb rate since the start of circling
-- Symbol area: The colour of the Sat symbol indicates data quality:
+- Symbol area: The colour of the satellite symbol indicates data quality:
   - Green: Connection to the LARUS sensor unit established. Device has a GPS fix.
   -    Yellow: Connection to the LARUS sensor unit established, unit has no GPS fix
   - Red: No connection to the LARUS sensor unit
 - Icon area: The colour of the battery icon corresponds to the operating voltage:
-  - Green: Battery voltage is sufficient.
+  - Green: The battery voltage is sufficient.
   - Yellow: The battery voltage is in the critical range.
   - Red: The battery voltage is below the minimum value.
 - Icon area: Circle: Usage Mode Club, User Profile 1 (Usage Mode Normal as a square). ]
@@ -84,9 +84,9 @@ Content in circling mode:
 - Central display: shows wind direction relative to the aircraft’s longitudinal axis
 - Average climb rate
 - MacCready value
-- Speed indicator: The position of the bar indicates whether you are flying too fast or too slow. 
-  Positive values mean you are flying too fast; negative values mean you are 
-  flying too slow. The length of the bar indicates by how much. 1 m/s corresponds to 10 km/h.
+- Target speed indicator: The position of the bar indicates whether you are flying too fast or too slow. 
+  Positive values mean you are flying too fast; negative values mean you are flying too 
+  slow. The length of the bar indicates by how much. 1 m/s corresponds to 10 km/h.
 - Symbol area: Battery symbol OK, Sat symbol OK, Usage Mode Club, User Profile 1
 - Info 1 display, showing wind angle
 - Info 2 display, showing wind direction and wind speed
@@ -99,7 +99,7 @@ Content in circling mode:
     caption: [#hr[Displaying a Warning and Identifying the Cause]],
 )<straight-explained>
 
-#tr[The LARUS Vario display alerts the user if it encounters problems processing data. A red warning triangle with an exclamation mark will then appear. Although the Vario is still functioning correctly, the display quality may be reduced.
+#tr[The LARUS Vario Display alerts the user if it encounters problems processing data. A red warning triangle with an exclamation mark will then appear. Although the Vario is still functioning correctly, the display quality may be reduced.
 
 Possible causes:
 
@@ -120,7 +120,7 @@ The cause of the fault can be identified on the ‘Device Info’ page (@device-
 #tr[The current wind direction is indicated by a central arrow. The size of the arrow is
 proportional to the wind speed. Changes in wind direction relative to the average direction
 are indicated by a wind vane; changes in wind speed relative to the
-average speed over the medium term are indicated by the width of the wind vane. The
+medium-term average speed are indicated by the width of the wind vane. The
 direction of the arrow is relative to north, symbolised by the letter N on the scale at the top.]
 
 #figure(
@@ -164,28 +164,28 @@ optimally centred when blue and red dots occur with roughly equal frequency.]
 - Blue: Climb rate is below average
 
 The diameter of the segment is proportional to the climb rate. A steady updraft
-is optimally centred when blue and red areas appear with equal frequency.]
+is ideally centred when blue and red areas appear with equal frequency.]
 
-==== #hr[Central Displays in Straight Flight Mode]
+==== #hr[Key Displays in Straight Flight Mode]
 
 #figure(
     image("/img/straight-single-arrow.png", width: 5cm),
-    caption: [#hr[Wind Indicator for Straight-Ahead Navigation, Featuring an Arrow and a Flag]],
+    caption: [#hr[Wind Indicator for Straight-Ahead Flight, Featuring an Arrow and a Flag]],
 )<straight-single-arrow>
 
 #tr[The current wind direction is indicated by a central arrow. The size of the arrow is
 proportional to the wind speed. Changes in wind direction relative to the average direction
-are indicated by a wind vane, whilst changes in wind speed relative to the
-average speed over a medium period are indicated by the width of the wind vane. The
+are indicated by a wind vane; changes in wind speed relative to the
+average wind speed are indicated by the width of the wind vane. The
 aircraft symbol indicates that the display refers to the direction of flight.]
 
 #figure(
     image("/img/straight-double-arrow.png", width: 5cm),
-    caption: [#hr[Wind Indicator for Straight-Ahead Navigation with Two Arrows]],
+    caption: [#hr[Wind Indicator for Straight-Ahead Flight with Two Arrows]],
 )<straight-double-arrow>
 
 #tr[The current wind direction and speed are indicated by the blue arrow,
-while information on the average wind is shown by the grey arrow in the background. The
+whilst information on the average wind is shown by the grey arrow in the background. The
 size of the arrows depends on the wind speed. The direction of the arrows is relative to the
 longitudinal axis of the glider. The glider symbol indicates that the display relates to the
 direction of flight.]
@@ -208,7 +208,7 @@ direction of flight.]
 - The boundary with the brown area corresponds to the horizon.
 - The circular scale at the top shows the glider’s current
       bank angle in 15° increments (here approximately 30°, red arrowhead).
-- The scale parallel to the horizon indicates the angle of climb rate or descent in 10° increments
+- The scale parallel to the horizon indicates the climb rate or descent rate in 10° increments
       (here 0°).
 - An inclinometer is visible in the lower section, which indicates any yaw
       .
@@ -230,10 +230,10 @@ The glider is currently in a clean right-hand turn with a bank angle of
   
 == #hr[Device Information]<device-info>
 
-#tr[In the Device Information display mode, file information regarding the LARUS Vario Display and
-the LARUS sensor unit is shown. This display can be useful for carrying out fault analyses
-or retrieving specific information. For example, all the states
-of the inputs and outputs can be viewed here. Fault conditions of the LARUS sensor unit
+#tr[The Device Information display mode shows file information about the LARUS Vario Display and
+the LARUS sensor unit. This display can be useful for carrying out fault analyses
+or retrieving specific information. For example, it allows you to view the status
+of all inputs and outputs. Fault conditions affecting the LARUS sensor unit
 can also be identified.]
 
 #figure(
@@ -248,9 +248,9 @@ can also be identified.]
 flight. The menu can be accessed by briefly pressing the control button. The headings in this section are the same as those used in the device.]
 
 === Water Ballast
-#tr[This field specifies the amount of water ballast loaded. When draining the water during
-flight, this value can be adjusted manually or reduced automatically via a switch on the valve and
-the corresponding configuration.
+#tr[This is where the amount of water ballast loaded is specified. When draining the water during
+flight, this value can be adjusted manually or reduced automatically using a switch on the valve and
+the appropriate configuration.
 
 The set value is synchronised with a connected navigation computer.]
 
@@ -271,12 +271,12 @@ The value entered is synchronised with a connected navigation computer.]
 
 === Display
 #tr[The 'Display' menu option allows you to select what is shown on the device’s screen at all times. Here, you can switch between
-Vario, Horizon and device information.]
+Vario, Horizon and Device Information.]
 
 === User Profile<user-profile>
 #tr[The LARUS Vario Display offers a wide range of settings to customise the display to the pilot’s
 needs. If several pilots fly the same glider, the 
-#keep[User Profiles] feature allows for easy switching between the different settings. Up to 
+#keep[User Profiles] allows for easy switching between the different settings. Up to 
 4 different profiles can be used.
 
 As described in the ‘Usage Mode’ section, whether 3 or

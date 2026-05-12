@@ -21,7 +21,7 @@
             [#tr[Housing material]],[#tr[Black anodised aluminium]],
             table.hline(),
         ),
-        caption: [#hr[Pin Configuration for CAN and RS232 RJ45]],
+        caption: [#hr[Technical Specifications]],
     )
 ])
 #pagebreak()
