@@ -1,4 +1,9 @@
-use crate::system_of_units::{Float, Speed};
+use crate::{
+    system_of_units::{Float, FloatToSpeed, Speed},
+    Acceleration,
+};
+#[allow(unused)]
+use micromath::F32Ext;
 
 /// Represents the speed with respect to air
 ///
@@ -39,5 +44,15 @@ impl AirSpeed {
     /// Returns the true airspeed
     pub fn tas(&self) -> Speed {
         self.tas
+    }
+
+    /// Returns the equivalent airsped
+    pub fn eas(&self, g_force: Acceleration) -> Option<Speed> {
+        let g_load = g_force.load();
+        if g_load > 0.01 {
+            Some((self.ias.0 / g_load.sqrt()).m_s())
+        } else {
+            None
+        }
     }
 }

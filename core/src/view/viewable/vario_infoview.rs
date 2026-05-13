@@ -1,6 +1,6 @@
 use crate::{
     model::DataSource, tformat, Colors, CoreError, CoreModel, DrawImage, FloatToSpeed, Image,
-    Palette, Speed,
+    Palette,
 };
 use embedded_graphics::{draw_target::DrawTarget, geometry::Point};
 use num_enum::FromPrimitive;
@@ -655,10 +655,8 @@ fn draw_equivalent_air_speed<D>(
 where
     D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
 {
-    let g_load = (cm.sensor.g_force.to_m_s2() / 9.81).max(0.0);
-    let ve_str = if g_load > 0.01 {
-        let ve_speed = Speed::from_km_h(cm.sensor.airspeed.ias().to_km_h() / g_load.sqrt());
-        cm.config.unit_horizontal_speed.value_str(ve_speed)
+    let ve_str = if let Some(eas) = cm.sensor.airspeed.eas(cm.sensor.g_force) {
+        cm.config.unit_horizontal_speed.value_str(eas)
     } else {
         heapless::String::<3>::try_from("--").unwrap()
     };

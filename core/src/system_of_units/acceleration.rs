@@ -3,7 +3,7 @@ use core::{
     ops::{Add, AddAssign, Div, Mul, Neg, Sub, SubAssign},
 };
 
-use crate::{basic_ops, Float};
+use crate::{basic_ops, Float, STANDARD_GRAVITY};
 
 /// In mechanics, acceleration is the rate of change of the velocity of an object with respect
 /// to time. Accelerations are vector quantities (in that they have magnitude and direction).
@@ -29,6 +29,12 @@ impl Acceleration {
     #[inline]
     pub fn to_m_s2(self) -> Float {
         self.0
+    }
+
+    /// Extract the multiple of earth gravity
+    #[inline]
+    pub fn load(self) -> Float {
+        self.0 / STANDARD_GRAVITY
     }
 }
 
