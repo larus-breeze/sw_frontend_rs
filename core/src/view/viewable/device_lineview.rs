@@ -165,11 +165,19 @@ impl DeviceLineView {
             },
             DeviceLineView::AhrsPitch => LineInfo {
                 name: "AHRS Pitch: ",
-                value: tformat!(30, "{:.0}°", cm.sensor.euler_pitch.to_degrees()).unwrap(),
+                value: if cm.sensor.roll_pitch_available() {
+                    tformat!(30, "{:.0}°", cm.sensor.euler_pitch.to_degrees()).unwrap()
+                } else {
+                    tformat!(30, "-").unwrap()
+                },
             },
             DeviceLineView::AhrsRoll => LineInfo {
                 name: "AHRS Roll: ",
-                value: tformat!(30, "{:.0}°", cm.sensor.euler_roll.to_degrees()).unwrap(),
+                value: if cm.sensor.roll_pitch_available() {
+                    tformat!(30, "{:.0}°", cm.sensor.euler_roll.to_degrees()).unwrap()
+                } else {
+                    tformat!(30, "-").unwrap()
+                },
             },
             DeviceLineView::AhrsYaw => LineInfo {
                 name: "AHRS Yaw: ",
