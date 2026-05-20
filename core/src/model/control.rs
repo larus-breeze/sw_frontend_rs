@@ -19,6 +19,26 @@ pub enum FlyMode {
     StraightFlight,
 }
 
+#[derive(Clone, Copy, PartialEq)]
+pub enum CirclingDirection {
+    Left,
+    Right,
+}
+
+impl CirclingDirection {
+    pub fn from_turn_rate(turn_rate_rad_s: f32, current: Self) -> Self {
+        const MIN_TURN_RATE_RAD_S: f32 = 0.03;
+
+        if turn_rate_rad_s > MIN_TURN_RATE_RAD_S {
+            Self::Left
+        } else if turn_rate_rad_s < -MIN_TURN_RATE_RAD_S {
+            Self::Right
+        } else {
+            current
+        }
+    }
+}
+
 /// This enum is relevant for the View component. During Vario mode, information needed to
 /// optimize climbing in thermals is displayed. SppedToFly, on the other hand, is intended
 /// for optimal pre-flight.
@@ -200,6 +220,8 @@ pub struct Control {
     pub can_devices: u32,
     /// FlyMode::Circling, FlyMode::StraightFlight
     pub fly_mode: FlyMode,
+    /// Last detected circling direction
+    pub circling_direction: CirclingDirection,
     /// VarioMode::Vario, VarioMode::SpeedToFly
     pub vario_mode: VarioMode,
     /// VarioMode::Vario, VarioMode::SpeedToFly, VarioMode::Auto
@@ -250,6 +272,7 @@ impl Default for Control {
             system_state: SystemState::NoCom,
             can_devices: CanActive::None as u32,
             fly_mode: FlyMode::StraightFlight,
+            circling_direction: CirclingDirection::Right,
             vario_mode: VarioMode::Vario,
             vario_mode_control: VarioModeControl::Auto,
             vario_mode_switch_ratio: 1.10,

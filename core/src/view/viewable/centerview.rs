@@ -1,11 +1,14 @@
 use crate::{
+    model::CirclingDirection, Colors, CoreError, CoreModel, DrawImage, FloatToSpeed, FlyMode,
+    VarioSizes,
+};
+use crate::{
     view::{
         sprites::{pos, Arrow, DrawStyled, PolarCoordinate, Rotate, WindArrow},
         thermal_data::{ThermalData, DELTA_ALPHA, THERMAL_DATA_CNT},
     },
     Image,
 };
-use crate::{Colors, CoreError, CoreModel, DrawImage, FloatToSpeed, FlyMode, VarioSizes};
 
 use embedded_graphics::{
     draw_target::DrawTarget,
@@ -152,11 +155,7 @@ where
     };
     let delta = DELTA_ALPHA;
 
-    let rotation = if cm.sensor.turn_rate.to_rad_s() > 0.0 {
-        -cm.sensor.euler_yaw.to_radians() + pos::NINE_O_CLOCK
-    } else {
-        -cm.sensor.euler_yaw.to_radians() + pos::THREE_O_CLOCK
-    };
+    let rotation = thermal_assistant_rotation(cm);
     thermal_data.prepare();
     for idx in 0..THERMAL_DATA_CNT {
         let (fill_color, delta_climb) = thermal_data.get_dotted_item(idx, cm);
@@ -173,14 +172,7 @@ where
     }
 
     let glider_img = Image::new(cm.device_const.images.small_glider);
-    let dy = (glider_img.height() / 2) as i32;
-    let p_gld = if cm.sensor.turn_rate.to_rad_s() > 0.0 {
-        let dx = (sizes.vario.ta_circle_radius + glider_img.width() / 2) as i32;
-        sizes.display.center + Point::new(-dx, -dy)
-    } else {
-        let dx = (sizes.vario.ta_circle_radius - glider_img.width() / 2) as i32;
-        sizes.display.center + Point::new(dx, -dy)
-    };
+    let p_gld = thermal_assistant_glider_pos(cm, &glider_img);
     glider_img.draw(display, p_gld, Some(cm.palette().vario.scale))
 }
 
@@ -200,11 +192,7 @@ where
     let delta = DELTA_ALPHA;
     let center = sizes.display.center;
 
-    let rotation = if cm.sensor.euler_roll.to_radians() > 0.0 {
-        -cm.sensor.euler_yaw.to_radians() + pos::NINE_O_CLOCK
-    } else {
-        -cm.sensor.euler_yaw.to_radians() + pos::THREE_O_CLOCK
-    };
+    let rotation = thermal_assistant_rotation(cm);
     thermal_data.prepare();
 
     let mut p1: Option<Point> = None;
@@ -239,15 +227,31 @@ where
         .draw(display)?;
 
     let glider_img = Image::new(cm.device_const.images.small_glider);
-    let dy = (glider_img.height() / 2) as i32;
-    let p_gld = if cm.sensor.turn_rate.to_rad_s() > 0.0 {
-        let dx = (sizes.vario.ta_circle_radius + glider_img.width() / 2) as i32;
-        sizes.display.center + Point::new(-dx, -dy)
-    } else {
-        let dx = (sizes.vario.ta_circle_radius - glider_img.width() / 2) as i32;
-        sizes.display.center + Point::new(dx, -dy)
-    };
+    let p_gld = thermal_assistant_glider_pos(cm, &glider_img);
     glider_img.draw(display, p_gld, Some(cm.palette().vario.scale))
+}
+
+fn thermal_assistant_rotation(cm: &CoreModel) -> f32 {
+    let yaw = -cm.sensor.euler_yaw.to_radians();
+    match cm.control.circling_direction {
+        CirclingDirection::Left => yaw + pos::NINE_O_CLOCK,
+        CirclingDirection::Right => yaw + pos::THREE_O_CLOCK,
+    }
+}
+
+fn thermal_assistant_glider_pos(cm: &CoreModel, glider_img: &Image) -> Point {
+    let sizes = &cm.device_const.sizes;
+    let dy = (glider_img.height() / 2) as i32;
+    match cm.control.circling_direction {
+        CirclingDirection::Left => {
+            let dx = (sizes.vario.ta_circle_radius + glider_img.width() / 2) as i32;
+            sizes.display.center + Point::new(-dx, -dy)
+        }
+        CirclingDirection::Right => {
+            let dx = (sizes.vario.ta_circle_radius - glider_img.width() / 2) as i32;
+            sizes.display.center + Point::new(dx, -dy)
+        }
+    }
 }
 
 fn draw_and_calc_wind_basics<D>(

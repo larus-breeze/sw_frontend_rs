@@ -38,7 +38,7 @@ use crate::{
     basic_config::{CONTROLLER_TICK_RATE, MAX_TX_FRAMES},
     common::PTxFrames,
     flight_physics::Polar,
-    model::{DataSource, DisplayActive, EditMode, VarioModeControl},
+    model::{CirclingDirection, DataSource, DisplayActive, EditMode, VarioModeControl},
     system_of_units::{FloatToSpeed, Speed},
     utils::{KeyEvent, PIdleEvents, Pt1},
     CPersistenceItems, CoreModel, DeviceEvent, Editable, Event, IdleEvent, InputPinState,
@@ -194,6 +194,10 @@ impl CoreController {
 
     fn tick_100ms(&mut self, core_model: &mut CoreModel) {
         core_model.control.alive_ticks = core_model.control.alive_ticks.wrapping_add(1);
+        core_model.control.circling_direction = CirclingDirection::from_turn_rate(
+            core_model.sensor.turn_rate.to_rad_s(),
+            core_model.control.circling_direction,
+        );
 
         if core_model.control.vario_mode == VarioMode::Vario {
             self.av2_climb_rate.tick(core_model.sensor.climb_rate);
