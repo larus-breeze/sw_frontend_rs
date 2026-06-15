@@ -1,8 +1,10 @@
 mod helpers;
 pub use helpers::{
+    calc_sunset_utc,
     can_frame::*,
     can_ids::{audio_legacy, frontend_legacy, sensor_legacy, GenericId, SpecialId},
-    CanActive, CanConfigId, CircleStats, IntToDuration, NmeaBuffer, RemoteConfig, Scheduler, Tim,
+    format_hhmm, CanActive, CanConfigId, CircleStats, IntToDuration, NmeaBuffer, RemoteConfig,
+    Scheduler, SunsetResult, Tim,
 };
 pub(crate) use helpers::{
     DrainControl, FlashControl, GearAlarmControl, GearPins, InPinFunction, InTogglePinFunction,
