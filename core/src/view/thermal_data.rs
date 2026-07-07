@@ -42,7 +42,7 @@ impl ThermalData {
     }
 
     fn get_idx(alpha: f32) -> usize {
-        (alpha.rem_euclid(2.0 * PI) / DELTA_ALPHA) as usize
+        ((alpha.rem_euclid(2.0 * PI) / DELTA_ALPHA) as usize).clamp(0, 23)
     }
 
     pub fn prepare(&mut self) {
