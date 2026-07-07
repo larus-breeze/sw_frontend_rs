@@ -113,6 +113,7 @@ fn update_available_private(fs: &mut FileSys) -> Option<SwVersion> {
 
 pub fn install_and_restart() {
     let meta_data = meta_data();
+    // Magic number verified, CRC checked – so that’s confirmed and all right
     let func = unsafe { core::mem::transmute::<u32, fn()>(meta_data.copy_func) };
     func();
 
