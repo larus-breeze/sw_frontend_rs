@@ -219,7 +219,11 @@ pub fn restore_item(cc: &mut CoreController, cm: &mut CoreModel, item: Persisten
         PersistenceId::WaterBallast => cm.glider_data.water_ballast = Mass::from_kg(item.to_f32()),
         PersistenceId::PilotWeight => cm.glider_data.pilot_weight = Mass::from_kg(item.to_f32()),
         PersistenceId::Glider => {
-            let raw_idx = item.to_i32();
+            let raw_idx = if item.to_i32() as usize >= polar_store::POLARS.len() {
+                0
+            } else {
+                item.to_i32()
+            };
             cm.config.glider_idx = raw_idx;
             cm.glider_data.basic_glider_data = polar_store::POLARS[raw_idx as usize];
         }
