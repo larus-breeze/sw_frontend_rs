@@ -75,7 +75,7 @@ pub trait DrawImage {
             let idx_col_arr: usize = 9;
             let mut idx = img[8] as usize + idx_col_arr;
             let mut img_idx = (offset.x + offset.y * Self::DISPLAY_WIDTH as i32) as u32;
-            let mut color = Colors::from(0);
+            let mut color = Colors::Black;
             while idx < img.len() {
                 let n = img[idx] & 0b0011_1111;
                 match img[idx] & 0b1100_0000 {
@@ -97,8 +97,8 @@ pub trait DrawImage {
                             #[cfg(feature = "colors_rgb565")]
                             let u16_col = RGB565_COLORS[u8_col as usize];
                             #[cfg(feature = "colors_rgb565")]
-                            let stroke_color = Colors::from(u16_col);
-
+                            // unsafe is ok here, because all colors in images are generated correctly
+                            let stroke_color = unsafe {Colors::from_u16_unchecked(u16_col) };
                             #[cfg(feature = "colors_8_indexed")]
                             let stroke_color = Colors::from(u8_col);
 

@@ -295,9 +295,10 @@ impl From<BinaryColor> for Colors {
     }
 }
 
-impl From<u16> for Colors {
-    fn from(color: u16) -> Self {
-        Colors::try_from(color).unwrap_or_default()
+impl Colors {
+    pub unsafe fn from_u16_unchecked(color: u16) -> Colors {
+        // Safety: Every u16 is a valid Color
+        unsafe { core::mem::transmute::<u16, Colors>(color) }
     }
 }
 
