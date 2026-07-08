@@ -90,6 +90,8 @@ impl<const MAX_TX: usize> CanTx<MAX_TX> {
             let can_frame = self.c_tx_irq_frames.dequeue().unwrap();
             let header = TxFrameHeader {
                 len: can_frame.dlc(),
+                // Conversion to the Canframe format using the STM32 library is only for standard IDs; 
+                // `unwrap()` works fine here
                 id: StandardId::new(can_frame.id()).unwrap().into(),
                 frame_format: FrameFormat::Standard,
                 bit_rate_switching: false,
