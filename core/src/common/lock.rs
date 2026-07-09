@@ -1,9 +1,31 @@
-use core::{cell::UnsafeCell, sync::atomic::Ordering::Relaxed};
+use core::{cell::UnsafeCell, sync::atomic::Ordering::{Acquire, Release}};
 use portable_atomic::AtomicBool;
 
 pub struct Lock<T> {
     value: UnsafeCell<Option<T>>,
     borrowed: AtomicBool,
+}
+
+/// An RAII implementation of a "scoped lock" of a Mutex.
+/// When this structure is dropped (falls out of scope), the lock will be unlocked.
+pub struct LockGuard<'a, T> {
+    lock: &'a Lock<T>,
+}
+
+impl<'a, T> Drop for LockGuard<'a, T> {
+    fn drop(&mut self) {
+        // Release ordering ensures that all previous memory writes 
+        // are visible before the lock is released.
+        self.lock.borrowed.store(false, Release);
+    }
+}
+
+impl<'a, T> LockGuard<'a, T> {
+    /// Provides exclusive mutable access to the inner value.
+    /// This is safe because the existence of the LockGuard guarantees exclusive access.
+    pub fn as_mut(&mut self) -> Option<&mut T> {
+        unsafe { (*self.lock.value.get()).as_mut() }
+    }
 }
 
 impl<T> Default for Lock<T> {
@@ -12,8 +34,8 @@ impl<T> Default for Lock<T> {
     }
 }
 
-impl<'a, T> Lock<T> {
-    /// New with empty value
+impl<T> Lock<T> {
+    /// Creates a new, empty lock instance.
     pub const fn new() -> Self {
         Self {
             value: UnsafeCell::new(None),
@@ -21,7 +43,7 @@ impl<'a, T> Lock<T> {
         }
     }
 
-    /// New with given value
+    /// Creates a new lock instance initialized with a value.
     pub const fn new_with_value(value: T) -> Self {
         Self {
             value: UnsafeCell::new(Some(value)),
@@ -29,62 +51,49 @@ impl<'a, T> Lock<T> {
         }
     }
 
-    /// Sets or replaces the internal value, panics if it is borrowed
-    pub fn set(&self, value: T) {
-        if self.borrowed.load(Relaxed) {
-            panic!();
+    /// Tries to acquire the lock. 
+    /// Returns a `LockGuard` if successful, or `Err(())` if already borrowed.
+    pub fn try_lock(&self) -> Result<LockGuard<'_, T>, ()> {
+        // Acquire ordering ensures that subsequent memory reads/writes 
+        // cannot be reordered before this atomic check.
+        if self.borrowed.compare_exchange(false, true, Acquire, Acquire).is_ok() {
+            Ok(LockGuard { lock: self })
+        } else {
+            Err(())
         }
-        let v = self.value.get();
-        unsafe {
-            *v = Some(value);
-        }
-        self.borrowed.store(false, Relaxed);
     }
 
-    /// lock() calls f with an value as argument
-    ///  - when value is set and value is not borowed: f(Some(&mut val))
-    ///  - when value is not set or is it borrowd: f(None)
-    ///
-    /// This function automatically ensures that the internal value is released again
-    /// after use.
-    pub fn lock_during_use<F, R>(&'a self, mut f: F) -> R
+    /// Sets or replaces the internal value. Panics if the lock is currently borrowed.
+    pub fn set(&self, value: T) {
+        if let Ok(_guard) = self.try_lock() {
+            unsafe {
+                *self.value.get() = Some(value);
+            }
+        } else {
+            panic!("Lock is already borrowed!");
+        }
+    }
+
+    /// Executes the closure `f` with an exclusive reference to the inner value.
+    ///  - If the lock is available: calls f(Some(&mut val))
+    ///  - If the lock is already borrowed: calls f(None) without breaking the existing lock.
+    pub fn lock_during_use<F, R>(&self, mut f: F) -> R
     where
         F: FnMut(Option<&mut T>) -> R,
     {
-        let result = self.get_mut();
-        let opt_val = result.unwrap_or_default();
-
-        let r: R = f(opt_val);
-        self.borrowed.store(false, Relaxed);
-        r
-    }
-
-    /// Enable value after a call to get_mut()
-    ///
-    /// Note: The user is responsible for doing this at the right time!
-    pub fn unlock(&self) {
-        self.borrowed.store(false, Relaxed);
-    }
-
-    /// Get a reference to the value, if available
-    ///
-    /// If the value has just been used, this function returns an
-    /// error. In all other cases, an option with or without content
-    /// is returned
-    #[allow(clippy::mut_from_ref)]
-    #[allow(clippy::result_unit_err)]
-    pub fn get_mut(&'a self) -> Result<Option<&'a mut T>, ()> {
-        let r = self
-            .borrowed
-            .compare_exchange(false, true, Relaxed, Relaxed);
-
-        match r {
-            // we know definitly, the *self.value.get() results in a valid ptr, so unsafe is ok.
-            Ok(_) => Ok(unsafe { (*self.value.get()).as_mut() }),
-            Err(_) => Err(()),
+        match self.try_lock() {
+            Ok(mut guard) => {
+                // Lock acquired successfully, pass the mutable reference
+                f(guard.as_mut())
+            } // <- `guard` is automatically dropped here, unlocking the Mutex safely
+            Err(_) => {
+                // Lock is busy. Pass None, but DO NOT modify `self.borrowed`.
+                f(None)
+            }
         }
     }
 }
 
-// AtomicBool ensures that there is no problem on a single processor system with sync
+// Thread-safety marker: Sync is safe now because `LockGuard` and the 
+// Acquire/Release ordering guarantee strict exclusivity across execution contexts.
 unsafe impl<T> Sync for Lock<T> {}
