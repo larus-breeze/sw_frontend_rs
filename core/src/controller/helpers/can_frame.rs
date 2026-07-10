@@ -334,73 +334,73 @@ impl<'a> Reader<'a> {
 
     #[inline]
     #[allow(unused)]
-    pub fn pop_u32(&mut self) -> u32 {
+    pub fn pop_u32(&mut self) -> Option<u32> {
         if self.pos <= self.data.len() - 4 {
             let idx = self.pos;
             self.pos += 4;
-            LE::read_u32(&self.data[idx..self.pos])
+            Some(LE::read_u32(&self.data[idx..self.pos]))
         } else {
-            0
+            None
         }
     }
 
     #[inline]
     #[allow(unused)]
-    pub fn pop_u16(&mut self) -> u16 {
+    pub fn pop_u16(&mut self) -> Option<u16> {
         if self.pos <= self.data.len() - 2 {
             let idx = self.pos;
             self.pos += 2;
-            LE::read_u16(&self.data[idx..self.pos])
+            Some(LE::read_u16(&self.data[idx..self.pos]))
         } else {
-            0
+            None
         }
     }
 
     #[inline]
     #[allow(unused)]
-    pub fn pop_u8(&mut self) -> u8 {
+    pub fn pop_u8(&mut self) -> Option<u8> {
         if self.pos <= self.data.len() - 1 {
             let idx = self.pos;
             self.pos += 1;
-            self.data[idx]
+            Some(self.data[idx])
         } else {
-            0
+            None
         }
     }
 
     #[inline]
     #[allow(unused)]
-    pub fn pop_i32(&mut self) -> i32 {
+    pub fn pop_i32(&mut self) -> Option<i32> {
         if self.pos <= self.data.len() - 4 {
             let idx = self.pos;
             self.pos += 4;
-            LE::read_i32(&self.data[idx..self.pos])
+            Some(LE::read_i32(&self.data[idx..self.pos]))
         } else {
-            0
+            None
         }
     }
 
     #[inline]
     #[allow(unused)]
-    pub fn pop_i16(&mut self) -> i16 {
+    pub fn pop_i16(&mut self) -> Option<i16> {
         if self.pos <= self.data.len() - 2 {
             let idx = self.pos;
             self.pos += 2;
-            LE::read_i16(&self.data[idx..self.pos])
+            Some(LE::read_i16(&self.data[idx..self.pos]))
         } else {
-            0
+            None
         }
     }
 
     #[inline]
     #[allow(unused)]
-    pub fn pop_i8(&mut self) -> i8 {
+    pub fn pop_i8(&mut self) -> Option<i8> {
         if self.pos <= self.data.len() - 1 {
             let idx = self.pos;
             self.pos += 1;
-            self.data[idx] as i8
+            Some(self.data[idx] as i8)
         } else {
-            0
+            None
         }
     }
 

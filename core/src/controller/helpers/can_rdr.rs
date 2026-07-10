@@ -33,8 +33,10 @@ impl CoreController {
         #[allow(clippy::single_match)]
         match GenericId::from(frame.generic_id) {
             GenericId::SetSysSetting => {
-                let config_id = CanConfigId::from(rdr.pop_u16());
-                self.can_frame_read_sys_config_value(cm, config_id, &frame.can_frame)
+                if let Some(value) = rdr.pop_u16() {
+                    let config_id = CanConfigId::from(value);
+                    self.can_frame_read_sys_config_value(cm, config_id, &frame.can_frame)
+                }
             }
             _ => (),
         }
@@ -205,86 +207,126 @@ impl CoreController {
         } else {
             match id {
                 sensor_legacy::EULER_ANGLES => {
-                    cm.sensor.euler_roll = norm_mpi_ppi(rdr.pop_i16());
-                    cm.sensor.euler_pitch = norm_mpi_ppi(rdr.pop_i16());
-                    cm.sensor.euler_yaw = norm_0_2pi(rdr.pop_i16());
+                    if let Some(value) = rdr.pop_i16() {
+                        cm.sensor.euler_roll = norm_mpi_ppi(value);
+                    }
+                    if let Some(value) = rdr.pop_i16() {
+                        cm.sensor.euler_pitch = norm_mpi_ppi(value);
+                    }
+                    if let Some(value) = rdr.pop_i16() {
+                        cm.sensor.euler_yaw = norm_0_2pi(value);
+                    }
                 }
                 sensor_legacy::ACCELERATION => {
-                    cm.sensor.g_force = ((rdr.pop_i16() as f32) * 0.001).m_s2();
-                    cm.sensor.vertical_g_force = ((rdr.pop_i16() as f32) * 0.001).m_s2();
+                    if let Some(value) = rdr.pop_i16() {
+                        cm.sensor.g_force = ((value as f32) * 0.001).m_s2();
+                    }
+                    if let Some(value) = rdr.pop_i16() {
+                        cm.sensor.vertical_g_force = ((value as f32) * 0.001).m_s2();
+                    }
                 }
                 sensor_legacy::AIRSPEED => {
-                    let tas = (rdr.pop_i16() as f32).km_h();
-                    let ias = (rdr.pop_i16() as f32).km_h();
-                    cm.sensor.airspeed = AirSpeed::from_speeds(ias, tas);
+                    if let (Some(tas), Some(ias)) = (rdr.pop_i16(), rdr.pop_i16()) {
+                        cm.sensor.airspeed = AirSpeed::from_speeds((ias as f32).km_h(), (tas as f32).km_h());
+                    }
                 }
                 sensor_legacy::ATHMOSPHERE => {
-                    cm.sensor.pressure = (rdr.pop_u32() as f32).n_m2();
-                    cm.sensor.density = (rdr.pop_u32() as f32).g_m3();
+                    if let Some(value) = rdr.pop_u32() {
+                        cm.sensor.pressure = (value as f32).n_m2();
+                    }
+                    if let Some(value) = rdr.pop_u32() {
+                        cm.sensor.density = (value as f32).g_m3();
+                    }
                     cm.sensor
                         .pressure_altitude
                         .set_static_pressure(cm.sensor.pressure);
                 }
                 sensor_legacy::GPS_DATE_TIME => {
-                    let date_time = DateTime::from_vals(
-                        2000 + rdr.pop_u8() as u16,
-                        rdr.pop_u8(),
-                        rdr.pop_u8(),
-                        rdr.pop_u8(),
-                        rdr.pop_u8(),
-                        rdr.pop_u8(),
-                    );
-                    persist::set_date_time(cm, self, date_time);
+                    if let (Some(year), Some(month), Some(day), Some(hour), Some(min), Some(sec))= 
+                        (rdr.pop_u8(), rdr.pop_u8(), rdr.pop_u8(), rdr.pop_u8(), rdr.pop_u8(), rdr.pop_u8()) {
+                        let date_time = DateTime::from_vals(year as u16 +2000, month, day, hour, min, sec);
+                        persist::set_date_time(cm, self, date_time);
+                    }
                 }
                 sensor_legacy::GPS_LAT_LON => {
-                    cm.sensor.gps_lat = Latitude(((rdr.pop_i32() as f64) * 1.0e-7).deg());
-                    cm.sensor.gps_lon = Longitude(((rdr.pop_i32() as f64) * 1.0e-7).deg());
+                    if let Some(value) = rdr.pop_i32() {
+                        cm.sensor.gps_lat = Latitude(((value as f64) * 1.0e-7).deg());
+                    }
+                    if let Some(value) = rdr.pop_i32() {
+                        cm.sensor.gps_lon = Longitude(((value as f64) * 1.0e-7).deg());
+                    }
                 }
                 sensor_legacy::GPS_ALT => {
-                    cm.sensor.gps_altitude = (rdr.pop_i32() as f32).mm();
-                    cm.sensor.gps_geo_seperation = (rdr.pop_i32() as f32 * 0.1).m();
+                    if let Some(value) = rdr.pop_i32() {
+                        cm.sensor.gps_altitude = (value as f32).mm();
+                    }
+                    if let Some(value) = rdr.pop_i32() {
+                        cm.sensor.gps_geo_seperation = (value as f32 * 0.1).m();
+                    }
                 }
                 sensor_legacy::GPS_TRK_SPD => {
-                    cm.sensor.gps_track = (rdr.pop_i16() as f32 * 0.001).rad();
-                    cm.sensor.gps_ground_speed = (rdr.pop_u16() as f32).km_h();
-                    if cm.sensor.gps_ground_speed < 1.0.km_h() {
-                        cm.sensor.gps_track = 0.0_f32.rad();
-                    }
-                    if cm.sensor.gps_track < 0.0_f32.rad() {
-                        cm.sensor.gps_track += 360.0_f32.deg();
+                    if let Some(value) = rdr.pop_i16() {
+                        cm.sensor.gps_track = (value as f32 * 0.001).rad();
+                        if let Some(value) = rdr.pop_u16() {
+                            cm.sensor.gps_ground_speed = (value as f32).km_h();
+                            if cm.sensor.gps_ground_speed < 1.0.km_h() {
+                                cm.sensor.gps_track = 0.0_f32.rad();
+                            }
+                            if cm.sensor.gps_track < 0.0_f32.rad() {
+                                cm.sensor.gps_track += 360.0_f32.deg();
+                            }
+                        }
                     }
                 }
                 sensor_legacy::GPS_SATS => {
-                    cm.sensor.gps_sats = rdr.pop_u8();
-                    match rdr.pop_u8() {
-                        1 => cm.sensor.gps_state = GpsState::PosAvail,
-                        3 => cm.sensor.gps_state = GpsState::HeadingAvail,
-                        _ => cm.sensor.gps_state = GpsState::NoGps,
+                    if let Some(value) = rdr.pop_u8() {
+                        cm.sensor.gps_sats = value;
+                    }
+                    if let Some(value) = rdr.pop_u8() {
+                        match value {
+                            1 => cm.sensor.gps_state = GpsState::PosAvail,
+                            3 => cm.sensor.gps_state = GpsState::HeadingAvail,
+                            _ => cm.sensor.gps_state = GpsState::NoGps,
+                        }
                     }
                 }
                 sensor_legacy::TURN_COORD => {
-                    cm.sensor.slip_angle = ((rdr.pop_i16() as f32) * 0.001).rad();
-                    cm.sensor.turn_rate = ((rdr.pop_i16() as f32) * 0.001).rad_s();
-                    cm.sensor.nick_angle = ((rdr.pop_i16() as f32) * 0.001).rad();
+                    if let Some(value) = rdr.pop_i16() {
+                        cm.sensor.slip_angle = ((value as f32) * 0.001).rad();
+                    }
+                    if let Some(value) = rdr.pop_i16() {
+                        cm.sensor.turn_rate = ((value as f32) * 0.001).rad_s();                
+                    }
+                    if let Some(value) = rdr.pop_i16() {
+                        cm.sensor.nick_angle = ((value as f32) * 0.001).rad();
+                    }
                 }
                 sensor_legacy::VARIO => {
-                    cm.sensor.climb_rate = ((rdr.pop_i16() as f32) * 0.001).m_s();
-                    cm.sensor.average_climb_rate = ((rdr.pop_i16() as f32) * 0.001).m_s();
+                    if let Some(value) = rdr.pop_i16() {
+                        cm.sensor.climb_rate = ((value as f32) * 0.001).m_s();
+                    }
+                    if let Some(value) = rdr.pop_i16() {
+                        cm.sensor.average_climb_rate = ((value as f32) * 0.001).m_s();
+                    }
                     cm.control.can_devices |= CanActive::SensorboxLegacy as u32;
                 }
                 sensor_legacy::WIND => {
-                    cm.sensor
-                        .wind_vector
-                        .set_angle(((rdr.pop_i16() as f32) * 0.001).rad());
-                    cm.sensor
-                        .wind_vector
-                        .set_speed((rdr.pop_i16() as f32).km_h());
-                    cm.sensor
-                        .average_wind
-                        .set_angle(((rdr.pop_i16() as f32) * 0.001).rad());
-                    cm.sensor
-                        .average_wind
-                        .set_speed((rdr.pop_i16() as f32).km_h());
+                    if let (Some(angle), Some(speed)) = (rdr.pop_i16(), rdr.pop_i16()) {
+                        cm.sensor
+                            .wind_vector
+                            .set_angle(((angle as f32) * 0.001).rad());
+                        cm.sensor
+                            .wind_vector
+                            .set_speed((speed as f32).km_h());
+                    }
+                    if let (Some(angle), Some(speed)) = (rdr.pop_i16(), rdr.pop_i16()) {
+                        cm.sensor
+                            .average_wind
+                            .set_angle(((angle as f32) * 0.001).rad());
+                        cm.sensor
+                            .average_wind
+                            .set_speed((speed as f32).km_h());
+                    }
                 }
                 _ => (), // all other frames are ignored
             }
@@ -375,24 +417,30 @@ impl CoreController {
             }
             sensor::UBATT_CIRCLE_MODE => (), // ignore this datagram
             sensor::SYSTEM_STATE_GIT_TAG => {
-                cm.sensor.larus_box_system_state = rdr.pop_u32();
+                if let Some(value) = rdr.pop_u32() {
+                    cm.sensor.larus_box_system_state = value;
+                }
             }
             sensor::CONFIG_VALUE => {
-                let config_id = CanConfigId::from(rdr.pop_u32() as u16);
-                match config_id {
-                    CanConfigId::SensTiltRoll
-                    | CanConfigId::SensTiltPitch
-                    | CanConfigId::SensTiltYaw => {
-                        if let Some(rad) = rdr.pop_f32() {
-                            let deg = rad * DEGREE_PER_RAD;
-                            cm.control.editor.content = Content::F32(Some(deg));
+                if let Some(value) = rdr.pop_u32() {
+                    let config_id = CanConfigId::from(value as u16);
+                    match config_id {
+                        CanConfigId::SensTiltRoll
+                        | CanConfigId::SensTiltPitch
+                        | CanConfigId::SensTiltYaw => {
+                            if let Some(rad) = rdr.pop_f32() {
+                                let deg = rad * DEGREE_PER_RAD;
+                                cm.control.editor.content = Content::F32(Some(deg));
+                            }
                         }
+                        CanConfigId::BlockHorizon => {
+                            if let Some(value) = rdr.pop_u32() {
+                                let date = Date::from_u32(value);
+                                cm.control.editor.content = Content::Date(Some(date));
+                            }
+                        }
+                        _ => cm.control.editor.content = Content::F32(rdr.pop_f32()),
                     }
-                    CanConfigId::BlockHorizon => {
-                        let date = Date::from_u32(rdr.pop_u32());
-                        cm.control.editor.content = Content::Date(Some(date));
-                    }
-                    _ => cm.control.editor.content = Content::F32(rdr.pop_f32()),
                 }
             }
             _ => (),
@@ -404,15 +452,11 @@ impl CoreController {
 
         match frame.specific_id {
             gps::DATE_TIME => {
-                let date_time = DateTime::from_vals(
-                    rdr.pop_u16(),
-                    rdr.pop_u8(),
-                    rdr.pop_u8(),
-                    rdr.pop_u8(),
-                    rdr.pop_u8(),
-                    rdr.pop_u8(),
-                );
-                persist::set_date_time(cm, self, date_time);
+                if let (Some(year), Some(month), Some(day), Some(hour), Some(min), Some(sec))= 
+                       (rdr.pop_u16(), rdr.pop_u8(), rdr.pop_u8(), rdr.pop_u8(), rdr.pop_u8(), rdr.pop_u8()) {
+                    let date_time = DateTime::from_vals(year, month, day, hour, min, sec);
+                    persist::set_date_time(cm, self, date_time);
+                }
             }
             gps::LATITUDE => {
                 if let Some(latitude) = rdr.pop_f64() {
@@ -441,11 +485,15 @@ impl CoreController {
                 }
             }
             gps::NO_SAT_FIX_TYPE => {
-                cm.sensor.gps_sats = rdr.pop_u8();
-                match rdr.pop_u8() {
-                    1 => cm.sensor.gps_state = GpsState::PosAvail,
-                    3 => cm.sensor.gps_state = GpsState::HeadingAvail,
-                    _ => cm.sensor.gps_state = GpsState::NoGps,
+                if let Some(value) = rdr.pop_u8() {
+                    cm.sensor.gps_sats = value;
+                }
+                if let Some(value) = rdr.pop_u8() {
+                    match value {
+                        1 => cm.sensor.gps_state = GpsState::PosAvail,
+                        3 => cm.sensor.gps_state = GpsState::HeadingAvail,
+                        _ => cm.sensor.gps_state = GpsState::NoGps,
+                    }
                 }
             }
             _ => (),
