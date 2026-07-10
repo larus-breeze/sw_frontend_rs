@@ -7,6 +7,7 @@ mod hw_pins;
 mod nmea_buffer;
 mod nmea_handler;
 mod scheduler;
+mod sunset;
 
 pub use can_ids::*;
 pub use circle_stats::CircleStats;
@@ -14,3 +15,4 @@ pub use hw_pins::*;
 pub use nmea_buffer::NmeaBuffer;
 pub use nmea_handler::nmea_cyclic_200ms;
 pub use scheduler::{IntToDuration, Scheduler, Tim};
+pub use sunset::{calc_sunset_utc, format_hhmm, SunsetResult};

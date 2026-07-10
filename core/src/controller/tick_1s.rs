@@ -1,5 +1,8 @@
 use crate::{
-    controller::persist::{persist_set, set_vario_mode},
+    controller::{
+        calc_sunset_utc,
+        persist::{persist_set, set_vario_mode},
+    },
     model::{GpsState, SystemState, TcrMode, VarioModeControl},
     utils::Variant,
     CoreController, CoreModel, Echo, FloatToLength, FloatToSpeed, FlyMode, IdleEvent,
@@ -138,7 +141,69 @@ fn speed_to_fly(cm: &mut CoreModel, cc: &mut CoreController) {
         cm.calculated.circle_max_min_valid = false;
     }
 
+    update_sunset(cm);
+
     let _ = cc.scheduler.chain(can_heartbeat);
+}
+
+fn update_sunset(cm: &mut CoreModel) {
+    let gps_valid = matches!(
+        cm.sensor.gps_state,
+        GpsState::PosAvail | GpsState::HeadingAvail
+    );
+    let lat_deg = cm.sensor.gps_lat.0.to_deg() as f32;
+    let lon_deg = cm.sensor.gps_lon.0.to_deg() as f32;
+    let ground_speed_kmh = cm.sensor.gps_ground_speed.to_km_h();
+    let ias_kmh = cm.sensor.airspeed.ias().to_km_h();
+    let is_ground_candidate = gps_valid && ground_speed_kmh < 10.0 && ias_kmh < 35.0;
+    let is_takeoff_candidate = gps_valid && ground_speed_kmh > 35.0 && ias_kmh > 55.0;
+    let date = cm.sensor.gps_date_time.date();
+
+    cm.calculated.sunset_local_valid = false;
+    if gps_valid {
+        if let Some(sunset) = calc_sunset_utc(date.year, date.month, date.day, lat_deg, lon_deg) {
+            cm.calculated.sunset_local_time = sunset;
+            cm.calculated.sunset_local_valid = true;
+        }
+    }
+
+    // While on the ground the reference position tracks the current GPS
+    // position; once a brief takeoff is observed it is locked in so the
+    // takeoff sunset ("Sunset TO") stays put for the rest of the flight.
+    if is_ground_candidate {
+        cm.calculated.sunset_reference_lat_deg = lat_deg;
+        cm.calculated.sunset_reference_lon_deg = lon_deg;
+        cm.calculated.sunset_reference_valid = true;
+    }
+
+    if cm.calculated.sunset_takeoff_valid {
+        if is_ground_candidate {
+            cm.calculated.sunset_takeoff_speed_ticks = 0;
+            cm.calculated.sunset_takeoff_valid = false;
+        }
+    } else if is_takeoff_candidate && cm.calculated.sunset_reference_valid {
+        cm.calculated.sunset_takeoff_speed_ticks =
+            cm.calculated.sunset_takeoff_speed_ticks.saturating_add(1);
+        if cm.calculated.sunset_takeoff_speed_ticks >= 3 {
+            cm.calculated.sunset_takeoff_valid = true;
+        }
+    } else {
+        cm.calculated.sunset_takeoff_speed_ticks = 0;
+    }
+
+    cm.calculated.sunset_valid = false;
+    if cm.calculated.sunset_reference_valid {
+        if let Some(sunset) = calc_sunset_utc(
+            date.year,
+            date.month,
+            date.day,
+            cm.calculated.sunset_reference_lat_deg,
+            cm.calculated.sunset_reference_lon_deg,
+        ) {
+            cm.calculated.sunset_time = sunset;
+            cm.calculated.sunset_valid = true;
+        }
+    }
 }
 
 fn can_heartbeat(cm: &mut CoreModel, cc: &mut CoreController) {

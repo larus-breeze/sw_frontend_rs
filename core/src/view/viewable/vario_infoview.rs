@@ -1,6 +1,6 @@
 use crate::{
-    model::DataSource, tformat, Colors, CoreError, CoreModel, DrawImage, FloatToSpeed, Image,
-    Palette,
+    controller::format_hhmm, model::DataSource, tformat, Colors, CoreError, CoreModel, DrawImage,
+    FloatToSpeed, Image, Palette,
 };
 use embedded_graphics::{draw_target::DrawTarget, geometry::Point};
 use num_enum::FromPrimitive;
@@ -39,6 +39,8 @@ pub enum LineView {
     IndicatedAirSpeed,
     EquivalentAirspeed,
     PitchAngle,
+    SunsetUtc,
+    SunsetLocalUtc,
     LastElemntNotInUse,
 }
 
@@ -58,6 +60,8 @@ const TOP_LINE_VIEW: &[LineView] = &[
     LineView::PitchAngle,
     LineView::SlipAngle,
     LineView::SpeedToFly,
+    LineView::SunsetUtc,
+    LineView::SunsetLocalUtc,
     LineView::TrueAirSpeed,
     LineView::TrueCourse,
     LineView::UtcTime,
@@ -79,6 +83,8 @@ const BOTTOM_LINE_VIEW: &[LineView] = &[
     LineView::PitchAngle,
     LineView::SlipAngle,
     LineView::SpeedToFly,
+    LineView::SunsetUtc,
+    LineView::SunsetLocalUtc,
     LineView::TrueAirSpeed,
     LineView::TrueCourse,
     LineView::UtcTime,
@@ -159,6 +165,8 @@ impl LineView {
             LineView::IndicatedAirSpeed => "Indicated Air Speed",
             LineView::EquivalentAirspeed => "Equivalent Air Speed",
             LineView::PitchAngle => "Pitch Angle",
+            LineView::SunsetUtc => "Sunset TO",
+            LineView::SunsetLocalUtc => "Sunset Loc",
             LineView::None => "None",
             LineView::LastElemntNotInUse => "",
         }
@@ -190,6 +198,8 @@ impl LineView {
             LineView::IndicatedAirSpeed => draw_indicated_air_speed(display, cm, pos),
             LineView::EquivalentAirspeed => draw_equivalent_air_speed(display, cm, pos),
             LineView::PitchAngle => draw_pitch_angle(display, cm, pos),
+            LineView::SunsetUtc => draw_sunset_utc(display, cm, pos),
+            LineView::SunsetLocalUtc => draw_sunset_local_utc(display, cm, pos),
             LineView::LastElemntNotInUse => Ok(()),
         }
     }
@@ -825,4 +835,46 @@ where
         &cm.device_const.big_font,
         cm.palette(),
     )
+}
+
+fn draw_sunset_utc<D>(display: &mut D, cm: &CoreModel, pos: Point) -> Result<(), CoreError>
+where
+    D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
+{
+    let s = if cm.calculated.sunset_valid {
+        format_hhmm(cm.calculated.sunset_time)
+    } else {
+        heapless::String::<5>::try_from("--:--").unwrap()
+    };
+
+    cm.device_const.big_font.render_aligned(
+        s.as_str(),
+        pos,
+        VerticalPosition::Center,
+        HorizontalAlignment::Center,
+        FontColor::Transparent(cm.palette().vario.value),
+        display,
+    )?;
+    Ok(())
+}
+
+fn draw_sunset_local_utc<D>(display: &mut D, cm: &CoreModel, pos: Point) -> Result<(), CoreError>
+where
+    D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
+{
+    let s = if cm.calculated.sunset_local_valid {
+        format_hhmm(cm.calculated.sunset_local_time)
+    } else {
+        heapless::String::<5>::try_from("--:--").unwrap()
+    };
+
+    cm.device_const.big_font.render_aligned(
+        s.as_str(),
+        pos,
+        VerticalPosition::Center,
+        HorizontalAlignment::Center,
+        FontColor::Transparent(cm.palette().vario.value),
+        display,
+    )?;
+    Ok(())
 }
