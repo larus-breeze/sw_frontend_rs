@@ -102,6 +102,10 @@ impl Sensor {
         (self.larus_box_system_state & 0x0001_0000) != 0
     }
 
+    pub fn roll_pitch_available(&self) -> bool {
+        !self.horizon_blocked()
+    }
+
     pub fn gnss_velocity_accuracy_bad(&self) -> bool {
         (self.larus_box_system_state & 0x0000_0004) != 0
     }

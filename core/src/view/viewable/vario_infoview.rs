@@ -677,6 +677,18 @@ fn draw_bank_angle<D>(display: &mut D, cm: &CoreModel, pos: Point) -> Result<(),
 where
     D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
 {
+    if !cm.sensor.roll_pitch_available() {
+        return draw_centered_line(
+            display,
+            pos,
+            None,
+            "--",
+            None,
+            &cm.device_const.big_font,
+            cm.palette(),
+        );
+    }
+
     let roll_deg = cm.sensor.euler_roll.to_degrees();
     let s = tformat!(8, "{:.0}°", roll_deg.abs()).unwrap();
     let img_bytes = if roll_deg < 0.0 {
@@ -725,7 +737,11 @@ fn draw_pitch_angle<D>(display: &mut D, cm: &CoreModel, pos: Point) -> Result<()
 where
     D: DrawTarget<Color = Colors, Error = CoreError> + DrawImage,
 {
-    let s = tformat!(8, "{:.0}°", cm.sensor.euler_pitch.to_degrees()).unwrap();
+    let s = if cm.sensor.roll_pitch_available() {
+        tformat!(8, "{:.0}°", cm.sensor.euler_pitch.to_degrees()).unwrap()
+    } else {
+        heapless::String::<8>::try_from("--").unwrap()
+    };
     draw_centered_line(
         display,
         pos,

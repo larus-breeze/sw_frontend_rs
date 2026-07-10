@@ -136,8 +136,13 @@ impl CoreController {
             let id = self.nmea_buffer.pers_id.pop_front().unwrap();
             return self.nmea_plars(cm, id);
         }
-        if let Some(idx) = self.nmea_buffer.to_send.pop() {
-            match idx {
+        let roll_pitch_available = cm.sensor.roll_pitch_available();
+        while let Some(idx) = self.nmea_buffer.to_send.pop() {
+            if idx == 6 && !roll_pitch_available {
+                continue;
+            }
+
+            return match idx {
                 // rarely sent
                 0 => Some(self.nmea_gprmc(cm)),
                 1 => Some(self.nmea_gpgga(cm)),
@@ -152,10 +157,9 @@ impl CoreController {
 
                 // not known
                 _ => None,
-            }
-        } else {
-            None
+            };
         }
+        None
     }
 
     fn nmea_gprmc(&mut self, cm: &mut CoreModel) -> &[u8] {
