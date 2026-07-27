@@ -32,7 +32,10 @@ mod tick_1s;
 use tick_1s::*;
 
 pub mod persist;
-pub use persist::{profile_always_0, store_persistence_ids, Echo, PersistenceId};
+pub use persist::{
+    advance_heal_review, editable_for_persisted_f32, maybe_start_heal_review, profile_always_0,
+    store_persistence_ids, Echo, PersistenceId, EEPROM_F32_IDS,
+};
 
 use crate::{
     basic_config::{CONTROLLER_TICK_RATE, MAX_TX_FRAMES},
@@ -73,6 +76,7 @@ pub enum Timer {
 }
 
 pub const MAX_PERS_IDS: usize = 8;
+pub const MAX_HEAL_REVIEW: usize = 32;
 
 pub struct CoreController {
     pub polar: Polar,
@@ -92,6 +96,10 @@ pub struct CoreController {
     pub pers_vals: FnvIndexMap<PersistenceId, PersistenceItem, MAX_PERS_IDS>,
     pub nmea_vals: FnvIndexSet<PersistenceId, MAX_PERS_IDS>,
     pub remote_val: Option<(CanConfigId, RemoteConfig)>,
+    /// Healed EEPROM f32 ids waiting for pilot confirmation via editor screens.
+    pub heal_queue: heapless::Vec<PersistenceId, MAX_HEAL_REVIEW>,
+    pub heal_review_active: bool,
+    pub heal_settle_ticks: u8,
     queue_to_idle_task: PIdleEvents,
     queue_from_idle_task: CPersistenceItems,
     p_tx_frames: PTxFrames<MAX_TX_FRAMES>,
@@ -141,10 +149,17 @@ impl CoreController {
             nmea_vals: FnvIndexSet::new(),
             pers_vals: FnvIndexMap::new(),
             remote_val: None,
+            heal_queue: heapless::Vec::new(),
+            heal_review_active: false,
+            heal_settle_ticks: 0,
             queue_to_idle_task,
             queue_from_idle_task,
             p_tx_frames,
         }
+    }
+
+    pub(crate) fn persistence_queue_ready(&self) -> bool {
+        self.queue_from_idle_task.ready()
     }
 
     pub fn event_handler(&mut self, event: Event, cm: &mut CoreModel) {
@@ -200,6 +215,8 @@ impl CoreController {
             core_model.sensor.turn_rate.to_rad_s(),
             core_model.control.circling_direction,
         );
+
+        persist::maybe_start_heal_review(core_model, self);
 
         if core_model.control.vario_mode == VarioMode::Vario {
             self.av2_climb_rate.tick(core_model.sensor.climb_rate);

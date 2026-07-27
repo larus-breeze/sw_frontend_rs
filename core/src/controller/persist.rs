@@ -28,7 +28,9 @@ use crate::{
         RemoteConfig,
     },
     flight_physics::polar_store,
-    model::{GpsState, UnitHeight, UnitHorizontalSpeed, UnitVerticalSpeed},
+    model::{
+        GpsState, UnitHeight, UnitHorizontalSpeed, UnitVerticalSpeed, DisplayActive,
+    },
     set_snd_spreading_factor,
     system_of_units::Speed,
     utils::Variant,
@@ -36,8 +38,8 @@ use crate::{
         centerview::CenterView,
         vario_infoview::{Info3View, LineView},
     },
-    CanFrame, CoreController, CoreModel, DateTime, FloatToSpeed, Frame, GenericId, IdleEvent, Mass,
-    PersistenceItem, Pressure, Rotation, VarioMode, Waveform,
+    CanFrame, CoreController, CoreModel, DateTime, Editable, FloatToSpeed, Frame, GenericId,
+    IdleEvent, Mass, PersistenceItem, Pressure, Rotation, VarioMode, Waveform,
 };
 
 /// It is not permitted to change the sequence or assignment, as the number references the memory
@@ -209,10 +211,197 @@ pub enum Echo {
     NmeaAndCan,
 }
 
+/// Frontend-EEPROM f32 settings that are sanitized on restore.
+/// Order also defines heal-review presentation order.
+pub const EEPROM_F32_IDS: &[PersistenceId] = &[
+    PersistenceId::McCready,
+    PersistenceId::WaterBallast,
+    PersistenceId::PilotWeight,
+    PersistenceId::Qnh,
+    PersistenceId::Bugs,
+    PersistenceId::TcClimbRate,
+    PersistenceId::TcSpeedToFly,
+    PersistenceId::CenterFrequency,
+    PersistenceId::SoundSpreading,
+    PersistenceId::VarioUpperLimit,
+    PersistenceId::VarioLowerLimit,
+    PersistenceId::StfUpperLimit,
+    PersistenceId::StfLowerLimit,
+    PersistenceId::EmptyMass,
+    PersistenceId::MaxBallast,
+    PersistenceId::ReferenceWeight,
+    PersistenceId::PolarValueV1,
+    PersistenceId::PolarValueV2,
+    PersistenceId::PolarValueV3,
+    PersistenceId::PolarValueSi1,
+    PersistenceId::PolarValueSi2,
+    PersistenceId::PolarValueSi3,
+    PersistenceId::BatteryGood,
+    PersistenceId::BatteryLow,
+    PersistenceId::FlowEmpty,
+    PersistenceId::FlowSlope,
+    PersistenceId::EnergyArrowMult,
+];
+
+/// Map a healed EEPROM f32 id to its editor screen (None = heal only, no UI).
+pub fn editable_for_persisted_f32(id: PersistenceId) -> Option<Editable> {
+    match id {
+        PersistenceId::McCready => Some(Editable::McCready),
+        PersistenceId::WaterBallast => Some(Editable::WaterBallast),
+        PersistenceId::PilotWeight => Some(Editable::PilotWeight),
+        PersistenceId::Bugs => Some(Editable::Bugs),
+        PersistenceId::TcClimbRate => Some(Editable::TcClimbRate),
+        PersistenceId::TcSpeedToFly => Some(Editable::TcSpeedToFly),
+        PersistenceId::CenterFrequency => Some(Editable::CenterFrequency),
+        PersistenceId::SoundSpreading => Some(Editable::SoundSpreading),
+        PersistenceId::VarioUpperLimit => Some(Editable::VarioUpperLimit),
+        PersistenceId::VarioLowerLimit => Some(Editable::VarioLowerLimit),
+        PersistenceId::StfUpperLimit => Some(Editable::StfUpperLimit),
+        PersistenceId::StfLowerLimit => Some(Editable::StfLowerLimit),
+        PersistenceId::EmptyMass => Some(Editable::EmptyMass),
+        PersistenceId::MaxBallast => Some(Editable::MaxBallast),
+        PersistenceId::ReferenceWeight => Some(Editable::ReferenceWeight),
+        PersistenceId::PolarValueV1 => Some(Editable::PolarValueV1),
+        PersistenceId::PolarValueV2 => Some(Editable::PolarValueV2),
+        PersistenceId::PolarValueV3 => Some(Editable::PolarValueV3),
+        PersistenceId::PolarValueSi1 => Some(Editable::PolarValueSi1),
+        PersistenceId::PolarValueSi2 => Some(Editable::PolarValueSi2),
+        PersistenceId::PolarValueSi3 => Some(Editable::PolarValueSi3),
+        PersistenceId::BatteryGood => Some(Editable::BatteryGood),
+        PersistenceId::BatteryLow => Some(Editable::BatteryLow),
+        PersistenceId::FlowEmpty => Some(Editable::FlowEmpty),
+        PersistenceId::EnergyArrowMult => Some(Editable::EnergyArrowMult),
+        // QNH has no frontend Editable; FlowSlope is not in any menu — heal only.
+        _ => None,
+    }
+}
+
+fn enqueue_heal_review(cc: &mut CoreController, id: PersistenceId) {
+    if editable_for_persisted_f32(id).is_none() {
+        return;
+    }
+    if cc.heal_queue.iter().any(|&x| x == id) {
+        return;
+    }
+    let _ = cc.heal_queue.push(id);
+    cc.heal_settle_ticks = 0;
+}
+
+fn sort_heal_queue(cc: &mut CoreController) {
+    cc.heal_queue.as_mut_slice().sort_unstable_by_key(|id| {
+        EEPROM_F32_IDS
+            .iter()
+            .position(|&x| x == *id)
+            .unwrap_or(usize::MAX)
+    });
+}
+
+/// After EEPROM restore has settled, open the first healed setting for pilot confirmation.
+pub fn maybe_start_heal_review(cm: &mut CoreModel, cc: &mut CoreController) {
+    if cc.heal_review_active || cc.heal_queue.is_empty() {
+        return;
+    }
+    // Wait until the idle→controller restore queue is empty and stays empty briefly.
+    if cc.persistence_queue_ready() {
+        cc.heal_settle_ticks = 0;
+        return;
+    }
+    cc.heal_settle_ticks = cc.heal_settle_ticks.saturating_add(1);
+    if cc.heal_settle_ticks < 5 {
+        return;
+    }
+    cc.heal_review_active = true;
+    cc.heal_settle_ticks = 0;
+    sort_heal_queue(cc);
+    show_next_heal_editable(cm, cc);
+}
+
+/// Encoder confirm during heal review: accept current value and show the next healed setting.
+pub fn advance_heal_review(cm: &mut CoreModel, cc: &mut CoreController) {
+    if !cc.heal_review_active {
+        return;
+    }
+    if !cc.heal_queue.is_empty() {
+        let _ = cc.heal_queue.remove(0);
+    }
+    show_next_heal_editable(cm, cc);
+}
+
+fn show_next_heal_editable(cm: &mut CoreModel, cc: &mut CoreController) {
+    while let Some(&id) = cc.heal_queue.first() {
+        if let Some(editable) = editable_for_persisted_f32(id) {
+            // Keep the pilot on the vario surface with the standard editor overlay.
+            if cm.config.display_active == DisplayActive::Menu {
+                cm.config.display_active = DisplayActive::Vario;
+            }
+            crate::controller::editor::activate_editable_for_heal_review(editable, cm, cc);
+            return;
+        }
+        let _ = cc.heal_queue.remove(0);
+    }
+    cc.heal_review_active = false;
+    crate::controller::editor::close_edit_frame(cm, cc);
+}
+
+/// Boot defaults for f32 values stored in frontend EEPROM (same numbers as Config /
+/// GliderData / DrainControl / Control defaults). Polar-related defaults follow the
+/// currently selected glider (Glider is restored before EmptyMass..PolarSi).
+fn persisted_f32_default(cm: &CoreModel, id: PersistenceId) -> Option<f32> {
+    let polar = {
+        let idx = cm.config.glider_idx as usize;
+        if idx < polar_store::POLARS.len() {
+            &polar_store::POLARS[idx]
+        } else {
+            &polar_store::POLARS[0]
+        }
+    };
+    match id {
+        PersistenceId::McCready => Some(0.7),
+        PersistenceId::WaterBallast => Some(0.0),
+        PersistenceId::PilotWeight => Some(90.0),
+        PersistenceId::Qnh => Some(Pressure::AT_NN().to_hpa()),
+        PersistenceId::Bugs => Some(1.0),
+        PersistenceId::TcClimbRate => Some(30.0),
+        PersistenceId::TcSpeedToFly => Some(5.0),
+        PersistenceId::CenterFrequency => Some(659.0),
+        PersistenceId::EmptyMass => Some(polar.empty_mass),
+        PersistenceId::MaxBallast => Some(polar.max_ballast),
+        PersistenceId::ReferenceWeight => Some(polar.reference_weight),
+        PersistenceId::PolarValueV1 => Some(polar.polar_values[0][0]),
+        PersistenceId::PolarValueV2 => Some(polar.polar_values[1][0]),
+        PersistenceId::PolarValueV3 => Some(polar.polar_values[2][0]),
+        PersistenceId::PolarValueSi1 => Some(polar.polar_values[0][1]),
+        PersistenceId::PolarValueSi2 => Some(polar.polar_values[1][1]),
+        PersistenceId::PolarValueSi3 => Some(polar.polar_values[2][1]),
+        PersistenceId::BatteryGood => Some(11.5),
+        PersistenceId::BatteryLow => Some(10.0),
+        PersistenceId::FlowEmpty => Some(30.0),
+        PersistenceId::FlowSlope => Some(0.0),
+        PersistenceId::StfUpperLimit => Some(10.0.km_h().to_m_s()),
+        PersistenceId::StfLowerLimit => Some((-10.0).km_h().to_m_s()),
+        PersistenceId::EnergyArrowMult => Some(0.0),
+        PersistenceId::VarioUpperLimit => Some(0.0),
+        PersistenceId::VarioLowerLimit => Some(0.0),
+        PersistenceId::SoundSpreading => Some(1.0),
+        _ => None,
+    }
+}
+
+/// Replace non-finite f32 EEPROM payloads with the boot default for that id.
+fn sanitize_f32_item(cm: &CoreModel, item: PersistenceItem) -> (PersistenceItem, bool) {
+    if let Some(default) = persisted_f32_default(cm, item.id) {
+        if !item.to_f32().is_finite() {
+            return (PersistenceItem::from_f32(item.id, default), true);
+        }
+    }
+    (item, false)
+}
+
 /// Store item content into data model
 ///
 /// This method is also called directly from the idle-loop during start-up
 pub fn restore_item(cc: &mut CoreController, cm: &mut CoreModel, item: PersistenceItem) {
+    let (item, healed) = sanitize_f32_item(cm, item);
     match item.id {
         PersistenceId::Volume => cm.config.volume = item.to_i8(),
         PersistenceId::McCready => cm.config.mc_cready = Speed::from_m_s(item.to_f32()),
@@ -350,6 +539,13 @@ pub fn restore_item(cc: &mut CoreController, cm: &mut CoreModel, item: Persisten
         PersistenceId::DoNotStore => (),
         PersistenceId::LastItem => (),
     }
+
+    // Rewrite healed values to EEPROM so a power cycle does not restore NaN/Inf again.
+    // Use SetEepromItem directly: pers_vals only holds a few entries.
+    if healed && (item.id as u16) < (PersistenceId::LastItem as u16) {
+        cc.send_idle_event(IdleEvent::SetEepromItem(item));
+        enqueue_heal_review(cc, item.id);
+    }
 }
 
 pub fn persist_set(
@@ -360,6 +556,7 @@ pub fn persist_set(
     echo: Echo,
 ) {
     let item = PersistenceItem::from_variant(id, variant);
+    let (item, _) = sanitize_f32_item(cm, item);
     restore_item(cc, cm, item);
 
     if id == PersistenceId::Glider {

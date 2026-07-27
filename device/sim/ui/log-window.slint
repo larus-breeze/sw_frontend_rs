@@ -119,6 +119,18 @@ export component Log-Window inherits Window {
                         text: "Clear"; 
                     }
                     Text { vertical-stretch: 1; }
+                    Button {
+                        text: "Corrupt all f32";
+                        clicked => {
+                            Global.process-command("\u{f710}")
+                        }
+                    }
+                    Button {
+                        text: "Corrupt random f32";
+                        clicked => {
+                            Global.process-command("\u{f711}")
+                        }
+                    }
                 }
             }
         }

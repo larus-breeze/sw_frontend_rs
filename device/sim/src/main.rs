@@ -43,6 +43,10 @@ pub enum Com {
     LogWindowPause,
     LogWindowSave(Option<PathBuf>),
     LogWindowClear,
+    /// Write quiet NaN into every frontend-EEPROM f32 slot, print, then hard-quit.
+    CorruptAllEepromF32,
+    /// Write quiet NaN into a random subset of EEPROM f32 slots, print, then hard-quit.
+    CorruptRandomEepromF32,
 }
 
 
