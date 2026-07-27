@@ -142,36 +142,51 @@ pub fn key_action(key_event: &mut KeyEvent, cm: &mut CoreModel, cc: &mut CoreCon
     if cm.control.editor.mode != EditMode::Off {
         match key_event {
             KeyEvent::BtnEnc => {
+                if cc.heal_review_active {
+                    persist::advance_heal_review(cm, cc);
+                    *key_event = KeyEvent::NoEvent;
+                    return;
+                }
                 cm.control.editor.enter_pushed = true;
                 let _ = cc.scheduler.stop(Timer::CloseEditFrame, true); // finish edit session
             }
             KeyEvent::BtnEncS3 => {
+                if cc.heal_review_active {
+                    // Heal review: only the encoder confirms; ignore long-press escape.
+                    *key_event = KeyEvent::NoEvent;
+                    return;
+                }
                 let _ = cc.scheduler.stop(Timer::CloseEditFrame, true); // finish edit session
                 close_menu_display(cm, cc); // close also menu and return to standard display
                 *key_event = KeyEvent::NoEvent;
             }
-            _ => cc
-                .scheduler
-                .after(crate::Timer::CloseEditFrame, SECTION_EDITOR_TIMEOUT.secs()),
+            _ => {
+                if !cc.heal_review_active {
+                    cc.scheduler
+                        .after(crate::Timer::CloseEditFrame, SECTION_EDITOR_TIMEOUT.secs());
+                }
+            }
         }
 
         let target = cm.control.editor.target;
 
         // change volume and mc cready independently of the selection
-        match target {
-            Editable::Volume => {
-                if *key_event == KeyEvent::Rotary1Left || *key_event == KeyEvent::Rotary1Right {
-                    activate_editable(Editable::McCready, cm, cc);
-                    *key_event = KeyEvent::NoEvent;
+        if !cc.heal_review_active {
+            match target {
+                Editable::Volume => {
+                    if *key_event == KeyEvent::Rotary1Left || *key_event == KeyEvent::Rotary1Right {
+                        activate_editable(Editable::McCready, cm, cc);
+                        *key_event = KeyEvent::NoEvent;
+                    }
                 }
-            }
-            Editable::McCready => {
-                if *key_event == KeyEvent::Rotary2Left || *key_event == KeyEvent::Rotary2Right {
-                    activate_editable(Editable::Volume, cm, cc);
-                    *key_event = KeyEvent::NoEvent;
+                Editable::McCready => {
+                    if *key_event == KeyEvent::Rotary2Left || *key_event == KeyEvent::Rotary2Right {
+                        activate_editable(Editable::Volume, cm, cc);
+                        *key_event = KeyEvent::NoEvent;
+                    }
                 }
+                _ => (),
             }
-            _ => (),
         }
 
         match cm.control.editor.params {
@@ -186,6 +201,10 @@ pub fn key_action(key_event: &mut KeyEvent, cm: &mut CoreModel, cc: &mut CoreCon
     if cm.config.display_active != DisplayActive::Menu
         && cm.config.overlay_active != OverlayActive::Menu
     {
+        if cc.heal_review_active {
+            // Do not open unrelated editors while confirming healed values.
+            return;
+        }
         match key_event {
             KeyEvent::Rotary1Left | KeyEvent::Rotary1Right => {
                 activate_editable(Editable::McCready, cm, cc);
@@ -234,6 +253,24 @@ pub fn key_action(key_event: &mut KeyEvent, cm: &mut CoreModel, cc: &mut CoreCon
 }
 
 pub fn activate_editable(editable: Editable, cm: &mut CoreModel, cc: &mut CoreController) {
+    activate_editable_inner(editable, cm, cc, true);
+}
+
+/// Same as activate_editable, but without auto-close (pilot must confirm healed values).
+pub fn activate_editable_for_heal_review(
+    editable: Editable,
+    cm: &mut CoreModel,
+    cc: &mut CoreController,
+) {
+    activate_editable_inner(editable, cm, cc, false);
+}
+
+fn activate_editable_inner(
+    editable: Editable,
+    cm: &mut CoreModel,
+    cc: &mut CoreController,
+    auto_close: bool,
+) {
     cm.control.editor.target = editable;
     cm.control.editor.params = editable.params(cm);
     cm.control.editor.content = editable.content(cm, cc);
@@ -244,8 +281,12 @@ pub fn activate_editable(editable: Editable, cm: &mut CoreModel, cc: &mut CoreCo
         cm.control.editor.mode = cm.device_const.misc.edit_mode;
     }
     cm.config.overlay_active = OverlayActive::Editor;
-    cc.scheduler
-        .after(crate::Timer::CloseEditFrame, SECTION_EDITOR_TIMEOUT.secs());
+    if auto_close {
+        cc.scheduler
+            .after(crate::Timer::CloseEditFrame, SECTION_EDITOR_TIMEOUT.secs());
+    } else {
+        let _ = cc.scheduler.stop(Timer::CloseEditFrame, false);
+    }
 
     // a command is executed when activating it - not during edit session
     if let Params::Cmd(_content) = cm.control.editor.params {
@@ -253,7 +294,11 @@ pub fn activate_editable(editable: Editable, cm: &mut CoreModel, cc: &mut CoreCo
     }
 }
 
-pub fn close_edit_frame(cm: &mut CoreModel, _cc: &mut CoreController) {
+pub fn close_edit_frame(cm: &mut CoreModel, cc: &mut CoreController) {
+    // Keep healed-value confirmation open until the encoder is pressed.
+    if cc.heal_review_active {
+        return;
+    }
     // Close Editor if open
     cm.control.editor.mode = EditMode::Off;
     cm.config.overlay_active = OverlayActive::None;

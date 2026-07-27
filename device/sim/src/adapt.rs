@@ -176,7 +176,8 @@ impl AdaptInner  {
                 Com::LogWindowSave(path)
             } 
             "\u{f707}" => Com::LogWindowClear,
-
+            "\u{f710}" => Com::CorruptAllEepromF32,
+            "\u{f711}" => Com::CorruptRandomEepromF32,
 
             "\u{f708}" | "\n" => Com::Event(Event::KeyItem(KeyEvent::BtnEnc)), 
             "\u{f709}" => Com::Event(Event::KeyItem(KeyEvent::BtnEncS3)),

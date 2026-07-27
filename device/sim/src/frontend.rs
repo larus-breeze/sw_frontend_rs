@@ -16,6 +16,52 @@ use crate::{
 
 use super::Lcd;
 
+/// Quiet NaN bit pattern observed in field dumps (`0x7fc00000`).
+const QUIET_NAN_BITS: u32 = 0x7fc00000;
+
+fn corrupt_eeprom_f32_ids(
+    eeprom: &mut Eeprom<Storage>,
+    ids: impl IntoIterator<Item = PersistenceId>,
+) {
+    let nan = f32::from_bits(QUIET_NAN_BITS);
+    println!("Corrupting EEPROM f32 slots with quiet NaN 0x{QUIET_NAN_BITS:08x}:");
+    for id in ids {
+        let item = PersistenceItem::from_f32(id, nan);
+        println!("  {:?} = {} (bits 0x{:08x})", id, nan, nan.to_bits());
+        eeprom.write_item(item).unwrap();
+    }
+    println!("EEPROM corrupted — quitting so you can `cargo run` again to exercise heal+review.");
+    quit_event_loop().unwrap();
+}
+
+fn corrupt_all_eeprom_f32(eeprom: &mut Eeprom<Storage>) {
+    corrupt_eeprom_f32_ids(eeprom, EEPROM_F32_IDS.iter().copied());
+}
+
+fn corrupt_random_eeprom_f32(eeprom: &mut Eeprom<Storage>) {
+    let mut seed = std::time::SystemTime::now()
+        .duration_since(std::time::UNIX_EPOCH)
+        .map(|d| d.as_nanos() as u64)
+        .unwrap_or(1);
+    let mut next = || {
+        // Simple LCG — good enough for sim test selection.
+        seed = seed.wrapping_mul(6364136223846793005).wrapping_add(1);
+        seed
+    };
+
+    let mut chosen = vec::Vec::new();
+    for &id in EEPROM_F32_IDS {
+        if next() & 1 == 1 {
+            chosen.push(id);
+        }
+    }
+    if chosen.is_empty() {
+        let idx = (next() as usize) % EEPROM_F32_IDS.len();
+        chosen.push(EEPROM_F32_IDS[idx]);
+    }
+    corrupt_eeprom_f32_ids(eeprom, chosen);
+}
+
 fn millis() -> u16 {
     let since_the_epoch = std::time::SystemTime::now()
         .duration_since(std::time::UNIX_EPOCH)
@@ -277,6 +323,8 @@ impl Frontend {
                         Com::LogWindowPause => logger.pause(),
                         Com::LogWindowSave(path) => logger.save(path),
                         Com::LogWindowClear => logger.clear(),
+                        Com::CorruptAllEepromF32 => corrupt_all_eeprom_f32(&mut eeprom),
+                        Com::CorruptRandomEepromF32 => corrupt_random_eeprom_f32(&mut eeprom),
                     }
                 };
 
