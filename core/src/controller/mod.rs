@@ -164,9 +164,10 @@ impl CoreController {
         while self.ms != time_ms {
             self.ms = self.ms.wrapping_add(1);
             match self.ms % 100 {
-                0 => { // call scheduler every 100ms
+                0 => {
+                    // call scheduler every 100ms
                     let _ = self.scheduler.tick_100ms();
-                } 
+                }
                 1 => {
                     self.tick_100ms(cm); // call 100ms tick routine
                     recalc = true;

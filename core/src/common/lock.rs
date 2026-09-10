@@ -1,4 +1,7 @@
-use core::{cell::UnsafeCell, sync::atomic::Ordering::{Acquire, Release}};
+use core::{
+    cell::UnsafeCell,
+    sync::atomic::Ordering::{Acquire, Release},
+};
 use portable_atomic::AtomicBool;
 
 pub struct Lock<T> {
@@ -14,7 +17,7 @@ pub struct LockGuard<'a, T> {
 
 impl<'a, T> Drop for LockGuard<'a, T> {
     fn drop(&mut self) {
-        // Release ordering ensures that all previous memory writes 
+        // Release ordering ensures that all previous memory writes
         // are visible before the lock is released.
         self.lock.borrowed.store(false, Release);
     }
@@ -51,12 +54,17 @@ impl<T> Lock<T> {
         }
     }
 
-    /// Tries to acquire the lock. 
+    /// Tries to acquire the lock.
     /// Returns a `LockGuard` if successful, or `Err(())` if already borrowed.
+    #[allow(clippy::result_unit_err)]
     pub fn try_lock(&self) -> Result<LockGuard<'_, T>, ()> {
-        // Acquire ordering ensures that subsequent memory reads/writes 
+        // Acquire ordering ensures that subsequent memory reads/writes
         // cannot be reordered before this atomic check.
-        if self.borrowed.compare_exchange(false, true, Acquire, Acquire).is_ok() {
+        if self
+            .borrowed
+            .compare_exchange(false, true, Acquire, Acquire)
+            .is_ok()
+        {
             Ok(LockGuard { lock: self })
         } else {
             Err(())
@@ -94,6 +102,6 @@ impl<T> Lock<T> {
     }
 }
 
-// Thread-safety marker: Sync is safe now because `LockGuard` and the 
+// Thread-safety marker: Sync is safe now because `LockGuard` and the
 // Acquire/Release ordering guarantee strict exclusivity across execution contexts.
 unsafe impl<T> Sync for Lock<T> {}

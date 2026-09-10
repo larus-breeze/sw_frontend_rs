@@ -22,12 +22,22 @@ use super::{
     DataSource, VarioModeControl, MAX_PERS_IDS,
 };
 use crate::{
-    CanFrame, CoreController, CoreError, CoreModel, DateTime, FloatToSpeed, Frame, GenericId, IdleEvent, Mass, PersistenceItem, Pressure, Rotation, VarioMode, Waveform, basic_config::PERSISTENCE_TIMEOUT, controller::{
-        RemoteConfig, helpers::{CanConfigId, IntToDuration},
-    }, flight_physics::polar_store, model::{GpsState, UnitHeight, UnitHorizontalSpeed, UnitVerticalSpeed}, set_snd_spreading_factor, system_of_units::Speed, utils::Variant, view::viewable::{
+    basic_config::PERSISTENCE_TIMEOUT,
+    controller::{
+        helpers::{CanConfigId, IntToDuration},
+        RemoteConfig,
+    },
+    flight_physics::polar_store,
+    model::{GpsState, UnitHeight, UnitHorizontalSpeed, UnitVerticalSpeed},
+    set_snd_spreading_factor,
+    system_of_units::Speed,
+    utils::Variant,
+    view::viewable::{
         centerview::CenterView,
         vario_infoview::{Info3View, LineView},
     },
+    CanFrame, CoreController, CoreError, CoreModel, DateTime, FloatToSpeed, Frame, GenericId,
+    IdleEvent, Mass, PersistenceItem, Pressure, Rotation, VarioMode, Waveform,
 };
 
 /// It is not permitted to change the sequence or assignment, as the number references the memory
@@ -202,7 +212,11 @@ pub enum Echo {
 /// Store item content into data model
 ///
 /// This method is also called directly from the idle-loop during start-up
-pub fn restore_item(cc: &mut CoreController, cm: &mut CoreModel, item: PersistenceItem) -> Result <(), CoreError> {
+pub fn restore_item(
+    cc: &mut CoreController,
+    cm: &mut CoreModel,
+    item: PersistenceItem,
+) -> Result<(), CoreError> {
     match item.id {
         PersistenceId::Volume => cm.config.volume = item.to_i8(),
         PersistenceId::McCready => cm.config.mc_cready = Speed::from_m_s(item.to_f32()?),
@@ -254,7 +268,9 @@ pub fn restore_item(cc: &mut CoreController, cm: &mut CoreModel, item: Persisten
             cm.config.center_straight = CenterView::from(item.to_u8())
         }
         PersistenceId::EmptyMass => cm.glider_data.basic_glider_data.empty_mass = item.to_f32()?,
-        PersistenceId::MaxBallast => cm.glider_data.basic_glider_data.max_ballast = item.to_f32()?,
+        PersistenceId::MaxBallast => {
+            cm.glider_data.basic_glider_data.max_ballast = item.to_f32()?
+        }
         PersistenceId::ReferenceWeight => {
             cm.glider_data.basic_glider_data.reference_weight = item.to_f32()?
         }

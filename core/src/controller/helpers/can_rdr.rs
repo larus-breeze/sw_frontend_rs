@@ -227,7 +227,8 @@ impl CoreController {
                 }
                 sensor_legacy::AIRSPEED => {
                     if let (Some(tas), Some(ias)) = (rdr.pop_i16(), rdr.pop_i16()) {
-                        cm.sensor.airspeed = AirSpeed::from_speeds((ias as f32).km_h(), (tas as f32).km_h());
+                        cm.sensor.airspeed =
+                            AirSpeed::from_speeds((ias as f32).km_h(), (tas as f32).km_h());
                     }
                 }
                 sensor_legacy::ATHMOSPHERE => {
@@ -242,9 +243,16 @@ impl CoreController {
                         .set_static_pressure(cm.sensor.pressure);
                 }
                 sensor_legacy::GPS_DATE_TIME => {
-                    if let (Some(year), Some(month), Some(day), Some(hour), Some(min), Some(sec))= 
-                        (rdr.pop_u8(), rdr.pop_u8(), rdr.pop_u8(), rdr.pop_u8(), rdr.pop_u8(), rdr.pop_u8()) {
-                        let date_time = DateTime::from_vals(year as u16 +2000, month, day, hour, min, sec);
+                    if let (Some(year), Some(month), Some(day), Some(hour), Some(min), Some(sec)) = (
+                        rdr.pop_u8(),
+                        rdr.pop_u8(),
+                        rdr.pop_u8(),
+                        rdr.pop_u8(),
+                        rdr.pop_u8(),
+                        rdr.pop_u8(),
+                    ) {
+                        let date_time =
+                            DateTime::from_vals(year as u16 + 2000, month, day, hour, min, sec);
                         persist::set_date_time(cm, self, date_time);
                     }
                 }
@@ -295,7 +303,7 @@ impl CoreController {
                         cm.sensor.slip_angle = ((value as f32) * 0.001).rad();
                     }
                     if let Some(value) = rdr.pop_i16() {
-                        cm.sensor.turn_rate = ((value as f32) * 0.001).rad_s();                
+                        cm.sensor.turn_rate = ((value as f32) * 0.001).rad_s();
                     }
                     if let Some(value) = rdr.pop_i16() {
                         cm.sensor.nick_angle = ((value as f32) * 0.001).rad();
@@ -315,17 +323,13 @@ impl CoreController {
                         cm.sensor
                             .wind_vector
                             .set_angle(((angle as f32) * 0.001).rad());
-                        cm.sensor
-                            .wind_vector
-                            .set_speed((speed as f32).km_h());
+                        cm.sensor.wind_vector.set_speed((speed as f32).km_h());
                     }
                     if let (Some(angle), Some(speed)) = (rdr.pop_i16(), rdr.pop_i16()) {
                         cm.sensor
                             .average_wind
                             .set_angle(((angle as f32) * 0.001).rad());
-                        cm.sensor
-                            .average_wind
-                            .set_speed((speed as f32).km_h());
+                        cm.sensor.average_wind.set_speed((speed as f32).km_h());
                     }
                 }
                 _ => (), // all other frames are ignored
@@ -452,8 +456,14 @@ impl CoreController {
 
         match frame.specific_id {
             gps::DATE_TIME => {
-                if let (Some(year), Some(month), Some(day), Some(hour), Some(min), Some(sec))= 
-                       (rdr.pop_u16(), rdr.pop_u8(), rdr.pop_u8(), rdr.pop_u8(), rdr.pop_u8(), rdr.pop_u8()) {
+                if let (Some(year), Some(month), Some(day), Some(hour), Some(min), Some(sec)) = (
+                    rdr.pop_u16(),
+                    rdr.pop_u8(),
+                    rdr.pop_u8(),
+                    rdr.pop_u8(),
+                    rdr.pop_u8(),
+                    rdr.pop_u8(),
+                ) {
                     let date_time = DateTime::from_vals(year, month, day, hour, min, sec);
                     persist::set_date_time(cm, self, date_time);
                 }

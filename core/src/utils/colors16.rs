@@ -116,7 +116,7 @@ pub enum Colors {
     PowderBlue = 0xb71c,           // Rgb(176, 224, 230)
     Purple = 0x8010,               // Rgb(128, 0, 128)
     #[default]
-    Red = 0xf800,                  // Rgb(255, 0, 0)
+    Red = 0xf800,    // Rgb(255, 0, 0)
     RosyBrown = 0xbc71,            // Rgb(188, 143, 143)
     RoyalBlue = 0x435c,            // Rgb(65, 105, 225)
     SaddleBrown = 0x8a22,          // Rgb(139, 69, 19)

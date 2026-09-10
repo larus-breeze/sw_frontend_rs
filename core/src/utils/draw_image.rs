@@ -98,7 +98,7 @@ pub trait DrawImage {
                             let u16_col = RGB565_COLORS[u8_col as usize];
                             #[cfg(feature = "colors_rgb565")]
                             // unsafe is ok here, because all colors in images are generated correctly
-                            let stroke_color = unsafe {Colors::from_u16_unchecked(u16_col) };
+                            let stroke_color = unsafe { Colors::from_u16_unchecked(u16_col) };
                             #[cfg(feature = "colors_8_indexed")]
                             let stroke_color = Colors::from(u8_col);
 

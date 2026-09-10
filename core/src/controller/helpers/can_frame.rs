@@ -359,7 +359,7 @@ impl<'a> Reader<'a> {
     #[inline]
     #[allow(unused)]
     pub fn pop_u8(&mut self) -> Option<u8> {
-        if self.pos <= self.data.len() - 1 {
+        if self.pos < self.data.len() {
             let idx = self.pos;
             self.pos += 1;
             Some(self.data[idx])
@@ -395,7 +395,7 @@ impl<'a> Reader<'a> {
     #[inline]
     #[allow(unused)]
     pub fn pop_i8(&mut self) -> Option<i8> {
-        if self.pos <= self.data.len() - 1 {
+        if self.pos < self.data.len() {
             let idx = self.pos;
             self.pos += 1;
             Some(self.data[idx] as i8)

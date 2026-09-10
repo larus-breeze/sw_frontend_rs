@@ -45,6 +45,7 @@ impl GliderData {
         let max = self.basic_glider_data.max_ballast;
         // Polars with no water tanks use max_ballast = 0; never divide (NaN/Inf
         // on the CAN ballast fraction crashes the sensorbox NMEA formatter).
+        #[allow(clippy::neg_cmp_op_on_partial_ord)]
         if !(max > 0.0) {
             return 0.0;
         }
@@ -53,6 +54,7 @@ impl GliderData {
 
     pub fn set_ballast_fraction(&mut self, fraction: f32) {
         let max = self.basic_glider_data.max_ballast;
+        #[allow(clippy::neg_cmp_op_on_partial_ord)]
         if !(max > 0.0) {
             self.water_ballast = 0.0.kg();
             return;
