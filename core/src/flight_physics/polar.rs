@@ -42,11 +42,22 @@ impl GliderData {
     }
 
     pub fn ballast_fraction(&self) -> f32 {
-        self.water_ballast.to_kg() / self.basic_glider_data.max_ballast
+        let max = self.basic_glider_data.max_ballast;
+        // Polars with no water tanks use max_ballast = 0; never divide (NaN/Inf
+        // on the CAN ballast fraction crashes the sensorbox NMEA formatter).
+        if !(max > 0.0) {
+            return 0.0;
+        }
+        self.water_ballast.to_kg() / max
     }
 
     pub fn set_ballast_fraction(&mut self, fraction: f32) {
-        self.water_ballast = (fraction * self.basic_glider_data.max_ballast).kg();
+        let max = self.basic_glider_data.max_ballast;
+        if !(max > 0.0) {
+            self.water_ballast = 0.0.kg();
+            return;
+        }
+        self.water_ballast = (fraction * max).kg();
     }
 
     pub fn bugs(&self) -> f32 {
@@ -269,6 +280,23 @@ mod tests {
         polar.recalc(&glider_data, Density::AT_NN());
 
         write_stf_to_csv("tests/as33.csv", &mut polar);
+    }
+
+    #[test]
+    fn test_ballast_fraction_max_zero() {
+        let mut glider_data = GliderData::default();
+        glider_data.basic_glider_data.max_ballast = 0.0;
+        glider_data.water_ballast = 50.0.kg();
+
+        assert_eq!(glider_data.ballast_fraction(), 0.0);
+
+        glider_data.set_ballast_fraction(0.5);
+        assert_eq!(glider_data.water_ballast.to_kg(), 0.0);
+        assert_eq!(glider_data.ballast_fraction(), 0.0);
+
+        glider_data.basic_glider_data.max_ballast = 100.0;
+        glider_data.water_ballast = 25.0.kg();
+        assert_eq!(glider_data.ballast_fraction(), 0.25);
     }
 
     #[test]
