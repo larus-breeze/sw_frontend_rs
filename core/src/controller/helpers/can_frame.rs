@@ -212,7 +212,7 @@ impl CanFrame {
 
     pub fn read_opt_f32(&self, idx: usize) -> Option<f32> {
         let value = LE::read_f32(&self.data[idx..idx + 4]);
-        if value.is_normal() {
+        if value.is_normal() || value == 0.00 {
             Some(value)
         } else {
             None
