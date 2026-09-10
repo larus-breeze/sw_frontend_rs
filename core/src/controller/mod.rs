@@ -181,7 +181,8 @@ impl CoreController {
         }
         // Check queue everey time, tick_1ms is called
         if let Some(item) = self.queue_from_idle_task.dequeue() {
-            persist::restore_item(self, cm, item);
+            // silently ignores values like NAN, is_subnormal etc
+            let _ = persist::restore_item(self, cm, item);
         }
         recalc
     }
