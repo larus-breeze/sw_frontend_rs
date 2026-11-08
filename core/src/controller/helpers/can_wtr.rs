@@ -83,7 +83,7 @@ impl CoreModel {
             CanConfigId::Qnh => {
                 LE::write_f32(
                     &mut data[2..6],
-                    self.sensor.pressure_altitude.qnh().to_hpa(),
+                    self.sensor.pressure_altitude.qnh().to_kg_ms2(), // Pa, as specified for the CAN bus
                 );
             }
             CanConfigId::PilotWeight => {
