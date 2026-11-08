@@ -111,7 +111,7 @@ impl CoreController {
             }
             CanConfigId::Qnh => {
                 if let Some(val) = frame.read_opt_f32(4) {
-                    let val = val.hpa();
+                    let val = val.kg_ms2(); // Pa, as specified for the CAN bus
                     persist::persist_set(
                         self,
                         cm,
