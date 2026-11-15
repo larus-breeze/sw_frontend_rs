@@ -12,8 +12,6 @@ mod utils;
 use corelib::basic_config::MAX_TX_FRAMES;
 #[allow(unused)]
 use defmt::info;
-#[cfg(not(feature = "rtic-info"))]
-use defmt_rtt as _;
 use stm32h7xx_hal::interrupt;
 
 use corelib::*;

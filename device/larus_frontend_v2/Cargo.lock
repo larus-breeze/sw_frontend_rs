@@ -180,16 +180,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "defmt-rtt"
-version = "0.4.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bab697b3dbbc1750b7c8b821aa6f6e7f2480b47a99bc057a2ed7b170ebef0c51"
-dependencies = [
- "critical-section",
- "defmt",
-]
-
-[[package]]
 name = "eeprom24x"
 version = "0.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -575,6 +565,18 @@ dependencies = [
 ]
 
 [[package]]
+name = "rtt-target"
+version = "0.6.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e7afed1f4302eeba88c601636cf2c554c45e1cbb464bab44c6012bab0e71473c"
+dependencies = [
+ "critical-section",
+ "defmt",
+ "portable-atomic",
+ "ufmt-write",
+]
+
+[[package]]
 name = "rustc_version"
 version = "0.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -763,6 +765,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "ufmt-write"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e87a2ed6b42ec5e28cc3b94c09982969e9227600b2e3dcbc1db927a84c06bd69"
+
+[[package]]
 name = "unicode-ident"
 version = "1.0.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -777,7 +785,6 @@ dependencies = [
  "cortex-m-rt",
  "cortex-m-rtic",
  "defmt",
- "defmt-rtt",
  "eeprom24x",
  "embedded-dma",
  "embedded-graphics",
@@ -789,6 +796,7 @@ dependencies = [
  "heapless 0.8.0",
  "nb 1.1.0",
  "rtic-monotonic",
+ "rtt-target",
  "sdio-host",
  "stm32h7xx-hal",
  "tfmt",

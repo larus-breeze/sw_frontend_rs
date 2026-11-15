@@ -3,9 +3,10 @@ use core::fmt::Write;
 use corelib::tformat;
 use crate::{driver::timestamp_us, DevDuration, DevInstant};
 
-#[cfg(feature = "rtic-info")]
-use rtt_target::{rtt_init, ChannelMode::BlockIfFull, set_defmt_channel, UpChannel};
+use rtt_target::{rtt_init, ChannelMode::BlockIfFull, set_defmt_channel};
 
+#[cfg(feature = "rtic-info")]
+use rtt_target::UpChannel;
 use crate::app;
 
 #[repr(u8)]
@@ -100,14 +101,29 @@ impl Statistics {
                     }
                     1: {
                         size: 1024,
-                        name: "rtic"
+                        name: "rtic",
                     }
                 }
             };
+
             set_defmt_channel(channels.up.0);
             channels.up.1
         };
-    
+
+        #[cfg(not(feature = "rtic-info"))]
+        {
+            let channels = rtt_init! {
+                up: {
+                    0: {
+                        size: 512,
+                        mode: BlockIfFull,
+                        name: "defmt",
+                    }
+                }
+            };
+
+            set_defmt_channel(channels.up.0);
+        }    
         Statistics {
             stats: [stats; TASK_CNT],
             next_show: app::monotonics::now() + DevDuration::secs(1),
