@@ -111,7 +111,7 @@ impl CoreController {
             }
             CanConfigId::Qnh => {
                 if let Some(val) = frame.read_opt_f32(4) {
-                    let val = val.hpa();
+                    let val = val.pa();
                     persist::persist_set(
                         self,
                         cm,
@@ -233,7 +233,7 @@ impl CoreController {
                 }
                 sensor_legacy::ATHMOSPHERE => {
                     if let Some(value) = rdr.pop_u32() {
-                        cm.sensor.pressure = (value as f32).n_m2();
+                        cm.sensor.pressure = (value as f32).pa();
                     }
                     if let Some(value) = rdr.pop_u32() {
                         cm.sensor.density = (value as f32).g_m3();
@@ -394,7 +394,7 @@ impl CoreController {
             }
             sensor::AMB_PRESS_AIR_DENS => {
                 if let Some(pressure) = rdr.pop_f32() {
-                    cm.sensor.pressure = pressure.n_m2();
+                    cm.sensor.pressure = pressure.pa();
                     cm.sensor
                         .pressure_altitude
                         .set_static_pressure(cm.sensor.pressure);

@@ -30,9 +30,9 @@ impl Pressure {
         Pressure(value)
     }
 
-    /// Create an instance of type Pressure from a float number in newton per square meter
+    /// Create an instance of type Pressure from a float number in pascal
     #[inline]
-    pub fn from_n_m2(value: Float) -> Self {
+    pub fn from_pa(value: Float) -> Self {
         Pressure(value)
     }
 
@@ -48,9 +48,9 @@ impl Pressure {
         self.0
     }
 
-    /// Extract a float number in the unit newton per cubic meter
+    /// Extract a float number in the unit pascal
     #[inline]
-    pub fn to_n_ms(self) -> Float {
+    pub fn to_pa(self) -> Float {
         self.0
     }
 
@@ -67,8 +67,8 @@ pub trait FloatToPressure {
     /// Create an instance of type [Pressure] from a number in kilogram per meter and second²
     fn kg_ms2(self) -> Pressure;
 
-    /// Create an instance of type Pressure from a float number in newton per square meter
-    fn n_m2(self) -> Pressure;
+    /// Create an instance of type Pressure from a float number in pascal
+    fn pa(self) -> Pressure;
 
     /// Create an instance of type Pressure from a float number in hecto pascal
     fn hpa(self) -> Pressure;
@@ -80,8 +80,8 @@ impl FloatToPressure for Float {
         Pressure::from_kg_ms2(self)
     }
     #[inline]
-    fn n_m2(self) -> Pressure {
-        Pressure::from_n_m2(self)
+    fn pa(self) -> Pressure {
+        Pressure::from_pa(self)
     }
     #[inline]
     fn hpa(self) -> Pressure {
