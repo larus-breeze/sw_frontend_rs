@@ -27,10 +27,6 @@ slint-build = "1.12.1"
 [dependencies.corelib]
 path = "../../core"
 
-[build-dependencies.corelib]
-path = "../../core"
-
-
 [features]
 default = ["v2"]
 air = []
