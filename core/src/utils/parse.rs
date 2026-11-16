@@ -117,7 +117,7 @@ mod tests {
     fn parse_u32() {
         assert_eq!(u32::from_slice(b"0"), Ok(0));
         assert_eq!(u32::from_slice(b"4711"), Ok(4711));
-        assert_eq!(u32::from_slice(b"4294967295"), Ok(u32::max_value()));
+        assert_eq!(u32::from_slice(b"4294967295"), Ok(u32::MAX));
         assert_eq!(
             u32::from_slice(b"4294967296"),
             Err(crate::CoreError::ParseError)
@@ -130,8 +130,8 @@ mod tests {
         assert_eq!(i32::from_slice(b"0"), Ok(0));
         assert_eq!(i32::from_slice(b"4711"), Ok(4711));
         assert_eq!(i32::from_slice(b"-4711"), Ok(-4711));
-        assert_eq!(i32::from_slice(b"2147483647"), Ok(i32::max_value()));
-        assert_eq!(i32::from_slice(b"-2147483647"), Ok(-i32::max_value()));
+        assert_eq!(i32::from_slice(b"2147483647"), Ok(i32::MAX));
+        assert_eq!(i32::from_slice(b"-2147483647"), Ok(-i32::MAX));
         assert_eq!(
             i32::from_slice(b"4294967296"),
             Err(crate::CoreError::ParseError)
@@ -149,11 +149,11 @@ mod tests {
         assert_eq!(f32::from_slice(b"-1.23456"), Ok(-1.23456));
         assert_eq!(
             f32::from_slice(b"2147483647.0"),
-            Ok(i32::max_value() as f32)
+            Ok(i32::MAX as f32)
         );
         assert_eq!(
             f32::from_slice(b"-2147483647.0"),
-            Ok(-i32::max_value() as f32)
+            Ok(-i32::MAX as f32)
         );
         assert_eq!(
             f32::from_slice(b"4294967296.0"),

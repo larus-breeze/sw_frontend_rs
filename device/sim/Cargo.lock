@@ -1031,9 +1031,7 @@ dependencies = [
  "byteorder",
  "defmt 0.3.101",
  "embedded-graphics",
- "embedded-hal",
  "heapless",
- "libc-print",
  "micromath",
  "num",
  "num_enum",
@@ -1384,16 +1382,6 @@ checksum = "ba9ecd261f991856250d2207f6d8376946cd9f412a2165d3b75bc87a0bc7a044"
 dependencies = [
  "az",
  "byteorder",
-]
-
-[[package]]
-name = "embedded-hal"
-version = "0.2.7"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "35949884794ad573cf46071e41c9b60efb0cb311e3ca01f7af807af1debc66ff"
-dependencies = [
- "nb 0.1.3",
- "void",
 ]
 
 [[package]]
@@ -2618,15 +2606,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d750af042f7ef4f724306de029d18836c26c1765a54a6a3f094cbd23a7267ffa"
 
 [[package]]
-name = "libc-print"
-version = "0.1.23"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a4a660208db49e35faf57b37484350f1a61072f2a5becf0592af6015d9ddd4b0"
-dependencies = [
- "libc",
-]
-
-[[package]]
 name = "libfuzzer-sys"
 version = "0.4.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2867,21 +2846,6 @@ dependencies = [
  "thiserror 2.0.12",
  "windows-sys 0.59.0",
 ]
-
-[[package]]
-name = "nb"
-version = "0.1.3"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "801d31da0513b6ec5214e9bf433a77966320625a37860f910be265be6e18d06f"
-dependencies = [
- "nb 1.1.0",
-]
-
-[[package]]
-name = "nb"
-version = "1.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8d5439c4ad607c3c23abf66de8c8bf57ba8adcd1f129e699851a6e43935d339d"
 
 [[package]]
 name = "ndk"
@@ -4996,12 +4960,6 @@ name = "version_check"
 version = "0.9.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0b928f33d975fc6ad9f86c8f283853ad26bdd5b10b7f1542aa2fa15e2289105a"
-
-[[package]]
-name = "void"
-version = "1.0.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6a02e4885ed3bc0f2de90ea6dd45ebcbb66dacffe03547fadbb0eeae2770887d"
 
 [[package]]
 name = "vtable"
