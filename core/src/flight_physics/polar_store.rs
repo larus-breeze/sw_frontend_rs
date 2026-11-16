@@ -3,7 +3,7 @@
 //! Do not delete any polars, as these could have been selected by a user
 //!
 //! When adding, append the new polars to the end and then start the script
-//! “assets/crate_polar_idx.py”. This script creates an index that enables alphabetical
+//! “assets/create_polar_idx.py”. This script creates an index that enables alphabetical
 //! selection in the menu.
 
 /// Structure with the basic data of a sailplane
@@ -83,7 +83,7 @@ pub const POLARS: &[BasicGliderData] = &[
     },
     BasicGliderData {
         // No 2,  imported from XCSoar
-        name: "304CZ",
+        name: "304 CZ",
         wing_area: 0.00,
         max_speed: 250.0,
         empty_mass: 235.0,
@@ -127,7 +127,7 @@ pub const POLARS: &[BasicGliderData] = &[
     },
     BasicGliderData {
         // No 6,  imported from XCSoar
-        name: "ASG-29 (15m)",
+        name: "ASG 29 15m",
         wing_area: 9.20,
         max_speed: 250.0,
         empty_mass: 270.0,
@@ -138,7 +138,7 @@ pub const POLARS: &[BasicGliderData] = &[
     },
     BasicGliderData {
         // No 7,  imported from XCSoar
-        name: "ASG-29 (18m)",
+        name: "ASG 29 18m",
         wing_area: 10.50,
         max_speed: 250.0,
         empty_mass: 280.0,
@@ -149,7 +149,7 @@ pub const POLARS: &[BasicGliderData] = &[
     },
     BasicGliderData {
         // No 8,  imported from XCSoar
-        name: "ASG-29E (15m)",
+        name: "ASG 29E 15m",
         wing_area: 9.20,
         max_speed: 250.0,
         empty_mass: 315.0,
@@ -160,7 +160,7 @@ pub const POLARS: &[BasicGliderData] = &[
     },
     BasicGliderData {
         // No 9,  imported from XCSoar
-        name: "ASG-29E (18m)",
+        name: "ASG 29E 18m",
         wing_area: 10.50,
         max_speed: 250.0,
         empty_mass: 325.0,
@@ -171,7 +171,7 @@ pub const POLARS: &[BasicGliderData] = &[
     },
     BasicGliderData {
         // No 10,  self added
-        name: "ASG-32",
+        name: "ASG 32",
         wing_area: 15.70,
         max_speed: 250.0,
         empty_mass: 650.0,
@@ -182,7 +182,7 @@ pub const POLARS: &[BasicGliderData] = &[
     },
     BasicGliderData {
         // No 11,  imported from XCSoar
-        name: "ASH-25",
+        name: "ASH 25",
         wing_area: 16.31,
         max_speed: 250.0,
         empty_mass: 478.0,
@@ -193,7 +193,7 @@ pub const POLARS: &[BasicGliderData] = &[
     },
     BasicGliderData {
         // No 12,  imported from XCSoar
-        name: "ASH-26",
+        name: "ASH 26",
         wing_area: 11.70,
         max_speed: 250.0,
         empty_mass: 325.0,
@@ -204,7 +204,7 @@ pub const POLARS: &[BasicGliderData] = &[
     },
     BasicGliderData {
         // No 13,  imported from XCSoar
-        name: "ASH-26E",
+        name: "ASH 26E",
         wing_area: 11.70,
         max_speed: 250.0,
         empty_mass: 360.0,
@@ -215,7 +215,7 @@ pub const POLARS: &[BasicGliderData] = &[
     },
     BasicGliderData {
         // No 14,  imported from XCSoar
-        name: "ASK-13",
+        name: "ASK 13",
         wing_area: 17.50,
         max_speed: 250.0,
         empty_mass: 296.0,
@@ -226,7 +226,7 @@ pub const POLARS: &[BasicGliderData] = &[
     },
     BasicGliderData {
         // No 15,  imported from XCSoar
-        name: "ASK-18",
+        name: "ASK 18",
         wing_area: 12.99,
         max_speed: 250.0,
         empty_mass: 215.0,
@@ -237,7 +237,7 @@ pub const POLARS: &[BasicGliderData] = &[
     },
     BasicGliderData {
         // No 16,  imported from XCSoar
-        name: "ASK-21",
+        name: "ASK 21",
         wing_area: 17.95,
         max_speed: 250.0,
         empty_mass: 360.0,
@@ -248,7 +248,7 @@ pub const POLARS: &[BasicGliderData] = &[
     },
     BasicGliderData {
         // No 17,  imported from XCSoar
-        name: "ASK-23",
+        name: "ASK 23",
         wing_area: 12.90,
         max_speed: 250.0,
         empty_mass: 240.0,
@@ -259,7 +259,7 @@ pub const POLARS: &[BasicGliderData] = &[
     },
     BasicGliderData {
         // No 18,  imported from XCSoar
-        name: "ASW-12",
+        name: "ASW 12",
         wing_area: 13.00,
         max_speed: 250.0,
         empty_mass: 324.0,
@@ -270,7 +270,7 @@ pub const POLARS: &[BasicGliderData] = &[
     },
     BasicGliderData {
         // No 19,  imported from XCSoar
-        name: "ASW-15",
+        name: "ASW 15",
         wing_area: 11.00,
         max_speed: 250.0,
         empty_mass: 210.0,
@@ -281,7 +281,7 @@ pub const POLARS: &[BasicGliderData] = &[
     },
     BasicGliderData {
         // No 20,  imported from XCSoar
-        name: "ASW-17",
+        name: "ASW 17",
         wing_area: 14.84,
         max_speed: 250.0,
         empty_mass: 405.0,
@@ -292,7 +292,7 @@ pub const POLARS: &[BasicGliderData] = &[
     },
     BasicGliderData {
         // No 21,  imported from XCSoar
-        name: "ASW-19",
+        name: "ASW 19",
         wing_area: 11.00,
         max_speed: 250.0,
         empty_mass: 240.0,
@@ -303,7 +303,7 @@ pub const POLARS: &[BasicGliderData] = &[
     },
     BasicGliderData {
         // No 22,  imported from XCSoar
-        name: "ASW-20",
+        name: "ASW 20",
         wing_area: 10.50,
         max_speed: 250.0,
         empty_mass: 255.0,
@@ -314,7 +314,7 @@ pub const POLARS: &[BasicGliderData] = &[
     },
     BasicGliderData {
         // No 23,  imported from XCSoar
-        name: "ASW-20BL",
+        name: "ASW 20BL",
         wing_area: 10.49,
         max_speed: 250.0,
         empty_mass: 275.0,
@@ -325,7 +325,7 @@ pub const POLARS: &[BasicGliderData] = &[
     },
     BasicGliderData {
         // No 24,  imported from XCSoar
-        name: "ASW-22B",
+        name: "ASW 22B",
         wing_area: 16.31,
         max_speed: 250.0,
         empty_mass: 270.0,
@@ -336,7 +336,7 @@ pub const POLARS: &[BasicGliderData] = &[
     },
     BasicGliderData {
         // No 25,  imported from XCSoar
-        name: "ASW-22BLE",
+        name: "ASW 22BLE",
         wing_area: 16.70,
         max_speed: 250.0,
         empty_mass: 275.0,
@@ -347,7 +347,7 @@ pub const POLARS: &[BasicGliderData] = &[
     },
     BasicGliderData {
         // No 26,  imported from XCSoar
-        name: "ASW-24",
+        name: "ASW 24",
         wing_area: 10.00,
         max_speed: 250.0,
         empty_mass: 230.0,
@@ -358,7 +358,7 @@ pub const POLARS: &[BasicGliderData] = &[
     },
     BasicGliderData {
         // No 27,  imported from XCSoar
-        name: "ASW-27",
+        name: "ASW 27",
         wing_area: 9.00,
         max_speed: 250.0,
         empty_mass: 235.0,
@@ -369,7 +369,7 @@ pub const POLARS: &[BasicGliderData] = &[
     },
     BasicGliderData {
         // No 28,  imported from XCSoar
-        name: "ASW-28 (15m)",
+        name: "ASW 28 15m",
         wing_area: 10.50,
         max_speed: 250.0,
         empty_mass: 235.0,
@@ -380,7 +380,7 @@ pub const POLARS: &[BasicGliderData] = &[
     },
     BasicGliderData {
         // No 29,  imported from XCSoar
-        name: "ASW-28 (18m)",
+        name: "ASW 28 18m",
         wing_area: 10.50,
         max_speed: 250.0,
         empty_mass: 270.0,
@@ -424,7 +424,7 @@ pub const POLARS: &[BasicGliderData] = &[
     },
     BasicGliderData {
         // No 33,  imported from XCSoar
-        name: "Apis (13m)",
+        name: "Apis 13m",
         wing_area: 10.36,
         max_speed: 250.0,
         empty_mass: 137.0,
@@ -435,7 +435,7 @@ pub const POLARS: &[BasicGliderData] = &[
     },
     BasicGliderData {
         // No 34,  imported from XCSoar
-        name: "Apis 2 (15m)",
+        name: "Apis 2 15m",
         wing_area: 12.40,
         max_speed: 250.0,
         empty_mass: 215.0,
@@ -501,7 +501,7 @@ pub const POLARS: &[BasicGliderData] = &[
     },
     BasicGliderData {
         // No 40,  imported from XCSoar
-        name: "Cirrus (18m)",
+        name: "Cirrus 18m",
         wing_area: 12.60,
         max_speed: 250.0,
         empty_mass: 260.0,
@@ -523,7 +523,7 @@ pub const POLARS: &[BasicGliderData] = &[
     },
     BasicGliderData {
         // No 42,  imported from XCSoar
-        name: "DG-1000 (20m)",
+        name: "DG-1000 20m",
         wing_area: 17.51,
         max_speed: 250.0,
         empty_mass: 415.0,
@@ -556,7 +556,7 @@ pub const POLARS: &[BasicGliderData] = &[
     },
     BasicGliderData {
         // No 45,  imported from XCSoar
-        name: "DG-400 (15m)",
+        name: "DG-400 15m",
         wing_area: 10.00,
         max_speed: 250.0,
         empty_mass: 306.0,
@@ -567,7 +567,7 @@ pub const POLARS: &[BasicGliderData] = &[
     },
     BasicGliderData {
         // No 46,  imported from XCSoar
-        name: "DG-400 (17m)",
+        name: "DG-400 17m",
         wing_area: 10.57,
         max_speed: 250.0,
         empty_mass: 310.0,
@@ -578,7 +578,7 @@ pub const POLARS: &[BasicGliderData] = &[
     },
     BasicGliderData {
         // No 47,  imported from XCSoar
-        name: "DG-500 (20m)",
+        name: "DG-500 20m",
         wing_area: 18.29,
         max_speed: 250.0,
         empty_mass: 390.0,
@@ -589,7 +589,7 @@ pub const POLARS: &[BasicGliderData] = &[
     },
     BasicGliderData {
         // No 48,  imported from XCSoar
-        name: "DG-600 (15m)",
+        name: "DG-600 15m",
         wing_area: 10.95,
         max_speed: 250.0,
         empty_mass: 255.0,
@@ -600,7 +600,7 @@ pub const POLARS: &[BasicGliderData] = &[
     },
     BasicGliderData {
         // No 49,  imported from XCSoar
-        name: "DG-800B (15m)",
+        name: "DG-800B 15m",
         wing_area: 10.68,
         max_speed: 250.0,
         empty_mass: 340.0,
@@ -611,7 +611,7 @@ pub const POLARS: &[BasicGliderData] = &[
     },
     BasicGliderData {
         // No 50,  imported from XCSoar
-        name: "DG-800B (18m)",
+        name: "DG-800B 18m",
         wing_area: 11.81,
         max_speed: 250.0,
         empty_mass: 344.0,
@@ -622,7 +622,7 @@ pub const POLARS: &[BasicGliderData] = &[
     },
     BasicGliderData {
         // No 51,  imported from XCSoar
-        name: "DG-800S (15m)",
+        name: "DG-800S 15m",
         wing_area: 10.68,
         max_speed: 250.0,
         empty_mass: 260.0,
@@ -633,7 +633,7 @@ pub const POLARS: &[BasicGliderData] = &[
     },
     BasicGliderData {
         // No 52,  imported from XCSoar
-        name: "DG-800S (18m)",
+        name: "DG-800S 18m",
         wing_area: 11.81,
         max_speed: 250.0,
         empty_mass: 264.0,
@@ -710,7 +710,7 @@ pub const POLARS: &[BasicGliderData] = &[
     },
     BasicGliderData {
         // No 59,  imported from XCSoar
-        name: "Discus 2c (18m)",
+        name: "Discus 2c 18m",
         wing_area: 11.36,
         max_speed: 250.0,
         empty_mass: 280.0,
@@ -776,7 +776,7 @@ pub const POLARS: &[BasicGliderData] = &[
     },
     BasicGliderData {
         // No 65,  imported from XCSoar
-        name: "G 102 Astir CS",
+        name: "G102 Astir CS",
         wing_area: 12.40,
         max_speed: 250.0,
         empty_mass: 255.0,
@@ -787,7 +787,7 @@ pub const POLARS: &[BasicGliderData] = &[
     },
     BasicGliderData {
         // No 66,  imported from XCSoar
-        name: "G 103 Twin 2",
+        name: "G103 Twin 2",
         wing_area: 17.52,
         max_speed: 250.0,
         empty_mass: 390.0,
@@ -853,7 +853,7 @@ pub const POLARS: &[BasicGliderData] = &[
     },
     BasicGliderData {
         // No 72,  imported from XCSoar
-        name: "H-301 Libelle",
+        name: "301 Libelle",
         wing_area: 9.80,
         max_speed: 250.0,
         empty_mass: 180.0,
@@ -864,7 +864,7 @@ pub const POLARS: &[BasicGliderData] = &[
     },
     BasicGliderData {
         // No 73,  imported from XCSoar
-        name: "H201 Std Libelle",
+        name: "201 Std Libelle",
         wing_area: 9.80,
         max_speed: 250.0,
         empty_mass: 185.0,
@@ -875,7 +875,7 @@ pub const POLARS: &[BasicGliderData] = &[
     },
     BasicGliderData {
         // No 74,  imported from XCSoar
-        name: "H205 Club Libelle",
+        name: "205 Club Libelle",
         wing_area: 9.80,
         max_speed: 250.0,
         empty_mass: 200.0,
@@ -908,7 +908,7 @@ pub const POLARS: &[BasicGliderData] = &[
     },
     BasicGliderData {
         // No 77,  imported from XCSoar
-        name: "JS-1B (18m)",
+        name: "JS-1B 18m",
         wing_area: 11.25,
         max_speed: 250.0,
         empty_mass: 310.0,
@@ -919,7 +919,7 @@ pub const POLARS: &[BasicGliderData] = &[
     },
     BasicGliderData {
         // No 78,  imported from XCSoar
-        name: "JS-1C (21m)",
+        name: "JS-1C 21m",
         wing_area: 12.25,
         max_speed: 250.0,
         empty_mass: 330.0,
@@ -930,7 +930,7 @@ pub const POLARS: &[BasicGliderData] = &[
     },
     BasicGliderData {
         // No 79,  imported from XCSoar
-        name: "JS-3 (15m)",
+        name: "JS-3 15m",
         wing_area: 8.75,
         max_speed: 250.0,
         empty_mass: 270.0,
@@ -941,7 +941,7 @@ pub const POLARS: &[BasicGliderData] = &[
     },
     BasicGliderData {
         // No 80,  imported from XCSoar
-        name: "JS-3 (18m)",
+        name: "JS-3 18m",
         wing_area: 9.95,
         max_speed: 250.0,
         empty_mass: 282.0,
@@ -952,7 +952,7 @@ pub const POLARS: &[BasicGliderData] = &[
     },
     BasicGliderData {
         // No 81,  imported from XCSoar
-        name: "Janus (18m)",
+        name: "Janus 18m",
         wing_area: 16.60,
         max_speed: 250.0,
         empty_mass: 405.0,
@@ -1073,7 +1073,7 @@ pub const POLARS: &[BasicGliderData] = &[
     },
     BasicGliderData {
         // No 92,  imported from XCSoar
-        name: "LAK-17 (15m)",
+        name: "LAK-17 15m",
         wing_area: 9.06,
         max_speed: 250.0,
         empty_mass: 220.0,
@@ -1084,7 +1084,7 @@ pub const POLARS: &[BasicGliderData] = &[
     },
     BasicGliderData {
         // No 93,  imported from XCSoar
-        name: "LAK-17 (18m)",
+        name: "LAK-17 18m",
         wing_area: 9.80,
         max_speed: 250.0,
         empty_mass: 225.0,
@@ -1095,7 +1095,7 @@ pub const POLARS: &[BasicGliderData] = &[
     },
     BasicGliderData {
         // No 94,  imported from XCSoar
-        name: "LAK-19 (15m)",
+        name: "LAK-19 15m",
         wing_area: 9.06,
         max_speed: 250.0,
         empty_mass: 220.0,
@@ -1106,7 +1106,7 @@ pub const POLARS: &[BasicGliderData] = &[
     },
     BasicGliderData {
         // No 95,  imported from XCSoar
-        name: "LAK-19 (18m)",
+        name: "LAK-19 18m",
         wing_area: 9.80,
         max_speed: 250.0,
         empty_mass: 226.0,
@@ -1117,7 +1117,7 @@ pub const POLARS: &[BasicGliderData] = &[
     },
     BasicGliderData {
         // No 96,  imported from XCSoar
-        name: "LAK17a (15m)",
+        name: "LAK17a 15m",
         wing_area: 9.06,
         max_speed: 250.0,
         empty_mass: 220.0,
@@ -1128,7 +1128,7 @@ pub const POLARS: &[BasicGliderData] = &[
     },
     BasicGliderData {
         // No 97,  imported from XCSoar
-        name: "LAK17a (18m)",
+        name: "LAK17a 18m",
         wing_area: 9.80,
         max_speed: 250.0,
         empty_mass: 225.0,
@@ -1139,7 +1139,7 @@ pub const POLARS: &[BasicGliderData] = &[
     },
     BasicGliderData {
         // No 98,  imported from XCSoar
-        name: "LS-10s (15m)",
+        name: "LS-10s 15m",
         wing_area: 10.27,
         max_speed: 250.0,
         empty_mass: 288.0,
@@ -1150,7 +1150,7 @@ pub const POLARS: &[BasicGliderData] = &[
     },
     BasicGliderData {
         // No 99,  imported from XCSoar
-        name: "LS-10s (18m)",
+        name: "LS-10s 18m",
         wing_area: 11.45,
         max_speed: 250.0,
         empty_mass: 295.0,
@@ -1194,7 +1194,7 @@ pub const POLARS: &[BasicGliderData] = &[
     },
     BasicGliderData {
         // No 103,  imported from XCSoar
-        name: "LS-3 (17m)",
+        name: "LS-3 17m",
         wing_area: 11.22,
         max_speed: 250.0,
         empty_mass: 255.0,
@@ -1238,7 +1238,7 @@ pub const POLARS: &[BasicGliderData] = &[
     },
     BasicGliderData {
         // No 107,  imported from XCSoar
-        name: "LS-6 (15m)",
+        name: "LS-6 15m",
         wing_area: 10.53,
         max_speed: 250.0,
         empty_mass: 265.0,
@@ -1249,7 +1249,7 @@ pub const POLARS: &[BasicGliderData] = &[
     },
     BasicGliderData {
         // No 108,  imported from XCSoar
-        name: "LS-6 (18m)",
+        name: "LS-6 18m",
         wing_area: 11.40,
         max_speed: 250.0,
         empty_mass: 272.0,
@@ -1271,7 +1271,7 @@ pub const POLARS: &[BasicGliderData] = &[
     },
     BasicGliderData {
         // No 110,  imported from XCSoar
-        name: "LS-8 (15m)",
+        name: "LS-8 15m",
         wing_area: 10.50,
         max_speed: 250.0,
         empty_mass: 240.0,
@@ -1282,7 +1282,7 @@ pub const POLARS: &[BasicGliderData] = &[
     },
     BasicGliderData {
         // No 111,  imported from XCSoar
-        name: "LS-8 (18m)",
+        name: "LS-8 18m",
         wing_area: 11.40,
         max_speed: 250.0,
         empty_mass: 250.0,
@@ -1854,7 +1854,7 @@ pub const POLARS: &[BasicGliderData] = &[
     },
     BasicGliderData {
         // No 163,  imported from XCSoar
-        name: "Ventus b (15m)",
+        name: "Ventus b 15m",
         wing_area: 9.51,
         max_speed: 250.0,
         empty_mass: 240.0,
@@ -1865,7 +1865,7 @@ pub const POLARS: &[BasicGliderData] = &[
     },
     BasicGliderData {
         // No 164,  imported from XCSoar
-        name: "Ventus cM (17.6)",
+        name: "Ventus cM 17.6m",
         wing_area: 10.14,
         max_speed: 250.0,
         empty_mass: 360.0,
@@ -1898,7 +1898,7 @@ pub const POLARS: &[BasicGliderData] = &[
     },
     BasicGliderData {
         // No 167,  Manufacturer's data interpreted by Andreas Westkamp
-        name: "AS-33 18m",
+        name: "AS 33 18m",
         wing_area: 10.00,
         max_speed: 270.0,
         empty_mass: 285.0,
@@ -1909,7 +1909,7 @@ pub const POLARS: &[BasicGliderData] = &[
     },
     BasicGliderData {
         // No 168,  Manufacturer's data interpreted by Andreas Westkamp
-        name: "AS-33 15m",
+        name: "AS 33 15m",
         wing_area: 8.80,
         max_speed: 270.0,
         empty_mass: 275.0,
@@ -1929,4 +1929,26 @@ pub const POLARS: &[BasicGliderData] = &[
         handicap: 122,
         polar_values: [[101.6, -0.520], [150.8, -1.080], [200.0, -2.250]],
     },
+    BasicGliderData {
+        // No 170,  PeterS810, see https://github.com/larus-breeze/sw_frontend_rs/issues/190
+        name: "ASH 31 Mi 21m",
+        wing_area: 13.2,
+        max_speed: 270.0,
+        empty_mass: 455.0,
+        max_ballast: 140.0,
+        reference_weight: 550.0,
+        handicap: 124,
+        polar_values: [[100.0, -0.50], [130.0, -0.68], [160.0, -1.01]],
+    },
+    BasicGliderData {
+        // No 171,  PeterS810, see https://github.com/larus-breeze/sw_frontend_rs/issues/190
+        name: "ASH 31 Mi 18m",
+        wing_area: 11.9,
+        max_speed: 270.0,
+        empty_mass: 445.0,
+        max_ballast: 120.0,
+        reference_weight: 530.0,
+        handicap: 120,
+        polar_values: [[100.0, -0.57], [130.0, -0.72], [160.0, -1.03]],
+    }
 ];
