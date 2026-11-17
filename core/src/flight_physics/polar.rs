@@ -1,3 +1,4 @@
+use crate::FloatToSpeed;
 use crate::flight_physics::{polar_store::BasicGliderData, AirSpeed};
 use crate::system_of_units::{Density, Float, FloatToMass, Mass, Speed};
 
@@ -11,6 +12,8 @@ pub struct PolarKoefs {
     pub b: Float,
     pub c: Float,
     pub v_min: Float,
+    pub v_ld_max: Float,
+    pub si_ld_max: Float,
     pub weight: Float,
 }
 
@@ -90,6 +93,8 @@ impl Default for Polar {
                 b: 0.0,
                 c: 0.0,
                 v_min: 0.0,
+                v_ld_max: 0.0,
+                si_ld_max: 0.0,
                 weight: 0.0,
             },
             refer: PolarKoefs {
@@ -97,6 +102,8 @@ impl Default for Polar {
                 b: 0.0,
                 c: 0.0,
                 v_min: 0.0,
+                v_ld_max: 0.0,
+                si_ld_max: 0.0,
                 weight: 0.0,
             },
             max_speed: 0.0,
@@ -127,6 +134,8 @@ impl Polar {
         let c = w3 - a * v3 * v3 - b * v3;
 
         let v_min = -b / a / 2.0;
+        let v_ld_max = (c / a).sqrt();
+        let si_ld_max = v_ld_max * v_ld_max * a + v_ld_max * b + c;
         let weight = bgd.reference_weight;
 
         self.curr = PolarKoefs {
@@ -134,6 +143,8 @@ impl Polar {
             b,
             c,
             v_min,
+            v_ld_max,
+            si_ld_max,
             weight,
         };
         self.refer = self.curr.clone();
@@ -156,7 +167,30 @@ impl Polar {
         self.curr.c = glider_data.bugs * self.refer.c * ratio;
 
         self.curr.v_min = self.refer.v_min * ratio;
+        self.curr.v_ld_max = self.refer.v_ld_max * ratio;
+        self.curr.si_ld_max = self.refer.si_ld_max * ratio;
         self.curr.weight = weight;
+    }
+
+    /// Returns the measured sinkrate - polar sink rate
+    /// 
+    /// This is in theory equal to the meteorological sink rate
+    pub fn netto_sink_rate(&self, sink_rate: Speed, speed: AirSpeed) -> Speed {
+        let polar_si = self.sink_rate(speed);
+        sink_rate - polar_si
+    }
+
+    /// Returns the expected sinkrate when circling
+    /// 
+    /// If speed is bigger then best ld, the meteorological sinkrate plus a fixed
+    /// offset is returned else the sinkrate is returned
+    pub fn netto_plus_sink_rate(&self, sink_rate: Speed, speed: AirSpeed) -> Speed {
+        if speed.tas().to_m_s() > self.curr.v_ld_max {
+            let polar_si = self.sink_rate(speed);
+            sink_rate - polar_si + self.curr.si_ld_max.m_s()
+        } else {
+            sink_rate
+        }
     }
 
     /// Returns the sink rate of the glider
@@ -299,6 +333,60 @@ mod tests {
         glider_data.basic_glider_data.max_ballast = 100.0;
         glider_data.water_ballast = 25.0.kg();
         assert_eq!(glider_data.ballast_fraction(), 0.25);
+    }
+
+    #[test]
+    fn test_netto_calcs() {
+        let mut glider_data = GliderData::default();
+        glider_data.basic_glider_data = LS3_GLIDER_DATA;
+
+        #[allow(unused_mut)]
+        let mut polar = Polar::default();
+        polar.recalc_glider(&glider_data);
+        polar.recalc(&glider_data, Density::AT_NN());
+
+        // netto vario
+        assert_float_eq!(
+            polar.netto_sink_rate(0.0.m_s(), AirSpeed::from_tas_at_nn(180.0.km_h())).to_m_s(),
+            2.035
+        );
+
+        assert_float_eq!(
+            polar.netto_sink_rate(1.0.m_s(), AirSpeed::from_tas_at_nn(180.0.km_h())).to_m_s(),
+            3.035
+        );
+
+        assert_float_eq!(
+            polar.netto_sink_rate(0.0.m_s(), AirSpeed::from_tas_at_nn(80.0.km_h())).to_m_s(),
+            0.586
+        );
+
+        assert_float_eq!(
+            polar.netto_sink_rate(2.0.m_s(), AirSpeed::from_tas_at_nn(80.0.km_h())).to_m_s(),
+            2.586
+        );
+
+        // netto vario plus
+        assert_float_eq!(
+            polar.netto_plus_sink_rate(0.0.m_s(), AirSpeed::from_tas_at_nn(180.0.km_h())).to_m_s(),
+            2.035 - 0.667
+        );
+
+        assert_float_eq!(
+            polar.netto_plus_sink_rate(1.0.m_s(), AirSpeed::from_tas_at_nn(180.0.km_h())).to_m_s(),
+            2.035 - 0.667 + 1.0
+        );
+
+        assert_float_eq!(
+            polar.netto_plus_sink_rate(0.0.m_s(), AirSpeed::from_tas_at_nn(80.0.km_h())).to_m_s(),
+            0.0
+        );
+
+        assert_float_eq!(
+            polar.netto_plus_sink_rate(2.0.m_s(), AirSpeed::from_tas_at_nn(80.0.km_h())).to_m_s(),
+            2.0
+        );
+
     }
 
     #[test]

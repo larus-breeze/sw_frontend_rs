@@ -1,0 +1,24 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": "Deb Unit Tests",
+            "type": "lldb",
+            "request": "launch",
+            "cargo": {
+                "args": [
+                    "test",
+                    "--no-run",
+                    "--lib"
+                ],
+                "filter": {
+                    "kind": "lib"
+                }
+            },
+            "args": [
+                "--nocapture"
+            ],
+            "cwd": "${workspaceFolder}"
+        }
+    ]
+}
