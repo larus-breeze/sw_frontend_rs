@@ -273,7 +273,8 @@ Das Segelflugzeug befindet sich derzeit in einer sauberen Rechtskurve mit einer 
   ausgegeben.]
 ]
   
-== #hr[Geräteinformationen]<device-info>
+== #hr[Geräteinformationen]
+<device-info>
 
 #tr[In dem Anzeigemodus Geräteinformationen werden Dateilinformationen zum LARUS Vario Display und
 zur LARUS Sensoreinheit angezeigt. Diese Anzeige kann hilfreich sein, um Fehleranalysen
@@ -284,6 +285,21 @@ erkennbar.]
 #figure(
     image("/img/device-info.png", width: 5cm),
     caption: [#hr[Geräteinformationen]],
+)
+
+== #hr[Alarmanzeige]
+
+#tr[Beim Auftreten eines Alarms wird die aktuell gewählte Basisanzeige durch eine entsprechende 
+Warnmeldung überlagert. Gleichzeitig erfolgt eine akustische Signalisierung. Die Alarmanzeige 
+bleibt so lange aktiv, bis die auslösende Bedingung nicht mehr vorliegt.
+
+Auf diese Weise lässt sich beispielsweise eine Fahrwerkswarnung realisieren. Hierzu müssen die 
+angeschlossenen Geber und deren Signalzuordnung in der Konfiguration entsprechend festgelegt 
+werden.]
+
+#figure(
+    image("/img/alarm.png", width: 5cm),
+    caption: [#hr[Alarmanzeige]],
 )
 
 == Flight Menu
