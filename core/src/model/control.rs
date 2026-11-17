@@ -4,6 +4,7 @@ use crate::{
     utils::DeviceEvent,
     MenuControl, PinState, Rotation,
 };
+use num_enum::FromPrimitive;
 
 /// Flymode display variants
 ///
@@ -119,6 +120,30 @@ impl VarioModeControl {
     }
 }
 
+#[derive(Clone, Copy, PartialEq, FromPrimitive, Debug)]
+#[repr(u8)]
+pub enum VarioNettoMode {
+    #[default]
+    Vario,
+    Netto,
+    NettoPlus,
+}
+
+#[allow(unused)]
+pub const VARIO_NETTO_MODE_VARIO: &str = "Vario";
+pub const VARIO_NETTO_MODE_NETTO: &str = "Netto";
+pub const VARIO_NETTO_MODE_NETTO_PLUS: &str = "Netto Plus";
+
+impl From<&str> for VarioNettoMode {
+    fn from(value: &str) -> Self {
+        match value {
+            VARIO_NETTO_MODE_NETTO => VarioNettoMode::Netto,
+            VARIO_NETTO_MODE_NETTO_PLUS => VarioNettoMode::NettoPlus,
+            _ => VarioNettoMode::Vario,
+        }
+    }
+}
+
 #[repr(u8)]
 #[derive(PartialEq, Eq, Clone, Copy)]
 pub enum DataSource {
@@ -226,6 +251,8 @@ pub struct Control {
     pub vario_mode: VarioMode,
     /// VarioMode::Vario, VarioMode::SpeedToFly, VarioMode::Auto
     pub vario_mode_control: VarioModeControl,
+    /// VarioNettoMode::Vario, VarioNettoMode::Netto, VarioNettoMode::NettoPlus
+    pub vario_netto_mode: VarioNettoMode,
     /// Sets the switching point Vario/SpeedToFly in relation to speed of the best l/d ratio
     pub vario_mode_switch_ratio: f32,
     /// Speed limit above which SpeedToFly is activated
@@ -275,6 +302,7 @@ impl Default for Control {
             circling_direction: CirclingDirection::Right,
             vario_mode: VarioMode::Vario,
             vario_mode_control: VarioModeControl::Auto,
+            vario_netto_mode: VarioNettoMode::Vario,
             vario_mode_switch_ratio: 1.10,
             speed_to_fly_limit: 105.0.km_h(),
             pers_ticks: 0,

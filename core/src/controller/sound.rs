@@ -139,7 +139,7 @@ impl SoundControl {
         let cmc = &cm.config;
         match cm.control.vario_mode {
             VarioMode::Vario => {
-                let climb_rate = cms.climb_rate.to_m_s();
+                let climb_rate = cms.vario_or_netto_rate.to_m_s();
                 if climb_rate < cmc.vario_upper_limit.to_m_s()
                     && climb_rate > cmc.vario_lower_limit.to_m_s()
                 {

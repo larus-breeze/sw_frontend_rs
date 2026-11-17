@@ -5,6 +5,8 @@ use crate::{
         FloatToSpeed, Length, Pressure, Speed,
     },
     AirSpeed, DateTime, Density, F64ToCoord, Latitude, Longitude, SwVersion,
+    model::control::VarioNettoMode,
+    CoreController,
 };
 use embedded_graphics::geometry::{Angle, AngleUnit};
 
@@ -35,6 +37,7 @@ pub struct Sensor {
     pub average_climb_rate: Speed,
     pub average_wind: WindVector,
     pub climb_rate: Speed,
+    pub vario_or_netto_rate: Speed,
     pub density: Density,
     pub euler_roll: Angle,
     pub euler_pitch: Angle,
@@ -68,6 +71,7 @@ impl Default for Sensor {
             airspeed: AirSpeed::from_tas_at_nn(0.0.km_h()),
             average_climb_rate: 0.0.m_s(),
             climb_rate: 0.0.m_s(),
+            vario_or_netto_rate: 0.0.m_s(),
             density: Density::AT_NN(),
             euler_roll: 0.0_f32.deg(),
             euler_pitch: 0.0_f32.deg(),
@@ -112,5 +116,20 @@ impl Sensor {
 
     pub fn magnetic_disturbance_bad(&self) -> bool {
         (self.larus_box_system_state & 0x0000_0008) != 0
+    }
+
+    pub fn set_climb_rate(&mut self, cc: &CoreController, climb_rate: Speed, vnm: VarioNettoMode) {
+        self.climb_rate = climb_rate;
+        match vnm {
+            VarioNettoMode::Netto => {
+                self.vario_or_netto_rate = cc.polar.netto_sink_rate(climb_rate, self.airspeed);
+            },
+            VarioNettoMode::NettoPlus => {
+                self.vario_or_netto_rate = cc.polar.netto_plus_sink_rate(climb_rate, self.airspeed);
+            },
+            VarioNettoMode::Vario => {
+                self.vario_or_netto_rate = climb_rate;
+            },
+        }
     }
 }

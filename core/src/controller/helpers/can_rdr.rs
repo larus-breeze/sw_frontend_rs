@@ -311,7 +311,8 @@ impl CoreController {
                 }
                 sensor_legacy::VARIO => {
                     if let Some(value) = rdr.pop_i16() {
-                        cm.sensor.climb_rate = ((value as f32) * 0.001).m_s();
+                        let climb_rate = ((value as f32) * 0.001).m_s();
+                        cm.sensor.set_climb_rate(self, climb_rate, cm.control.vario_netto_mode);
                     }
                     if let Some(value) = rdr.pop_i16() {
                         cm.sensor.average_climb_rate = ((value as f32) * 0.001).m_s();
@@ -368,7 +369,7 @@ impl CoreController {
             }
             sensor::VARIO_AV_VARIO => {
                 if let Some(climb_rate) = rdr.pop_f32() {
-                    cm.sensor.climb_rate = climb_rate.m_s();
+                    cm.sensor.set_climb_rate(self, climb_rate.m_s(), cm.control.vario_netto_mode);
                     cm.control.can_devices |= CanActive::SensorboxLegacy as u32;
                     // vario ok -> canbus ok
                 }

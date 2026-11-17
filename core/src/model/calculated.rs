@@ -71,7 +71,7 @@ impl CoreModel {
         let icr = &mut self.calculated.interpolated_climb_rate;
         icr.value += icr.delta;
         if icr.fetch {
-            icr.delta = (self.sensor.climb_rate - icr.value) / 2.0;
+            icr.delta = (self.sensor.vario_or_netto_rate - icr.value) / 2.0;
         }
         icr.fetch = !icr.fetch;
     }
