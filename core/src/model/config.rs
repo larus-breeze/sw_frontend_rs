@@ -44,6 +44,30 @@ impl From<&str> for DisplayActive {
     }
 }
 
+#[derive(Clone, Copy, PartialEq, FromPrimitive, Debug)]
+#[repr(u8)]
+pub enum StfSoundMode {
+    #[default]
+    ContNotContinuous,
+    Continuous,
+    ContinuousLowerMc,
+}
+
+pub const CONT_NOT_CONTINUOUS: &str = "Cont / not cont";
+#[allow(unused)]
+pub const ALWAYS_CONTINOUS: &str = "Always contin.";
+pub const CONT_LOWER_MC: &str = "Cont lower MC";
+
+impl From<&str> for StfSoundMode {
+    fn from(value: &str) -> Self {
+        match value {
+            ALWAYS_CONTINOUS => StfSoundMode::Continuous,
+            CONT_LOWER_MC => StfSoundMode::ContinuousLowerMc,
+            _ => StfSoundMode::ContNotContinuous,
+        }
+    }
+}
+
 #[derive(Clone, Copy, PartialEq, FromPrimitive)]
 #[repr(u8)]
 pub enum DisplayTheme {
@@ -275,6 +299,7 @@ pub struct Config {
     pub snd_max_freq: f32,
     pub snd_exp_mul: f32,
     pub snd_duty_cycle: u16, // Oscillations, symetric on/off
+    pub snd_stf_mode: StfSoundMode,
     pub av2_climb_rate_tc: f32,
     pub av_speed_to_fly_tc: f32,
     pub av_supply_voltage_tc: f32,
@@ -319,6 +344,7 @@ impl Config {
             snd_max_freq: 3000.0,
             snd_exp_mul: SND_EXP_MUL,
             snd_duty_cycle: 200,
+            snd_stf_mode: StfSoundMode::ContNotContinuous,
             av2_climb_rate_tc: 30.0,
             av_speed_to_fly_tc: 5.0,
             av_supply_voltage_tc: 3.0,

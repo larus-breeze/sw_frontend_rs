@@ -64,6 +64,7 @@ Settings (@settings) \
 │#h(8mm)│#h(8mm)├── StF Pin Config \
 │#h(8mm)│#h(8mm)├── StF Upper Limit \
 │#h(8mm)│#h(8mm)├── StF Lower Limit \
+│#h(8mm)│#h(8mm)├── Stf Sound Mode \
 │#h(8mm)│#h(8mm)└── Return \
 │#h(8mm)│#h(8mm) \
 │#h(8mm)├── Gear Alarm \

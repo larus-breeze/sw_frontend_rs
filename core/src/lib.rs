@@ -32,7 +32,7 @@ pub use controller::persist;
 pub use controller::*;
 pub use model::{
     menu, CoreModel, DeviceConst, DisplaySizes, EditMode, Editable, FlyMode, HorizonSizes, Images,
-    Misc, Palette, Sizes, VarioMode, VarioSizes,
+    Misc, Palette, Sizes, StfSoundMode, VarioMode, VarioSizes,
 };
 pub use view::{CoreView, FRAME_RATE};
 

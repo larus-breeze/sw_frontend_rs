@@ -1,11 +1,13 @@
 #import "../manual.typ": *
 
-= Settings
+= Konfiguration
 <settings>
 
-#tr[Die hier hinterlegten Funktionen werden zur Konfiguration des Systems genutzt. Die Überschriften
- entsprechen denen englischen Texten in den Menüs des LARUS Vario Display, um die Auffindbarkeit zu
- vereinfachen.]
+#tr[Das Settings-Menü wird aus einer beliebigen Basisanzeige durch einen langen Druck auf die 
+Bedientaste aufgerufen. Es dient der Konfiguration des Systems und bietet Zugriff auf die 
+entsprechenden Einstellungen. Die Überschriften in den folgenden Abschnitten entsprechen den 
+englischen Menübezeichnungen des LARUS Vario Displays, um die Orientierung und das Auffinden 
+der einzelnen Funktionen zu erleichtern.]
 
 == Views
 <views>
@@ -225,11 +227,31 @@ Sollfahrt-Anzeige hin- und herzuschalten. Folgende Möglichkeiten stehen zur Ver
           zweite Gerät die Umschaltung beispielsweise automatisch vornimmt, wird hiermit sicher
           gestellt, dass beide Anzeigen synchronisiert arbeiten.
 ]
+
 ==== Stf Upper Limit, Stf Lower Limit
 
 #tr[Sie können einen Geschwindigkeitsbereich festlegen, in dem das akustische Sollfahrt Signal
 stummgeschaltet wird. Im Lieferzustand wird das Audiosignal in einem Bereich von +/- 10 km/h
 deaktiviert. Dieser Bereich kann hier an die individuellen Wünsche angepasst werden.]
+
+==== Stf Sound Mode
+#tr[Im Sollfahrtmodus übernimmt das Display die Funktion eines Kommandogeräts. Es 
+ermittelt die Abweichung zwischen der aktuellen Fluggeschwindigkeit und der berechneten 
+optimalen Vorfluggeschwindigkeit (Sollfahrt) und signalisiert dem Piloten, ob eine 
+Beschleunigung oder Verzögerung erforderlich ist. Über die Konfiguration lässt sich festlegen, 
+wie diese Sollfahrtabweichung akustisch signalisiert wird:
+
+- *Cont / not cont* Fliegt der Pilot zu langsam, wird ein tiefer durchgehnder Ton ausgegeben.
+                    Fliegt er zu schnell ertönt ein unterbrohener hoher Ton.
+- *Always contin.*  Zu langsam: tiefe Frequenzen, zu schnell: hohe Frequenzen, aber immer 
+                    durchgehend.
+- *Cont lower MC*   Zu langsam: tiefe Frequenzen, zu schnell: hohe Frequenzen, Ausgabe unterbrochen
+                    wenn Anzeige über Mac Cready Wert. Beispiel: Der Mac Cread Wert ist auf 1,8 m/s
+                    einsgestellt. Die Ausgabe erfolgt bis zu einer Überschreitung der Sollfahrt um 18 
+                    km/h durchgehend, darüber unterbrochen.
+
+Anmerkung: Unabhängig von der Einstellung hier können die Mittenfrequenz, die Spreizung und die 
+Wellenform im Sound Menü vorgegeben werden.]
 
 === Gear Alarm
 

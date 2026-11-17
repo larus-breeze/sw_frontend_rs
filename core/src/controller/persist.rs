@@ -37,7 +37,7 @@ use crate::{
         vario_infoview::{Info3View, LineView},
     },
     CanFrame, CoreController, CoreError, CoreModel, DateTime, FloatToSpeed, Frame, GenericId,
-    IdleEvent, Mass, PersistenceItem, Pressure, Rotation, VarioMode, Waveform,
+    IdleEvent, Mass, PersistenceItem, Pressure, Rotation, StfSoundMode, VarioMode, Waveform,
 };
 
 /// It is not permitted to change the sequence or assignment, as the number references the memory
@@ -103,7 +103,8 @@ pub enum PersistenceId {
     Date = 55,
     Waveform = 56,
     SoundSpreading = 57,
-    LastItem = 58, // Items smaller than this are stored in eeprom
+    SoundStfMode = 58,
+    LastItem = 59, // Items smaller than this are stored in eeprom
 
     // Special function Ids
     VarioMode = 65532,
@@ -174,6 +175,7 @@ const DELETE_CONFIG_LIST: &[PersistenceId] = &[
     PersistenceId::Info3Stf,
     PersistenceId::Waveform,
     PersistenceId::SoundSpreading,
+    PersistenceId::SoundStfMode,
 ];
 
 /// The following data is deleted when a new glider is selected
@@ -346,6 +348,7 @@ pub fn restore_item(
             cm.calculated.sound_params.waveform = Waveform::from(item.to_u8())
         }
         PersistenceId::SoundSpreading => set_snd_spreading_factor(cm, item.to_f32()?),
+        PersistenceId::SoundStfMode => cm.config.snd_stf_mode = StfSoundMode::from(item.to_u8()),
 
         // Special function Ids
         PersistenceId::UserProfile => cm.config.user_profile = item.to_u8(),

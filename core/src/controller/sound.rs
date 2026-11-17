@@ -1,4 +1,4 @@
-use crate::{CoreModel, IdleEvent, VarioMode};
+use crate::{CoreModel, IdleEvent, StfSoundMode, VarioMode};
 use num::clamp;
 use num_enum::FromPrimitive;
 
@@ -160,9 +160,14 @@ impl SoundControl {
                 {
                     (500, true, 0) // speed to fly is ok, so be quiet
                 } else {
+                    let continuous = match cmc.snd_stf_mode {
+                        StfSoundMode::ContNotContinuous => stf_val_ms < 0.0,
+                        StfSoundMode::Continuous => true,
+                        StfSoundMode::ContinuousLowerMc => stf_val_ms < cmc.mc_cready.to_m_s(),
+                    };
                     (
                         (cmc.snd_center_freq * (cmc.snd_exp_mul * stf_val_ms).exp()) as u16,
-                        stf_val_ms < 0.0,
+                        continuous,
                         cmc.volume,
                     )
                 }

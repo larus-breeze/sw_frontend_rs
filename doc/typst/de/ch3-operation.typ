@@ -8,40 +8,63 @@
     caption: [#hr[LARUS Vario Display]],
 )<vario-display>
 
-#tr[Das Gerät verfügt über einen Drehknopf mit zwei Ebenen und einem Drucktaster. Dem Knopf und den
-beiden Drehknöpfen sind folgende Funktionen zugewiesen:
+#tr[Das Gerät verfügt über einen zweistufigen Drehknopf mit zwei unabhängig voneinander bedienbaren 
+Drehgebern und einem integrierten Drucktaster. Den Bedienelementen sind folgende Funktionen 
+zugewiesen:
 
-- Drehen Sie den kleinen/oberen Drehknopf: Lautstärkeregelung
-- Drehen Sie den großen/unteren Drehknopf: MacCready Wert
-- Kurzer Druck auf den Drehknopf: Flight Menu
-- Längeres Drücken des Drehknopfs: Settings Menu
+- Kleiner, oberer Drehknopf: Lautstärkeregelung
+- Großer, unterer Drehknopf: Einstellung des MacCready-Werts
+- Kurzer Tastendruck: Aufruf des Flight-Menüs
+- Langer Tastendruck: Aufruf des Settings-Menüs
 
-In den Menüs kann der gewünschte Punkt mit Hilfe der Drehgeber ausgewählt werden. Die Aktivierung erfolgt durch 
-einen kurzen Tastendruck. In den Menüs gibt es entweder Submenüs oder Konfigurationsparameter zur Auswahl. 
-Submenüs werden auf die gleiche Weise durchsucht. Nach der Aktivierung eines Konfigurationsparameters 
-kann dieser geändert werden. Die Änderungen erfolgen unmittelbar. Durch einen kurzen Tastendruck kehrt man in 
-das aufrufende Menü zurück.
+Die Navigation innerhalb der Menüs erfolgt über die Drehgeber. Durch Drehen wird der gewünschte Menüpunkt 
+ausgewählt und durch einen kurzen Tastendruck aktiviert. Je nach Menüpunkt öffnet sich entweder ein 
+Untermenü oder ein Konfigurationsparameter. Die Navigation innerhalb der Untermenüs erfolgt nach demselben 
+Prinzip.
 
-Egal, ob Sie sich in einem Menü, einem Submenü oder im Editor befinden: Sie können immer mittels langem 
-Tastendruck direkt in die Basiszeige zurückkehren.
+Nach Auswahl eines Konfigurationsparameters kann dessen Wert durch Drehen verändert werden. Änderungen 
+werden unmittelbar wirksam. Ein kurzer Tastendruck beendet die Bearbeitung und führt zum übergeordneten 
+Menü zurück.
 
-Das Gerät stellt drei Basisanzeigen zur Verfügung: Vario, Horizont und Geräteinformationen. 
-Zwischen den Anzeigen kann gewechselt werden, indem nach einem kurzen Tastendruck, im Flight 
-Menu der Punkt Display genutzt wird. Alternativ dazu kann bei gedrückten Drehknopf die gewünschte 
-Basisanzeige durch Drehen ausgewählt werden. Die eingestellte Anzeige beibt dauerhaft erhalten. 
-In den folgenden Abschnitten werden die verschiedenen Anzeigemodi beschrieben. ]
+Unabhängig davon, ob sich das Gerät in einem Menü, einem Untermenü oder bei der Bearbeitung eines 
+Konfigurationsparameters befindet, kann jederzeit durch einen langen Tastendruck direkt zur 
+Basisanzeige zurückgekehrt werden.
+
+Das Gerät stellt drei Basisanzeigen zur Verfügung: Vario, Horizont und Geräteinformationen. Der Wechsel 
+zwischen diesen Anzeigen erfolgt über den Menüpunkt „Display“ im Flight-Menü, das durch einen kurzen 
+Tastendruck aufgerufen wird. Alternativ kann die gewünschte Basisanzeige direkt ausgewählt werden, indem 
+der Drehknopf gedrückt gehalten und gleichzeitig gedreht wird. Die gewählte Anzeige bleibt dauerhaft 
+gespeichert. 
+
+In den folgenden Abschnitten werden die verschiedenen Anzeigemodi näher beschrieben.
+]
 
 == Vario Display
 <vario-display>
 
-#tr[Die zentrale Anzeige unterscheidet zwischen dem Kreisflugmodus und dem Geradeausflugmodus. Die 
-Umschaltung zwischen diesen beiden Modi erfolgt automatisch. Wenn eine Drehgeschwindigkeit von 
-mindestens 1°/Sek. für mehr als 10 Sekunden gemessen wird, wird der Kreisflugmodus aktiviert. Wenn 
-die Drehgeschwindigkeit für mehr als 10 Sekunden unter diesem Wert liegt, wird wieder in den Geradeausflugmodus zurückgeschaltet.]
+#tr[Die Vario-Anzeige stellt das Steigen und Sinken auf einer analogen Skala dar. Das Gerät passt sich 
+automatisch an die aktuelle Flugsituation an und stellt die jeweils relevanten Informationen zur 
+Verfügung.
 
-#picnote("/img/pictograph-blue-cloud.svg")[
-  #tr[Der Wechsel vom Variometer Modus zum Sollfahrt Modus ist unabhängig vom Wechsel der zentralen Anzeigeinformationen.]
-]
+Dabei wird zwischen zwei Betriebsarten unterschieden: dem Kreisflugmodus und dem Geradeausflugmodus. 
+Die Umschaltung erfolgt automatisch anhand der gemessenen Drehgeschwindigkeit. Überschreitet die 
+Drehgeschwindigkeit für mehr als zehn Sekunden den Wert von 1°/s, wird der Kreisflugmodus aktiviert. 
+Liegt sie für mehr als zehn Sekunden unter diesem Wert, schaltet das Gerät wieder in den 
+Geradeausflugmodus zurück.
+
+Abhängig vom aktiven Modus ändern sich die Informationen in der Mitte und am rechten Rand des Displays. 
+Welche Werte in den beiden Modi angezeigt werden, lässt sich über die Konfiguration festlegen.
+
+Unabhängig von der Umschaltung zwischen Geradeaus- und Kreisflugmodus unterscheidet das Gerät zwischen 
+dem Vario- und dem Sollfahrtmodus. Beide Funktionen arbeiten unabhängig voneinander. Im Variomodus zeigt 
+das Gerät das aktuelle Steigen oder Sinken an. Im Sollfahrtmodus dient die Anzeige dagegen als 
+Kommandogerät, das die optimale Vorfluggeschwindigkeit vorgibt. Die Umschaltung zwischen Vario- und 
+Sollfahrtmodus erfolgt abhängig von der Konfiguration entweder automatisch anhand der Fluggeschwindigkeit, 
+über einen angeschlossenen Schalter oder durch Steuerbefehle über die CAN- bzw. NMEA-Schnittstelle.
+
+Ergänzend zur visuellen Anzeige erfolgt eine akustische Signalisierung über einen angeschlossenen 
+Lautsprecher. Die Art der Signalisierung hängt vom aktiven Vario- bzw. Sollfahrtmodus ab und wird in 
+den folgenden Abschnitten näher erläutert.]
 
 === #hr[Kreisflugmodus]
 
@@ -70,7 +93,18 @@ Inhalt im Kreisflugmodus:
   - Grün: Die Spannung der Batterie ist ausreichend.
   - Gelb: Die Spannung der Batterie ist im kritischen Bereich.
   - Rot: Die Spannung der Batterie liegt unter dem Mindestwert.
-- Symbol Bereich: Kreis: Usage Mode Club , User Profile 1 (Usage Mode Normal als Quadrat). ]
+- Symbol Bereich: Kreis: Usage Mode Club , User Profile 1 (Usage Mode Normal als Quadrat).
+
+Das dargestellte Szenario zeigt den Variomodus im Kreisflug. Erkennbar ist dies an der Anzeige „Info 3“, 
+die das durchschnittliche Steigen darstellt.
+
+Parallel zur visuellen Anzeige erfolgt die akustische Ausgabe des Variotons. In der Standardkonfiguration 
+wird Sinken durch einen Dauerton signalisiert, dessen Frequenz mit zunehmendem Sinken abnimmt. Steigen 
+wird dagegen durch einen unterbrochenen Ton angezeigt, dessen Frequenz mit zunehmendem Steigen ansteigt.
+
+Die Mittenfrequenz, die Frequenzspreizung sowie die Signalform lassen sich über die Konfiguration 
+individuell anpassen. Darüber hinaus kann ein Ruhebereich definiert werden, innerhalb dessen keine 
+akustische Signalisierung erfolgt.]
 
 === #hr[Geradeausflugmodus]
 
@@ -90,7 +124,18 @@ Inhalt im Kreisflugmodus:
 - Symbol Bereich: Batterie Symbol ok, Sat Symbol ok, Usage Mode Club, User Profil 1
 - Info 1 Anzeige, hier Winkel Windversatz
 - Info 2 Anzeige, hier Windrichtung und Windstärke
-- Info 3 Anzeige, hier Sollfahrt ]
+- Info 3 Anzeige, hier Sollfahrt 
+
+Das dargestellte Szenario zeigt den Geradeausflug im Sollfahrtmodus. Erkennbar ist dies an der Anzeige 
+„Info 3“, die die Sollfahrt darstellt, sowie am SpeedToFly-Differenzbalken innerhalb der analogen 
+Anzeige.
+
+In der Standardkonfiguration wird eine zu geringe Fluggeschwindigkeit akustisch durch einen tiefen Dauerton 
+signalisiert. Fliegt der Pilot dagegen zu schnell, ertönt ein hoher, unterbrochener Ton.
+
+Innerhalb eines Toleranzbereichs von ±10 km/h gegenüber der Sollfahrt erfolgt keine akustische Signalisierung.
+Neben den bereits beschriebenen akustischen Parametern lässt sich auch dieser Ruhebereich über die 
+Konfiguration individuell anpassen.]
 
 === #hr[Warnungen]
 

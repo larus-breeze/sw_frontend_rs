@@ -11,7 +11,7 @@ mod sensor;
 use crate::flight_physics::{polar_store, GliderData};
 use calculated::Calculated;
 pub use config::{
-    Config, DisplayActive, DisplayTheme, OverlayActive, TypeOfInfo, UnitHeight,
+    Config, DisplayActive, DisplayTheme, OverlayActive, StfSoundMode, TypeOfInfo, UnitHeight,
     UnitHorizontalSpeed, UnitVerticalSpeed,
 };
 pub use control::{

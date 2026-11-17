@@ -139,6 +139,10 @@ pub const SPEED_TO_FLY: Menu = Menu {
             next_menu_idx: SPEED_TO_FLY_IDX,
         },
         MenuItem {
+            content: MenuItemContent::EditItem(Editable::StfSoundMode),
+            next_menu_idx: SPEED_TO_FLY_IDX,
+        },
+        MenuItem {
             content: MenuItemContent::EditItem(Editable::Return),
             next_menu_idx: ADVANCED_SETTINGS_IDX,
         },

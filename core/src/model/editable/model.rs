@@ -1,25 +1,15 @@
 use super::{Content, EditableFuncs, EnumParams, F32Params, ListParams, Params};
 use crate::{
-    controller::{
-        Waveform, WAVEFORM_RECTANGULAR, WAVEFORM_SAWTOOTH, WAVEFORM_SINE_WAVE, WAVEFORM_TRIANGULAR,
-    },
-    get_snd_spreading_factor, menu,
-    model::{
-        config::{
-            UnitHeight, UnitHorizontalSpeed, UnitVerticalSpeed, DEVICE_INFO, HORIZON, UNIT_FEET,
-            UNIT_FPM, UNIT_KMPH, UNIT_KNOTS, UNIT_METER, UNIT_MPH, UNIT_MPS, VARIO,
-        },
-        control::{DATA_SOURCE_FRONTEND, DATA_SOURCE_SENSORBOX},
-        DataSource, DisplayActive, DisplayTheme,
-    },
-    persist::{self, persist_set},
-    polar_store,
-    utils::{TString, Variant},
-    view::viewable::{
+    CoreController, CoreModel, Echo, PersistenceId, StfSoundMode, controller::{
+        WAVEFORM_RECTANGULAR, WAVEFORM_SAWTOOTH, WAVEFORM_SINE_WAVE, WAVEFORM_TRIANGULAR, Waveform,
+    }, get_snd_spreading_factor, menu, model::{
+        DataSource, DisplayActive, DisplayTheme, config::{
+            ALWAYS_CONTINOUS, CONT_NOT_CONTINUOUS, CONT_LOWER_MC, DEVICE_INFO, HORIZON, UNIT_FEET, UNIT_FPM, UNIT_KMPH, UNIT_KNOTS, UNIT_METER, UNIT_MPH, UNIT_MPS, UnitHeight, UnitHorizontalSpeed, UnitVerticalSpeed, VARIO,
+        }, control::{DATA_SOURCE_FRONTEND, DATA_SOURCE_SENSORBOX},
+    }, persist::{self, persist_set}, polar_store, utils::{TString, Variant}, view::viewable::{
         centerview::{CenterType, CenterView},
         vario_infoview::{Info3View, LineView, Placement},
     },
-    CoreController, CoreModel, Echo, PersistenceId,
 };
 use tfmt::Convert;
 
@@ -753,6 +743,41 @@ impl EditableFuncs for StfLowerLimit {
                 PersistenceId::StfLowerLimit,
                 Echo::None,
             )
+        }
+    }
+}
+
+pub struct StfSoundMode_;
+
+impl EditableFuncs for StfSoundMode_ {
+    fn name() -> &'static str {
+        "Stf Sound Mode"
+    }
+
+    fn content(cm: &mut CoreModel, _cc: &mut CoreController) -> Content {
+        match cm.config.snd_stf_mode {
+            StfSoundMode::ContNotContinuous => Content::Enum(TString::<16>::from_str(CONT_NOT_CONTINUOUS)),
+            StfSoundMode::Continuous => Content::Enum(TString::<16>::from_str(ALWAYS_CONTINOUS)),
+            StfSoundMode::ContinuousLowerMc => Content::Enum(TString::<16>::from_str(CONT_LOWER_MC)),
+        }
+    }
+
+    fn params(_cm: &CoreModel) -> Params {
+        Params::Enum(EnumParams {
+            variants: [CONT_NOT_CONTINUOUS, ALWAYS_CONTINOUS, CONT_LOWER_MC, "", ""],
+        })
+    }
+
+    fn set_content(cm: &mut CoreModel, cc: &mut CoreController, content: Content) {
+        if let Content::Enum(val) = content {
+            let stf_sound_mode = StfSoundMode::from(val.as_str());
+            persist::persist_set(
+                cc,
+                cm,
+                Variant::U8(stf_sound_mode as u8),
+                PersistenceId::SoundStfMode,
+                Echo::None,
+            );
         }
     }
 }
