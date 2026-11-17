@@ -306,7 +306,14 @@ werden.]
 <flight_menu>
 
 #tr[Das #keep[Flight Menu] stellt Einstellmöglichkeiten bereit, die vor dem Flug oder während des
-Fluges benötigt werden. Das Menu erreicht man durch kurzes Drücken des Bedienknopfes. Die Überschriften indiesem Abschnitt sind so wie im Gerät benannt.]
+Fluges benötigt werden. Das Menu erreicht man durch kurzes Drücken des Bedienknopfes. Die Überschriften 
+in den folgenden Abschnitten entsprechen den englischen Menübezeichnungen des LARUS Vario Displays.
+Die Basisanzeige bleibt während der Eingaben im #keep[Flight Menu] teilweise erhalten.]
+
+#figure(
+    image("/img/flight-menu.png", width: 5cm),
+    caption: [#hr[Flight Menu]],
+)
 
 === Water Ballast
 #tr[Hier wird die Menge des getankten Wasserballastes vorgegeben. Beim Ablassen des Wassers während

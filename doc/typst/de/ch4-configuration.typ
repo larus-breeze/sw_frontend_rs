@@ -3,11 +3,16 @@
 = Konfiguration
 <settings>
 
-#tr[Das Settings-Menü wird aus einer beliebigen Basisanzeige durch einen langen Druck auf die 
+#tr[Das #keep[Settings Menu] wird aus einer beliebigen Basisanzeige durch einen langen Druck auf die 
 Bedientaste aufgerufen. Es dient der Konfiguration des Systems und bietet Zugriff auf die 
 entsprechenden Einstellungen. Die Überschriften in den folgenden Abschnitten entsprechen den 
 englischen Menübezeichnungen des LARUS Vario Displays, um die Orientierung und das Auffinden 
 der einzelnen Funktionen zu erleichtern.]
+
+#figure(
+    image("/img/settings-menu.png", width: 5cm),
+    caption: [#hr[Settings Menu]],
+)
 
 == Views
 <views>
