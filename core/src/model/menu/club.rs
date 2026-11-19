@@ -154,6 +154,10 @@ pub const VARIO: Menu = Menu {
     level: 3,
     items: &[
         MenuItem {
+            content: MenuItemContent::EditItem(Editable::VarioNettoMode),
+            next_menu_idx: VARIO_IDX,
+        },
+        MenuItem {
             content: MenuItemContent::EditItem(Editable::AvgClimbRateSrc),
             next_menu_idx: VARIO_IDX,
         },

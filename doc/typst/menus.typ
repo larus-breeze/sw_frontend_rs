@@ -51,6 +51,7 @@ Settings (@settings) \
 │#h(8mm)│#h(8mm)└── Return \
 │#h(8mm)│#h(8mm) \
 │#h(8mm)├── Vario \
+│#h(8mm)│#h(8mm)├── Vario Mode \
 │#h(8mm)│#h(8mm)├── Avg Climb Source \
 │#h(8mm)│#h(8mm)├── TC Climb Rate \
 │#h(8mm)│#h(8mm)├── Vario Upper Limit \

@@ -3,9 +3,9 @@ use crate::{
     CoreController, CoreModel, Echo, PersistenceId, StfSoundMode, controller::{
         WAVEFORM_RECTANGULAR, WAVEFORM_SAWTOOTH, WAVEFORM_SINE_WAVE, WAVEFORM_TRIANGULAR, Waveform,
     }, get_snd_spreading_factor, menu, model::{
-        DataSource, DisplayActive, DisplayTheme, config::{
-            ALWAYS_CONTINOUS, CONT_NOT_CONTINUOUS, CONT_LOWER_MC, DEVICE_INFO, HORIZON, UNIT_FEET, UNIT_FPM, UNIT_KMPH, UNIT_KNOTS, UNIT_METER, UNIT_MPH, UNIT_MPS, UnitHeight, UnitHorizontalSpeed, UnitVerticalSpeed, VARIO,
-        }, control::{DATA_SOURCE_FRONTEND, DATA_SOURCE_SENSORBOX},
+        DataSource, DisplayActive, DisplayTheme, VarioNettoMode, config::{
+            ALWAYS_CONTINOUS, CONT_LOWER_MC, CONT_NOT_CONTINUOUS, DEVICE_INFO, HORIZON, UNIT_FEET, UNIT_FPM, UNIT_KMPH, UNIT_KNOTS, UNIT_METER, UNIT_MPH, UNIT_MPS, UnitHeight, UnitHorizontalSpeed, UnitVerticalSpeed, VARIO,
+        }, control::{DATA_SOURCE_FRONTEND, DATA_SOURCE_SENSORBOX, VARIO_NETTO_MODE_NETTO, VARIO_NETTO_MODE_NETTO_PLUS, VARIO_NETTO_MODE_VARIO},
     }, persist::{self, persist_set}, polar_store, utils::{TString, Variant}, view::viewable::{
         centerview::{CenterType, CenterView},
         vario_infoview::{Info3View, LineView, Placement},
@@ -1034,6 +1034,41 @@ impl EditableFuncs for VarioLowerLimit {
                 PersistenceId::VarioLowerLimit,
                 Echo::None,
             )
+        }
+    }
+}
+
+pub struct VarioNettoMode_;
+
+impl EditableFuncs for VarioNettoMode_ {
+    fn name() -> &'static str {
+        "Vario Mode"
+    }
+
+    fn content(cm: &mut CoreModel, _cc: &mut CoreController) -> Content {
+        match cm.control.vario_netto_mode {
+            VarioNettoMode::Netto => Content::Enum(TString::<16>::from_str(VARIO_NETTO_MODE_NETTO)),
+            VarioNettoMode::NettoPlus => Content::Enum(TString::<16>::from_str(VARIO_NETTO_MODE_NETTO_PLUS)),
+            VarioNettoMode::Vario => Content::Enum(TString::<16>::from_str(VARIO_NETTO_MODE_VARIO)),
+        }
+    }
+
+    fn params(_cm: &CoreModel) -> Params {
+        Params::Enum(EnumParams {
+            variants: [VARIO_NETTO_MODE_VARIO, VARIO_NETTO_MODE_NETTO, VARIO_NETTO_MODE_NETTO_PLUS, "", ""],
+        })
+    }
+
+    fn set_content(cm: &mut CoreModel, cc: &mut CoreController, content: Content) {
+        if let Content::Enum(val) = content {
+            let vario_netto_mode = VarioNettoMode::from(val.as_str());
+            persist::persist_set(
+                cc,
+                cm,
+                Variant::U8(vario_netto_mode as u8),
+                PersistenceId::VarioNettoMode,
+                Echo::None,
+            );
         }
     }
 }

@@ -15,7 +15,7 @@ pub use config::{
     UnitHorizontalSpeed, UnitVerticalSpeed,
 };
 pub use control::{
-    CirclingDirection, Control, DataSource, EditMode, FlyMode, SystemState, TcrMode, VarioMode,
+    CirclingDirection, Control, DataSource, EditMode, FlyMode, SystemState, TcrMode, VarioNettoMode, VarioMode,
     VarioModeControl,
 };
 use device::Device;

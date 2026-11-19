@@ -28,7 +28,7 @@ use crate::{
         RemoteConfig,
     },
     flight_physics::polar_store,
-    model::{GpsState, UnitHeight, UnitHorizontalSpeed, UnitVerticalSpeed},
+    model::{GpsState, UnitHeight, UnitHorizontalSpeed, UnitVerticalSpeed, VarioNettoMode},
     set_snd_spreading_factor,
     system_of_units::Speed,
     utils::Variant,
@@ -104,7 +104,8 @@ pub enum PersistenceId {
     Waveform = 56,
     SoundSpreading = 57,
     SoundStfMode = 58,
-    LastItem = 59, // Items smaller than this are stored in eeprom
+    VarioNettoMode = 59,
+    LastItem = 60, // Items smaller than this are stored in eeprom
 
     // Special function Ids
     VarioMode = 65532,
@@ -176,6 +177,7 @@ const DELETE_CONFIG_LIST: &[PersistenceId] = &[
     PersistenceId::Waveform,
     PersistenceId::SoundSpreading,
     PersistenceId::SoundStfMode,
+    PersistenceId::VarioNettoMode,
 ];
 
 /// The following data is deleted when a new glider is selected
@@ -349,6 +351,7 @@ pub fn restore_item(
         }
         PersistenceId::SoundSpreading => set_snd_spreading_factor(cm, item.to_f32()?),
         PersistenceId::SoundStfMode => cm.config.snd_stf_mode = StfSoundMode::from(item.to_u8()),
+        PersistenceId::VarioNettoMode => cm.control.vario_netto_mode = VarioNettoMode::from(item.to_u8()),
 
         // Special function Ids
         PersistenceId::UserProfile => cm.config.user_profile = item.to_u8(),
@@ -359,6 +362,10 @@ pub fn restore_item(
         PersistenceId::DoNotStore => (),
         PersistenceId::LastItem => (),
     }
+
+    // We don't know, if someone has changed glider polar settings
+    cc.recalc_glider(cm);
+
     Ok(())
 }
 
@@ -526,9 +533,6 @@ pub fn store_persistence_ids(cm: &mut CoreModel, cc: &mut CoreController) {
         }
         cc.remote_val = None;
     }
-
-    // We don't know, if someone has changed glider polar settings
-    cc.recalc_glider(cm);
 }
 
 pub fn set_vario_mode(

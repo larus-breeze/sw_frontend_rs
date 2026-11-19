@@ -137,6 +137,89 @@ Innerhalb eines Toleranzbereichs von ±10 km/h gegenüber der Sollfahrt erfolgt 
 Neben den bereits beschriebenen akustischen Parametern lässt sich auch dieser Ruhebereich über die 
 Konfiguration individuell anpassen.]
 
+=== #hr[Vario Mode - Vario, Netto, Netto Plus]
+
+#tr[In der Standardkonfiguration zeigt das Display das von der LARUS-Sensoreinheit ermittelte Steigen oder 
+Sinken des Segelflugzeugs an. Dieser Wert setzt sich aus der meteorologisch bedingten Vertikalbewegung der 
+umgebenden Luftmasse und dem flugzeugbedingten Eigensinken zusammen.
+
+Insbesondere im schnellen Geradeausflug führt das zunehmende Eigensinken dazu, dass die angezeigte 
+Sinkgeschwindigkeit sehr groß wird. Dies erschwert dem Piloten die Beurteilung der meteorologischen 
+Verhältnisse.
+
+Um die Anzeige an unterschiedliche Anforderungen anzupassen, stehen über den Konfigurationsparameter VarioMode 
+drei Betriebsarten zur Verfügung: Vario, Netto und Netto Plus.
+
+*Vario*
+
+Im Modus Vario wird das tatsächliche Steigen oder Sinken des Segelflugzeugs angezeigt. Die Anzeige berücksichtigt 
+damit sowohl die Vertikalbewegung der Luftmasse als auch das geschwindigkeitsabhängige Eigensinken des Flugzeugs.
+
+*Netto*
+
+Im Modus Netto wird das anhand der Flugzeugpolare berechnete Eigensinken kompensiert. Die Anzeige entspricht damit 
+näherungsweise der vertikalen Bewegung der umgebenden Luftmasse und ist weitgehend unabhängig von der geflogenen 
+Geschwindigkeit. Da das Eigensinken herausgerechnet wird, zeigt das Netto-Vario im Aufwind einen höheren Wert als 
+das tatsächlich vom Segelflugzeug erreichte Steigen an. Diese Betriebsart eignet sich insbesondere zur Beurteilung 
+der meteorologischen Vertikalbewegungen und erleichtert das Erkennen von Aufwind- und Abwindgebieten.
+
+*Netto Plus*
+
+Der Modus Netto Plus kombiniert die Eigenschaften der beiden zuvor beschriebenen Betriebsarten. Bei 
+Fluggeschwindigkeiten unterhalb der Geschwindigkeit des besten Gleitens entspricht die Anzeige dem herkömmlichen 
+Variomodus. Bei höheren Geschwindigkeiten wird das geschwindigkeitsabhängige Eigensinken anhand der Flugzeugpolare 
+kompensiert. Zusätzlich wird ein konstanter Korrekturwert berücksichtigt, sodass die Anzeige weitgehend unabhängig 
+von der Fluggeschwindigkeit bleibt.
+
+Damit erhält der Pilot eine Abschätzung des Steigens, das er bei einer Verringerung der Fluggeschwindigkeit auf die 
+für den Kreisflug typische Geschwindigkeit in derselben Luftmasse erreichen könnte. Insbesondere im schnellen 
+Geradeausflug erleichtert diese Darstellung die Einschätzung, ob ein durchflogenes Aufwindgebiet für einen 
+anschließenden Kreisflug geeignet ist.]
+
+
+#tr[Die folgenden Beispiele veranschaulichen das Anzeigeverhalten der verschiedenen Vario-
+Betriebsarten anhand ausgewählter Flugsituationen im Geradeausflug:
+
+#align(left, block[
+    #figure(
+        table(
+            columns: (auto, auto, auto, auto, auto),
+            align: (left, auto, center, center, center),
+            table.hline(),
+            table.header(
+                [*Modus*],  [*Steigen*],    [*bei 80 km/h*],    [*bei 105 km/h*],   [*bei 180 km/h*],
+            ),
+            table.hline(),
+            [Vario],        [0 m/s],        [-0,6 m/s],         [-0,7 m/s],         [-1,9 m/s],
+            [Netto],        [0 m/s],        [0,0 m/s],          [0,0 m/s],          [0,0 m/s],
+            [Netto Plus],   [0 m/s],        [-0,6 m/s],         [-0,7 m/s],         [-0,7 m/s],
+            table.hline(),
+            [Vario],        [3 m/s],        [2,4 m/s],          [2,3 m/s],          [1,1 m/s],
+            [Netto],        [3 m/s],        [3,0 m/s],          [3,0 m/s],          [3,0 m/s],
+            [Netto Plus],   [3 m/s],        [2,4 m/s],          [2,3 m/s],          [2,3 m/s],
+            table.hline(),
+            [Vario],        [-2 m/s],       [-2,6 m/s],         [-2,7 m/s],         [-3,9 m/s],
+            [Netto],        [-2 m/s],       [-2,0 m/s],         [-2,0 m/s],         [2,0 m/s],
+            [Netto Plus],   [-2 m/s],       [-2,6 m/s],         [-2,7 m/s],         [-2,7 m/s],
+            table.hline(),
+        ),
+        caption: [#hr[Vario Anzeigen, verschiedene Steigwerte, Polare LS-3 WL]],
+    )
+])
+]
+
+#tr[Die Genauigkeit der Anzeige in den Modi Netto und Netto Plus hängt wesentlich von der 
+hinterlegten Flugzeugpolare ab. Die verwendete quadratische Näherung der tatsächlichen 
+Flugzeugpolare kann je nach Flugzeugtyp erhebliche Abweichungen aufweisen. Dies gilt 
+insbesondere für den Geschwindigkeitsbereich unterhalb der Geschwindigkeit des besten Gleitens.
+Darüber hinaus weisen die Polaren moderner Segelflugzeuge bei hohen Geschwindigkeiten häufig 
+einen ausgeprägten Knick auf, der durch eine einfache quadratische Funktion nicht ausreichend 
+abgebildet werden kann.
+
+Diese Abweichungen führen zu Fehlern bei der Berechnung des polaren Eigensinkens und beeinflussen 
+damit unmittelbar die Genauigkeit der Netto- und Netto-Plus-Anzeige. Besonders im reinen Netto-Modus 
+können daraus erhebliche Anzeigefehler resultieren.]
+
 === #hr[Warnungen]
 
 #figure(

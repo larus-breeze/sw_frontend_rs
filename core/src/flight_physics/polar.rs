@@ -176,8 +176,12 @@ impl Polar {
     /// 
     /// This is in theory equal to the meteorological sink rate
     pub fn netto_sink_rate(&self, sink_rate: Speed, speed: AirSpeed) -> Speed {
-        let polar_si = self.sink_rate(speed);
-        sink_rate - polar_si
+        if speed.tas().to_m_s() > 10.0 {
+            let polar_si = self.sink_rate(speed);
+            sink_rate - polar_si
+        } else {
+            sink_rate
+        }
     }
 
     /// Returns the expected sinkrate when circling

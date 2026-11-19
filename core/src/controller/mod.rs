@@ -123,8 +123,10 @@ impl CoreController {
         ]);
         scheduler.every(Timer::Ticker1Hz, 1.secs());
         scheduler.every(Timer::NmeaFast, 200.millis());
+        let mut polar = Polar::default();
+        polar.recalc_glider(&core_model.glider_data);
         Self {
-            polar: Polar::default(),
+            polar,
             drain_control: DrainControl::default(),
             flash_control: FlashControl::default(),
             speed_to_fly_control: SpeedToFlyControl::default(),
